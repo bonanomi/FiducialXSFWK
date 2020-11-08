@@ -88,83 +88,83 @@ int Fiducial(float Z1Flav,float Z2Flav,float Z1Mass,float Z2Mass,float lep1Iso,f
   //If they are different from 121 or 169 there are taus
   if(Z1Flav!=-121){
     if(Z1Flav!=-169){
-      return 1;
+      return false;
     }
   }
   if(Z2Flav!=-121){
     if(Z2Flav!=-169){
-      return 2;
+      return false;
     }
   }
 
   //Pseudorapidity + minimal common pt
   for(int i=0;i<lepSorted.size();i++){
     if(abs(lepIdSorted[i]) == 11){ //Electrons
-      if((lepSorted[i].Eta()>2.5) || (lepSorted[i].Pt()<7)) return 3;
+      if((lepSorted[i].Eta()>2.5) || (lepSorted[i].Pt()<7)) return false;
     }
     if(abs(lepSorted[i].M()) == 13){ //Muons
-      if((lepSorted[i].Eta()>2.4) || (lepSorted[i].Pt()<5)) return 4;
+      if((lepSorted[i].Eta()>2.4) || (lepSorted[i].Pt()<5)) return false;
     }
   }
 
   //Leading lepton
-  if(lepSorted[0].Pt()<20) return 5;
+  if(lepSorted[0].Pt()<20) return false;
 
   //Next-to-leading lepton
-  if(lepSorted[1].Pt()<10) return 6;
+  if(lepSorted[1].Pt()<10) return false;
 
   //Z's invariant mass
-  if((Z1Mass<40) || (Z1Mass>120)) return 7;
-  if((Z2Mass<12) || (Z2Mass>120)) return 8;
+  if((Z1Mass<40) || (Z1Mass>120)) return false;
+  if((Z2Mass<12) || (Z2Mass>120)) return false;
 
   //Invariant mass of the selected four leptons
   float m4l = (lepSorted[0]+lepSorted[1]+lepSorted[2]+lepSorted[3]).M();
-  if((m4l<105) || (m4l>140)) return 9;
+  if((m4l<105) || (m4l>140)) return false;
 
   //Distance between the selected four leptons
-  if(lepSorted[0].DeltaR(lepSorted[1])<0.02) return 10;
-  if(lepSorted[0].DeltaR(lepSorted[2])<0.02) return 11;
-  if(lepSorted[0].DeltaR(lepSorted[3])<0.02) return 12;
-  if(lepSorted[1].DeltaR(lepSorted[2])<0.02) return 13;
-  if(lepSorted[1].DeltaR(lepSorted[3])<0.02) return 14;
-  if(lepSorted[2].DeltaR(lepSorted[3])<0.02) return 15;
+  if(lepSorted[0].DeltaR(lepSorted[1])<0.02) return false;
+  if(lepSorted[0].DeltaR(lepSorted[2])<0.02) return false;
+  if(lepSorted[0].DeltaR(lepSorted[3])<0.02) return false;
+  if(lepSorted[1].DeltaR(lepSorted[2])<0.02) return false;
+  if(lepSorted[1].DeltaR(lepSorted[3])<0.02) return false;
+  if(lepSorted[2].DeltaR(lepSorted[3])<0.02) return false;
 
   //Invariant mass of any opposire sign lepton pair
   if(lepIdSorted[0]!=lepIdSorted[1]){
     float invMass = (lepSorted[0] + lepSorted[1]).M();
-    if(invMass<4) return 16;
+    if(invMass<4) return false;
   }
   if(lepIdSorted[0]!=lepIdSorted[2]){
     float invMass = (lepSorted[0] + lepSorted[2]).M();
-    if(invMass<4) return 17;
+    if(invMass<4) return false;
   }
   if(lepIdSorted[0]!=lepIdSorted[3]){
     float invMass = (lepSorted[0] + lepSorted[3]).M();
-    if(invMass<4) return 18;
+    if(invMass<4) return false;
   }
   if(lepIdSorted[1]!=lepIdSorted[2]){
     float invMass = (lepSorted[1] + lepSorted[2]).M();
-    if(invMass<4) return 19;
+    if(invMass<4) return false;
   }
   if(lepIdSorted[1]!=lepIdSorted[3]){
     float invMass = (lepSorted[1] + lepSorted[3]).M();
-    if(invMass<4) return 20;
+    if(invMass<4) return false;
   }
   if(lepIdSorted[2]!=lepIdSorted[3]){
     float invMass = (lepSorted[2] + lepSorted[3]).M();
-    if(invMass<4) return 21;
+    if(invMass<4) return false;
   }
 
   //Isolation
   if(iso==true){
-    if(lep1Iso>0.35) return 22;
-    if(lep2Iso>0.35) return 23;
-    if(lep3Iso>0.35) return 24;
-    if(lep4Iso>0.35) return 25;
+    if(lep1Iso>0.35) return false;
+    if(lep2Iso>0.35) return false;
+    if(lep3Iso>0.35) return false;
+    if(lep4Iso>0.35) return false;
   }
 
   //If all the conditions are satisfied -> events belonging to the fiducial phase space
-  return 0;
+  return true;
 }
 
 
@@ -179,7 +179,7 @@ void add(){
         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
   float _ZZy,ZZPt,ZZEta;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
-  int _passedFiducialSelection,_passedFiducialSelection_NOISO;
+  bool _passedFiducialSelection,_passedFiducialSelection_NOISO;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
   vector<Short_t> _GenLepIdSorted;
   vector<TLorentzVector> GenLepSorted;
@@ -187,7 +187,7 @@ void add(){
   TBranch *GenLepEtaSorted = T->Branch("GenLepEtaSorted",&_GenLepEtaSorted);
   TBranch *GenLepPhiSorted = T->Branch("GenLepPhiSorted",&_GenLepPhiSorted);
   TBranch *GenLepIdSorted = T->Branch("GenLepIdSorted",&_GenLepIdSorted);
-  TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/I");
+  TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/B");
   TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
   TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
   T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
@@ -283,7 +283,7 @@ void add_failed(){
   float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
-  int _passedFiducialSelection,_passedFiducialSelection_NOISO;
+  bool _passedFiducialSelection,_passedFiducialSelection_NOISO;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
   vector<Short_t> _GenLepIdSorted;
   vector<TLorentzVector> GenLepSorted;
@@ -291,7 +291,7 @@ void add_failed(){
   TBranch *GenLepEtaSorted = T->Branch("GenLepEtaSorted",&_GenLepEtaSorted);
   TBranch *GenLepPhiSorted = T->Branch("GenLepPhiSorted",&_GenLepPhiSorted);
   TBranch *GenLepIdSorted = T->Branch("GenLepIdSorted",&_GenLepIdSorted);
-  TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/I");
+  TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/B");
   TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
   T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
   T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);

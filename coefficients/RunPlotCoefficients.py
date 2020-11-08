@@ -5,9 +5,35 @@ import numpy as np
 import pandas as pd
 from math import sqrt, log
 import sys
+import optparse
 import itertools
 import math
 import json
+
+def parseOptions():
+
+    global opt, args, runAllSteps
+
+    usage = ('usage: %prog [options]\n'
+             + '%prog -h for help')
+    parser = optparse.OptionParser(usage)
+
+    # input options
+    parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
+    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    # store options and arguments as global variables
+    global opt, args
+    (opt, args) = parser.parse_args()
+
+    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+        sys.exit()
+
+
+# parse the arguments and options
+global opt, args, runAllSteps
+parseOptions()
 
 def tickBin(binning): # Create labels for each bin
     tick = []
@@ -102,12 +128,29 @@ eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
 key = 'candTree'
 key_failed = 'candTree_failed'
 # years = [2016, 2017, 2018]
-years = [2017]
+if (opt.YEAR == '2016'): years = [2016]
+if (opt.YEAR == '2017'): years = [2017]
+if (opt.YEAR == '2018'): years = [2018]
+if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-obs_bins = [0, 0.15, 0.3, 0.6, 0.9, 1.2, 2.5]
-obs_reco = 'ZZy'
-obs_gen = 'GenHRapidity'
-obs_name = 'rapidity4l'
-label = '|y$_H$|'
+obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+obs_name = opt.OBSNAME
+if(obs_name == 'rapidity4l'):
+    obs_reco = 'ZZy'
+    obs_gen = 'GenHRapidity'
+    label = '|y$_H$|'
+elif(obs_name == 'pT4l'):
+    obs_reco = 'ZZPt'
+    obs_gen = 'GenHPt'
+    label = 'p$_T^H$ (GeV)'
+elif(obs_name == 'massZ1'):
+    obs_reco = 'Z1Mass'
+    obs_gen = 'GenZ1Mass'
+    label = 'm$_{Z1}$ (GeV)'
+elif(obs_name == 'massZ2'):
+    obs_reco = 'Z2Mass'
+    obs_gen = 'genZ2Mass'
+    label = 'm$_{Z2}$ (GeV)'
 
 matrix(obs_bins, obs_reco, obs_gen, obs_name, label)
