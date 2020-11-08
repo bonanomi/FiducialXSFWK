@@ -2,7 +2,7 @@
 
 Framework for fiducial and differential cross section measurements using CJLST TTrees for Run 2 data.
 
-Before using this package setting up Combine:
+Before using this package, please setting up Combine:
 ```
 export SCRAM_ARCH=slc7_amd64_gcc700
 cmsrel CMSSW_10_2_13
@@ -17,7 +17,7 @@ scramv1 b clean; scramv1 b
 ```
 
 ## Brief presentation of the codes
-In this section a brief description of the codes is given, together with the ideal workflow to run the analysis
+In this section a quick description of the codes is given, together with the ideal workflow to run the analysis. Input files of the analysis workflow are the root files generated with [CJLST framework](https://github.com/AlessandroTarabini/ZZAnalysis/tree/Run2_CutBased_BTag16).
 1. **skim_MC_tree.cpp** and **skim_data_tree.cpp**: Starting from CJLST TTrees, the branches we are interested in are selected only, both for data and signal MC
 2. **templates** folder: Templates and normalization coefficients for the backgrounds' PDF are extracted from MC (ggZZ and qqZZ) and data (ZX)
 3. **coefficients** folder: All the coefficients of the signal parameterization are calculated
