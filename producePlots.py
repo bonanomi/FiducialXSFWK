@@ -27,6 +27,7 @@ def parseOptions():
     parser.add_option('',   '--setLog', action='store_true', dest='SETLOG', default=False, help='set plot to log scale y, default is False')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
     parser.add_option('',   '--lumiscale', type='string', dest='LUMISCALE', default='1.0', help='Scale yields')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -63,8 +64,12 @@ def plotXS(obsName, obs_bins):
     acc = _temp.acc
     # eff = _temp.eff
     # outinratio = _temp.outinratio
-    _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
-    acc_NNLOPS = _temp.acc
+    if(opt.YEAR=='Full'):
+        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
+        acc_NNLOPS = _temp.acc
+    else:
+        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+        acc_NNLOPS = _temp.acc
 
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
@@ -1313,12 +1318,19 @@ def plotXS(obsName, obs_bins):
     latex2.SetTextSize(0.5*c.GetTopMargin())
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
-    print opt.LUMISCALE
-    if (not opt.LUMISCALE=="1.0"):
-        lumi = round(137.1*float(opt.LUMISCALE),1)
-        latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
-    else:
-        latex2.DrawLatex(0.94, 0.94,"137.1 fb^{-1} (13 TeV)")
+    # print opt.LUMISCALE
+    # if (not opt.LUMISCALE=="1.0"):
+    #     lumi = round(137.1*float(opt.LUMISCALE),1)
+    #     latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
+    # else:
+    if(opt.YEAR=='2016'):
+        latex2.DrawLatex(0.92, 0.95,"35.9 fb^{-1} (13 TeV)")
+    if(opt.YEAR=='2017'):
+        latex2.DrawLatex(0.92, 0.95,"41.5 fb^{-1} (13 TeV)")
+    if(opt.YEAR=='2018'):
+        latex2.DrawLatex(0.92, 0.95,"59.7 fb^{-1} (13 TeV)")
+    if(opt.YEAR=='Full'):
+        latex2.DrawLatex(0.92, 0.95,"137 fb^{-1} (13 TeV)")
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
