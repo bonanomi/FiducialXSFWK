@@ -15,3 +15,7 @@ git fetch origin
 git checkout v8.1.0
 scramv1 b clean; scramv1 b
 ```
+
+## Brief presentation of the codes
+In this section a brief description of the codes is given, together with the ideal workflow to run the analysis
+1. **skim_MC_tree.cp** and **skim_data_tree.cpp**: Starting from CJLST TTrees, the branches we are interested in are selected only, both for data and MC. 
