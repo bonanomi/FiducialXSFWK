@@ -18,4 +18,9 @@ scramv1 b clean; scramv1 b
 
 ## Brief presentation of the codes
 In this section a brief description of the codes is given, together with the ideal workflow to run the analysis
-1. **skim_MC_tree.cp** and **skim_data_tree.cpp**: Starting from CJLST TTrees, the branches we are interested in are selected only, both for data and MC. 
+1. **skim_MC_tree.cpp** and **skim_data_tree.cpp**: Starting from CJLST TTrees, the branches we are interested in are selected only, both for data and signal MC
+2. **templates** folder: Templates and normalization coefficients for the backgrounds' PDF are extracted from MC (ggZZ and qqZZ) and data (ZX)
+3. **coefficients** folder: All the coefficients of the signal parameterization are calculated
+4. **fit** folder: The maximum likelihood fit is performed
+5. **LHScans**: Likelihood scans are plotted, best-fit values and the correspodnign uncertainties are calculated
+6. **producePlots.py**: Unfolded differential distributions are plotted
