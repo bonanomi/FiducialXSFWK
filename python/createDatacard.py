@@ -88,7 +88,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard/datacard_'+str(year)+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -122,7 +122,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('rate ')
     for i in range((len(observableBins)-1)+2): # In addition to the observableBins, there are out_trueH, fakeH
         file.write('1.0 ')
-    file.write(str(bkg_qqzz[str(year)+'_'+channel])+' '+str(bkg_ggzz[str(year)+'_'+channel])+' '+str(bkg_zx[str(year)+'_'+channel])+'\n')
+    file.write(str(bkg_qqzz[year+'_'+channel])+' '+str(bkg_ggzz[year+'_'+channel])+' '+str(bkg_zx[year+'_'+channel])+'\n')
     file.write('------------ \n')
 
     # norm_fake
@@ -132,33 +132,33 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('10.0 - - -    # [/10,*10]\n')
 
     # lumi
-    file.write('lumi_13TeV_'+str(year)+' lnN ')
+    file.write('lumi_13TeV_'+year+' lnN ')
     for i in range((len(observableBins)-1)+4): # All except ZX
-        file.write(lumi[str(year)]+' ')
+        file.write(lumi[year]+' ')
     file.write('-\n') # ZX
 
     # Lepton efficiency
     file.write('CMS_eff_m lnN ')
     for i in range((len(observableBins)-1)+4): # All except ZX
-        file.write(eff_mu[str(year)+'_'+channel]+' ')
+        file.write(eff_mu[year+'_'+channel]+' ')
     file.write('-\n') # ZX
     file.write('CMS_eff_e lnN ')
     for i in range((len(observableBins)-1)+4): # All except ZX
-        file.write(eff_e[str(year)+'_'+channel]+' ')
+        file.write(eff_e[year+'_'+channel]+' ')
     file.write('-\n') # ZX
 
     # ZX
-    file.write('CMS_hzz'+channel+'_Zjets_'+str(year)+' lnN ')
+    file.write('CMS_hzz'+channel+'_Zjets_'+year+' lnN ')
     for i in range((len(observableBins)-1)+4): # All except ZX
         file.write('- ')
-    file.write(ZX[str(year)+'_'+channel]+'\n')
+    file.write(ZX[year+'_'+channel]+'\n')
 
     # Param
-    file.write('CMS_zz4l_mean_m_sig_'+str(year)+' param 0.0 1.0\n')
-    file.write('CMS_zz4l_mean_e_sig_'+str(year)+' param 0.0 1.0\n')
-    file.write('CMS_zz4l_sigma_m_sig_'+str(year)+' param 0.0 0.2 [-1,1]\n')
-    file.write('CMS_zz4l_sigma_e_sig_'+str(year)+' param 0.0 0.2 [-1,1]\n')
-    file.write('CMS_zz4l_n_sig_3_'+str(year)+' param 0.0 0.05\n')
+    file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
+    file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
+    file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.2 [-1,1]\n')
+    file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.2 [-1,1]\n')
+    file.write('CMS_zz4l_n_sig_3_'+year+' param 0.0 0.05\n')
 
     # Theoretical
     file.write('QCDscale_ggVV lnN ')

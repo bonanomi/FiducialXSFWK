@@ -210,7 +210,7 @@ def dataframes(year):
                  'GenLep1Phi', 'GenLep2Phi', 'GenLep3Phi', 'GenLep4Phi',
                  'GenLep1Id', 'GenLep2Id', 'GenLep3Id', 'GenLep4Id',
                  'GenLepPtSorted', 'GenLepEtaSorted', 'GenLepPhiSorted', 'GenLepIdSorted',
-                 'GenAssocLep1Id', 'GenAssocLep2Id', 'GenAssocLep1Pt', 'GenAssocLep2Pt', 'passedFiducialSelection',
+                 'GenAssocLep1Id', 'GenAssocLep2Id', 'GenAssocLep1Pt', 'GenAssocLep2Pt', 'passedFiducialSelection_NOISO',
                  'LepPt', 'LepEta', 'LepPhi', 'LepLepId',
                  'PUWeight', 'genHEPMCweight', 'overallEventWeight', 'L1prefiringWeight',
                  'dataMCWeight', 'trigEffWeight']
@@ -257,7 +257,7 @@ def dataframes(year):
                  'GenLep1Phi', 'GenLep2Phi', 'GenLep3Phi', 'GenLep4Phi',
                  'GenLep1Id', 'GenLep2Id', 'GenLep3Id', 'GenLep4Id',
                  'GenLepPtSorted', 'GenLepEtaSorted', 'GenLepPhiSorted', 'GenLepIdSorted',
-                 'GenAssocLep1Id', 'GenAssocLep2Id', 'GenAssocLep1Pt', 'GenAssocLep2Pt', 'passedFiducialSelection',
+                 'GenAssocLep1Id', 'GenAssocLep2Id', 'GenAssocLep1Pt', 'GenAssocLep2Pt', 'passedFiducialSelection_NOISO',
                  'PUWeight', 'genHEPMCweight']
         if signal == 'ggH125':
             b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
@@ -352,8 +352,8 @@ def getCoeff(channel, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, 
 #         cutnoth4l_reco = (d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (d_sig_tot[year][signal].GenAssocLep1Id != 0)
         cuth4l_reco = d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))
         cutnoth4l_reco = d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))
-        PassedFiducialSelection = d_sig_tot[year][signal]['passedFiducialSelection'] == True
-        NotPassedFiducialSelection = d_sig_tot[year][signal]['passedFiducialSelection'] != True
+        PassedFiducialSelection = d_sig_tot[year][signal]['passedFiducialSelection_NOISO'] == True
+        NotPassedFiducialSelection = d_sig_tot[year][signal]['passedFiducialSelection_NOISO'] != True
         cutchan_gen = d_sig_tot[year][signal]['FinState_gen'] == channel
         cutchan_reco = d_sig_tot[year][signal]['FinState_reco'] == channel #AT
         cutobs_gen = (abs(d_sig_tot[year][signal][obs_gen]) >= obs_gen_low) & (abs(d_sig_tot[year][signal][obs_gen]) < obs_gen_high)
@@ -450,6 +450,151 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins):
             f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
             f.write('number_fake = '+str(numberFake))
 
+# ------------------------------- FUNCTIONS TO CALCULATE COEFFICIENTS FullRun2----------------------------------------------------
+def geteffs_full(channel, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name):
+    #RecoBin limits I'm considering
+    obs_reco_low = obs_bins[recobin]
+    obs_reco_high = obs_bins[recobin+1]
+    #GenBin limits I'm considering
+    obs_gen_low = obs_bins[genbin]
+    obs_gen_high = obs_bins[genbin+1]
+    #Extrimities of gen area
+    obs_gen_lowest = obs_bins[0]
+    obs_gen_highest = obs_bins[len(obs_bins)-1]
+    for signal in signals:
+        processBin = signal+'_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+        # Selections
+        cutm4l_reco = (d_sig_full[signal]['ZZMass'] >= m4l_low) & (d_sig_full[signal]['ZZMass'] <= m4l_high)
+        cutobs_reco = (abs(d_sig_full[signal][obs_reco]) >= obs_reco_low) & (abs(d_sig_full[signal][obs_reco]) < obs_reco_high)
+        PassedFullSelection = d_sig_full[signal]['FinState_reco'] != 'fail'
+#         cuth4l_reco = (d_sig_full[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))) | ((d_sig_full[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (d_sig_full[year][signal].GenAssocLep1Id == 0))
+#         cutnoth4l_reco = (d_sig_full[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (d_sig_full[year][signal].GenAssocLep1Id != 0)
+        cuth4l_reco = d_sig_full[signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))
+        cutnoth4l_reco = d_sig_full[signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))
+        PassedFiducialSelection = d_sig_full[signal]['passedFiducialSelection_NOISO'] == True
+        NotPassedFiducialSelection = d_sig_full[signal]['passedFiducialSelection_NOISO'] != True
+        cutchan_gen = d_sig_full[signal]['FinState_gen'] == channel
+        cutchan_reco = d_sig_full[signal]['FinState_reco'] == channel #AT
+        cutobs_gen = (abs(d_sig_full[signal][obs_gen]) >= obs_gen_low) & (abs(d_sig_full[signal][obs_gen]) < obs_gen_high)
+        cutobs_gen_otherfid = ((abs(d_sig_full[signal][obs_gen]) >= obs_gen_lowest) & (abs(d_sig_full[signal][obs_gen]) < obs_gen_low)) | ((abs(d_sig_full[signal][obs_gen]) >= obs_gen_high) & (abs(d_sig_full[signal][obs_gen]) <= obs_gen_highest))
+        # --------------- acceptance ---------------
+        acc_num = d_sig_full[signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_histo_gen'].sum()
+        acc_den = d_sig_full[signal][cutchan_gen]['weight_histo_gen'].sum()
+        acceptance[processBin] = acc_num/acc_den
+        #Error
+        acc_num = d_sig_full[signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
+        acc_den = d_sig_full[signal][cutchan_gen]['weight_gen'].sum()
+        acc = acc_num/acc_den
+        err_acceptance[processBin] = sqrt((acc*(1-acc))/acc_den)
+        # --------------- EffRecoToFid ---------------
+        eff_num = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection & cuth4l_reco &
+                                       PassedFiducialSelection & cutchan_gen & cutobs_gen]['weight_histo_reco'].sum()
+        eff_den = d_sig_full[signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_histo_gen'].sum()
+        effrecotofid[processBin] = eff_num/eff_den
+        if effrecotofid[processBin] == 0: effrecotofid[processBin] = 1e-06
+        #Error
+        eff_num = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection & cuth4l_reco &
+                                       PassedFiducialSelection & cutchan_gen & cutobs_gen]['weight_reco'].sum()
+        eff_den = d_sig_full[signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
+        eff = eff_num/eff_den
+        if (eff*(1-eff))/eff_den > 0:
+            err_effrecotofid[processBin] = sqrt((eff*(1-eff))/eff_den)
+        else:
+            err_effrecotofid[processBin] = 0.00001
+        # --------------- outinratio ---------------
+        oir_num = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+                                       cuth4l_reco & NotPassedFiducialSelection & cutchan_reco]['weight_histo_reco'].sum()
+        oir_den_1 = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+                                         cuth4l_reco & PassedFiducialSelection &
+                                         cutchan_gen & cutobs_gen]['weight_histo_reco'].sum()
+        oir_den_2 = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+                                         cuth4l_reco & PassedFiducialSelection &
+                                         cutchan_gen & cutobs_gen_otherfid]['weight_histo_reco'].sum()
+        outinratio[processBin] = oir_num/(oir_den_1+oir_den_2)
+        #Error
+        oir_num = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+                                       cuth4l_reco & NotPassedFiducialSelection & cutchan_reco]['weight_reco'].sum()
+        oir_den_1 = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+                                         cuth4l_reco & PassedFiducialSelection &
+                                         cutchan_gen & cutobs_gen]['weight_reco'].sum()
+        oir_den_2 = d_sig_full[signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+                                         cuth4l_reco & PassedFiducialSelection &
+                                         cutchan_gen & cutobs_gen_otherfid]['weight_reco'].sum()
+        out = oir_num/(oir_den_1+oir_den_2)
+        if (out*(1-out))/(oir_den_1+oir_den_2) > 0:
+            err_effrecotofid[processBin] = sqrt((out*(1-out))/(oir_den_1+oir_den_2))
+        else:
+            err_effrecotofid[processBin] = 0.00001
+        # --------------- wrongfrac ---------------
+        wf_num = d_sig_full[signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco]['weight_histo_reco'].sum()
+        wf_den = d_sig_full[signal][PassedFullSelection & cutm4l_reco]['weight_histo_reco'].sum()
+        wrongfrac[processBin] = wf_num/wf_den
+        # --------------- binfrac_wrongfrac ---------------
+        binwf_num = d_sig_full[signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco]['weight_histo_reco'].sum()
+        binwf_den = d_sig_full[signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco]['weight_histo_reco'].sum()
+        if binwf_den == 0: binwf_den = 1e-06 #To avoid the division by zero
+        binfrac_wrongfrac[processBin] = binwf_num/binwf_den
+        # --------------- numberFake ---------------
+        numberFake[processBin] = d_sig_full[signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco & cutchan_reco]['weight_histo_reco'].sum()
+def doGetEffFull(obs_reco, obs_gen, obs_name, obs_bins):
+    chans = ['4e', '4mu', '2e2mu']
+    m4l_bins = 35
+    m4l_low = 105.0
+    m4l_high = 140.0
+    for chan in chans:
+        for recobin in range(len(obs_bins)-1):
+            for genbin in range(len(obs_bins)-1):
+                geteffs_full(chan, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name)
+    with open('../inputs/inputs_sig_'+obs_name+'_Full.py', 'w') as f:
+        f.write('observableBins = '+str(obs_bins)+';\n')
+        f.write('acc = '+str(acceptance)+' \n')
+        f.write('err_acc = '+str(err_acceptance)+' \n')
+        f.write('eff = '+str(effrecotofid)+' \n')
+        f.write('err_eff = '+str(err_effrecotofid)+' \n')
+        f.write('outinratio = '+str(outinratio)+' \n')
+        f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
+        f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
+        f.write('number_fake = '+str(numberFake))
+
+def getaccNNLOPS_full(channel, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name):
+    #RecoBin limits I'm considering
+    obs_reco_low = obs_bins[recobin]
+    obs_reco_high = obs_bins[recobin+1]
+    #GenBin limits I'm considering
+    obs_gen_low = obs_bins[genbin]
+    obs_gen_high = obs_bins[genbin+1]
+    #Extrimities of gen area
+    obs_gen_lowest = obs_bins[0]
+    obs_gen_highest = obs_bins[len(obs_bins)-1]
+    signal = 'ggH125'
+    processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+    # Selections
+    PassedFiducialSelection = d_sig_full[signal]['passedFiducialSelection_NOISO'] == True
+    cutchan_gen = d_sig_full[signal]['FinState_gen'] == channel
+    cutobs_gen = (abs(d_sig_full[signal][obs_gen]) >= obs_gen_low) & (abs(d_sig_full[signal][obs_gen]) < obs_gen_high)
+    # --------------- acceptance ---------------
+    acc_num = d_sig_full[signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_histo_gen_NNLOPS'].sum()
+    acc_den = d_sig_full[signal][cutchan_gen]['weight_histo_gen_NNLOPS'].sum()
+    acceptance[processBin] = acc_num/acc_den
+    #Error
+    acc_num = d_sig_full[signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen_NNLOPS'].sum()
+    acc_den = d_sig_full[signal][cutchan_gen]['weight_gen_NNLOPS'].sum()
+    acc = acc_num/acc_den
+    err_acceptance[processBin] = sqrt((acc*(1-acc))/acc_den)
+def doGetEffFullNNLOPS(obs_reco, obs_gen, obs_name, obs_bins):
+    chans = ['4e', '4mu', '2e2mu']
+    m4l_bins = 35
+    m4l_low = 105.0
+    m4l_high = 140.0
+    for chan in chans:
+        for recobin in range(len(obs_bins)-1):
+            for genbin in range(len(obs_bins)-1):
+                getaccNNLOPS_full(chan, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name)
+    with open('../inputs/inputs_sig_'+obs_name+'_NNLOPS_Full.py', 'w') as f:
+        f.write('observableBins = '+str(obs_bins)+';\n')
+        f.write('acc = '+str(acceptance)+' \n')
+        f.write('err_acc = '+str(err_acceptance)+' \n')
+
 # -----------------------------------------------------------------------------------------
 # ------------------------------- MAIN ----------------------------------------------------
 # -----------------------------------------------------------------------------------------
@@ -502,5 +647,18 @@ err_effrecotofid = {}
 acceptance = {}
 err_acceptance = {}
 numberFake = {}
-
 doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins)
+
+wrongfrac = {}
+binfrac_wrongfrac = {}
+binfrac_outfrac = {}
+outinratio = {}
+effrecotofid = {}
+err_effrecotofid = {}
+acceptance = {}
+err_acceptance = {}
+numberFake = {}
+doGetEffFull(obs_reco, obs_gen, obs_name, obs_bins)
+acceptance = {}
+err_acceptance = {}
+doGetEffFullNNLOPS(obs_reco, obs_gen, obs_name, obs_bins)

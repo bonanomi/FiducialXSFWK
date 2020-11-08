@@ -348,9 +348,9 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 histo.Write()
                 outFile.Close()
                 histo.Delete()
-        # with open('../inputs/inputs_bkg_'+var_string+'_'+str(year)+'.py', 'w') as f:
-        #     f.write('observableBins = '+json.dumps(binning)+';\n')
-        #     f.write('fractionsBackground = '+json.dumps(fractionBkg))
+        with open('../inputs/inputs_bkg_'+var_string+'_'+str(year)+'.py', 'w') as f:
+            f.write('observableBins = '+json.dumps(binning)+';\n')
+            f.write('fractionsBackground = '+json.dumps(fractionBkg))
 
 # -----------------------------------------------------------------------------------------
 # ------------------------------- MAIN ----------------------------------------------------

@@ -38,7 +38,7 @@ global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
 
-sys.path.append('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/inputs')
+sys.path.append('../inputs')
 obsName = opt.OBSNAME
 
 observableBins = opt.OBSBINS

@@ -4,7 +4,7 @@
 import ROOT
 import os,sys
 
-sys.path.append('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/inputs')
+sys.path.append('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/inputs')
 
 def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year):
     print '\n'
@@ -22,7 +22,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     doJES = 0
 
     # Load some libraries
-    ROOT.gSystem.AddIncludePath("-I/eos/user/a/atarabin/CMSSW_10_2_13/src/ ")
+    ROOT.gSystem.AddIncludePath("-I/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/ ")
     ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so") #Print 0 in case of succesfull loading
     ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include")
     ROOT.gSystem.AddIncludePath("-Iinclude/")
@@ -31,12 +31,12 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     #from inputs_sig imports some coefficients
     if (usecfactor):
-        _temp = __import__('inputs_sig_'+obsName+'_'+str(year), globals(), locals(), ['cfactor','inc_wrongfrac','binfrac_wrongfrac','inc_outfrac','binfrac_outfrac'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['cfactor','inc_wrongfrac','binfrac_wrongfrac','inc_outfrac','binfrac_outfrac'], -1)
         cfactor = _temp.cfactor
         inc_outfrac = _temp.inc_outfrac
         binfrac_outfrac = _temp.binfrac_wrongfrac
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_'+str(year), globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio','number_fake'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio','number_fake'], -1)
         acc = _temp.acc
         eff = _temp.eff
         outinratio = _temp.outinratio
@@ -50,7 +50,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     higgs4l_br = _temp.higgs4l_br
 
     #from inputs_bkg_{obsName} import fractionsBackground
-    _temp = __import__('inputs_bkg_'+obsName+'_'+str(year), globals(), locals(), ['fractionsBackground'], -1)
+    _temp = __import__('inputs_bkg_'+obsName+'_'+year, globals(), locals(), ['fractionsBackground'], -1)
     fractionsBackground = _temp.fractionsBackground
 
     # mass4e = ROOT.RooRealVar("mass4e", "mass4e", 105.0, 140.0)
@@ -71,7 +71,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     # Parameters of doubleCB signal
     m = ROOT.RooRealVar("CMS_zz4l_mass", "CMS_zz4l_mass", 105.0, 140.0)
     MH = ROOT.RooRealVar("MH","MH",125.7,109.55,1000.05)
-    if(year == 2018):
+    if(year == '2018'):
         CMS_zz4l_mean_m_sig_2018 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2018","CMS_zz4l_mean_m_sig_2018",-10,10)
         CMS_zz4l_mean_e_sig_2018 = ROOT.RooRealVar("CMS_zz4l_mean_e_sig_2018","CMS_zz4l_mean_e_sig_2018",-10,10)
         CMS_zz4l_sigma_m_sig_2018 = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig_2018","CMS_zz4l_sigma_m_sig_2018",-10,10)
@@ -126,7 +126,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             p2_32018 = ROOT.RooFormulaVar("CMS_fakeH_p2_32018","p2_32018","0.72*@0-@1",ROOT.RooArgList(p1_32018,p3_32018))
             fakeH = ROOT.RooLandau("fakeH", "landau", m, p1_32018, p2_32018)
 
-    elif(year == 2017):
+    elif(year == '2017'):
         CMS_zz4l_mean_m_sig_2017 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2017","CMS_zz4l_mean_m_sig_2017",-10,10)
         CMS_zz4l_mean_e_sig_2017 = ROOT.RooRealVar("CMS_zz4l_mean_e_sig_2017","CMS_zz4l_mean_e_sig_2017",-10,10)
         CMS_zz4l_sigma_m_sig_2017 = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig_2017","CMS_zz4l_sigma_m_sig_2017",-10,10)
@@ -181,7 +181,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             p2_32017 = ROOT.RooFormulaVar("CMS_fakeH_p2_32017","p2_32017","0.72*@0-@1",ROOT.RooArgList(p1_32017,p3_32017))
             fakeH = ROOT.RooLandau("fakeH", "landau", m, p1_32017, p2_32017)
 
-    elif(year == 2016):
+    elif(year == '2016'):
           CMS_zz4l_mean_m_sig_2016 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2016","CMS_zz4l_mean_m_sig_2016",-10,10)
           CMS_zz4l_mean_e_sig_2016 = ROOT.RooRealVar("CMS_zz4l_mean_e_sig_2016","CMS_zz4l_mean_e_sig_2016",-10,10)
           CMS_zz4l_sigma_m_sig_2016 = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig_2016","CMS_zz4l_sigma_m_sig_2016",-10,10)
@@ -273,7 +273,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     n_fakeH = numberFake_WH + numberFake_ZH + numberFake_ttH
 
-    n_fakeH_var = ROOT.RooRealVar("n_fakeH_var_"+recobin+"_"+channel+"_"+str(year),"n_fakeH_var_"+recobin+"_"+channel+"_"+str(year),n_fakeH);
+    n_fakeH_var = ROOT.RooRealVar("n_fakeH_var_"+recobin+"_"+channel+"_"+year,"n_fakeH_var_"+recobin+"_"+channel+"_"+year,n_fakeH);
 
     fakeH_norm = ROOT.RooFormulaVar("fakeH_norm","@0",ROOT.RooArgList(n_fakeH_var))
 
@@ -291,7 +291,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         print "fideff[genbin]", fideff[genbin]
         print "model name is ", modelName
-        fideff_var[genbin] = ROOT.RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+str(year),"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+str(year), fideff[genbin]);
+        fideff_var[genbin] = ROOT.RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff[genbin]);
 
         if( not (obsName=='nJets' or ("jet" in obsName)) or (not doJES)) :
             trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
@@ -339,13 +339,13 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             rBin_channel[str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
             rBin_channel[str(genbin)].setConstant(True)
             if (obsName == "nJets" or ("jet" in obsName)):
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+str(year)+"_final","@0*@1*@2*(1-@3)", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
+                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2*(1-@3)", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
             else:
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+str(year)+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
+                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
 
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin
-    outin_var = ROOT.RooRealVar("outfracBin_"+recobin+"_"+channel+str(year),"outfracBin_"+recobin+"_"+channel+str(year), outin);
+    outin_var = ROOT.RooRealVar("outfracBin_"+recobin+"_"+channel+year,"outfracBin_"+recobin+"_"+channel+year, outin);
     outin_var.setConstant(True)
     out_trueH_norm_args = ROOT.RooArgList(outin_var)
     out_trueH_norm_func = "@0*("
@@ -356,26 +356,26 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     out_trueH_norm = ROOT.RooFormulaVar("out_trueH_norm",out_trueH_norm_func,out_trueH_norm_args)
 
     frac_qqzz = fractionsBackground['qqzz_'+channel+'_'+obsName+'_'+recobin]
-    frac_qqzz_var  = ROOT.RooRealVar("frac_qqzz_"+recobin+"_"+channel+"_"+str(year),"frac_qqzz_"+recobin+"_"+channel+"_"+str(year), frac_qqzz);
+    frac_qqzz_var  = ROOT.RooRealVar("frac_qqzz_"+recobin+"_"+channel+"_"+year,"frac_qqzz_"+recobin+"_"+channel+"_"+year, frac_qqzz);
 
     frac_ggzz = fractionsBackground['ggzz_'+channel+'_'+obsName+'_'+recobin]
-    frac_ggzz_var = ROOT.RooRealVar("frac_ggzz_"+recobin+"_"+channel+"_"+str(year),"frac_ggzz_"+recobin+"_"+channel+"_"+str(year), frac_ggzz);
+    frac_ggzz_var = ROOT.RooRealVar("frac_ggzz_"+recobin+"_"+channel+"_"+year,"frac_ggzz_"+recobin+"_"+channel+"_"+year, frac_ggzz);
 
     # frac_zjets = fractionsBackground['ZJetsCR_AllChans_'+obsName+'_'+recobin]
-    # frac_zjets_var = ROOT.RooRealVar("frac_zjet_"+recobin+"_"+channel+"_"+str(year),"frac_zjet_"+recobin+"_"+channel+"_"+str(year), frac_zjets);
+    # frac_zjets_var = ROOT.RooRealVar("frac_zjet_"+recobin+"_"+channel+"_"+year,"frac_zjet_"+recobin+"_"+channel+"_"+year, frac_zjets);
     frac_zjets = fractionsBackground['ZJetsCR_'+channel+'_'+obsName+'_'+recobin]
-    frac_zjets_var = ROOT.RooRealVar("frac_zjet_"+recobin+"_"+channel+"_"+str(year),"frac_zjet_"+recobin+"_"+channel+"_"+str(year), frac_zjets);
+    frac_zjets_var = ROOT.RooRealVar("frac_zjet_"+recobin+"_"+channel+"_"+year,"frac_zjet_"+recobin+"_"+channel+"_"+year, frac_zjets);
 
 
     print obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets
 
-    template_qqzzName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+str(year)+"/"+obsName+"/XSBackground_qqzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
-    template_ggzzName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+str(year)+"/"+obsName+"/XSBackground_ggzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
-    template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+str(year)+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    template_qqzzName = "../../templates/"+year+"/"+obsName+"/XSBackground_qqzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    template_ggzzName = "../../templates/"+year+"/"+obsName+"/XSBackground_ggzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    template_zjetsName = "../../templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
     # if (not obsName=="mass4l"):
-    #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+str(year)+"/"+obsName+"/XSBackground_ZJetsCR_AllChans_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_AllChans_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
     # else:
-    #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+str(year)+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
 
     qqzzTempFile = ROOT.TFile(template_qqzzName,"READ")
     qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+obsBin_low+"_"+obsBin_high)
@@ -404,9 +404,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         for j in range(binscale):
             zjetsTemplateNew.SetBinContent((i-1)*binscale+j+1,zjetsTemplate.GetBinContent(i)/binscale)
 
-    qqzzTemplateName = "qqzz_"+channel+recobin+str(year)
-    ggzzTemplateName = "ggzz_"+channel+recobin+str(year)
-    zjetsTemplateName = "zjets_"+channel+recobin+str(year)
+    qqzzTemplateName = "qqzz_"+channel+recobin+year
+    ggzzTemplateName = "ggzz_"+channel+recobin+year
+    zjetsTemplateName = "zjets_"+channel+recobin+year
 
     qqzzTempDataHist = ROOT.RooDataHist(qqzzTemplateName,qqzzTemplateName,ROOT.RooArgList(m),qqzzTemplateNew)
     ggzzTempDataHist = ROOT.RooDataHist(ggzzTemplateName,ggzzTemplateName,ROOT.RooArgList(m),ggzzTemplateNew)
@@ -428,12 +428,12 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0*(1-@1)", ROOT.RooArgList(frac_zjets_var, JES_zjets_rfv) )
 
     # Data
-    # if not os.path.isfile('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/reducedTree_'+str(year)+'.root'):
+    # if not os.path.isfile('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/reducedTree_'+year+'.root'):
     #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS')
     #     os.system('c++ -o  skim_data_tree skim_data_tree.cpp `root-config --cflags --glibs`')
     #     os.system('./skim_data_tree '+year)
-    #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard_'+str(year))
-    data_obs_file = ROOT.TFile('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/reducedTree_'+str(year)+'.root')
+    #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard_'+year)
+    data_obs_file = ROOT.TFile('../../reducedTree_'+year+'.root')
     data_obs_tree = data_obs_file.Get('candTree')
 
     print obsName,obsBin_low,obsBin_high
@@ -493,14 +493,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     if (addfakeH):
         if (usecfactor):
-            fout = ROOT.TFile("hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".Cfactor.root","RECREATE")
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.Cfactor.root','RECREATE')
         else:
-            fout = ROOT.TFile("hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".root","RECREATE")
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root','RECREATE')
     else:
         if (usecfactor):
-            fout = ROOT.TFile("hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".Cfactor.NoFakeH.root","RECREATE")
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.Cfactor.NoFakeH.root','RECREATE')
         else:
-            fout = ROOT.TFile("hzz4l_"+channel+"S_13TeV_xs_"+modelName+"_"+obsName+"_"+physicalModel+".Databin"+str(obsBin)+".NoFakeH.root","RECREATE")
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.NoFakeH.root','RECREATE')
 
     print "write ws to fout"
     fout.WriteTObject(wout)
