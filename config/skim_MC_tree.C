@@ -1,5 +1,4 @@
-// c++ -o  skim_MC_tree skim_MC_tree.cpp `root-config --cflags --glibs`
-// ./skim_MC_tree (prod_mod) (year)
+// root -l skim_MC_tree.C (prod_mod) (year)
 
 #include<iostream>
 #include<fstream>
@@ -27,10 +26,6 @@
 #include<algorithm>
 
 using namespace std;
-
-TString input_dir = "/eos/user/a/atarabin/MC_samples";
-TString prod_mode;
-TString year;
 
 float mass_lep(int flavour){
   if((abs(flavour)) == 11) return 0.0005109989461;
@@ -74,7 +69,6 @@ pair<vector<TLorentzVector>,vector<Short_t>> sort_2(vector<TLorentzVector> lep,v
     sortedLep.push_back(lep[max]);
     sortedId.push_back(id[max]);
     lep.erase(lep.begin()+max);
-    id.erase(id.begin()+max);
   }
   return make_pair(sortedLep,sortedId);
 }
@@ -170,15 +164,22 @@ int Fiducial(float Z1Flav,float Z2Flav,float Z1Mass,float Z2Mass,float lep1Iso,f
 
 
   //------------------------------------------------------------------
-void add(){
+void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true){
   // Add additional branches
   TString new_name = Form("reducedTree_MC_%s_%s.root", year.Data(), prod_mode.Data());
   TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
   TFile *f = new TFile(new_full_path.Data(),"UPDATE");
-  TTree *T = (TTree*)f->Get("candTree");
+  TTree *T;
+  if (t_failed) {
+    std::cout << "Filling TTree _failed" << std::endl;
+    T = (TTree*)f->Get("candTree_failed");
+  } else {
+    std::cout << "Filling TTree ZZ cands" << std::endl;
+    T = (TTree*)f->Get("candTree");
+  }
+  std::cout << T->GetName() << std::endl;
   float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
-  float _ZZy,ZZPt,ZZEta;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
   bool _passedFiducialSelection,_passedFiducialSelection_NOISO;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
@@ -190,7 +191,7 @@ void add(){
   TBranch *GenLepIdSorted = T->Branch("GenLepIdSorted",&_GenLepIdSorted);
   TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/B");
   TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
-  TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
+
   T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
   T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);
   T->SetBranchAddress("GenLep3Pt",&GenLep3Pt);
@@ -215,8 +216,13 @@ void add(){
   T->SetBranchAddress("GenZ2Flav",&GenZ2Flav);
   T->SetBranchAddress("GenZ1Mass",&GenZ1Mass);
   T->SetBranchAddress("GenZ2Mass",&GenZ2Mass);
-  T->SetBranchAddress("ZZPt",&ZZPt);
-  T->SetBranchAddress("ZZEta",&ZZEta);
+  float _ZZy,ZZPt,ZZEta;
+  TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
+
+  if (!t_failed) {
+    T->SetBranchAddress("ZZPt",&ZZPt);
+    T->SetBranchAddress("ZZEta",&ZZEta);
+  }
 
   Long64_t nentries = T->GetEntries();
   for (Long64_t i=0;i<nentries;i++) {
@@ -252,133 +258,38 @@ void add(){
     _passedFiducialSelection = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,true);
     _passedFiducialSelection_NOISO = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,false);
 
+    GenLepPtSorted->Fill();
+    GenLepEtaSorted->Fill();
+    GenLepPhiSorted->Fill();
+    GenLepIdSorted->Fill();
+    passedFiducialSelection->Fill();
+    passedFiducialSelection_NOISO->Fill();
+
+    GenLepSorted.clear();
+    _GenLepPtSorted.clear();
+    _GenLepEtaSorted.clear();
+    _GenLepPhiSorted.clear();
+    _GenLepIdSorted.clear();
+    
+    if (t_failed) continue;
 
     // Reco-rapidity
     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
-
     ZZy->Fill();
-    GenLepPtSorted->Fill();
-    GenLepEtaSorted->Fill();
-    GenLepPhiSorted->Fill();
-    GenLepIdSorted->Fill();
-    passedFiducialSelection->Fill();
-    passedFiducialSelection_NOISO->Fill();
-
-    GenLepSorted.clear();
-    _GenLepPtSorted.clear();
-    _GenLepEtaSorted.clear();
-    _GenLepPhiSorted.clear();
-    _GenLepIdSorted.clear();
+      
   }
-  T->Print();
-  T->Write("", TObject::kOverwrite);
-  delete f;
-  return;
-}
 
-void add_failed(){
-  TString new_name = Form("reducedTree_MC_%s_%s.root", year.Data(), prod_mode.Data());
-  TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
-  TFile *f = new TFile(new_full_path.Data(),"UPDATE");
-  TTree *T = (TTree*)f->Get("candTree_failed");
-  float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
-        GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
-  Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
-  bool _passedFiducialSelection,_passedFiducialSelection_NOISO;
-  vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
-  vector<Short_t> _GenLepIdSorted;
-  vector<TLorentzVector> GenLepSorted;
-  TBranch *GenLepPtSorted = T->Branch("GenLepPtSorted",&_GenLepPtSorted);
-  TBranch *GenLepEtaSorted = T->Branch("GenLepEtaSorted",&_GenLepEtaSorted);
-  TBranch *GenLepPhiSorted = T->Branch("GenLepPhiSorted",&_GenLepPhiSorted);
-  TBranch *GenLepIdSorted = T->Branch("GenLepIdSorted",&_GenLepIdSorted);
-  TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/B");
-  TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
-  T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
-  T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);
-  T->SetBranchAddress("GenLep3Pt",&GenLep3Pt);
-  T->SetBranchAddress("GenLep4Pt",&GenLep4Pt);
-  T->SetBranchAddress("GenLep1Eta",&GenLep1Eta);
-  T->SetBranchAddress("GenLep2Eta",&GenLep2Eta);
-  T->SetBranchAddress("GenLep3Eta",&GenLep3Eta);
-  T->SetBranchAddress("GenLep4Eta",&GenLep4Eta);
-  T->SetBranchAddress("GenLep1Phi",&GenLep1Phi);
-  T->SetBranchAddress("GenLep2Phi",&GenLep2Phi);
-  T->SetBranchAddress("GenLep3Phi",&GenLep3Phi);
-  T->SetBranchAddress("GenLep4Phi",&GenLep4Phi);
-  T->SetBranchAddress("GenLep1Id",&GenLep1Id);
-  T->SetBranchAddress("GenLep2Id",&GenLep2Id);
-  T->SetBranchAddress("GenLep3Id",&GenLep3Id);
-  T->SetBranchAddress("GenLep4Id",&GenLep4Id);
-  T->SetBranchAddress("GenLep1Iso",&GenLep1Iso);
-  T->SetBranchAddress("GenLep2Iso",&GenLep2Iso);
-  T->SetBranchAddress("GenLep3Iso",&GenLep3Iso);
-  T->SetBranchAddress("GenLep4Iso",&GenLep4Iso);
-  T->SetBranchAddress("GenZ1Flav",&GenZ1Flav);
-  T->SetBranchAddress("GenZ2Flav",&GenZ2Flav);
-  T->SetBranchAddress("GenZ1Mass",&GenZ1Mass);
-  T->SetBranchAddress("GenZ2Mass",&GenZ2Mass);
-
-  Long64_t nentries = T->GetEntries();
-  for (Long64_t i=0;i<nentries;i++) {
-    T->GetEntry(i);
-
-    // Sort GenLeptons
-    float GenLep1Mass = mass_lep(GenLep1Id);
-    float GenLep2Mass = mass_lep(GenLep2Id);
-    float GenLep3Mass = mass_lep(GenLep3Id);
-    float GenLep4Mass = mass_lep(GenLep4Id);
-    vector<Short_t> GenLepId {GenLep1Id, GenLep2Id, GenLep3Id, GenLep4Id};
-    TLorentzVector t1,t2,t3,t4; // Lorentz vector of the four genleptons
-    t1.SetPtEtaPhiM(GenLep1Pt,GenLep1Eta,GenLep1Phi,GenLep1Mass);
-    t2.SetPtEtaPhiM(GenLep2Pt,GenLep2Eta,GenLep2Phi,GenLep2Mass);
-    t3.SetPtEtaPhiM(GenLep3Pt,GenLep3Eta,GenLep3Phi,GenLep3Mass);
-    t4.SetPtEtaPhiM(GenLep4Pt,GenLep4Eta,GenLep4Phi,GenLep4Mass);
-    vector<TLorentzVector> GenLep {t1,t2,t3,t4};
-
-    // Sort genleptons
-    pair<vector<TLorentzVector>,vector<Short_t>> sortedGenLeptons;
-    if(t3.Pt()!=0) sortedGenLeptons = sort(GenLep,GenLepId);
-    else sortedGenLeptons = sort_2(GenLep,GenLepId); /* Different function for cases in which there are just two GenLeptons, otherwise strange errors with
-                                                        the previous function */
-    GenLepSorted = sortedGenLeptons.first;
-    _GenLepIdSorted = sortedGenLeptons.second;
-    for(int i=0;i<GenLepSorted.size();i++){
-      _GenLepPtSorted.push_back(GenLepSorted.at(i).Pt());
-      _GenLepEtaSorted.push_back(GenLepSorted.at(i).Eta());
-      _GenLepPhiSorted.push_back(GenLepSorted.at(i).Phi());
-    }
-
-    // Fiducial selections
-    _passedFiducialSelection = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,true);
-    _passedFiducialSelection_NOISO = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,false);
-
-    GenLepPtSorted->Fill();
-    GenLepEtaSorted->Fill();
-    GenLepPhiSorted->Fill();
-    GenLepIdSorted->Fill();
-    passedFiducialSelection->Fill();
-    passedFiducialSelection_NOISO->Fill();
-
-    GenLepSorted.clear();
-    _GenLepPtSorted.clear();
-    _GenLepEtaSorted.clear();
-    _GenLepPhiSorted.clear();
-    _GenLepIdSorted.clear();
-  }
-  T->Print();
   T->Write("", TObject::kOverwrite);
   delete f;
   return;
 }
 
 //---------------------------------------------------------- MAIN ----------------------------------------------------------
-int main (int argc, char ** argv){
+void skim_MC_tree (TString input_dir = "/eos/user/a/atarabin/MC_samples", TString prod_mode = "ggH125", TString year = "2017"){
 
-  // TString input_dir = "/eos/user/a/atarabin/MC_samples";
-  prod_mode = argv[1];
-  year = argv[2];
   TString full_path = Form("%s/%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+
+  std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
 
   auto oldFile = TFile::Open(full_path.Data());
   TTree *oldtree = (TTree*) oldFile->Get("ZZTree/candTree");
@@ -548,7 +459,8 @@ int main (int argc, char ** argv){
   hCounters->Write(); // Write Counters
   newfile->Close();
 
-  add();
-  add_failed();
+  bool t_failed;
+  add(input_dir, year, prod_mode);
+  add(input_dir, year, prod_mode, t_failed = false);
   return 0;
 }

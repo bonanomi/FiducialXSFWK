@@ -1,4 +1,4 @@
-// c++ -o  skim_data_tree skim_data_tree.cpp `root-config --cflags --glibs`
+// root -l skim_data_tree\(year\)
 
 #include<iostream>
 #include<fstream>
@@ -25,9 +25,10 @@
 
 using namespace std;
 
-int main (int argc, char ** argv){
+void skim_data_tree (int year = 2018){
 
-  auto oldFile = TFile::Open("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/Data_2018/AllData/ZZ4lAnalysis.root");
+  TString path = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased";
+  auto oldFile = TFile::Open(Form("%s/Data_%d/AllData/ZZ4lAnalysis.root", path.Data(), year));
   TTree *oldtree = (TTree*) oldFile->Get("ZZTree/candTree");
 
   // Deactivate all branches
@@ -41,13 +42,14 @@ int main (int argc, char ** argv){
   oldtree->SetBranchStatus("Z2Mass",1);
   oldtree->SetBranchStatus("ZZEta",1);
 
-  TFile *newfile = new TFile("reducedTree_2018.root","RECREATE");
+  TString newpath = "/eos/user/a/atarabin/Data";
+  TFile *newfile = new TFile(Form("%s/reducedTree_AllData_%d.root", newpath.Data(), year),"RECREATE");
   auto *newtree = oldtree->CloneTree(0);
   newtree->CopyEntries(oldtree);
   newtree->Write();
   newfile->Close();
 
-  TFile *f = new TFile("reducedTree_2018.root","UPDATE");
+  TFile *f = new TFile(Form("%s/reducedTree_AllData_%d.root", newpath.Data(), year),"UPDATE");
   TTree *T = (TTree*)f->Get("candTree");
   Short_t Z1Flav,Z2Flav;
   float ZZMass, ZZPt, ZZEta;
