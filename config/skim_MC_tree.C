@@ -285,8 +285,9 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
 }
 
 //---------------------------------------------------------- MAIN ----------------------------------------------------------
-void skim_MC_tree (TString input_dir = "/eos/user/a/atarabin/MC_samples", TString prod_mode = "ggH125", TString year = "2017"){
+void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2017"){
 
+  TString input_dir = "/eos/user/a/atarabin/MC_samples"; 
   TString full_path = Form("%s/%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
 
   std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
