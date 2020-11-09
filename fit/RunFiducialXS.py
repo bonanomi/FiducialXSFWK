@@ -189,7 +189,7 @@ def runFiducialXS():
         print 'Current directory: combine_files'
         nBins = len(observableBins)
         for obsBin in range(nBins-1):
-            cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.0 --setParameters MH=125.0 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.0,125.0:SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin0 --algo=grid --points=150'
+            cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150'
             if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
             print cmd, '\n'
             output = processCmd(cmd)
@@ -197,41 +197,41 @@ def runFiducialXS():
         for obsBin in range(nBins-1):
             cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+'_NoSys -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125'
             if(not opt.UNBLIND): cmd = cmd + '.123456'
-            cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.0 --setParameters MH=125.0 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges MH=125.0,125.0:SigmaBin0=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
-            if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
+            cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
+            if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
             else: cmd = cmd + ' --freezeParameters CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
             if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
             print cmd+'\n'
             output = processCmd(cmd)
 
-    # Impact plot
-    if(runAllSteps or opt.impactsOnly):
-        os.chdir('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/impacts/')
-        print 'Current directory: impacts'
-        nBins = len(observableBins)
-        # First step (Files from asimov and data have the same name)
-        cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125 --setParameters MH=125 --setParameterRanges MH=125,125 --doInitialFit --robustFit 1'
-        if (not opt.UNBLIND): cmd = cmd + ' -t -1'
-        print cmd, '\n'
-        output = processCmd(cmd)
-        # Second step (Files from asimov and data have the same name)
-        cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125 --setParameters MH=125 --setParameterRanges MH=125,125 --doFits --parallel 4'
-        if (not opt.UNBLIND): cmd = cmd + ' -t -1'
-        print cmd, '\n'
-        output = processCmd(cmd)
-        for obsBin in range(nBins-1):
-            # Third step
-            cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125 --setParameters MH=125 --setParameterRanges MH=125,125:SigmaBin'+str(obsBin)+'=0.0,2.5 -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
-            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -t -1'
-            elif (opt.UNBLIND): cmd = cmd + 'data.json -t -1'
-            print cmd, '\n'
-            output = processCmd(cmd)
-            # plot
-            cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
-            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
-            elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
-            print cmd, '\n'
-            output = processCmd(cmd)
+    # # Impact plot
+    # if(runAllSteps or opt.impactsOnly):
+    #     os.chdir('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/impacts/')
+    #     print 'Current directory: impacts'
+    #     nBins = len(observableBins)
+    #     # First step (Files from asimov and data have the same name)
+    #     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125 --setParameters MH=125 --setParameterRanges MH=125,125 --doInitialFit --robustFit 1'
+    #     if (not opt.UNBLIND): cmd = cmd + ' -t -1'
+    #     print cmd, '\n'
+    #     output = processCmd(cmd)
+    #     # Second step (Files from asimov and data have the same name)
+    #     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125 --setParameters MH=125 --setParameterRanges MH=125,125 --doFits --parallel 4'
+    #     if (not opt.UNBLIND): cmd = cmd + ' -t -1'
+    #     print cmd, '\n'
+    #     output = processCmd(cmd)
+    #     for obsBin in range(nBins-1):
+    #         # Third step
+    #         cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125 --setParameters MH=125 --setParameterRanges MH=125,125 -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+    #         if (not opt.UNBLIND): cmd = cmd + 'asimov.json -t -1'
+    #         elif (opt.UNBLIND): cmd = cmd + 'data.json'
+    #         print cmd, '\n'
+    #         output = processCmd(cmd)
+    #         # plot
+    #         cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+    #         if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
+    #         elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
+    #         print cmd, '\n'
+    #         output = processCmd(cmd)
 
 # ----------------- Main -----------------
 runFiducialXS()

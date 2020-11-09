@@ -74,6 +74,7 @@ pair<vector<TLorentzVector>,vector<Short_t>> sort_2(vector<TLorentzVector> lep,v
     sortedLep.push_back(lep[max]);
     sortedId.push_back(id[max]);
     lep.erase(lep.begin()+max);
+    id.erase(id.begin()+max);
   }
   return make_pair(sortedLep,sortedId);
 }
