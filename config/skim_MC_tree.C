@@ -95,10 +95,10 @@ int Fiducial(float Z1Flav,float Z2Flav,float Z1Mass,float Z2Mass,float lep1Iso,f
   //Pseudorapidity + minimal common pt
   for(int i=0;i<lepSorted.size();i++){
     if(abs(lepIdSorted[i]) == 11){ //Electrons
-      if((lepSorted[i].Eta()>2.5) || (lepSorted[i].Pt()<7)) return false;
+      if((abs(lepSorted[i].Eta())>2.5) || (lepSorted[i].Pt()<7)) return false;
     }
-    if(abs(lepSorted[i].M()) == 13){ //Muons
-      if((lepSorted[i].Eta()>2.4) || (lepSorted[i].Pt()<5)) return false;
+    if(abs(lepIdSorted[i]) == 13){ //Muons
+      if((abs(lepSorted[i].Eta())>2.4) || (lepSorted[i].Pt()<5)) return false;
     }
   }
 
@@ -181,7 +181,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
-  bool _passedFiducialSelection,_passedFiducialSelection_NOISO;
+  bool _passedFiducialSelection,_passedFiducialSelection_NOISO,_passedFullSelection;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
   vector<Short_t> _GenLepIdSorted;
   vector<TLorentzVector> GenLepSorted;
@@ -191,6 +191,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   TBranch *GenLepIdSorted = T->Branch("GenLepIdSorted",&_GenLepIdSorted);
   TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/B");
   TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
+  TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
 
   T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
   T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);
@@ -258,12 +259,16 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     _passedFiducialSelection = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,true);
     _passedFiducialSelection_NOISO = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,false);
 
+    _passedFullSelection = true;
+    if (t_failed) _passedFullSelection = false;
+
     GenLepPtSorted->Fill();
     GenLepEtaSorted->Fill();
     GenLepPhiSorted->Fill();
     GenLepIdSorted->Fill();
     passedFiducialSelection->Fill();
     passedFiducialSelection_NOISO->Fill();
+    passedFullSelection->Fill();
 
     GenLepSorted.clear();
     _GenLepPtSorted.clear();
@@ -378,6 +383,51 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2017"){
   oldtree->SetBranchStatus("L1prefiringWeight",1);
   oldtree->SetBranchStatus("dataMCWeight",1);
   oldtree->SetBranchStatus("trigEffWeight",1);
+  oldtree->SetBranchStatus("GENfinalState",1); 
+  oldtree->SetBranchStatus("passedFiducialSelection_bbf",1); 
+  oldtree->SetBranchStatus("GENlep_pt",1); 
+  oldtree->SetBranchStatus("GENlep_eta",1); 
+  oldtree->SetBranchStatus("GENlep_phi",1); 
+  oldtree->SetBranchStatus("GENlep_mass",1); 
+  oldtree->SetBranchStatus("GENlep_id",1); 
+  oldtree->SetBranchStatus("GENlep_status",1); 
+  oldtree->SetBranchStatus("GENlep_MomId",1); 
+  oldtree->SetBranchStatus("GENlep_MomMomId",1); 
+  oldtree->SetBranchStatus("GENlep_Hindex",1); 
+  oldtree->SetBranchStatus("GENlep_isoCH",1); 
+  oldtree->SetBranchStatus("GENlep_isoNH",1); 
+  oldtree->SetBranchStatus("GENlep_isoPhot",1); 
+  oldtree->SetBranchStatus("GENlep_RelIso",1); 
+  oldtree->SetBranchStatus("GENH_pt",1); 
+  oldtree->SetBranchStatus("GENH_eta",1); 
+  oldtree->SetBranchStatus("GENH_phi",1); 
+  oldtree->SetBranchStatus("GENH_mass",1); 
+  oldtree->SetBranchStatus("GENmass4l",1); 
+  oldtree->SetBranchStatus("GENmass4mu",1); 
+  oldtree->SetBranchStatus("GENmass4e",1); 
+  oldtree->SetBranchStatus("GENmass2e2mu",1); 
+  oldtree->SetBranchStatus("GENpT4l",1); 
+  oldtree->SetBranchStatus("GENeta4l",1); 
+  oldtree->SetBranchStatus("GENrapidity4l",1); 
+  oldtree->SetBranchStatus("GENcosTheta1",1); 
+  oldtree->SetBranchStatus("GENcosTheta2",1); 
+  oldtree->SetBranchStatus("GENcosThetaStar",1); 
+  oldtree->SetBranchStatus("GENPhi",1); 
+  oldtree->SetBranchStatus("GENPhi1",1); 
+  oldtree->SetBranchStatus("GENMH",1); 
+  oldtree->SetBranchStatus("GENZ_pt",1); 
+  oldtree->SetBranchStatus("GENZ_eta",1); 
+  oldtree->SetBranchStatus("GENZ_phi",1); 
+  oldtree->SetBranchStatus("GENZ_mass",1); 
+  oldtree->SetBranchStatus("GENZ_DaughtersId",1); 
+  oldtree->SetBranchStatus("GENZ_MomId",1); 
+  oldtree->SetBranchStatus("GENmassZ1",1); 
+  oldtree->SetBranchStatus("GENmassZ2",1); 
+  oldtree->SetBranchStatus("GENpTZ1",1); 
+  oldtree->SetBranchStatus("GENpTZ2",1); 
+  oldtree->SetBranchStatus("GENdPhiZZ",1); 
+  oldtree->SetBranchStatus("GENmassZZ",1); 
+  oldtree->SetBranchStatus("GENpTZZ",1); 
   if(prod_mode == "ggH125") oldtree->SetBranchStatus("ggH_NNLOPS_weight",1); // Additional entry for the weight in case of ggH
 
   //// candTree_failed
@@ -445,16 +495,62 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2017"){
   oldtree_failed->SetBranchStatus("LHEweight_AsMZ_Dn",1);
   oldtree_failed->SetBranchStatus("PUWeight",1);
   oldtree_failed->SetBranchStatus("genHEPMCweight",1);
+  oldtree_failed->SetBranchStatus("GENfinalState",1); 
+  oldtree_failed->SetBranchStatus("passedFiducialSelection_bbf",1); 
+  oldtree_failed->SetBranchStatus("GENlep_pt",1); 
+  oldtree_failed->SetBranchStatus("GENlep_eta",1); 
+  oldtree_failed->SetBranchStatus("GENlep_phi",1); 
+  oldtree_failed->SetBranchStatus("GENlep_mass",1); 
+  oldtree_failed->SetBranchStatus("GENlep_id",1); 
+  oldtree_failed->SetBranchStatus("GENlep_status",1); 
+  oldtree_failed->SetBranchStatus("GENlep_MomId",1); 
+  oldtree_failed->SetBranchStatus("GENlep_MomMomId",1); 
+  oldtree_failed->SetBranchStatus("GENlep_Hindex",1); 
+  oldtree_failed->SetBranchStatus("GENlep_isoCH",1); 
+  oldtree_failed->SetBranchStatus("GENlep_isoNH",1); 
+  oldtree_failed->SetBranchStatus("GENlep_isoPhot",1); 
+  oldtree_failed->SetBranchStatus("GENlep_RelIso",1); 
+  oldtree_failed->SetBranchStatus("GENH_pt",1); 
+  oldtree_failed->SetBranchStatus("GENH_eta",1); 
+  oldtree_failed->SetBranchStatus("GENH_phi",1); 
+  oldtree_failed->SetBranchStatus("GENH_mass",1); 
+  oldtree_failed->SetBranchStatus("GENmass4l",1); 
+  oldtree_failed->SetBranchStatus("GENmass4mu",1); 
+  oldtree_failed->SetBranchStatus("GENmass4e",1); 
+  oldtree_failed->SetBranchStatus("GENmass2e2mu",1); 
+  oldtree_failed->SetBranchStatus("GENpT4l",1); 
+  oldtree_failed->SetBranchStatus("GENeta4l",1); 
+  oldtree_failed->SetBranchStatus("GENrapidity4l",1); 
+  oldtree_failed->SetBranchStatus("GENcosTheta1",1); 
+  oldtree_failed->SetBranchStatus("GENcosTheta2",1); 
+  oldtree_failed->SetBranchStatus("GENcosThetaStar",1); 
+  oldtree_failed->SetBranchStatus("GENPhi",1); 
+  oldtree_failed->SetBranchStatus("GENPhi1",1); 
+  oldtree_failed->SetBranchStatus("GENMH",1); 
+  oldtree_failed->SetBranchStatus("GENZ_pt",1); 
+  oldtree_failed->SetBranchStatus("GENZ_eta",1); 
+  oldtree_failed->SetBranchStatus("GENZ_phi",1); 
+  oldtree_failed->SetBranchStatus("GENZ_mass",1); 
+  oldtree_failed->SetBranchStatus("GENZ_DaughtersId",1); 
+  oldtree_failed->SetBranchStatus("GENZ_MomId",1); 
+  oldtree_failed->SetBranchStatus("GENmassZ1",1); 
+  oldtree_failed->SetBranchStatus("GENmassZ2",1); 
+  oldtree_failed->SetBranchStatus("GENpTZ1",1); 
+  oldtree_failed->SetBranchStatus("GENpTZ2",1); 
+  oldtree_failed->SetBranchStatus("GENdPhiZZ",1); 
+  oldtree_failed->SetBranchStatus("GENmassZZ",1); 
+  oldtree_failed->SetBranchStatus("GENpTZZ",1); 
+
   if(prod_mode == "ggH125") oldtree_failed->SetBranchStatus("ggH_NNLOPS_weight",1); // Additional entry for the weight in case of ggH
 
   // Copy branches in the new file
   TString new_name = Form("reducedTree_MC_%s_%s.root", year.Data(), prod_mode.Data());
   TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
   TFile *newfile = new TFile(new_full_path.Data(),"RECREATE");
-  auto *newtree = oldtree->CloneTree(0);
+  TTree *newtree = (TTree*) oldtree->CloneTree(0);
   newtree->CopyEntries(oldtree);
   newtree->Write(); // Write candTree
-  auto *newtree_failed = oldtree_failed->CloneTree(0);
+  TTree *newtree_failed = (TTree*) oldtree_failed->CloneTree(0);
   newtree_failed->CopyEntries(oldtree_failed);
   newtree_failed->Write(); // Write candTree_failed
   hCounters->Write(); // Write Counters
@@ -463,5 +559,28 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2017"){
   bool t_failed;
   add(input_dir, year, prod_mode);
   add(input_dir, year, prod_mode, t_failed = false);
+
+  // Merge together into a single TTree. Useful for efficiencies calculation.
+  TFile* inputfile = TFile::Open(new_full_path.Data(), "READ");
+  TTree* tree1 = (TTree*) inputfile->Get("candTree");
+  TTree* tree2 = (TTree*) inputfile->Get("candTree_failed");
+  TH1F* cnts = (TH1F*) inputfile->Get("Counters");
+  
+  TString merged_name = Form("mergedTree_MC_%s_%s.root", year.Data(), prod_mode.Data());
+  TString merged_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+
+  TFile* mergedTTree = new TFile(merged_path.Data(), "RECREATE");
+  TList* alist = new TList;
+
+  alist->Add(tree1);
+  alist->Add(tree2);
+
+  TTree *newtree_single = TTree::MergeTrees(alist);
+  newtree_single->SetName("fullTree");
+  newtree_single->Write();
+  cnts->Write();
+  mergedTTree->Close();
+  inputfile->Close();
+
   return 0;
 }
