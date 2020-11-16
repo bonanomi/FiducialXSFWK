@@ -44,9 +44,9 @@ if(obsName == 'massZ1'): label = 'm$_{Z1}$ (GeV)'
 if(obsName == 'massZ2'): label = 'm$_{Z2}$ (GeV)'
 
 bins = {'rapidity4l': [0, 0.15, 0.3, 0.6, 0.9, 1.2, 2.5]}
-
+bins = {'pT4l': [0, 10, 20, 30, 45, 80, 120, 200, 1300]}
 if obsName=="mass4l": obsbins = ['SigmaBin0','r2e2muBin0','r4muBin0','r4eBin0']
-elif obsName=="pT4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5','SigmaBin6']
+elif obsName=="pT4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5','SigmaBin6', 'SigmaBin7']
 elif obsName=="massZ2": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="massZ1": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="rapidity4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
@@ -56,9 +56,8 @@ for obsbin in obsbins:
 
     if (obsName=="cosTheta1" and obsbin=="0"): continue
 
-
-    if(opt.UNBLIND): f_data = TFile("../combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.root","READ")
-    f_asimov = TFile("../combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.123456.root","READ")
+    if(opt.UNBLIND): f_data = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.root","READ")
+    f_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.root","READ")
     if ((f_data==0) and (opt.UNBLIND)): continue
     if (f_asimov==0): continue
 
@@ -129,6 +128,13 @@ for obsbin in obsbins:
                     if (limit_data.deltaNLL<2.5):
                         sigma_data.append(limit_data.SigmaBin6)
                         deltanll_data.append(2.0*limit_data.deltaNLL)
+            if (obsbin=="SigmaBin7"):
+                index_print = 7
+                if (point==0): bestfit_data=limit_data.SigmaBin7
+                if (point>0):
+                    if (limit_data.deltaNLL<2.5):
+                        sigma_data.append(limit_data.SigmaBin7)
+                        deltanll_data.append(2.0*limit_data.deltaNLL)
             if (obsbin=="r2e2muBin0"):
                 if (point==0): bestfit_data=limit_data.r2e2muBin0
                 if (point>0):
@@ -195,6 +201,12 @@ for obsbin in obsbins:
                 if (limit_asimov.deltaNLL<2.5):
                     sigma_asimov.append(limit_asimov.SigmaBin6)
                     deltanll_asimov.append(2.0*limit_asimov.deltaNLL)
+        if (obsbin=="SigmaBin7"):
+            if (point==0): bestfit_asimov=limit_asimov.SigmaBin7
+            if (point>0):
+                if (limit_asimov.deltaNLL<2.5):
+                    sigma_asimov.append(limit_asimov.SigmaBin7)
+                    deltanll_asimov.append(2.0*limit_asimov.deltaNLL)
         if (obsbin=="r2e2muBin0"):
             if (point==0): bestfit_asimov=limit_asimov.r2e2muBin0
             if (point>0):
@@ -217,8 +229,8 @@ for obsbin in obsbins:
         if point>0 and len(deltanll_asimov)>0:
             if deltanll_asimov[len(deltanll_asimov)-1]>5.0 and sigma_asimov[len(sigma_asimov)-1]>bestfit_asimov: break
 
-    if(opt.UNBLIND): fstat_data = TFile("../combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.root","READ")
-    fstat_asimov = TFile("../combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.123456.root","READ")
+    if(opt.UNBLIND): fstat_data = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
+    fstat_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
     if ((fstat_data==0) and (opt.UNBLIND)): continue
     if (fstat_asimov==0): continue
 
@@ -280,6 +292,12 @@ for obsbin in obsbins:
                 if (point>0):
                     if (limitstat_data.deltaNLL<2.5):
                         sigmastat_data.append(limitstat_data.SigmaBin6)
+                        deltanllstat_data.append(2.0*limitstat_data.deltaNLL)
+            if (obsbin=="SigmaBin7"):
+                if (point==0): bestfitstat_data=limitstat_data.SigmaBin7
+                if (point>0):
+                    if (limitstat_data.deltaNLL<2.5):
+                        sigmastat_data.append(limitstat_data.SigmaBin7)
                         deltanllstat_data.append(2.0*limitstat_data.deltaNLL)
             if (obsbin=="r2e2muBin0"):
                 if (point==0): bestfitstat_data=limitstat_data.r2e2muBin0
@@ -347,6 +365,12 @@ for obsbin in obsbins:
             if (point>0):
                 if (limitstat_asimov.deltaNLL<2.5):
                     sigmastat_asimov.append(limitstat_asimov.SigmaBin6)
+                    deltanllstat_asimov.append(2.0*limitstat_asimov.deltaNLL)
+        if (obsbin=="SigmaBin7"):
+            if (point==0): bestfitstat_asimov=limitstat_asimov.SigmaBin7
+            if (point>0):
+                if (limitstat_asimov.deltaNLL<2.5):
+                    sigmastat_asimov.append(limitstat_asimov.SigmaBin7)
                     deltanllstat_asimov.append(2.0*limitstat_asimov.deltaNLL)
         if (obsbin=="r2e2muBin0"):
             if (point==0): bestfitstat_asimov=limitstat_asimov.r2e2muBin0
@@ -651,6 +675,9 @@ for obsbin in obsbins:
         if (obsbin=="SigmaBin6"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin6'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
             resultsXS_asimov['SM_125_'+obsName+'_genbin6_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+        if (obsbin=="SigmaBin7"):
+            resultsXS_asimov['SM_125_'+obsName+'_genbin7'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin7_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
     elif obsName=="rapidity4l" or obsName=="massZ2" or obsName=="massZ1":
         if (obsbin=="SigmaBin0"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
@@ -717,6 +744,9 @@ for obsbin in obsbins:
         if (obsbin=="SigmaBin6"):
             resultsXS_data['SM_125_'+obsName+'_genbin6'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
             resultsXS_data['SM_125_'+obsName+'_genbin6_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+        if (obsbin=="SigmaBin7"):
+            resultsXS_data['SM_125_'+obsName+'_genbin7'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+            resultsXS_data['SM_125_'+obsName+'_genbin7_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
     elif obsName=="rapidity4l" or obsName=="massZ2" or obsName=="massZ1":
         if (obsbin=="SigmaBin0"):
             resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}

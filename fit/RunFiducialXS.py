@@ -7,7 +7,8 @@ import time
 from decimal import *
 import json
 
-sys.path.append('../inputs')
+sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/')
+
 from higgs_xsbr_13TeV import *
 from createXSworkspace import createXSworkspace
 from createDatacard import createDatacard
@@ -86,7 +87,7 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
     for year in years:
-        os.chdir('../datacard/datacard_'+year)
+        os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard/datacard_'+year)
         print 'Current diretory: datacard_'+year
         for fState in fStates:
             if (not obsName.startswith("mass4l")):
@@ -113,28 +114,31 @@ def runFiducialXS():
 
     ## addConstrainedModel
     if(runAllSteps or opt.combineOnly):
+	
         years_bis = years
-        if(opt.YEAR == 'Full'):
+        
+	if(opt.YEAR == 'Full'):
             years_bis.append('Full')
         for year in years_bis:
-            if not os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
+            if not os.path.exists('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
                 cmd = 'python addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'" --year="'+year+'"'
                 print cmd
                 output = processCmd(cmd)
                 print output
-            elif os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
+            elif os.path.exists('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
                 print 'addConstrainedModel '+year+' already done'
 
         DataModelName = 'SM_125'
         PhysicalModel = 'v3'
-        produceDatacards(obsName, observableBins, DataModelName, PhysicalModel)
 
+        produceDatacards(obsName, observableBins, DataModelName, PhysicalModel)
+	
 
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
         nBins = len(observableBins)
         for year in years:
-            os.chdir('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard/datacard_'+year)
+            os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard/datacard_'+year)
             print 'Current directory: datacard_'+year
             for fState in fStates:
                 if(nBins>1):
@@ -153,7 +157,7 @@ def runFiducialXS():
             processCmd(cmd,1)
 
         # Combine 3 years
-        os.chdir('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard')
+        os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard')
         print 'Current directory: datacard'
         if (opt.YEAR == 'Full'):
             cmd = 'combineCards.py datacard_2016/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt datacard_2017/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt datacard_2018/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt'
@@ -185,7 +189,7 @@ def runFiducialXS():
         processCmd(cmd,1)
         os.chdir('..')
 
-        os.chdir('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/combine_files/')
+        os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/')
         print 'Current directory: combine_files'
         nBins = len(observableBins)
         for obsBin in range(nBins-1):
@@ -195,7 +199,7 @@ def runFiducialXS():
             output = processCmd(cmd)
         # Stat-only
         for obsBin in range(nBins-1):
-            cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+'_NoSys -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125'
+            cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+'_NoSys -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
             if(not opt.UNBLIND): cmd = cmd + '.123456'
             cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
             if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'

@@ -6,10 +6,36 @@ import pandas as pd
 import uproot
 from math import sqrt, log
 import itertools
+import optparse
 import math
 import ROOT
 import json
 from tdrStyle import *
+
+def parseOptions():
+
+    global opt, args, runAllSteps
+
+    usage = ('usage: %prog [options]\n'
+             + '%prog -h for help')
+    parser = optparse.OptionParser(usage)
+
+    # input options
+    parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
+    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    # store options and arguments as global variables
+    global opt, args
+    (opt, args) = parser.parse_args()
+
+    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+        sys.exit()
+
+
+# parse the arguments and options
+global opt, args, runAllSteps
+parseOptions()
 
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ggZZ AND qqZZ ----------------------------------------------------
 # Weights for histogram
@@ -171,7 +197,7 @@ def GetFakeRate(lep_Pt, lep_eta, lep_ID):
 
 # Open Fake Rates files
 def openFR(year):
-    fnameFR = eos_path + 'FRfiles/FakeRates_SS_%i.root' %year
+    fnameFR = eos_path + 'FRfiles/newData_FakeRates_SS_%i.root' %year
     file = uproot.open(fnameFR)
     # Retrieve FR from TGraphErrors
     input_file_FR = ROOT.TFile(fnameFR)
@@ -305,11 +331,18 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                     w = df['weight'].to_numpy()
                     w = np.asarray(w).astype('float')
                     # ------
-                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
-                    histo.FillN(len(mass4l), mass4l, w)
+		    if (obs_name == 'rapidity4l'):
+			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+		    else:
+                    	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+                    print (histo.GetName())
+		    histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
-                    outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
-                    outFile.cd()
+		    if (obs_name == 'rapidity4l'):
+			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+		    else:
+                    	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
+		    outFile.cd()
                     histo.Write()
                     outFile.Close()
                     histo.Delete()
@@ -340,10 +373,17 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                if (obs_name == 'rapidity4l'):
+			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                else:
+                	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+		if (obs_name == 'rapidity4l'):
+			print str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root"
+			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+		else:
+                	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
                 outFile.cd()
                 histo.Write()
                 outFile.Close()
@@ -361,7 +401,28 @@ bkgs = ['ZZTo4lext', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'g
         'ggTo4e_Contin_MCFM701', 'ggTo4mu_Contin_MCFM701', 'ggTo4tau_Contin_MCFM701']
 eos_path = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/'
 key = 'ZZTree/candTree'
-years = [2016, 2017, 2018]
+# years = [2016, 2017, 2018]
+
+if (opt.YEAR == '2016'): years = [2016]
+if (opt.YEAR == '2017'): years = [2017]
+if (opt.YEAR == '2018'): years = [2018]
+if (opt.YEAR == 'Full'): years = [2016,2017,2018]
+
+obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+obs_name = opt.OBSNAME
+if(obs_name == 'rapidity4l'):
+    obs_reco = 'ZZy'
+    obs_gen = 'GenHRapidity'
+elif(obs_name == 'pT4l'):
+    obs_reco = 'ZZPt'
+    obs_gen = 'GenHPt'
+elif(obs_name == 'massZ1'):
+    obs_reco = 'Z1Mass'
+    obs_gen = 'GenZ1Mass'
+elif(obs_name == 'massZ2'):
+    obs_reco = 'Z2Mass'
+    obs_gen = 'genZ2Mass'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
@@ -379,5 +440,4 @@ for year in years:
     dfZX[year] = add_rapidity(dfZX[year])
     print(year,'done')
 
-doTemplates(d_bkg, dfZX, [0,15,30,45,80,120,200,1300], 'ZZPt', 'pT4l')
-doTemplates(d_bkg, dfZX, [0.0,0.15,0.3,0.6,0.9,1.2,2.5], 'ZZy', 'rapidity4l')
+doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name)

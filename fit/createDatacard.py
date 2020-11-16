@@ -55,9 +55,9 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_mu['2016_2e2mu'] = '1.025'
     eff_mu['2016_4e'] = '-'
     eff_mu['2016_4mu'] = '0.953/1.046'
-    eff_mu['2017_2e2mu'] = '0.968/1.030'
+    eff_mu['2017_2e2mu'] = '0.985/1.008'
     eff_mu['2017_4e'] = '-'
-    eff_mu['2017_4mu'] = '0.937/1.056'
+    eff_mu['2017_4mu'] = '0.98/1.011'
     eff_mu['2018_2e2mu'] = '0.988/1.01'
     eff_mu['2018_4e'] = '-'
     eff_mu['2018_4mu'] = '0.976/1.018'
@@ -66,8 +66,8 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_e['2016_2e2mu'] = '0.96/1.039'
     eff_e['2016_4e'] = '0.914/1.082'
     eff_e['2016_4mu'] = '-'
-    eff_e['2017_2e2mu'] = '0.939/1.058'
-    eff_e['2017_4e'] = '0.862/1.125'
+    eff_e['2017_2e2mu'] = '0.915/1.082'
+    eff_e['2017_4e'] = '0.867/1.121'
     eff_e['2017_4mu'] = '-'
     eff_e['2018_2e2mu'] = '0.928/1.074'
     eff_e['2018_4e'] = '0.850/1.161'
@@ -78,9 +78,9 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     ZX['2016_2e2mu'] = '0.65673/1.35484'
     ZX['2016_4e'] = '0.60745/1.42863'
     ZX['2016_4mu'] = '0.69481/1.30542'
-    ZX['2017_2e2mu'] = '0.67262/1.33282'
-    ZX['2017_4e'] = '0.63816/1.37505'
-    ZX['2017_4mu'] = '0.69350/1.30685'
+    ZX['2017_2e2mu'] = '1.152/0.868' #'0.67262/1.33282'
+    ZX['2017_4e'] = '1.152/0.868' #'0.63816/1.37505'
+    ZX['2017_4mu'] = '1.152/0.868' #'0.69350/1.30685'
     ZX['2018_2e2mu'] = '0.67618/1.32828'
     ZX['2018_4e'] = '0.64540/1.36539'
     ZX['2018_4mu'] = '0.69559/1.30459'
@@ -88,7 +88,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -182,5 +182,10 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write('- ')
     file.write('1.1 -\n')
 
+    # ZX
+    file.write('CMS_zjets_bkgdcompo_'+str(year)+' lnN ')
+    for i in range((len(observableBins)-1)+4): # All except ZX
+        file.write('- ')
+    file.write('1.34\n')
 
     file.close()

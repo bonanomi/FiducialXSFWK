@@ -2,7 +2,7 @@ import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
-from sample_shortnames import *
+#from sample_shortnames import *
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -52,8 +52,8 @@ setTDRStyle()
 datamodel = opt.UNFOLD
 
 # sys.path.append('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/inputs/2018')
-sys.path.append('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/inputs')
-sys.path.append('/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/LHScans')
+sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs')
+sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/LHScans')
 #sys.path.append('./hres_histat_newbaseline_bugfix3')
 #sys.path.append('./lhscan_may18')
 
@@ -95,6 +95,9 @@ def plotXS(obsName, obs_bins):
         if (opt.UNBLIND): _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         resultsXS = _temp.resultsXS
+
+    #print _temp
+    #print resultsXS
 
     acc_ggH_powheg = {}
     pdfunc_ggH_powheg = {}

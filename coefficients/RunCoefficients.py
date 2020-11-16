@@ -369,42 +369,55 @@ def getCoeff(channel, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, 
 
     for signal in signals:
         processBin = signal+'_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+        df_sig = d_sig_tot[year][signal]
+        if ((not "jet" in opt.OBSNAME) and abs(genbin-recobin)>1):
+            wrongfrac[processBin] = 0.0
+            binfrac_wrongfrac[processBin] = 0.0
+            binfrac_outfrac[processBin] = 0.0
+            outinratio[processBin] = 0.0
+            err_outinratio[processBin] = 0.0
+            effrecotofid[processBin] = 0.0
+            err_effrecotofid[processBin] = 0.0
+            acceptance[processBin] = 0.0
+            err_acceptance[processBin] = 0.0
+            numberFake[processBin] = 0.0
+            continue
 
         # Selections
-        cutm4l_reco = (d_sig_tot[year][signal]['ZZMass'] >= m4l_low) & (d_sig_tot[year][signal]['ZZMass'] <= m4l_high)
-        cutobs_reco = (abs(d_sig_tot[year][signal][obs_reco]) >= obs_reco_low) & (abs(d_sig_tot[year][signal][obs_reco]) < obs_reco_high)
-        PassedFullSelection = d_sig_tot[year][signal]['FinState_reco'] != 'fail'
-#         cuth4l_reco = (d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))) | ((d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (d_sig_tot[year][signal].GenAssocLep1Id == 0))
-#         cutnoth4l_reco = (d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (d_sig_tot[year][signal].GenAssocLep1Id != 0)
-        cuth4l_reco = d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))
-        cutnoth4l_reco = d_sig_tot[year][signal].lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))
-        PassedFiducialSelection = d_sig_tot[year][signal]['passedFiducialSelection'] == True
-        NotPassedFiducialSelection = d_sig_tot[year][signal]['passedFiducialSelection'] != True
-        cutchan_gen = d_sig_tot[year][signal]['FinState_gen'] == channel
-        cutchan_reco = d_sig_tot[year][signal]['FinState_reco'] == channel #AT
-        cutobs_gen = (abs(d_sig_tot[year][signal][obs_gen]) >= obs_gen_low) & (abs(d_sig_tot[year][signal][obs_gen]) < obs_gen_high)
-        cutobs_gen_otherfid = ((abs(d_sig_tot[year][signal][obs_gen]) >= obs_gen_lowest) & (abs(d_sig_tot[year][signal][obs_gen]) < obs_gen_low)) | ((abs(d_sig_tot[year][signal][obs_gen]) >= obs_gen_high) & (abs(d_sig_tot[year][signal][obs_gen]) <= obs_gen_highest))
+        cutm4l_reco = (df_sig['ZZMass'] >= m4l_low) & (df_sig['ZZMass'] <= m4l_high)
+        cutobs_reco = (abs(df_sig[obs_reco]) >= obs_reco_low) & (abs(df_sig[obs_reco]) < obs_reco_high)
+        PassedFullSelection = df_sig['FinState_reco'] != 'fail'
+#         cuth4l_reco = (df_sig.lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))) | ((df_sig.lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (df_sig.GenAssocLep1Id == 0))
+#         cutnoth4l_reco = (df_sig.lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))) & (df_sig.GenAssocLep1Id != 0)
+        cuth4l_reco = df_sig.lep_genindex.apply(lambda x: any(item for item in [-1] if item not in x))
+        cutnoth4l_reco = df_sig.lep_genindex.apply(lambda x: any(item for item in [-1] if item in x))
+        PassedFiducialSelection = df_sig['passedFiducialSelection'] == True
+        NotPassedFiducialSelection = df_sig['passedFiducialSelection'] != True
+        cutchan_gen = df_sig['FinState_gen'] == channel
+        cutchan_reco = df_sig['FinState_reco'] == channel #AT
+        cutobs_gen = (abs(df_sig[obs_gen]) >= obs_gen_low) & (abs(df_sig[obs_gen]) < obs_gen_high)
+        cutobs_gen_otherfid = ((abs(df_sig[obs_gen]) >= obs_gen_lowest) & (abs(df_sig[obs_gen]) < obs_gen_low)) | ((abs(df_sig[obs_gen]) >= obs_gen_high) & (abs(df_sig[obs_gen]) <= obs_gen_highest))
 
         # --------------- acceptance ---------------
-        acc_num = d_sig_tot[year][signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_histo_gen'].sum()
-        acc_den = d_sig_tot[year][signal][cutchan_gen]['weight_histo_gen'].sum()
+        acc_num = df_sig[PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_histo_gen'].sum()
+        acc_den = df_sig[cutchan_gen]['weight_histo_gen'].sum()
         acceptance[processBin] = acc_num/acc_den
         #Error
-        acc_num = d_sig_tot[year][signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
-        acc_den = d_sig_tot[year][signal][cutchan_gen]['weight_gen'].sum()
+        acc_num = df_sig[PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
+        acc_den = df_sig[cutchan_gen]['weight_gen'].sum()
         acc = acc_num/acc_den
         err_acceptance[processBin] = sqrt((acc*(1-acc))/acc_den)
 
         # --------------- EffRecoToFid ---------------
-        eff_num = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection & cuth4l_reco &
+        eff_num = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection & cuth4l_reco &
                                        PassedFiducialSelection & cutchan_gen & cutobs_gen]['weight_reco'].sum()
-        eff_den = d_sig_tot[year][signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
+        eff_den = df_sig[PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
         effrecotofid[processBin] = eff_num/eff_den
         if effrecotofid[processBin] == 0: effrecotofid[processBin] = 1e-06
         #Error
-        eff_num = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection & cuth4l_reco &
+        eff_num = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection & cuth4l_reco &
                                        PassedFiducialSelection & cutchan_gen & cutobs_gen]['weight_reco'].sum()
-        eff_den = d_sig_tot[year][signal][PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
+        eff_den = df_sig[PassedFiducialSelection & cutobs_gen & cutchan_gen]['weight_gen'].sum()
         eff = eff_num/eff_den
         if (eff*(1-eff))/eff_den > 0:
             err_effrecotofid[processBin] = sqrt((eff*(1-eff))/eff_den)
@@ -412,22 +425,22 @@ def getCoeff(channel, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, 
             err_effrecotofid[processBin] = 0.00001
 
         # --------------- outinratio ---------------
-        oir_num = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+        oir_num = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection &
                                        cuth4l_reco & NotPassedFiducialSelection & cutchan_reco]['weight_reco'].sum()
-        oir_den_1 = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+        oir_den_1 = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection &
                                          cuth4l_reco & PassedFiducialSelection &
                                          cutchan_gen & cutobs_gen]['weight_reco'].sum()
-        oir_den_2 = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+        oir_den_2 = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection &
                                          cuth4l_reco & PassedFiducialSelection &
                                          cutchan_gen & cutobs_gen_otherfid]['weight_reco'].sum()
         outinratio[processBin] = oir_num/(oir_den_1+oir_den_2)
         #Error
-        oir_num = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+        oir_num = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection &
                                        cuth4l_reco & NotPassedFiducialSelection & cutchan_reco]['weight_reco'].sum()
-        oir_den_1 = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+        oir_den_1 = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection &
                                          cuth4l_reco & PassedFiducialSelection &
                                          cutchan_gen & cutobs_gen]['weight_reco'].sum()
-        oir_den_2 = d_sig_tot[year][signal][cutm4l_reco & cutobs_reco & PassedFullSelection &
+        oir_den_2 = df_sig[cutm4l_reco & cutobs_reco & PassedFullSelection &
                                          cuth4l_reco & PassedFiducialSelection &
                                          cutchan_gen & cutobs_gen_otherfid]['weight_reco'].sum()
         out = oir_num/(oir_den_1+oir_den_2)
@@ -437,19 +450,19 @@ def getCoeff(channel, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, 
             err_outinratio[processBin] = 0.00001
 
         # --------------- wrongfrac ---------------
-        wf_num = d_sig_tot[year][signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco]['weight_histo_reco'].sum()
-        wf_den = d_sig_tot[year][signal][PassedFullSelection & cutm4l_reco]['weight_histo_reco'].sum()
+        wf_num = df_sig[PassedFullSelection & cutm4l_reco & cutnoth4l_reco]['weight_histo_reco'].sum()
+        wf_den = df_sig[PassedFullSelection & cutm4l_reco]['weight_histo_reco'].sum()
         wrongfrac[processBin] = wf_num/wf_den
 
         # --------------- binfrac_wrongfrac ---------------
-        binwf_num = d_sig_tot[year][signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco]['weight_histo_reco'].sum()
-        binwf_den = d_sig_tot[year][signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco]['weight_histo_reco'].sum()
+        binwf_num = df_sig[PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco]['weight_histo_reco'].sum()
+        binwf_den = df_sig[PassedFullSelection & cutm4l_reco & cutnoth4l_reco]['weight_histo_reco'].sum()
         if binwf_den == 0: binwf_den = 1e-06 #To avoid the division by zero
         binfrac_wrongfrac[processBin] = binwf_num/binwf_den
 
         # --------------- numberFake ---------------
-#         numberFake[processBin] = d_sig_tot[year][signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco]['weight'].sum()
-        numberFake[processBin] = d_sig_tot[year][signal][PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco & cutchan_reco]['weight_histo_reco'].sum()
+#         numberFake[processBin] = df_sig[PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco]['weight'].sum()
+        numberFake[processBin] = df_sig[PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco & cutchan_reco]['weight_histo_reco'].sum()
 
 
 def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins):
@@ -635,7 +648,7 @@ def doGetCoeffFullNNLOPS(obs_reco, obs_gen, obs_name, obs_bins):
 # -----------------------------------------------------------------------------------------
 signals_original = ['VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
 signals = ['ggH125', 'VBFH125', 'WH125', 'ZH125', 'ttH125']
-eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
+eos_path_sig = '/eos/user/a/atarabin/MC_samples/old_prod/'
 key = 'candTree'
 key_failed = 'candTree_failed'
 # years = [2016, 2017, 2018]
@@ -716,3 +729,4 @@ if (opt.YEAR == 'Full'): #Unless we are working with FullRun2Data, doGetCoeffFul
 acceptance = {}
 err_acceptance = {}
 doGetCoeffFullNNLOPS(obs_reco, obs_gen, obs_name, obs_bins)
+
