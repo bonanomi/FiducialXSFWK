@@ -239,17 +239,10 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   vector<float> *ExtraLepPhi = 0;
   vector<int> *ExtraLepLepId = 0;
   vector<int> _lep_genindex, _lep_Hindex;
-  // vector<float> _lep_pt;
-  // vector<float> _lep_eta;
-  // vector<float> _lep_phi;
-  // vector<int> _lep_id;
+  
   TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
   TBranch *lep_genindex = T->Branch("lep_genindex",&_lep_genindex);
   TBranch *lep_Hindex = T->Branch("lep_Hindex",&_lep_Hindex);
-  // TBranch *lep_pt = T->Branch("lep_pt",&_lep_pt);
-  // TBranch *lep_eta = T->Branch("lep_eta",&_lep_eta);
-  // TBranch *lep_phi = T->Branch("lep_phi",&_lep_phi);
-  // TBranch *lep_id = T->Branch("lep_id",&_lep_id);
 
   if (!t_failed) {
     T->SetBranchAddress("ZZPt",&ZZPt);
@@ -299,7 +292,9 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     _passedFiducialSelection_NOISO = Fiducial(GenZ1Flav,GenZ2Flav,GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso,GenLepSorted,_GenLepIdSorted,false);
 
     _passedFullSelection = true;
-    if (t_failed) _passedFullSelection = false;
+    if (t_failed) {
+	_passedFullSelection = false;
+    }
 
     GenLepPtSorted->Fill();
     GenLepEtaSorted->Fill();
@@ -308,7 +303,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     passedFiducialSelection->Fill();
     passedFiducialSelection_NOISO->Fill();
     passedFullSelection->Fill();
-
+    
     GenLepSorted.clear();
     _GenLepPtSorted.clear();
     _GenLepEtaSorted.clear();
@@ -392,7 +387,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
 }
 
 //---------------------------------------------------------- MAIN ----------------------------------------------------------
-void skim_MC_tree (TString prod_mode = "WminusH125", TString year = "2017"){
+void skim_MC_tree (TString prod_mode = "ZH125", TString year = "2017"){
 
   TString input_dir = "/eos/user/a/atarabin/MC_samples";
   TString full_path = Form("%s/%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());

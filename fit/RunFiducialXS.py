@@ -128,7 +128,9 @@ def runFiducialXS():
             elif os.path.exists('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
                 print 'addConstrainedModel '+year+' already done'
 
-        DataModelName = 'SM_125'
+	print 'addConstrainedModel DONE'
+        
+	DataModelName = 'SM_125'
         PhysicalModel = 'v3'
 
         produceDatacards(obsName, observableBins, DataModelName, PhysicalModel)

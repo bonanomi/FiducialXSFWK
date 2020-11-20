@@ -119,11 +119,11 @@ int main (int argc, char ** argv){
   setCavasAndStyles("c1",c1,"");
 
   TString obsTag = "pT4l";
-  const int N_BINS = 7;
-  TString binRange[N_BINS]     = {"0_15", "15_30", "30_45", "45_80", "80_120", "120_200", "200_1300"};
-  TString binRangeLow[N_BINS]  = {"0", "15", "30", "45", "80", "120", "200"};
-  TString binRangeHigh[N_BINS] = {"15", "30", "45", "80", "120", "200", "1300"};
-  TString binRangeLeg[N_BINS]  = {"0 < pT < 15 GeV", "15 < pT < 30 GeV", "30 < pT < 45 GeV", "45 < pT < 80 GeV", "80 < pT < 120 GeV", "120 < pT < 200 GeV", "200 < pT < 1300 GeV"};
+  const int N_BINS = 8;
+  TString binRange[N_BINS]     = {"0_10", "10_20", "15_30", "30_45", "45_80", "80_120", "120_200", "200_1300"};
+  TString binRangeLow[N_BINS]  = {"0", "10", "20", "30", "45", "80", "120", "200"};
+  TString binRangeHigh[N_BINS] = {"10", "20", "30", "45", "80", "120", "200", "1300"};
+  TString binRangeLeg[N_BINS]  = {"0 < pT < 10 GeV", "10 < pT < 15 GeV", "20 < pT < 30 GeV", "30 < pT < 45 GeV", "45 < pT < 80 GeV", "80 < pT < 120 GeV", "120 < pT < 200 GeV", "200 < pT < 1300 GeV"};
 
   // TString obsTag = "rapidity4l";
   // const int N_BINS = 6;
@@ -149,8 +149,8 @@ int main (int argc, char ** argv){
   const int N_BKGS = 3;
   TString bkgName[N_BKGS]   = {"qqzz", "ggzz", "ZJetsCR"};
 
-  const int N_YEAR = 3;
-  TString year[N_YEAR]      = {"2016", "2017", "2018"};
+  const int N_YEAR = 1;
+  TString year[N_YEAR]      = {"2017"}; //, "2017", "2018"};
 
   for (int iYear = 0; iYear<N_YEAR; iYear++){
     const TString sTemplateDirName = year[iYear]+"/"+obsTag;
