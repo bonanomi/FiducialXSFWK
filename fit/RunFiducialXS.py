@@ -27,6 +27,7 @@ def parseOptions():
     parser.add_option('',   '--asimovModelName',dest='ASIMOVMODEL',type='string',default='SM_125', help='Name of the Asimov Model')
     parser.add_option('',   '--asimovMass',dest='ASIMOVMASS',type='string',default='125.0', help='Asimov Mass')
     parser.add_option('',   '--ModelNames',dest='MODELNAMES',type='string',default='SM_125',help='Names of models for unfolding, separated by | . Default is "SM_125"')
+    parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.0',   help='Mass value for theory prediction')
     parser.add_option('',   '--fixMass',  dest='FIXMASS',  type='string',default='125.0',   help='Fix mass, default is a string "125.09" or can be changed to another string, e.g."125.6" or "False"')
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
@@ -112,11 +113,18 @@ def runFiducialXS():
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Current directory: python'
 
+    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
+    higgs_xs = _temp.higgs_xs
+    higgs4l_br = _temp.higgs4l_br
+
+    _temp = __import__('inputs_sig_'+obsName+'_2017', globals(), locals(), ['acc'], -1)
+    acc = _temp.acc
+
     ## addConstrainedModel
     if(runAllSteps or opt.combineOnly):
 	
         years_bis = years
-        
+         
 	if(opt.YEAR == 'Full'):
             years_bis.append('Full')
         for year in years_bis:
@@ -129,12 +137,11 @@ def runFiducialXS():
                 print 'addConstrainedModel '+year+' already done'
 
 	print 'addConstrainedModel DONE'
-        
+    
 	DataModelName = 'SM_125'
         PhysicalModel = 'v3'
 
         produceDatacards(obsName, observableBins, DataModelName, PhysicalModel)
-	
 
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
@@ -194,19 +201,43 @@ def runFiducialXS():
         os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/')
         print 'Current directory: combine_files'
         nBins = len(observableBins)
+        XH = []
         for obsBin in range(nBins-1):
+            XH.append(0.0)
+            for channel in ['4e','4mu','2e2mu']:
+		XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+	
+                XH[obsBin]+=XH_fs
+                
+            _obsxsec = XH[obsBin]
             cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150'
-            if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
+            if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
             print cmd, '\n'
             output = processCmd(cmd)
         # Stat-only
+	XH = []
         for obsBin in range(nBins-1):
-            cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+'_NoSys -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
+            XH.append(0.0)
+            for channel in ['4e','4mu','2e2mu']:
+                XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH[obsBin]+=XH_fs
+            _obsxsec = XH[obsBin]
+            cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+'_NoSys'
+            if(not opt.UNBLIND): cmd = cmd + '_exp'
+            cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
             if(not opt.UNBLIND): cmd = cmd + '.123456'
             cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
             if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
-            else: cmd = cmd + ' --freezeParameters CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
-            if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
+            else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+            if(not opt.UNBLIND): cmd = cmd + ' -t -1 --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
             print cmd+'\n'
             output = processCmd(cmd)
 
@@ -242,3 +273,4 @@ def runFiducialXS():
 # ----------------- Main -----------------
 runFiducialXS()
 print "all modules successfully compiled"
+

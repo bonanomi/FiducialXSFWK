@@ -57,7 +57,7 @@ for obsbin in obsbins:
     if (obsName=="cosTheta1" and obsbin=="0"): continue
 
     if(opt.UNBLIND): f_data = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.root","READ")
-    f_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.root","READ")
+    f_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.123456.root","READ")
     if ((f_data==0) and (opt.UNBLIND)): continue
     if (f_asimov==0): continue
 
@@ -230,7 +230,7 @@ for obsbin in obsbins:
             if deltanll_asimov[len(deltanll_asimov)-1]>5.0 and sigma_asimov[len(sigma_asimov)-1]>bestfit_asimov: break
 
     if(opt.UNBLIND): fstat_data = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
-    fstat_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
+    fstat_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys_exp.MultiDimFit.mH125.38.root","READ")
     if ((fstat_data==0) and (opt.UNBLIND)): continue
     if (fstat_asimov==0): continue
 
