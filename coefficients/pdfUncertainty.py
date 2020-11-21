@@ -153,7 +153,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             Histos[processBin+"fid"+str(i)] = TH1D(processBin+"fid"+str(i), processBin+"fid"+str(i), m4l_bins, m4l_low, m4l_high)  
             Histos[processBin+"fid"+str(i)].Sumw2()
 
-            toCut = "((" + nnloWeights[i] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+            toCut = "((" + nnloWeights[i] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
 
             Tree[Sample].Draw("GENmass4l >> "+processBin+"fid"+str(i),toCut,"goff")
             Histos[processBin+"fid"+str(i)].Scale(1.0/Histos[processBin+"fs"].Integral())
@@ -166,15 +166,15 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
         Histos[processBin+"fidPDF_up"] = TH1D(processBin+"fidPDF_up", processBin+"fidPDF_up", m4l_bins, m4l_low, m4l_high)
         Histos[processBin+"fidPDF_up"].Sumw2()
-        toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-	if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+        toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+	if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
         Tree[Sample].Draw("GENmass4l >> "+processBin+"fidPDF_up",toCut,"goff")
         Histos[processBin+"fidPDF_up"].Scale(1.0/Histos[processBin+"fs"].Integral())
 
         Histos[processBin+"fidPDF_dn"] = TH1D(processBin+"fidPDF_dn", processBin+"fidPDF_dn", m4l_bins, m4l_low, m4l_high)
         Histos[processBin+"fidPDF_dn"].Sumw2()
-        toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-        if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+        toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+        if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
         Tree[Sample].Draw("GENmass4l >> "+processBin+"fidPDF_dn",toCut,"goff")
         Histos[processBin+"fidPDF_dn"].Scale(1.0/Histos[processBin+"fs"].Integral())
 
