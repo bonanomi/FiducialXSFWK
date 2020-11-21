@@ -10,6 +10,7 @@ print "samples directory: ", dirMC_94
 
 SamplesMC_94 = [
 'ggH125_mergedTree_MC_2017.root',
+'ggH125_NNLOPS_mergedTree_MC_2017',
 'VBFH125_mergedTree_MC_2017.root',
 'ZH125_mergedTree_MC_2017.root',
 'ttH125_mergedTree_MC_2017.root',

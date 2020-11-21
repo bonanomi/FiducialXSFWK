@@ -94,28 +94,34 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+")"
         else:
             cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+" && "+obs_gen+"<"+str(obs_gen_high)+")"
-        cutm4l_gen     = "(GenHMass>"+str(m4l_low)+" && GenHMass<"+str(m4l_high)+")"
-        
+        cutm4l_gen     = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+
         if (channel == "4l"):
-            #cutchan_gen      = "((abs(GENlep_id[GENlep_Hindex[0]])==11 || abs(GENlep_id[GENlep_Hindex[0]])==13) && (abs(GENlep_id[GENlep_Hindex[2]])==11 || abs(GENlep_id[GENlep_Hindex[2]])==13) )"
-            cutchan_gen      = "(abs(GenLep1Id)!= 15 && abs(GenLep2Id)!= 15 && abs(GenLep3Id)!= 15 && abs(GenLep4Id)!= 15)"
-            cutchan_gen_out  = "((abs(GenZ1Flav)==121 || abs(GenZ1Flav)==169) && (abs(GenZ2Flav)==121 || abs(GenZ2Flav)==169))"
-            cutm4l_gen       = "(GenHMass>"+str(m4l_low)+" && GenHMass<"+str(m4l_high)+")"
+            cutchan_gen      = "((abs(GENlep_id[GENlep_Hindex[0]])==11 || abs(GENlep_id[GENlep_Hindex[0]])==13) && (abs(GENlep_id[GENlep_Hindex[2]])==11 || abs(GENlep_id[GENlep_Hindex[2]])==13))"
+            cutchan_gen_out  = "((GENZ_DaughtersId[0]==11 || GENZ_DaughtersId[0]==13) && (GENZ_DaughtersId[1]==11 || GENZ_DaughtersId[1]==13))"
+            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
+            cutchan_reco     = "(abs(Z1Flav) == 121 || abs(Z1Flav == 169) && (abs(Z2Flav) == 121 || abs(Z2Flav) == 169))"
         if (channel == "4e"):
-            cutchan_gen      = "(abs(GenLep1Id)==11 && abs(GenLep2Id)==11 && abs(GenLep3Id)==11 && abs(GenLep4Id)==11)"
-            cutchan_gen_out  = "(abs(GenZ1Flav)==121 && abs(GenZ2Flav)==121)"
-            cutm4l_gen       = "(GenHMass>"+str(m4l_low)+" && GenHMass<"+str(m4l_high)+")"
+            cutchan_gen      = "(abs(GENlep_id[GENlep_Hindex[0]])==11 && abs(GENlep_id[GENlep_Hindex[2]])==11)"
+            cutchan_gen_out  = "(abs(GENZ_DaughtersId[0])==11 && abs(GENZ_DaughtersId[1])==11)"
+            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
+            cutchan_reco     = "(abs(Z1Flav) == 121 && abs(Z2Flav) == 121)"
         if (channel == "4mu"):
-            cutchan_gen      = "(abs(GenLep1Id)==13 && abs(GenLep2Id)==13 && abs(GenLep3Id)==13 && abs(GenLep4Id)==13)"
-            cutchan_gen_out  = "(abs(GenZ1Flav)==169 && abs(GenZ2Flav)==169)"
-            cutm4l_gen       = "(GenHMass>"+str(m4l_low)+" && GenHMass<"+str(m4l_high)+")"
+            cutchan_gen      = "(abs(GENlep_id[GENlep_Hindex[0]])==13 && abs(GENlep_id[GENlep_Hindex[2]])==13)"
+            cutchan_gen_out  = "(GENZ_DaughtersId[0]==13 && GENZ_DaughtersId[1]==13)"
+            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
+            cutchan_reco     = "(abs(Z1Flav) == 169 && abs(Z2Flav) == 169)"
         if (channel == "2e2mu"):
-            #cutchan_gen      = "((abs(GenLep1Id)==11 && abs(GenLep2Id)==13 && abs(GenLep3Id)==11 && abs(GenLep4Id)==13) || (abs(GenLep1Id)==13 && abs(GenLep2Id)==11 && abs(GenLep3Id)==13 && abs(GenLep4Id)==11) || (abs(GenLep1Id)==11 && abs(GenLep2Id)==13 && abs(GenLep3Id)==13 && abs(GenLep4Id)==11) || (abs(GenLep1Id)==13 && abs(GenLep2Id)==11 && abs(GenLep3Id)==11 && abs(GenLep4Id)==13))"
-            cutchan_gen      = "(abs(GenLep1Id)!=15) && !((abs(GenLep1Id)==13 && abs(GenLep2Id)==13 && abs(GenLep3Id)==13 && abs(GenLep4Id)==13) || (abs(GenLep1Id)==11 && abs(GenLep2Id)==11 && abs(GenLep3Id)==11 && abs(GenLep4Id)==11))"
-            cutchan_gen_out  = "((abs(GenZ1Flav)==121 && abs(GenZ2Flav)==169) || (abs(GenZ1Flav)==169 && abs(GenZ2Flav)==121))"   
-            cutm4l_gen       = "(GenHMass>"+str(m4l_low)+" && GenHMass<"+str(m4l_high)+")"
-        
-        cuth4l_gen  = "1==1"
+            cutchan_gen      = "((abs(GENlep_id[GENlep_Hindex[0]])==11 && abs(GENlep_id[GENlep_Hindex[2]])==13) ||(abs(GENlep_id[GENlep_Hindex[0]])==13 && abs(GENlep_id[GENlep_Hindex[2]])==11))"
+            cutchan_gen_out  = "((GENZ_DaughtersId[0]==11 && GENZ_DaughtersId[1]==13) || (GENZ_DaughtersId[0]==13 && GENZ_DaughtersId[1]==11))"
+            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
+            cutchan_reco     = "((abs(Z1Flav) == 169 && abs(Z2Flav) == 121) || (abs(Z1Flav) == 121 && abs(Z2Flav) == 169))"
+
+        cuth4l_gen  = "(GENlep_MomMomId[GENlep_Hindex[0]]==25 && GENlep_MomMomId[GENlep_Hindex[1]]==25 && GENlep_MomMomId[GENlep_Hindex[2]]==25 && GENlep_MomMomId[GENlep_Hindex[3]]==25)"       
         cutnoth4l_gen  = "(!"+cuth4l_gen+")"
  
         shortname = sample_shortnames[Sample]
@@ -129,10 +135,10 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 	print(gen_sumWeights)
 	lumi = '59.7'
         toCut = "((" + nnloWeights[0] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(" + cutchan_gen_out + ")"
-
-        Tree[Sample].Draw("GenHMass >> "+processBin+"fs",toCut,"goff")
+	if 'NNLOPS' in processBin: toCut = "((" + nnloWeights[0] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights + ")*(" + cutchan_gen_out + ")"
+        Tree[Sample].Draw("GENmass4l >> "+processBin+"fs",toCut,"goff")
         #else:
-        #    Tree[Sample].Draw("GenHMass >> "+processBin+"fs","(qcdWeights[0])*("+cutchan_gen_out+")","goff")
+        #    Tree[Sample].Draw("GENmass4l >> "+processBin+"fs","(qcdWeights[0])*("+cutchan_gen_out+")","goff")
         
 	for i in range(0,9):
             if (i==5 or i==7): continue 
@@ -140,33 +146,36 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             Histos[processBin+"fs"+str(i)].Sumw2()
 
             toCut = "((" + nnloWeights[i] + "*1000*" + lumi +"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +  ")*("+cutchan_gen_out+")"
+            if 'NNLOPS' in processBin: toCut = "((" + nnloWeights[0] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights + ")*(" + cutchan_gen_out + ")"
 
-            Tree[Sample].Draw("GenHMass >> "+processBin+"fs"+str(i),toCut,"goff")
+            Tree[Sample].Draw("GENmass4l >> "+processBin+"fs"+str(i),toCut,"goff")
 
             Histos[processBin+"fid"+str(i)] = TH1D(processBin+"fid"+str(i), processBin+"fid"+str(i), m4l_bins, m4l_low, m4l_high)  
             Histos[processBin+"fid"+str(i)].Sumw2()
 
             toCut = "((" + nnloWeights[i] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
 
-            Tree[Sample].Draw("GenHMass >> "+processBin+"fid"+str(i),toCut,"goff")
+            Tree[Sample].Draw("GENmass4l >> "+processBin+"fid"+str(i),toCut,"goff")
             Histos[processBin+"fid"+str(i)].Scale(1.0/Histos[processBin+"fs"].Integral())
 
             Histos[processBin+"fidraw"+str(i)] = TH1D(processBin+"fidraw"+str(i), processBin+"fidraw"+str(i), m4l_bins, m4l_low, m4l_high)  
             Histos[processBin+"fidraw"+str(i)].Sumw2()
-            Tree[Sample].Draw("GenHMass >> "+processBin+"fidraw"+str(i),toCut,"goff")
+            Tree[Sample].Draw("GENmass4l >> "+processBin+"fidraw"+str(i),toCut,"goff")
             Histos[processBin+"fidraw"+str(i)].Scale(1.0/Histos[processBin+"fs"+str(i)].Integral())
             Histos[processBin+"fs"+str(i)].Scale(1.0/Histos[processBin+"fs"+str(i)].Integral())
 
         Histos[processBin+"fidPDF_up"] = TH1D(processBin+"fidPDF_up", processBin+"fidPDF_up", m4l_bins, m4l_low, m4l_high)
         Histos[processBin+"fidPDF_up"].Sumw2()
         toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-        Tree[Sample].Draw("GenHMass >> "+processBin+"fidPDF_up",toCut,"goff")
+	if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+        Tree[Sample].Draw("GENmass4l >> "+processBin+"fidPDF_up",toCut,"goff")
         Histos[processBin+"fidPDF_up"].Scale(1.0/Histos[processBin+"fs"].Integral())
 
         Histos[processBin+"fidPDF_dn"] = TH1D(processBin+"fidPDF_dn", processBin+"fidPDF_dn", m4l_bins, m4l_low, m4l_high)
         Histos[processBin+"fidPDF_dn"].Sumw2()
         toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-        Tree[Sample].Draw("GenHMass >> "+processBin+"fidPDF_dn",toCut,"goff")
+        if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
+        Tree[Sample].Draw("GENmass4l >> "+processBin+"fidPDF_dn",toCut,"goff")
         Histos[processBin+"fidPDF_dn"].Scale(1.0/Histos[processBin+"fs"].Integral())
 
         fsintegral = Histos[processBin+"fs"].Integral()
@@ -212,7 +221,7 @@ m4l_high = 140.0
 
 # Default to inclusive cross section
 obs_reco = 'ZZMass'
-obs_gen = 'GenHMass'
+obs_gen = 'GENmass4l'
 obs_reco_low = 105.0
 obs_reco_high = 140.0
 obs_gen_low = 105.0
@@ -226,7 +235,7 @@ if (opt.OBSNAME == "massZ2"):
     obs_gen = "GENmZ2"
 if (opt.OBSNAME == "pT4l"):
     obs_reco = "ZZPt"
-    obs_gen = "GenHPt"
+    obs_gen = "GENpT4l"
 if (opt.OBSNAME == "eta4l"):
     obs_reco = "eta4l"
     obs_gen = "GENeta4l"
@@ -270,7 +279,7 @@ obs_bins.pop(0)
 
 List = []
 for long, short in sample_shortnames.iteritems():
-    # if (not "ggH" in short): continue
+    if (not "ggH" in short): continue
     print(long, short)
     List.append(long)
 

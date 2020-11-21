@@ -3,6 +3,11 @@ from array import array
 from math import *
 from decimal import *
 #from sample_shortnames import *
+def checkDir(folder_path):
+    isdir = os.path.isdir(folder_path) 
+    if not isdir: 
+        print('Directory {} does not exist. Creating it.' .format(folder_path))  
+        os.mkdir(folder_path)
 
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
@@ -1479,6 +1484,10 @@ def plotXS(obsName, obs_bins):
 
     if (opt.UNBLIND): subdir = 'data'
     elif(not opt.UNBLIND): subdir = 'asimov'
+
+    checkDir('plots/'+obsName)
+    checkDir('plots/'+obsName+'/'+subdir)
+
     c.SaveAs('plots/'+obsName+'/'+subdir+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.pdf')
     c.SaveAs('plots/'+obsName+'/'+subdir+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.png')
     c.SaveAs('plots/'+obsName+'/'+subdir+'/'+obsName+'_unfoldwith_'+datamodel+set_log+'.root')
