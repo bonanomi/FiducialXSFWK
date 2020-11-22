@@ -17,7 +17,7 @@ git checkout v8.1.0
 scramv1 b clean; scramv1 b
 ```
 
-The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder. Please copy them in `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python`.
+The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder. Please copy them in `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python` before running the scipts in `fit`.
 
 ## Workflow
 A schematic representation of the framework's worflow is given in the two following sketches:
@@ -31,11 +31,11 @@ The input files of the analysis workflow are the HZZ4L ntuples generated with th
 
 Having created these skimmed TTrees, the next steps of the analysis involve the caluclation of the different coefficients needed for the pdf parameterisations and unfolding, as well as the creation of background templates. To do so:
 
-2. `templates`: Templates and normalization coefficients for the backgrounds' pdf are extracted from MC (ggZZ and qqZZ) and data (ZX) using `RunTemplates.py`
-3. `coefficients`: All the coefficients of the signal parameterization are calculated with `RunCoefficients.py` and stored in `inputs` folder.
-4. `fit`: The maximum likelihood fit is performed. This step relies on the `RunFiducialXS.py` script and it can be run either as part of the entire framework, creating the datacards and workspaces from scratch, or using pre-existing datacars as input.
+2. `templates`: Templates and normalization coefficients for the backgrounds' pdf are extracted from MC (ggZZ and qqZZ) and data (ZX) using [`RunTemplates.py`](https://github.com/bonanomi/FiducialXSFWK/tree/main/templates)
+3. `coefficients`: All the coefficients of the signal parameterization are calculated with [`RunCoefficients.py`](https://github.com/bonanomi/FiducialXSFWK/blob/main/coefficients/RunCoefficients.py) and stored in `inputs` folder.
+4. `fit`: The maximum likelihood fit is performed. This step relies on the [`RunFiducialXS.py`](https://github.com/bonanomi/FiducialXSFWK/blob/main/fit/RunFiducialXS.py) script and it can be run either as part of the entire framework, creating the datacards and workspaces from scratch, or using pre-existing datacars as input. Datacards are produced and stored in a `datacard` directory, while fit results (combine `.root` files) are stored in `combine_files` folder.
 
 Additional scripts are provided to plot negative log-likelihood scans and to produce the usual differential xsec plots:
 
-5. `LHScans`: Likelihood scans are plotted, best-fit values and the corresponding uncertainties are calculated using `plotLHScans_compare.py`.
+5. [`LHScans`](https://github.com/bonanomi/FiducialXSFWK/tree/main/LHScans): Likelihood scans are plotted, best-fit values and the corresponding uncertainties are calculated using `plotLHScans_compare.py`.
 6. `producePlots.py`: Plot of unfolded differential xsec distributions.
