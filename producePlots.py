@@ -56,12 +56,8 @@ setTDRStyle()
 
 datamodel = opt.UNFOLD
 
-# sys.path.append('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/inputs/2018')
-sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs')
-sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/LHScans')
-#sys.path.append('./hres_histat_newbaseline_bugfix3')
-#sys.path.append('./lhscan_may18')
-
+sys.path.append('./inputs')
+sys.path.append('./LHScans')
 
 def plotXS(obsName, obs_bins):
 
@@ -75,7 +71,7 @@ def plotXS(obsName, obs_bins):
     else:
         _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
-
+    
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br

@@ -7,7 +7,7 @@ import time
 from decimal import *
 import json
 
-sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/')
+sys.path.append('../inputs/')
 
 from higgs_xsbr_13TeV import *
 from createXSworkspace import createXSworkspace
@@ -88,13 +88,14 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
     for year in years:
-        os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard/datacard_'+year)
+        os.chdir('../datacard/datacard_'+year)
         print 'Current diretory: datacard_'+year
         for fState in fStates:
             if (not obsName.startswith("mass4l")):
                 for obsBin in range(nBins-1):
                     ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, PhysicalModel, year)
                     createDatacard(obsName, fState, nBins, obsBin, observableBins, PhysicalModel, year, ndata)
+                    os.chdir('../datacard/datacard_'+year)
             else:
                 ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, PhysicalModel, year)
                 if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
@@ -120,6 +121,9 @@ def runFiducialXS():
     _temp = __import__('inputs_sig_'+obsName+'_2017', globals(), locals(), ['acc'], -1)
     acc = _temp.acc
 
+    _temp = __import__('inputs_bkg_'+obsName+'_2017', globals(), locals(), ['fractionsBackground'], -1)
+    fractionsBackground = _temp.fractionsBackground
+
     ## addConstrainedModel
     if(runAllSteps or opt.combineOnly):
 	
@@ -128,12 +132,12 @@ def runFiducialXS():
 	if(opt.YEAR == 'Full'):
             years_bis.append('Full')
         for year in years_bis:
-            if not os.path.exists('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
+            if not os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
                 cmd = 'python addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'" --year="'+year+'"'
                 print cmd
                 output = processCmd(cmd)
                 print output
-            elif os.path.exists('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
+            elif os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
                 print 'addConstrainedModel '+year+' already done'
 
 	print 'addConstrainedModel DONE'
@@ -147,7 +151,8 @@ def runFiducialXS():
         fStates = ['2e2mu','4mu','4e']
         nBins = len(observableBins)
         for year in years:
-            os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard/datacard_'+year)
+            #We are already in datacard dir at this point
+            #os.chdir('../datacard/datacard_'+year)
             print 'Current directory: datacard_'+year
             for fState in fStates:
                 if(nBins>1):
@@ -166,7 +171,8 @@ def runFiducialXS():
             processCmd(cmd,1)
 
         # Combine 3 years
-        os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard')
+	# we go back from datacard_Y to datacard folder
+        os.chdir('../')
         print 'Current directory: datacard'
         if (opt.YEAR == 'Full'):
             cmd = 'combineCards.py datacard_2016/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt datacard_2017/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt datacard_2018/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.txt'
@@ -196,9 +202,9 @@ def runFiducialXS():
         cmd = 'cp hzz4l_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.root ../combine_files/'+DataModelName+'_all_13TeV_xs_'+obsName+'_bin_'+PhysicalModel+'.root'
         print cmd, '\n'
         processCmd(cmd,1)
-        os.chdir('..')
 
-        os.chdir('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/')
+	# From datacard directory to combine_files, to store fit results
+	os.chdir('../combine_files/')
         print 'Current directory: combine_files'
         nBins = len(observableBins)
         XH = []
@@ -237,7 +243,7 @@ def runFiducialXS():
             cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
             if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
             else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
-            if(not opt.UNBLIND): cmd = cmd + ' -t -1 --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+            if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
             print cmd+'\n'
             output = processCmd(cmd)
 

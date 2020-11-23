@@ -2,9 +2,11 @@
 # in each reco bin there are (nBins) signals (one for each gen bin)
 
 import ROOT
-import os,sys
+import os,sys,subprocess
 
-sys.path.append('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/inputs/')
+sys.path.append('../inputs/')
+sys.path.append('../templates/')
+
 def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year):
     print '\n'
     print 'Creating WorkSpace', year
@@ -24,7 +26,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     ROOT.gSystem.AddIncludePath("-I/afs/cern.ch/work/m/mbonanom/CMSSW_10_2_13/src/ ")
     ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so") #Print 0 in case of succesfull loading
     ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include")
-    ROOT.gSystem.AddIncludePath("-Iinclude/")
+    ROOT.gSystem.AddIncludePath("-Iinclude/") 
 
     ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
 
@@ -35,12 +37,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         inc_outfrac = _temp.inc_outfrac
         binfrac_outfrac = _temp.binfrac_wrongfrac
     else:
-	print("HERE")
         _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
         acc = _temp.acc
         eff = _temp.eff
         outinratio = _temp.outinratio
-    print("BUT NOT HERE")
     inc_wrongfrac = _temp.inc_wrongfrac
     binfrac_wrongfrac = _temp.binfrac_wrongfrac
     #number_fake = _temp.number_fake
@@ -50,7 +50,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
 
-    #from inputs_bkg_{obsName} import fractionsBackground
     _temp = __import__('inputs_bkg_'+obsName+'_'+year, globals(), locals(), ['fractionsBackground'], -1)
     fractionsBackground = _temp.fractionsBackground
 
@@ -379,10 +378,11 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
 
     print obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets
+    os.chdir('../../templates/'+year+"/"+obsName+"/")
 
-    template_qqzzName = "/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/templates/"+year+"/"+obsName+"/XSBackground_qqzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
-    template_ggzzName = "/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/templates/"+year+"/"+obsName+"/XSBackground_ggzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
-    template_zjetsName = "/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
+    template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
     # if (not obsName=="mass4l"):
     #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_AllChans_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
     # else:
@@ -401,6 +401,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     zjetsTempFile = ROOT.TFile(template_zjetsName,"READ")
     zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+obsBin_low+"_"+obsBin_high)
     print 'zjets bins',zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1)
+
+    os.chdir('../../../datacard/datacard_'+year)
 
     binscale = 3
     qqzzTemplateNew = ROOT.TH1F("qqzzTemplateNew","qqzzTemplateNew",binscale*qqzzTemplate.GetNbinsX(),qqzzTemplate.GetBinLowEdge(1),qqzzTemplate.GetBinLowEdge(qqzzTemplate.GetNbinsX()+1))
@@ -605,5 +607,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     print "write ws to fout"
     fout.WriteTObject(wout)
     fout.Close()
-
+    print os.getcwd()
+    os.chdir('../../fit')
     return data_obs.numEntries()

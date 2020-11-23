@@ -1,6 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
-import sys
+import os, sys
 import numpy as np
 import pandas as pd
 import uproot
@@ -36,6 +36,12 @@ def parseOptions():
 # parse the arguments and options
 global opt, args, runAllSteps
 parseOptions()
+
+def checkDir(folder_path):
+    isdir = os.path.isdir(folder_path) 
+    if not isdir: 
+        print('Directory {} does not exist. Creating it.' .format(folder_path))  
+        os.mkdir(folder_path)
 
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ggZZ AND qqZZ ----------------------------------------------------
 # Weights for histogram
@@ -305,6 +311,7 @@ def fillEmptyBinsHist(h1d, floor):
 
 def doTemplates(df_irr, df_red, binning, var, var_string):
     for year in years:
+	checkDir(str(year)+"/"+var_string)
         fractionBkg = {}
         # qqzz and ggzz
         for bkg in ['qqzz', 'ggzz']:
@@ -380,7 +387,6 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
 		if (obs_name == 'rapidity4l'):
-			print str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root"
 			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
 		else:
                 	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
@@ -412,17 +418,17 @@ obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0'
 obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 obs_name = opt.OBSNAME
 if(obs_name == 'rapidity4l'):
-    obs_reco = 'ZZy'
-    obs_gen = 'GenHRapidity'
+    obs_reco = 'abs(ZZy)'
+    obs_gen = 'abs(GENrapidity4l)'
 elif(obs_name == 'pT4l'):
     obs_reco = 'ZZPt'
-    obs_gen = 'GenHPt'
+    obs_gen = 'GENpT4l'
 elif(obs_name == 'massZ1'):
     obs_reco = 'Z1Mass'
-    obs_gen = 'GenZ1Mass'
+    obs_gen = 'GENmassZ1'
 elif(obs_name == 'massZ2'):
     obs_reco = 'Z2Mass'
-    obs_gen = 'genZ2Mass'
+    obs_gen = 'GENmassZ2'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
@@ -431,7 +437,7 @@ for year in years:
     d_bkg[year] = bkg
 
 # Generate pandas for ZX
-branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta']
+branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta'] #, 'ZZy']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
