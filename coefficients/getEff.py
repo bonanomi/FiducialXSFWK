@@ -650,8 +650,8 @@ if (opt.OBSNAME == "massZ2"):
 #    obs_gen = "GENmZ2"
     obs_gen = "GENmassZ2"
 if (opt.OBSNAME == "pT4l"):
-    obs_reco = "ZZPt"#"pT4l"
-    obs_gen = "GenHPt"#"GENpT4l"
+    obs_reco = "ZZPt"
+    obs_gen = "GENpT4l"
 if (opt.OBSNAME == "eta4l"):
     obs_reco = "eta4l"
     obs_gen = "GENeta4l"

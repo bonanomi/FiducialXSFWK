@@ -56,15 +56,22 @@ def Eval(obj, x, params):
 def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
     bestfit = None
+
     for i in xrange(graph.GetN()):
         if graph.GetY()[i] < 0.005:
             bestfit = graph.GetX()[i]
+
     if graph.GetY()[i] == 0:
         bestfit = graph.GetX()[i]
+
     if bestfit is None:
         for i in xrange(graph.GetN()):
-        #print(graph.GetY()[i], graph.GetX()[i])
             if graph.GetY()[i] < 0.02:
+                    bestfit = graph.GetX()[i]
+
+    if bestfit is None:
+        for i in xrange(graph.GetN()):
+            if graph.GetY()[i] < 0.25:
                     bestfit = graph.GetX()[i]
 
     graph.SetMarkerColor(color)
@@ -121,15 +128,17 @@ yvals = [1., 4.]
 
 channel = ["Expected","Expected - no syst.","Observed","Observed - no syst."]
 
-fileList = [ "higgsCombine_pT4l_OBS.MultiDimFit.mH125.38.123456.root",
-            "higgsCombine_pT4l_OBS_NoSys_exp.MultiDimFit.mH125.38.root",
+inputPath = '../combine_files/'
+
+fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
+            "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.root",
        ]
 
 if(opt.UNBLIND):
-    fileList = [ "higgsCombine_pT4l_OBS.MultiDimFit.mH125.38.123456.root",
-                "higgsCombine_pT4l_OBS_NoSys_exp.MultiDimFit.mH125.38.root",
-                    "higgsCombine_pT4l_OBS.MultiDimFit.mH125.38.root",
-                    "higgsCombine_pT4l_OBS_NoSys.MultiDimFit.mH125.38.root"
+    fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
+                "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.root",
+                    "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.root",
+                    "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.root"
                    ]
 
 outString = "test"
@@ -170,7 +179,6 @@ obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of floa
 nBins = len(obs_bins)
 
 for i in range(nBins-1):
-    
     _bin = i
     _obs_bin = _poi+str(i)
     
@@ -188,8 +196,10 @@ for i in range(nBins-1):
 
     for ifile in range(len(fileList)):
         rfile = fileList[ifile].replace('OBS', _obs_bin)
+	rfile = rfile.replace('BIN', obsName)
         graphs.append(TGraph())
-        inF = TFile.Open(rfile,"READ")
+	fname = inputPath+rfile
+        inF = TFile.Open(fname,"READ")
         tree = inF.Get("limit")
 
         ipoint = 0
@@ -302,12 +312,12 @@ for i in range(nBins-1):
     leg.Draw("SAME")
 
     poi = _obs_bin
-    fname = "higgsCombine_pT4l_"+poi+".MultiDimFit.mH125.38.123456.root"
+    fname = inputPath + "higgsCombine_pT4l_"+poi+".MultiDimFit.mH125.38.123456.root"
     exp_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
     exp_nom = exp_scan['val']
     exp_2sig = exp_scan['val_2sig']
 
-    fname = "higgsCombine_pT4l_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.root"
+    fname = inputPath + "higgsCombine_pT4l_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.root"
     exp_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
     exp_nom_stat = exp_scan_stat['val']
     exp_2sig_stat = exp_scan_stat['val_2sig']
@@ -316,12 +326,12 @@ for i in range(nBins-1):
     exp_do_sys = np.sqrt(abs(exp_nom[2])**2 - abs(exp_nom_stat[2])**2)
 
     if (opt.UNBLIND):
-        fname = "higgsCombine_pT4l_"+poi+".MultiDimFit.mH125.38.root"
+        fname = inputPath + "higgsCombine_pT4l_"+poi+".MultiDimFit.mH125.38.root"
         obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom = obs_scan['val']
         obs_2sig = obs_scan['val_2sig']
 
-        fname = "higgsCombine_pT4l_"+poi+"_NoSys.MultiDimFit.mH125.38.root"
+        fname = inputPath + "higgsCombine_pT4l_"+poi+"_NoSys.MultiDimFit.mH125.38.root"
         obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom_stat = obs_scan_stat['val']
         obs_2sig_stat = obs_scan_stat['val_2sig']
@@ -398,8 +408,8 @@ for i in range(nBins-1):
     resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
 
     c.Update()
-    c.SaveAs("lhscan_compare_"+obsName+"_"+str(_bin)+".pdf")
-    c.SaveAs("lhscan_compare_"+obsName+"_"+str(_bin)+".png")
+    c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".pdf")
+    c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".png")
     
 with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
     f.write('resultsXS = '+str(resultsXS_asimov)+' \n')

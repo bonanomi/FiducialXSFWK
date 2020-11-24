@@ -88,7 +88,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -189,3 +189,5 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('1.34\n')
 
     file.close()
+    
+    print(os.getcwd()) 
