@@ -25,7 +25,7 @@
 
 using namespace std;
 
-void skim_data_tree (int year = 2018){
+void skim_data_tree (int year = 2017){
 
   TString path = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased";
   auto oldFile = TFile::Open(Form("%s/Data_%d/AllData/ZZ4lAnalysis.root", path.Data(), year));
@@ -41,6 +41,9 @@ void skim_data_tree (int year = 2018){
   oldtree->SetBranchStatus("Z1Mass",1);
   oldtree->SetBranchStatus("Z2Mass",1);
   oldtree->SetBranchStatus("ZZEta",1);
+  oldtree->SetBranchStatus("JetPt",1);
+  oldtree->SetBranchStatus("JetEta",1);
+
 
   TString newpath = "/eos/user/a/atarabin/Data";
   TFile *newfile = new TFile(Form("%s/reducedTree_AllData_%d.root", newpath.Data(), year),"RECREATE");
@@ -54,14 +57,21 @@ void skim_data_tree (int year = 2018){
   Short_t Z1Flav,Z2Flav;
   float ZZMass, ZZPt, ZZEta;
   float _chan, _CMS_zz4l_mass, _ZZy;
+  float _njets_pt30_eta2p5;
+  vector<float> *JetPt = 0;
+  vector<float> *JetEta = 0;
   TBranch *chan = T->Branch("chan",&_chan,"chan/F");
   TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
   TBranch *CMS_zz4l_mass = T->Branch("CMS_zz4l_mass",&_CMS_zz4l_mass,"CMS_zz4l_mass/F");
+  TBranch *njets_pt30_eta2p5 = T->Branch("njets_pt30_eta2p5",&_njets_pt30_eta2p5,"njets_pt30_eta2p5/F");
   T->SetBranchAddress("Z1Flav",&Z1Flav);
   T->SetBranchAddress("Z2Flav",&Z2Flav);
   T->SetBranchAddress("ZZMass",&ZZMass);
   T->SetBranchAddress("ZZPt",&ZZPt);
   T->SetBranchAddress("ZZEta",&ZZEta);
+  T->SetBranchAddress("JetPt",&JetPt);
+  T->SetBranchAddress("JetEta",&JetEta);
+
   Long64_t nentries = T->GetEntries();
   for (Long64_t i=0;i<nentries;i++) {
     T->GetEntry(i);
@@ -77,6 +87,15 @@ void skim_data_tree (int year = 2018){
     _CMS_zz4l_mass = ZZMass;
     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
 
+    // njets
+    _njets_pt30_eta2p5 = 0;
+    for(unsigned int i=0;i<JetPt->size();i++){
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5){
+        _njets_pt30_eta2p5 = _njets_pt30_eta2p5 + 1;
+      }
+    }
+
+    njets_pt30_eta2p5->Fill();
     ZZy->Fill();
     chan->Fill();
     CMS_zz4l_mass->Fill();

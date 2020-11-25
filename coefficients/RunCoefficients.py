@@ -185,10 +185,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
     b_sig = ['EventNumber','GENmass4l', 'GENpT4l', 'GENrapidity4l', 'GENeta4l',
              'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
-             'PUWeight', 'genHEPMCweight']
+             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
-                          'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight']) #Additioanl entries for passing events
+                          'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
+                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn']) #Additioanl entries for passing events
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
@@ -205,6 +206,9 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['L1prefiringWeight'] = -1
         df['dataMCWeight'] = -1
         df['trigEffWeight'] = -1
+        df['njets_pt30_eta2p5'] = -1
+        df['njets_pt30_eta2p5_jesup'] = -1
+        df['njets_pt30_eta2p5_jesdn'] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -305,11 +309,14 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
 
         processBin = signal+'_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
 	if type=='fullNNLOPS':
-		processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)	
+		processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
 
         # Selections
         cutobs_reco = (abs(datafr[obs_reco]) >= obs_reco_low) & (abs(datafr[obs_reco]) < obs_reco_high)
         cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+        if 'jet' in obs_name:
+            cutobs_reco_jesup = (datafr[obs_reco+'_jesup'] >= obs_reco_low) & (datafr[obs_reco+'_jesup'] < obs_reco_high)
+            cutobs_reco_jesdn = (datafr[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr[obs_reco+'_jesdn'] < obs_reco_high)
         cutobs_gen_otherfid = ((abs(datafr[obs_gen]) >= obs_gen_lowest) & (abs(datafr[obs_gen]) < obs_gen_low)) | ((abs(datafr[obs_gen]) >= obs_gen_high) & (abs(datafr[obs_gen]) <= obs_gen_highest))
         cutm4l_gen = (datafr['GENmass4l'] > m4l_low) & (datafr['GENmass4l'] < m4l_high)
         cutnotm4l_gen = (datafr['GENmass4l'] <= m4l_low) | (datafr['GENmass4l'] >= m4l_high)
@@ -333,9 +340,13 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         # --------------- acceptance ---------------
         acc_num = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen][genweight].sum()
         acc_den = datafr[cutchan_gen_out][genweight].sum()
-        acceptance[processBin] = acc_num/acc_den
-        #Error
-        err_acceptance[processBin] = sqrt((acceptance[processBin]*(1-acceptance[processBin]))/acc_den)
+        if acc_den>0:
+            acceptance[processBin] = acc_num/acc_den
+            err_acceptance[processBin] = sqrt((acceptance[processBin]*(1-acceptance[processBin]))/acc_den)
+        else:
+            acceptance[processBin] = -1.0
+            err_acceptance[processBin] = -1.0
+
 
         if type=='fullNNLOPS': continue # In case of fullNNLOPS we are interested in acceptance only
 
@@ -343,13 +354,16 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         eff_num = datafr[cutm4l_reco & cutobs_reco & passedFullSelection & cuth4l_reco &
                                        passedFiducialSelection & cuth4l_gen & cutm4l_gen & cutchan_gen & cutobs_gen][recoweight].sum()
         eff_den = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen][genweight].sum()
-        effrecotofid[processBin] = eff_num/eff_den
-        if effrecotofid[processBin] == 0: effrecotofid[processBin] = 1e-06
-        #Error
-        if (effrecotofid[processBin]*(1-effrecotofid[processBin]))/eff_den > 0:
-            err_effrecotofid[processBin] = sqrt((effrecotofid[processBin]*(1-effrecotofid[processBin]))/eff_den)
+        if eff_den>10:
+            effrecotofid[processBin] = eff_num/eff_den
+            if effrecotofid[processBin] == 0: effrecotofid[processBin] = 1e-06
+            if (effrecotofid[processBin]*(1-effrecotofid[processBin]))/eff_den > 0:
+                err_effrecotofid[processBin] = sqrt((effrecotofid[processBin]*(1-effrecotofid[processBin]))/eff_den)
+            else:
+                err_effrecotofid[processBin] = 1e-06
         else:
-            err_effrecotofid[processBin] = 0.00001
+            effrecotofid[processBin] = -1.0
+            err_effrecotofid[processBin] = -1.0
 
         # --------------- outinratio ---------------
         oir_num = datafr[cutm4l_reco & cutobs_reco & passedFullSelection &
@@ -360,27 +374,54 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         oir_den_2 = datafr[cutm4l_reco & cutobs_reco & passedFullSelection &
                                          cuth4l_reco & passedFiducialSelection & cuth4l_gen & cutm4l_gen &
                                          cutchan_gen & cutobs_gen_otherfid][recoweight].sum()
-        outinratio[processBin] = oir_num/(oir_den_1+oir_den_2)
-        #Error
-        if (outinratio[processBin]*(1-outinratio[processBin]))/(oir_den_1+oir_den_2) > 0:
-            err_outinratio[processBin] = sqrt((outinratio[processBin]*(1-outinratio[processBin]))/(oir_den_1+oir_den_2))
+        if oir_den_1+oir_den_2>0:
+            outinratio[processBin] = oir_num/(oir_den_1+oir_den_2)
+            if (outinratio[processBin]*(1-outinratio[processBin]))/(oir_den_1+oir_den_2) > 0:
+                err_outinratio[processBin] = sqrt((outinratio[processBin]*(1-outinratio[processBin]))/(oir_den_1+oir_den_2))
+            else:
+                err_outinratio[processBin] = 1e-06
         else:
-            err_outinratio[processBin] = 0.00001
+            outinratio[processBin] = 0.0
+            err_outinratio[processBin] = 0.0
 
         # --------------- wrongfrac ---------------
         wf_num = datafr[passedFullSelection & cutm4l_reco & cutnoth4l_reco][recoweight].sum()
         wf_den = datafr[passedFullSelection & cutm4l_reco][recoweight].sum()
-        wrongfrac[processBin] = wf_num/wf_den
+        if wf_den>0:
+            wrongfrac[processBin] = wf_num/wf_den
+        else:
+            wrongfrac[processBin] = -1.0
 
         # --------------- binfrac_wrongfrac ---------------
         binwf_num = datafr[passedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco][recoweight].sum()
         binwf_den = datafr[passedFullSelection & cutm4l_reco & cutnoth4l_reco][recoweight].sum()
-        if binwf_den == 0: binwf_den = 1e-06 #To avoid the division by zero
-        binfrac_wrongfrac[processBin] = binwf_num/binwf_den
+        if binwf_den>0:
+            binfrac_wrongfrac[processBin] = binwf_num/binwf_den
+        else:
+            binfrac_wrongfrac[processBin] = -1.0
 
         # --------------- numberFake ---------------
 #         numberFake[processBin] = datafr[PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco & cutchan_reco]['weight_histo_reco'].sum()
         numberFake[processBin] = -1
+
+        if 'jet' in obs_name:
+            # --------------- lambdajesup ---------------
+            lambdajesup_num_1 = datafr[passedFullSelection & cutm4l_reco & cutobs_reco_jesup & cuth4l_reco][recoweight].sum()
+            lambdajesup_num_2 = lambdajesup_den = datafr[passedFullSelection & cutm4l_reco & cutobs_reco & cuth4l_reco][recoweight].sum()
+            if lambdajesup_den>0:
+                lambdajesup[processBin] = (lambdajesup_num_1 - lambdajesup_num_2)/lambdajesup_den
+            else:
+                lambdajesup[processBin] = 0.0
+            # --------------- lambdajesdn ---------------
+            lambdajesdn_num_1 = datafr[passedFullSelection & cutm4l_reco & cutobs_reco_jesdn & cuth4l_reco][recoweight].sum()
+            lambdajesdn_num_2 = lambdajesdn_den = datafr[passedFullSelection & cutm4l_reco & cutobs_reco & cuth4l_reco][recoweight].sum()
+            if lambdajesdn_den>0:
+                lambdajesdn[processBin] = (lambdajesdn_num_1 - lambdajesdn_num_2)/lambdajesdn_den
+            else:
+                lambdajesdn[processBin] = 0.0
+        else:
+            lambdajesup[processBin] = 0.0
+            lambdajesdn[processBin] = 0.0
 
         if opt.VERBOSE:
             print processBin,'acc',round(acceptance[processBin],4),'eff',round(effrecotofid[processBin],4),'outinratio',round(outinratio[processBin],4)
@@ -412,7 +453,9 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
             f.write('err_outinratio = '+str(err_outinratio)+' \n')
             f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
             f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
-            f.write('number_fake = '+str(numberFake))
+            f.write('number_fake = '+str(numberFake)+' \n')
+            f.write('lambdajesup = '+str(lambdajesup)+' \n')
+            f.write('lambdajesdn = '+str(lambdajesup))
 
     elif type=='full' or type=='fullNNLOPS':
         for chan in chans:
@@ -431,7 +474,9 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
                 f.write('outinratio = '+str(outinratio)+' \n')
                 f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
                 f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
-                f.write('number_fake = '+str(numberFake))
+                f.write('number_fake = '+str(numberFake)+' \n')
+                f.write('lambdajesup = '+str(lambdajesup)+' \n')
+                f.write('lambdajesdn = '+str(lambdajesup))
         elif type=='fullNNLOPS':
             if(opt.YEAR == 'Full'):
                 with open('../inputs/inputs_sig_'+obs_name+'_NNLOPS_Full.py', 'w') as f:
@@ -476,6 +521,9 @@ elif(obs_name == 'massZ2'):
 elif(obs_name == 'mass4l'):
     obs_reco = 'ZZMass'
     obs_gen = 'GENmass4l'
+if (obs_name == "njets_pt30_eta2p5"):
+    obs_reco = "njets_pt30_eta2p5"
+    obs_gen = "GENnjets_pt30_eta2p5"
 
 # Generate dataframes
 d_sig = {}
@@ -515,6 +563,8 @@ effrecotofid = {}
 err_effrecotofid = {}
 acceptance = {}
 err_acceptance = {}
+lambdajesup = {}
+lambdajesdn = {}
 numberFake = {}
 doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std')
 
@@ -529,6 +579,8 @@ if (opt.YEAR == 'Full'):
     acceptance = {}
     err_acceptance = {}
     numberFake = {}
+    lambdajesup = {}
+    lambdajesdn = {}
     doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full')
 
 print 'Coeff fullNNLOPS'

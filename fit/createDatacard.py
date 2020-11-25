@@ -1,6 +1,6 @@
 import os,sys
 
-def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData):
+def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes):
     # Name of the bin (aFINALSTATE_ recobinX)
     if(channel == '4mu'): channelNumber = 1
     if(channel == '4e'): channelNumber = 2
@@ -188,6 +188,10 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write('- ')
     file.write('1.34\n')
 
+    # JES
+    if jes == True:
+        file.write('JES param 0.0 1.0\n')
+
     file.close()
-    
-    print(os.getcwd()) 
+
+    print(os.getcwd())

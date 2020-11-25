@@ -38,9 +38,9 @@ global opt, args, runAllSteps
 parseOptions()
 
 def checkDir(folder_path):
-    isdir = os.path.isdir(folder_path) 
-    if not isdir: 
-        print('Directory {} does not exist. Creating it.' .format(folder_path))  
+    isdir = os.path.isdir(folder_path)
+    if not isdir:
+        print('Directory {} does not exist. Creating it.' .format(folder_path))
         os.mkdir(folder_path)
 
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ggZZ AND qqZZ ----------------------------------------------------
@@ -99,10 +99,20 @@ def generators(year):
 
     return gen_bkg
 
-# Finding the leading lepton
-def add_lead_lep(df):
-    df['Pt_l1'] = [max(i) for i in df.LepPt]
-    return df
+# Jets variables
+def add_njets(pt,eta):
+    n = 0
+    for i in range(len(pt)):
+        if pt[i]>30 and abs(eta[i])<2.5: n=n+1
+    return n
+def add_leadjet(pt,eta):
+    pT = []
+    for i in range(len(pt)):
+        if pt[i]>30 and abs(eta[i])<2.5: pT.append(pt)
+    if len(pT)!=0:
+        return np.max(pT)
+    else:
+        return -1
 
 # Rapidity
 def rapidity(p, eta):
@@ -137,7 +147,7 @@ def dataframes(year):
     for bkg in bkgs:
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt', 'overallEventWeight', 'L1prefiringWeight']
+        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt', 'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
@@ -145,8 +155,9 @@ def dataframes(year):
         gen = gen_bkg[bkg]
         xsec = xsec_bkg[bkg]
         df = d_bkg[bkg].pandas.df(b_bkg, flatten = False)
-#         df = add_lead_lep(df)
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
+        df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
+        df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         df = add_rapidity(df)
         if (bkg != 'ZZTo4lext') & (bkg != 'ZZTo4lext1'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
@@ -417,18 +428,11 @@ if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
 obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 obs_name = opt.OBSNAME
-if(obs_name == 'rapidity4l'):
-    obs_reco = 'abs(ZZy)'
-    obs_gen = 'abs(GENrapidity4l)'
-elif(obs_name == 'pT4l'):
-    obs_reco = 'ZZPt'
-    obs_gen = 'GENpT4l'
-elif(obs_name == 'massZ1'):
-    obs_reco = 'Z1Mass'
-    obs_gen = 'GENmassZ1'
-elif(obs_name == 'massZ2'):
-    obs_reco = 'Z2Mass'
-    obs_gen = 'GENmassZ2'
+if(obs_name == 'rapidity4l'): obs_reco = 'abs(ZZy)'
+elif(obs_name == 'pT4l'): obs_reco = 'ZZPt'
+elif(obs_name == 'massZ1'): obs_reco = 'Z1Mass'
+elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
+elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
@@ -437,12 +441,13 @@ for year in years:
     d_bkg[year] = bkg
 
 # Generate pandas for ZX
-branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta'] #, 'ZZy']
+branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta', 'JetPt', 'JetEta']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
     dfZX[year] = doZX(year)
-    dfZX[year] = add_lead_lep(dfZX[year])
+    dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
+    dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     dfZX[year] = add_rapidity(dfZX[year])
     print(year,'done')
 

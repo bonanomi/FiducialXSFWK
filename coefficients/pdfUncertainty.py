@@ -7,7 +7,7 @@ from sample_shortnames import *
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
-    
+
 ### Define function for parsing options
 def parseOptions():
 
@@ -16,7 +16,7 @@ def parseOptions():
     usage = ('usage: %prog [options]\n'
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
-    
+
     # input options
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--modelName',dest='MODELNAME',type='string',default='SM', help='Name of the Higgs production or spin-parity model, default is "SM", supported: "SM", "ggH", "VBF", "WH", "ZH", "ttH", "exotic","all"')
@@ -27,7 +27,7 @@ def parseOptions():
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
-                       
+
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -46,7 +46,7 @@ if (not os.path.exists("plots") and doPlots):
 from ROOT import *
 from LoadData import *
 
-RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)    
+RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
 if (opt.DOPLOTS and os.path.isfile('tdrStyle.py')):
     from tdrStyle import setTDRStyle
@@ -69,14 +69,14 @@ nnloWeights = {
     8: 'LHEweight_QCDscale_muR0p5_muF0p5'
 }
 
-def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin):    
+def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin):
 
     obs_gen_low = obs_bins[genbin]
     obs_gen_high = obs_bins[genbin+1]
 
     obs_gen_lowest = obs_bins[0]
     obs_gen_highest = obs_bins[len(obs_bins)-1]
-    
+
     if (obs_reco.startswith("ZZMass")):
         m4l_low = float(obs_gen_low)
         m4l_high = float(obs_gen_high)
@@ -121,13 +121,13 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
             cutchan_reco     = "((abs(Z1Flav) == 169 && abs(Z2Flav) == 121) || (abs(Z1Flav) == 121 && abs(Z2Flav) == 169))"
 
-        cuth4l_gen  = "(GENlep_MomMomId[GENlep_Hindex[0]]==25 && GENlep_MomMomId[GENlep_Hindex[1]]==25 && GENlep_MomMomId[GENlep_Hindex[2]]==25 && GENlep_MomMomId[GENlep_Hindex[3]]==25)"       
+        cuth4l_gen  = "(GENlep_MomMomId[GENlep_Hindex[0]]==25 && GENlep_MomMomId[GENlep_Hindex[1]]==25 && GENlep_MomMomId[GENlep_Hindex[2]]==25 && GENlep_MomMomId[GENlep_Hindex[3]]==25)"
         cutnoth4l_gen  = "(!"+cuth4l_gen+")"
- 
+
         shortname = sample_shortnames[Sample]
         processBin = shortname+'_'+channel+'_'+opt.OBSNAME+'_genbin'+str(genbin)
-                                    
-        # GEN level        
+
+        # GEN level
         Histos[processBin+"fs"] = TH1D(processBin+"fs", processBin+"fs", 100, -1, 10000)
         Histos[processBin+"fs"].Sumw2()
         #TString toCut = ""
@@ -139,9 +139,9 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         Tree[Sample].Draw("GENmass4l >> "+processBin+"fs",toCut,"goff")
         #else:
         #    Tree[Sample].Draw("GENmass4l >> "+processBin+"fs","(qcdWeights[0])*("+cutchan_gen_out+")","goff")
-        
+
 	for i in range(0,9):
-            if (i==5 or i==7): continue 
+            if (i==5 or i==7): continue
             Histos[processBin+"fs"+str(i)] = TH1D(processBin+"fs"+str(i), processBin+"fs"+str(i), 100, -1, 10000)
             Histos[processBin+"fs"+str(i)].Sumw2()
 
@@ -150,7 +150,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
             Tree[Sample].Draw("GENmass4l >> "+processBin+"fs"+str(i),toCut,"goff")
 
-            Histos[processBin+"fid"+str(i)] = TH1D(processBin+"fid"+str(i), processBin+"fid"+str(i), m4l_bins, m4l_low, m4l_high)  
+            Histos[processBin+"fid"+str(i)] = TH1D(processBin+"fid"+str(i), processBin+"fid"+str(i), m4l_bins, m4l_low, m4l_high)
             Histos[processBin+"fid"+str(i)].Sumw2()
 
             toCut = "((" + nnloWeights[i] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
@@ -158,7 +158,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
             Tree[Sample].Draw("GENmass4l >> "+processBin+"fid"+str(i),toCut,"goff")
             Histos[processBin+"fid"+str(i)].Scale(1.0/Histos[processBin+"fs"].Integral())
 
-            Histos[processBin+"fidraw"+str(i)] = TH1D(processBin+"fidraw"+str(i), processBin+"fidraw"+str(i), m4l_bins, m4l_low, m4l_high)  
+            Histos[processBin+"fidraw"+str(i)] = TH1D(processBin+"fidraw"+str(i), processBin+"fidraw"+str(i), m4l_bins, m4l_low, m4l_high)
             Histos[processBin+"fidraw"+str(i)].Sumw2()
             Tree[Sample].Draw("GENmass4l >> "+processBin+"fidraw"+str(i),toCut,"goff")
             Histos[processBin+"fidraw"+str(i)].Scale(1.0/Histos[processBin+"fs"+str(i)].Integral())
@@ -181,21 +181,21 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         fsintegral = Histos[processBin+"fs"].Integral()
         Histos[processBin+"fs"].Scale(1.0/Histos[processBin+"fs"].Integral())
 
-        # GEN level 
+        # GEN level
         accerrstat=0.0
         if (Histos[processBin+"fs"].Integral()>0):
             # if ("NNLOPS" in processBin):
             print(Histos[processBin+"fs"].Integral(),Histos[processBin+"fid0"].Integral())
             acceptance[processBin] = Histos[processBin+"fid0"].Integral()/Histos[processBin+"fs"].Integral()
             #accerrstat = sqrt(acceptance[processBin]*(1-acceptance[processBin])/fsintegral)
-            qcderrup=1.0; qcderrdn=1.0; 
+            qcderrup=1.0; qcderrdn=1.0;
             accerrup=1.0; accerrdn=1.0;
             print(processBin+'fid0', Histos[processBin+"fid0"].Integral())
             #for i in range(9,36):
             for i in range(0,9):
-                #if (i==14 or i==16 or i==23 or i==25 or i==32 or i==34): continue                                        
-                #if (i==5 or i==7 or i==14 or i==16 or i==23 or i==25): continue                                        
-                if (i==5 or i==7): continue 
+                #if (i==14 or i==16 or i==23 or i==25 or i==32 or i==34): continue
+                #if (i==5 or i==7 or i==14 or i==16 or i==23 or i==25): continue
+                if (i==5 or i==7): continue
                 ratio = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
                 print(i,'ratio',ratio)
                 if (ratio>qcderrup): qcderrup = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
@@ -214,7 +214,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
 
             print(processBin,acceptance[processBin],accerrstat,qcderrup,qcderrdn,pdferr_up,pdferr_dn)
             print("accerrup",accerrup,"accerrdn",accerrdn)
-            
+
 m4l_bins = 35
 m4l_low = 105.0
 m4l_high = 140.0
@@ -265,17 +265,17 @@ if (opt.OBSNAME == "cosTheta2"):
     obs_gen = "abs(GENcosTheta2)"
 if (opt.OBSNAME == "Phi"):
     obs_reco = "abs(Phi)"
-    obs_gen = "abs(GENPhi)"    
+    obs_gen = "abs(GENPhi)"
 if (opt.OBSNAME == "Phi1"):
     obs_reco = "abs(Phi1)"
     obs_gen = "abs(GENPhi1)"
-    
-#obs_bins = {0:(opt.OBSBINS.split("|")[1:((len(opt.OBSBINS)-1)/2)]),1:['0','inf']}[opt.OBSNAME=='inclusive'] 
-obs_bins = opt.OBSBINS.split("|") 
-if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')): 
-    print('BINS OPTION MUST START AND END WITH A |') 
+
+#obs_bins = {0:(opt.OBSBINS.split("|")[1:((len(opt.OBSBINS)-1)/2)]),1:['0','inf']}[opt.OBSNAME=='inclusive']
+obs_bins = opt.OBSBINS.split("|")
+if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')):
+    print('BINS OPTION MUST START AND END WITH A |')
 obs_bins.pop()
-obs_bins.pop(0) 
+obs_bins.pop(0)
 
 List = []
 for long, short in sample_shortnames.iteritems():
@@ -291,7 +291,7 @@ else:
 
 for chan in chans:
     for genbin in range(len(obs_bins)-1):
-        getunc(chan,List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin)  
+        getunc(chan,List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin)
 
 if (obs_reco.startswith("njets")):
     for chan in chans:
