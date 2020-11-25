@@ -7,7 +7,7 @@ import os,sys,subprocess
 sys.path.append('../inputs/')
 sys.path.append('../templates/')
 
-def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year):
+def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, JES):
     print '\n'
     print 'Creating WorkSpace', year
 
@@ -20,7 +20,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     recobin = "recobin"+str(obsBin)
     print recobin
-    doJES = 1
+    doJES = JES
 
     # Load some libraries
     ROOT.gSystem.AddIncludePath("-I/afs/cern.ch/work/m/mbonanom/CMSSW_10_2_13/src/ ")
