@@ -87,7 +87,7 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
     print '[Producing workspace/datacards for obsName '+obsName+', bins '+str(observableBins)+']'
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
-    if 'jet' in obs_name: JES = True
+    if 'jet' in obsName: JES = True
     else: JES = False
     for year in years:
         os.chdir('../datacard/datacard_'+year)

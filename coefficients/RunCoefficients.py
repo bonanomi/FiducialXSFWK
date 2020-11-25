@@ -382,6 +382,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
                 err_outinratio[processBin] = 1e-06
         else:
             outinratio[processBin] = 0.0
+            err_outinratio[processBin] = 0.0
 
         # --------------- wrongfrac ---------------
         wf_num = datafr[passedFullSelection & cutm4l_reco & cutnoth4l_reco][recoweight].sum()

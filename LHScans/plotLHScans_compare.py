@@ -42,23 +42,25 @@ if(obsName == 'rapidity4l'): label = '|y_{H}|'
 if(obsName == 'pT4l'): label = 'p$_T^H$ (GeV)'
 if(obsName == 'massZ1'): label = 'm$_{Z1}$ (GeV)'
 if(obsName == 'massZ2'): label = 'm$_{Z2}$ (GeV)'
+if(obsName == 'njets_pt30_eta2p5'): label = 'N$_{jet}$'
 
-bins = {'rapidity4l': [0, 0.15, 0.3, 0.6, 0.9, 1.2, 2.5]}
-bins = {'pT4l': [0, 10, 20, 30, 45, 80, 120, 200, 1300]}
+bins = {'rapidity4l': [0, 0.15, 0.3, 0.6, 0.9, 1.2, 2.5], 'pT4l': [0, 10, 20, 30, 45, 80, 120, 200, 1300], 'njets_pt30_eta2p5': [0,1,2,3,4,20]}
 if obsName=="mass4l": obsbins = ['SigmaBin0','r2e2muBin0','r4muBin0','r4eBin0']
 elif obsName=="pT4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5','SigmaBin6', 'SigmaBin7']
 elif obsName=="massZ2": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="massZ1": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="rapidity4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
+elif obsName=="njets_pt30_eta2p5": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4']
 else: obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4']
 
 for obsbin in obsbins:
 
     if (obsName=="cosTheta1" and obsbin=="0"): continue
 
-    if(opt.UNBLIND): f_data = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.root","READ")
-    f_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.123456.root","READ")
-    if ((f_data==0) and (opt.UNBLIND)): continue
+    if(opt.UNBLIND):
+        f_data = TFile("/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.root","READ")
+        if (f_data==0): continue
+    f_asimov = TFile("/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+".MultiDimFit.mH125.38.123456.root","READ")
     if (f_asimov==0): continue
 
     if(opt.UNBLIND):
@@ -229,9 +231,10 @@ for obsbin in obsbins:
         if point>0 and len(deltanll_asimov)>0:
             if deltanll_asimov[len(deltanll_asimov)-1]>5.0 and sigma_asimov[len(sigma_asimov)-1]>bestfit_asimov: break
 
-    if(opt.UNBLIND): fstat_data = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
-    fstat_asimov = TFile("/afs/cern.ch/work/m/mbonanom/fiducial/FiducialFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys_exp.MultiDimFit.mH125.38.root","READ")
-    if ((fstat_data==0) and (opt.UNBLIND)): continue
+    if(opt.UNBLIND):
+        fstat_data = TFile("/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys.MultiDimFit.mH125.38.root","READ")
+        if (fstat_data==0): continue
+    fstat_asimov = TFile("/afs/cern.ch/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/combine_files/higgsCombine_"+obsName+"_"+obsbin+"_NoSys_exp.MultiDimFit.mH125.38.123456.root","READ")
     if (fstat_asimov==0): continue
 
     if(opt.UNBLIND):
@@ -649,139 +652,140 @@ for obsbin in obsbins:
     if (obsName=="mass4l"):
         if (obsbin=="SigmaBin0"):
             resultsXS_asimov['SM_125_mass4l_genbin0'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_mass4l_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_mass4l_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         else:
             resultsXS_asimov['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
     elif obsName=="pT4l":
         if (obsbin=="SigmaBin0"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin1"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin2"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin3"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin4"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin5"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin5'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin6"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin6'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin6_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin6_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin7"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin7'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin7_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin7_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
     elif obsName=="rapidity4l" or obsName=="massZ2" or obsName=="massZ1":
         if (obsbin=="SigmaBin0"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin1"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin2"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin3"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin4"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin5"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin5'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
     else:
         if (obsbin=="SigmaBin0"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin1"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin2"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin3"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
         if (obsbin=="SigmaBin4"):
             resultsXS_asimov['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_asimov, "uncerUp": cl68up_asimov, "central": bestfit_asimov}
-            resultsXS_asimov['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_data, "central": bestfit_asimov}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_asimov, "uncerUp": cl68upstat_asimov, "central": bestfit_asimov}
 
-    # Observed
-    if (obsName=="mass4l"):
-        if (obsbin=="SigmaBin0"):
-            resultsXS_data['SM_125_mass4l_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_mass4l_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+    if opt.UNBLIND:
+        # Observed
+        if (obsName=="mass4l"):
+            if (obsbin=="SigmaBin0"):
+                resultsXS_data['SM_125_mass4l_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_mass4l_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            else:
+                resultsXS_data['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+        elif obsName=="pT4l":
+            if (obsbin=="SigmaBin0"):
+                resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin1"):
+                resultsXS_data['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin2"):
+                resultsXS_data['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin3"):
+                resultsXS_data['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin4"):
+                resultsXS_data['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin5"):
+                resultsXS_data['SM_125_'+obsName+'_genbin5'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin6"):
+                resultsXS_data['SM_125_'+obsName+'_genbin6'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin6_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin7"):
+                resultsXS_data['SM_125_'+obsName+'_genbin7'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin7_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+        elif obsName=="rapidity4l" or obsName=="massZ2" or obsName=="massZ1":
+            if (obsbin=="SigmaBin0"):
+                resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin1"):
+                resultsXS_data['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin2"):
+                resultsXS_data['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin3"):
+                resultsXS_data['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin4"):
+                resultsXS_data['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin5"):
+                resultsXS_data['SM_125_'+obsName+'_genbin5'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
         else:
-            resultsXS_data['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_mass4l_'+obsbin.replace('r','').replace('Bin0','')+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-    elif obsName=="pT4l":
-        if (obsbin=="SigmaBin0"):
-            resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin1"):
-            resultsXS_data['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin2"):
-            resultsXS_data['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin3"):
-            resultsXS_data['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin4"):
-            resultsXS_data['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin5"):
-            resultsXS_data['SM_125_'+obsName+'_genbin5'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin6"):
-            resultsXS_data['SM_125_'+obsName+'_genbin6'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin6_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin7"):
-            resultsXS_data['SM_125_'+obsName+'_genbin7'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin7_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-    elif obsName=="rapidity4l" or obsName=="massZ2" or obsName=="massZ1":
-        if (obsbin=="SigmaBin0"):
-            resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin1"):
-            resultsXS_data['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin2"):
-            resultsXS_data['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin3"):
-            resultsXS_data['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin4"):
-            resultsXS_data['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin5"):
-            resultsXS_data['SM_125_'+obsName+'_genbin5'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin5_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-    else:
-        if (obsbin=="SigmaBin0"):
-            resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin1"):
-            resultsXS_data['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin2"):
-            resultsXS_data['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin3"):
-            resultsXS_data['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
-        if (obsbin=="SigmaBin4"):
-            resultsXS_data['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
-            resultsXS_data['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin0"):
+                resultsXS_data['SM_125_'+obsName+'_genbin0'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin0_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin1"):
+                resultsXS_data['SM_125_'+obsName+'_genbin1'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin1_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin2"):
+                resultsXS_data['SM_125_'+obsName+'_genbin2'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin2_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin3"):
+                resultsXS_data['SM_125_'+obsName+'_genbin3'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin3_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
+            if (obsbin=="SigmaBin4"):
+                resultsXS_data['SM_125_'+obsName+'_genbin4'] = {"uncerDn": -1.0*cl68dn_data, "uncerUp": cl68up_data, "central": bestfit_data}
+                resultsXS_data['SM_125_'+obsName+'_genbin4_statOnly'] = {"uncerDn": -1.0*cl68dnstat_data, "uncerUp": cl68upstat_data, "central": bestfit_data}
 
 
     c.Update()

@@ -343,7 +343,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
 
     if (t_failed) continue; // From now on reco-only variables
 
-    //
+    // njets
     _njets_pt30_eta2p5 = 0;
     for(unsigned int i=0;i<JetPt->size();i++){
       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5){

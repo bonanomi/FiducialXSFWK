@@ -20,7 +20,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     recobin = "recobin"+str(obsBin)
     print recobin
-    doJES = 0
+    doJES = 1
 
     # Load some libraries
     ROOT.gSystem.AddIncludePath("-I/afs/cern.ch/work/m/mbonanom/CMSSW_10_2_13/src/ ")
@@ -67,6 +67,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             if obsName == "pT4l": obsName_help = "ZZPt"
             if obsName == "massZ2": obsName_help = "Z2Mass"
             if obsName == "massZ1": obsName_help = "Z1Mass"
+            if obsName == "njets_pt30_eta2p5": obsName_help = "njets_pt30_eta2p5"
             observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
         observable.Print()
 
@@ -388,6 +389,24 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
 
     print obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets
+
+    if (obsName=="nJets" or ("jet" in obsName)):
+        #######
+        lambda_JES_qqzz = 0.0 #lambda_qqzz_jes[modelName+"_"+channel+"_nJets_"+recobin]
+        lambda_JES_qqzz_var = ROOT.RooRealVar("lambda_qqzz_"+recobin+"_"+channel,"lambda_"+recobin+"_"+channel, lambda_JES_qqzz)
+        JES_qqzz_rfv = ROOT.RooFormulaVar("JES_rfv_qqzz_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_qqzz_var) )
+
+        ####
+        lambda_JES_ggzz = 0.0 #lambda_ggzz_jes[modelName+"_"+channel+"_nJets_"+recobin]
+        lambda_JES_ggzz_var = ROOT.RooRealVar("lambda_ggzz_"+recobin+"_"+channel,"lambda_"+recobin+"_"+channel, lambda_JES_ggzz)
+        JES_ggzz_rfv = ROOT.RooFormulaVar("JES_rfv_ggzz_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_ggzz_var) )
+
+        ####
+        lambda_JES_zjets = 0.0 #lambda_zjets_jes[modelName+"_"+channel+"_nJets_"+recobin]
+        lambda_JES_zjets_var = ROOT.RooRealVar("lambda_zjets_"+recobin+"_"+channel,"lambda_zjets_"+recobin+"_"+channel, lambda_JES_zjets)
+        JES_zjets_rfv = ROOT.RooFormulaVar("JES_rfv_zjets_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_zjets_var) )
+
+
     os.chdir('../../templates/'+year+"/"+obsName+"/")
 
     template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
@@ -462,7 +481,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     print obsName,obsBin_low,obsBin_high
     chan = ROOT.RooRealVar("chan", "chan", 0, 3)
-    if (obsName == "nJets"): obsName = "njets_reco_pt30_eta4p7"
+    # if (obsName == "nJets"): obsName = "njets_reco_pt30_eta4p7"
     if (channel=='4mu'):
         if (obsName.startswith("mass4l")): data_obs = ROOT.RooDataSet("data_obs","data_obs",data_obs_tree,ROOT.RooArgSet(m,chan),"(CMS_zz4l_mass>105.0 && CMS_zz4l_mass<140.0 && chan == 1)")
         # elif (obsName.startswith("rapidity4l")): data_obs = ROOT.RooDataSet("data_obs","data_obs",data_obs_tree,ROOT.RooArgSet(m,observable,chan),"(CMS_zz4l_mass>105.0 && CMS_zz4l_mass<140.0 && abs("+obsName_help+")>="+obsBin_low+" && abs("+obsName_help+")<"+obsBin_high+" && chan == 1)")

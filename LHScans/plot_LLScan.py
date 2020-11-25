@@ -131,12 +131,12 @@ channel = ["Expected","Expected - no syst.","Observed","Observed - no syst."]
 inputPath = '../combine_files/'
 
 fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
-            "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.root",
+            "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root",
        ]
 
 if(opt.UNBLIND):
     fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
-                "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.root",
+                "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root",
                     "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.root",
                     "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.root"
                    ]
@@ -181,7 +181,7 @@ nBins = len(obs_bins)
 for i in range(nBins-1):
     _bin = i
     _obs_bin = _poi+str(i)
-    
+
     if obsName == 'mass4l':
         if _bin == 1:
             _obs_bin = 'r2e2muBin0'
@@ -223,8 +223,8 @@ for i in range(nBins-1):
                 elif _bin == 3:
                     if obsName == 'mass4l':
                         graphs[ifile].SetPoint(ipoint,entry.r4eBin0,2.0*entry.deltaNLL)
-                    else:                   
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin3,2.0*entry.deltaNLL)                
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin3,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 4:
                     graphs[ifile].SetPoint(ipoint,entry.SigmaBin4,2.0*entry.deltaNLL)
@@ -363,7 +363,7 @@ for i in range(nBins-1):
         Text4.Draw()
 
     Text = TPaveText(0.58, 0.88,0.93,0.95,'brNDC')
-    #Text.SetNDC() 
+    #Text.SetNDC()
     Text.SetTextAlign(31);
     Text.SetTextSize(0.03)
     leftText = "CMS"
@@ -410,7 +410,7 @@ for i in range(nBins-1):
     c.Update()
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".pdf")
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".png")
-    
+
 with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
     f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
 
