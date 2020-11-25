@@ -118,12 +118,12 @@ int main (int argc, char ** argv){
   TCanvas *c1;
   setCavasAndStyles("c1",c1,"");
 
-  TString obsTag = "pT4l";
-  const int N_BINS = 8;
-  TString binRange[N_BINS]     = {"0_10", "10_20", "15_30", "30_45", "45_80", "80_120", "120_200", "200_1300"};
-  TString binRangeLow[N_BINS]  = {"0", "10", "20", "30", "45", "80", "120", "200"};
-  TString binRangeHigh[N_BINS] = {"10", "20", "30", "45", "80", "120", "200", "1300"};
-  TString binRangeLeg[N_BINS]  = {"0 < pT < 10 GeV", "10 < pT < 15 GeV", "20 < pT < 30 GeV", "30 < pT < 45 GeV", "45 < pT < 80 GeV", "80 < pT < 120 GeV", "120 < pT < 200 GeV", "200 < pT < 1300 GeV"};
+  // TString obsTag = "pT4l";
+  // const int N_BINS = 8;
+  // TString binRange[N_BINS]     = {"0_10", "10_20", "15_30", "30_45", "45_80", "80_120", "120_200", "200_1300"};
+  // TString binRangeLow[N_BINS]  = {"0", "10", "20", "30", "45", "80", "120", "200"};
+  // TString binRangeHigh[N_BINS] = {"10", "20", "30", "45", "80", "120", "200", "1300"};
+  // TString binRangeLeg[N_BINS]  = {"0 < pT < 10 GeV", "10 < pT < 15 GeV", "20 < pT < 30 GeV", "30 < pT < 45 GeV", "45 < pT < 80 GeV", "80 < pT < 120 GeV", "120 < pT < 200 GeV", "200 < pT < 1300 GeV"};
 
   // TString obsTag = "rapidity4l";
   // const int N_BINS = 6;
@@ -145,6 +145,13 @@ int main (int argc, char ** argv){
   // TString binRangeLow[N_BINS]  = {"12", "24", "28", "32", "40", "48"};
   // TString binRangeHigh[N_BINS] = {"24", "28", "32", "40", "48", "65"};
   // TString binRangeLeg[N_BINS]  = {"12 <  m(Z2) < 24 GeV", "24 < m(Z2) < 28 GeV", "28 < m(Z2) < 32 GeV", "32 < m(Z2) < 40 GeV", "40 < m(Z2) < 48 GeV", "48 < m(Z2) < 65 GeV"};
+
+  TString obsTag = "njets_pt30_eta2p5";
+  const int N_BINS = 5;
+  TString binRange[N_BINS]     = {"0_1", "1_2", "2_3", "3_4", "4_20"};
+  TString binRangeLow[N_BINS]  = {"0", "1", "2", "3", "4"};
+  TString binRangeHigh[N_BINS] = {"1", "2", "3", "4", "20"};
+  TString binRangeLeg[N_BINS]  = {"nJet=0", "nJet=1", "nJet=2", "nJet=3", "nJet>=4"};
 
   const int N_BKGS = 3;
   TString bkgName[N_BKGS]   = {"qqzz", "ggzz", "ZJetsCR"};

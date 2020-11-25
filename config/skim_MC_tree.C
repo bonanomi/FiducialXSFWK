@@ -183,6 +183,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
+  Short_t _GENnjets_pt30_eta2p5;
   bool _passedFiducialSelection,_passedFiducialSelection_NOISO,_passedFullSelection;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
   vector<Short_t> _GenLepIdSorted;
@@ -192,6 +193,8 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   vector<float> *GENlep_phi = 0;
   vector<float> *GENlep_mass = 0;
   vector<float> *GENlep_id = 0;
+  vector<float> *GenCleanedJetPt = 0;
+  vector<float> *GenCleanedJetEta = 0;
   TBranch *GenLepPtSorted = T->Branch("GenLepPtSorted",&_GenLepPtSorted);
   TBranch *GenLepEtaSorted = T->Branch("GenLepEtaSorted",&_GenLepEtaSorted);
   TBranch *GenLepPhiSorted = T->Branch("GenLepPhiSorted",&_GenLepPhiSorted);
@@ -199,6 +202,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   TBranch *passedFiducialSelection = T->Branch("passedFiducialSelection",&_passedFiducialSelection,"passedFiducialSelection/B");
   TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
   TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
+  TBranch *GENnjets_pt30_eta2p5 = T->Branch("GENnjets_pt30_eta2p5",&_GENnjets_pt30_eta2p5,"GENnjets_pt30_eta2p5/S");
 
   T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
   T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);
@@ -229,7 +233,12 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   T->SetBranchAddress("GENlep_phi",&GENlep_phi);
   T->SetBranchAddress("GENlep_mass",&GENlep_mass);
   T->SetBranchAddress("GENlep_id",&GENlep_id);
+  T->SetBranchAddress("GenCleanedJetPt",&GenCleanedJetPt);
+  T->SetBranchAddress("GenCleanedJetEta",&GenCleanedJetEta);
+
   float _ZZy,ZZPt,ZZEta;
+  Short_t nCleanedJetsPt30,nCleanedJetsPt30_jesUp,nCleanedJetsPt30_jesDn;
+  Short_t _njets_pt30_eta2p5,_njets_pt30_eta2p5_jesup,_njets_pt30_eta2p5_jesdn;
   vector<float> *LepPt = 0;
   vector<float> *LepPhi = 0;
   vector<float> *LepEta = 0;
@@ -239,10 +248,18 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   vector<float> *ExtraLepPhi = 0;
   vector<int> *ExtraLepLepId = 0;
   vector<int> _lep_genindex, _lep_Hindex;
-  
+  vector<float> *JetPt = 0;
+  vector<float> *JetEta = 0;
+  vector<float> *JetPt_JESUp = 0;
+  vector<float> *JetPt_JESDown = 0;
+
+
   TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
   TBranch *lep_genindex = T->Branch("lep_genindex",&_lep_genindex);
   TBranch *lep_Hindex = T->Branch("lep_Hindex",&_lep_Hindex);
+  TBranch *njets_pt30_eta2p5 = T->Branch("njets_pt30_eta2p5",&_njets_pt30_eta2p5,"njets_pt30_eta2p5/S");
+  TBranch *njets_pt30_eta2p5_jesup = T->Branch("njets_pt30_eta2p5_jesup",&_njets_pt30_eta2p5_jesup,"_njets_pt30_eta2p5_jesup/S");
+  TBranch *njets_pt30_eta2p5_jesdn = T->Branch("njets_pt30_eta2p5_jesdn",&_njets_pt30_eta2p5_jesdn,"_njets_pt30_eta2p5_jesdn/S");
 
   if (!t_failed) {
     T->SetBranchAddress("ZZPt",&ZZPt);
@@ -255,6 +272,13 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     T->SetBranchAddress("ExtraLepEta",&ExtraLepEta);
     T->SetBranchAddress("ExtraLepPhi",&ExtraLepPhi);
     T->SetBranchAddress("ExtraLepLepId",&ExtraLepLepId);
+    T->SetBranchAddress("nCleanedJetsPt30",&nCleanedJetsPt30);
+    T->SetBranchAddress("nCleanedJetsPt30_jesUp",&nCleanedJetsPt30_jesUp);
+    T->SetBranchAddress("nCleanedJetsPt30_jesDn",&nCleanedJetsPt30_jesDn);
+    T->SetBranchAddress("JetPt",&JetPt);
+    T->SetBranchAddress("JetEta",&JetEta);
+    T->SetBranchAddress("JetPt_JESUp",&JetPt_JESUp);
+    T->SetBranchAddress("JetPt_JESDown",&JetPt_JESDown);
   }
 
   Long64_t nentries = T->GetEntries();
@@ -273,8 +297,6 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     t3.SetPtEtaPhiM(GenLep3Pt,GenLep3Eta,GenLep3Phi,GenLep3Mass);
     t4.SetPtEtaPhiM(GenLep4Pt,GenLep4Eta,GenLep4Phi,GenLep4Mass);
     vector<TLorentzVector> GenLep {t1,t2,t3,t4};
-
-    // Sort genleptons
     pair<vector<TLorentzVector>,vector<Short_t>> sortedGenLeptons;
     if(t3.Pt()!=0) sortedGenLeptons = sort(GenLep,GenLepId);
     else sortedGenLeptons = sort_2(GenLep,GenLepId); /* Different function for cases in which there are just two GenLeptons, otherwise strange errors with
@@ -293,7 +315,15 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
 
     _passedFullSelection = true;
     if (t_failed) {
-	_passedFullSelection = false;
+	     _passedFullSelection = false;
+    }
+
+    // GenJet variables (kinematical cuts pT>30 && abs(eta)<2.5)
+    _GENnjets_pt30_eta2p5 = 0;
+    for(unsigned int i =0;i<GenCleanedJetPt->size();i++){
+      if(GenCleanedJetPt->at(i)>30 && abs(GenCleanedJetEta->at(i))<2.5){
+        _GENnjets_pt30_eta2p5++;
+      }
     }
 
     GenLepPtSorted->Fill();
@@ -303,30 +333,46 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     passedFiducialSelection->Fill();
     passedFiducialSelection_NOISO->Fill();
     passedFullSelection->Fill();
-    
+    GENnjets_pt30_eta2p5->Fill();
+
     GenLepSorted.clear();
     _GenLepPtSorted.clear();
     _GenLepEtaSorted.clear();
     _GenLepPhiSorted.clear();
     _GenLepIdSorted.clear();
 
-    if (t_failed) continue;
+    if (t_failed) continue; // From now on reco-only variables
+
+    //
+    _njets_pt30_eta2p5 = 0;
+    for(unsigned int i=0;i<JetPt->size();i++){
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5){
+        _njets_pt30_eta2p5++;
+      }
+    }
+    // JES down
+    _njets_pt30_eta2p5_jesdn = 0;
+    for(unsigned int i=0;i<JetPt_JESDown->size();i++){
+      if(JetPt_JESDown->at(i)>30 && abs(JetEta->at(i))<2.5){ // eta is not affected by jes
+        _njets_pt30_eta2p5_jesdn++;
+      }
+    }
+    // JES up
+    _njets_pt30_eta2p5_jesup = 0;
+    for(unsigned int i=0;i<JetPt_JESUp->size();i++){
+      if(JetPt_JESUp->at(i)>30 && abs(JetEta->at(i))<2.5){ // eta is not affected by jes
+        _njets_pt30_eta2p5_jesup++;
+      }
+    }
+    njets_pt30_eta2p5->Fill();
+    njets_pt30_eta2p5_jesdn->Fill();
+    njets_pt30_eta2p5_jesup->Fill();
 
     // Reco-rapidity
     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
     ZZy->Fill();
 
     // GEN matching
-    // for each reco lepton find the nearest gen lepton with same ID
-    // Concatenate lepts with extralepts
-    // _lep_pt = *LepPt;
-    // _lep_pt.insert(_lep_pt.end(),ExtraLepPt->begin(),ExtraLepPt->end());
-    // _lep_eta = *LepEta;
-    // _lep_eta.insert(_lep_eta.end(),ExtraLepEta->begin(),ExtraLepEta->end());
-    // _lep_phi = *LepPhi;
-    // _lep_phi.insert(_lep_phi.end(),ExtraLepPhi->begin(),ExtraLepPhi->end());
-    // _lep_id = *LepLepId;
-    // _lep_id.insert(_lep_id.end(),ExtraLepLepId->begin(),ExtraLepLepId->end());
     for(unsigned int i=0;i<LepPt->size();i++){
       _lep_genindex.push_back(-1);
     }
@@ -346,15 +392,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
         } // all gen leptons
     } // all reco leptons
     lep_genindex->Fill();
-    // lep_pt->Fill();
-    // lep_eta->Fill();
-    // lep_phi->Fill();
-    // lep_id->Fill();
     _lep_genindex.clear();
-    // _lep_pt.clear();
-    // _lep_eta.clear();
-    // _lep_phi.clear();
-    // _lep_id.clear();
 
     for(unsigned int i=0;i<LepPt->size();i++){
       _lep_Hindex.push_back(-1);
@@ -413,6 +451,15 @@ void skim_MC_tree (TString prod_mode = "ZH125", TString year = "2017"){
   oldtree->SetBranchStatus("Z2Flav",1);
   oldtree->SetBranchStatus("ZZPt",1);
   oldtree->SetBranchStatus("ZZEta",1);
+  oldtree->SetBranchStatus("nCleanedJetsPt30",1);
+  oldtree->SetBranchStatus("nCleanedJetsPt30_jesUp",1);
+  oldtree->SetBranchStatus("nCleanedJetsPt30_jesDn",1);
+  oldtree->SetBranchStatus("JetPt",1);
+  oldtree->SetBranchStatus("JetEta",1);
+  oldtree->SetBranchStatus("JetPhi",1);
+  oldtree->SetBranchStatus("JetMass",1);
+  oldtree->SetBranchStatus("JetPt_JESUp",1);
+  oldtree->SetBranchStatus("JetPt_JESDown",1);
   oldtree->SetBranchStatus("GenHMass",1);
   oldtree->SetBranchStatus("GenHPt",1);
   oldtree->SetBranchStatus("GenHRapidity",1);
@@ -481,6 +528,7 @@ void skim_MC_tree (TString prod_mode = "ZH125", TString year = "2017"){
   oldtree->SetBranchStatus("ExtraLepLepId",1);
   oldtree->SetBranchStatus("PUWeight",1);
   oldtree->SetBranchStatus("genHEPMCweight",1);
+  oldtree->SetBranchStatus("genHEPMCweight_NNLO",1);
   oldtree->SetBranchStatus("overallEventWeight",1);
   oldtree->SetBranchStatus("L1prefiringWeight",1);
   oldtree->SetBranchStatus("dataMCWeight",1);
@@ -598,6 +646,7 @@ void skim_MC_tree (TString prod_mode = "ZH125", TString year = "2017"){
   oldtree_failed->SetBranchStatus("LHEweight_AsMZ_Dn",1);
   oldtree_failed->SetBranchStatus("PUWeight",1);
   oldtree_failed->SetBranchStatus("genHEPMCweight",1);
+  oldtree_failed->SetBranchStatus("genHEPMCweight_NNLO",1);
   oldtree_failed->SetBranchStatus("GENfinalState",1);
   oldtree_failed->SetBranchStatus("passedFiducialSelection_bbf",1);
   oldtree_failed->SetBranchStatus("GENlep_pt",1);

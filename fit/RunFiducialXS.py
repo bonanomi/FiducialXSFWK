@@ -87,6 +87,8 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
     print '[Producing workspace/datacards for obsName '+obsName+', bins '+str(observableBins)+']'
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
+    if 'jet' in obs_name: JES = True
+    else: JES = False
     for year in years:
         os.chdir('../datacard/datacard_'+year)
         print 'Current diretory: datacard_'+year
@@ -94,7 +96,7 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
             if (not obsName.startswith("mass4l")):
                 for obsBin in range(nBins-1):
                     ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, PhysicalModel, year)
-                    createDatacard(obsName, fState, nBins, obsBin, observableBins, PhysicalModel, year, ndata)
+                    createDatacard(obsName, fState, nBins, obsBin, observableBins, PhysicalModel, year, ndata, JES)
                     os.chdir('../datacard/datacard_'+year)
             else:
                 ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, PhysicalModel, year)
@@ -126,9 +128,9 @@ def runFiducialXS():
 
     ## addConstrainedModel
     if(runAllSteps or opt.combineOnly):
-	
+
         years_bis = years
-         
+
 	if(opt.YEAR == 'Full'):
             years_bis.append('Full')
         for year in years_bis:
@@ -141,7 +143,7 @@ def runFiducialXS():
                 print 'addConstrainedModel '+year+' already done'
 
 	print 'addConstrainedModel DONE'
-    
+
 	DataModelName = 'SM_125'
         PhysicalModel = 'v3'
 
@@ -216,9 +218,9 @@ def runFiducialXS():
                 XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                 XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                 XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-	
+
                 XH[obsBin]+=XH_fs
-                
+
             _obsxsec = XH[obsBin]
             cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150'
             if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
@@ -279,4 +281,3 @@ def runFiducialXS():
 # ----------------- Main -----------------
 runFiducialXS()
 print "all modules successfully compiled"
-
