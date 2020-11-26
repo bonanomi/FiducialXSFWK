@@ -87,7 +87,7 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
     print '[Producing workspace/datacards for obsName '+obsName+', bins '+str(observableBins)+']'
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
-    if 'jet' in obsName: JES = True
+    if (('jet' in obsName) | (obsName == 'pTj1')): JES = True
     else: JES = False
     for year in years:
         os.chdir('../datacard/datacard_'+year)
@@ -95,11 +95,11 @@ def produceDatacards(obsName, observableBins, ModelName, PhysicalModel):
         for fState in fStates:
             if (not obsName.startswith("mass4l")):
                 for obsBin in range(nBins-1):
-                    ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, PhysicalModel, year)
+                    ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, PhysicalModel, year, JES)
                     createDatacard(obsName, fState, nBins, obsBin, observableBins, PhysicalModel, year, ndata, JES)
                     os.chdir('../datacard/datacard_'+year)
             else:
-                ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, PhysicalModel, year)
+                ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, PhysicalModel, year, JES)
                 if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
                 if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
                 os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")

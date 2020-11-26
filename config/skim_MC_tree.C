@@ -239,6 +239,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   float _ZZy,ZZPt,ZZEta;
   Short_t nCleanedJetsPt30,nCleanedJetsPt30_jesUp,nCleanedJetsPt30_jesDn;
   Short_t _njets_pt30_eta2p5,_njets_pt30_eta2p5_jesup,_njets_pt30_eta2p5_jesdn;
+  Float_t _pTj1, _GENpTj1;
   vector<float> *LepPt = 0;
   vector<float> *LepPhi = 0;
   vector<float> *LepEta = 0;
@@ -260,6 +261,9 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
   TBranch *njets_pt30_eta2p5 = T->Branch("njets_pt30_eta2p5",&_njets_pt30_eta2p5,"njets_pt30_eta2p5/S");
   TBranch *njets_pt30_eta2p5_jesup = T->Branch("njets_pt30_eta2p5_jesup",&_njets_pt30_eta2p5_jesup,"_njets_pt30_eta2p5_jesup/S");
   TBranch *njets_pt30_eta2p5_jesdn = T->Branch("njets_pt30_eta2p5_jesdn",&_njets_pt30_eta2p5_jesdn,"_njets_pt30_eta2p5_jesdn/S");
+
+  TBranch *pTj1 = T->Branch("pTj1",&_pTj1,"pTj1/F");
+  TBranch *GENpTj1 = T->Branch("GENpTj1",&_GENpTj1,"GENpTj1/F");
 
   if (!t_failed) {
     T->SetBranchAddress("ZZPt",&ZZPt);
@@ -326,6 +330,15 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
       }
     }
 
+    // leading GENjet pT
+    _GENpTj1 = 0;
+    for (unsigned int i = 0; i < GenCleanedJetPt->size(); ++i)
+    {
+      if(GenCleanedJetPt->at(i) > 30. && abs(GenCleanedJetEta->at(i)) < 2.5 && GenCleanedJetPt->at(i) > _GENpTj1) {
+        _GENpTj1 = GenCleanedJetPt->at(i);
+      }
+    }
+    GENpTj1->Fill();
     GenLepPtSorted->Fill();
     GenLepEtaSorted->Fill();
     GenLepPhiSorted->Fill();
@@ -342,6 +355,15 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
     _GenLepIdSorted.clear();
 
     if (t_failed) continue; // From now on reco-only variables
+
+    // leading jet pT
+    _pTj1 = 0;
+    for (unsigned int i = 0; i < JetPt->size(); ++i)
+    {
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt->at(i) > _pTj1) {
+        _pTj1 = JetPt->at(i);
+      }
+    }
 
     // njets
     _njets_pt30_eta2p5 = 0;
@@ -364,6 +386,7 @@ void add(TString input_dir, TString year, TString prod_mode, bool t_failed=true)
         _njets_pt30_eta2p5_jesup++;
       }
     }
+    pTj1->Fill();
     njets_pt30_eta2p5->Fill();
     njets_pt30_eta2p5_jesdn->Fill();
     njets_pt30_eta2p5_jesup->Fill();
@@ -736,3 +759,4 @@ void skim_MC_tree (TString prod_mode = "ZH125", TString year = "2017"){
 
   return 0;
 }
+

@@ -106,13 +106,13 @@ def add_njets(pt,eta):
         if pt[i]>30 and abs(eta[i])<2.5: n=n+1
     return n
 def add_leadjet(pt,eta):
-    pT = []
-    for i in range(len(pt)):
-        if pt[i]>30 and abs(eta[i])<2.5: pT.append(pt)
-    if len(pT)!=0:
-        return np.max(pT)
+    _pTj1 = 0.0
+    if len(pt) == 0:
+	return _pTj1
     else:
-        return -1
+        for i in range(len(pt)):
+            if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1): _pTj1 = pt[i]
+        return _pTj1 
 
 # Rapidity
 def rapidity(p, eta):
@@ -349,7 +349,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                     w = df['weight'].to_numpy()
                     w = np.asarray(w).astype('float')
                     # ------
-		    if (obs_name == 'rapidity4l'):
+		    if(obs_name == 'rapidity4l'):
 			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
 		    else:
                     	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
@@ -391,13 +391,13 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if (obs_name == 'rapidity4l'):
+                if(obs_name == 'rapidity4l'):
 			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
                 else:
                 	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-		if (obs_name == 'rapidity4l'):
+                if(obs_name == 'rapidity4l'):
 			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
 		else:
                 	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
@@ -433,6 +433,7 @@ elif(obs_name == 'pT4l'): obs_reco = 'ZZPt'
 elif(obs_name == 'massZ1'): obs_reco = 'Z1Mass'
 elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
 elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
+elif(obs_name == 'pTj1'): obs_reco = 'pTj1'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
