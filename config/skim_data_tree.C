@@ -57,13 +57,14 @@ void skim_data_tree (int year = 2017){
   Short_t Z1Flav,Z2Flav;
   float ZZMass, ZZPt, ZZEta;
   float _chan, _CMS_zz4l_mass, _ZZy;
-  float _njets_pt30_eta2p5;
+  float _njets_pt30_eta2p5, _pTj1;
   vector<float> *JetPt = 0;
   vector<float> *JetEta = 0;
   TBranch *chan = T->Branch("chan",&_chan,"chan/F");
   TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
   TBranch *CMS_zz4l_mass = T->Branch("CMS_zz4l_mass",&_CMS_zz4l_mass,"CMS_zz4l_mass/F");
   TBranch *njets_pt30_eta2p5 = T->Branch("njets_pt30_eta2p5",&_njets_pt30_eta2p5,"njets_pt30_eta2p5/F");
+  TBranch *pTj1 = T->Branch("pTj1",&_pTj1,"pTj1/F");
   T->SetBranchAddress("Z1Flav",&Z1Flav);
   T->SetBranchAddress("Z2Flav",&Z2Flav);
   T->SetBranchAddress("ZZMass",&ZZMass);
@@ -95,7 +96,15 @@ void skim_data_tree (int year = 2017){
       }
     }
 
+    _pTj1 = 0;
+    for(unsigned int i=0;i<JetPt->size();i++){
+      if (JetPt->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt->at(i) > _pTj1){
+        _pTj1 = JetPt->at(i);
+      }
+    }
+
     njets_pt30_eta2p5->Fill();
+    pTj1->Fill();
     ZZy->Fill();
     chan->Fill();
     CMS_zz4l_mass->Fill();
@@ -106,3 +115,4 @@ void skim_data_tree (int year = 2017){
 
   return 0;
 }
+

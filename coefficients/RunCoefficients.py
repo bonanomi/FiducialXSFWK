@@ -72,7 +72,6 @@ def weight(df, fail, xsec, gen, lumi, additional = None):
         df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
     return df
 
-
 # Uproot to generate pandas
 def prepareTrees(year):
     d_sig = {}
@@ -185,11 +184,12 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
     b_sig = ['EventNumber','GENmass4l', 'GENpT4l', 'GENrapidity4l', 'GENeta4l',
              'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
-             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5']
+             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5', 
+             'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
                           'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
-                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn']) #Additioanl entries for passing events
+                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1']) #Additioanl entries for passing events
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
@@ -230,6 +230,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
     else:
         df = weight(df, fail, xsec, gen, lumi, 'ggH')
         df = df.drop(columns=['ggH_NNLOPS_weight'])
+
     return df
 
 
@@ -521,9 +522,12 @@ elif(obs_name == 'massZ2'):
 elif(obs_name == 'mass4l'):
     obs_reco = 'ZZMass'
     obs_gen = 'GENmass4l'
-if (obs_name == "njets_pt30_eta2p5"):
+elif(obs_name == "njets_pt30_eta2p5"):
     obs_reco = "njets_pt30_eta2p5"
     obs_gen = "GENnjets_pt30_eta2p5"
+elif(obs_name == 'pTj1'):
+    obs_reco = 'pTj1'
+    obs_gen = 'GENpTj1' 
 
 # Generate dataframes
 d_sig = {}
@@ -587,3 +591,4 @@ print 'Coeff fullNNLOPS'
 acceptance = {}
 err_acceptance = {}
 doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
+

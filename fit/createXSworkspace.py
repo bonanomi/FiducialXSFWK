@@ -68,6 +68,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             if obsName == "massZ2": obsName_help = "Z2Mass"
             if obsName == "massZ1": obsName_help = "Z1Mass"
             if obsName == "njets_pt30_eta2p5": obsName_help = "njets_pt30_eta2p5"
+            if obsName == "pTj1": obsName_help = "pTj1"
             observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
         observable.Print()
 

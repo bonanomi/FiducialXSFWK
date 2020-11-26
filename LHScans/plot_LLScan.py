@@ -58,7 +58,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     bestfit = None
 
     for i in xrange(graph.GetN()):
-        if graph.GetY()[i] < 0.005:
+        if graph.GetY()[i] < 0.003:
             bestfit = graph.GetX()[i]
 
     if graph.GetY()[i] == 0:
@@ -173,7 +173,8 @@ if(obsName == 'rapidity4l'): label = '|y_{H}|'
 if(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
 if(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
 if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
-
+if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
+if(obsName == 'pTj1'): label = 'p_{T}^{(Lead. jet)} (GeV)'
 obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
 obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 nBins = len(obs_bins)
@@ -181,7 +182,7 @@ nBins = len(obs_bins)
 for i in range(nBins-1):
     _bin = i
     _obs_bin = _poi+str(i)
-
+    
     if obsName == 'mass4l':
         if _bin == 1:
             _obs_bin = 'r2e2muBin0'
@@ -223,8 +224,8 @@ for i in range(nBins-1):
                 elif _bin == 3:
                     if obsName == 'mass4l':
                         graphs[ifile].SetPoint(ipoint,entry.r4eBin0,2.0*entry.deltaNLL)
-                    else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin3,2.0*entry.deltaNLL)
+                    else:                   
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin3,2.0*entry.deltaNLL)                
                     ipoint = ipoint+1
                 elif _bin == 4:
                     graphs[ifile].SetPoint(ipoint,entry.SigmaBin4,2.0*entry.deltaNLL)
@@ -239,7 +240,7 @@ for i in range(nBins-1):
                     graphs[ifile].SetPoint(ipoint,entry.SigmaBin7,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
 
-    c=TCanvas()
+    c=TCanvas("c", "c", 1000, 800)
     c.SetLeftMargin(0.14)
     c.SetRightMargin(0.08)
     c.cd()
@@ -312,12 +313,12 @@ for i in range(nBins-1):
     leg.Draw("SAME")
 
     poi = _obs_bin
-    fname = inputPath + "higgsCombine_pT4l_"+poi+".MultiDimFit.mH125.38.123456.root"
+    fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.123456.root"
     exp_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
     exp_nom = exp_scan['val']
     exp_2sig = exp_scan['val_2sig']
 
-    fname = inputPath + "higgsCombine_pT4l_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.root"
+    fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.123456.root"
     exp_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
     exp_nom_stat = exp_scan_stat['val']
     exp_2sig_stat = exp_scan_stat['val_2sig']
@@ -326,12 +327,12 @@ for i in range(nBins-1):
     exp_do_sys = np.sqrt(abs(exp_nom[2])**2 - abs(exp_nom_stat[2])**2)
 
     if (opt.UNBLIND):
-        fname = inputPath + "higgsCombine_pT4l_"+poi+".MultiDimFit.mH125.38.root"
+        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.root"
         obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom = obs_scan['val']
         obs_2sig = obs_scan['val_2sig']
 
-        fname = inputPath + "higgsCombine_pT4l_"+poi+"_NoSys.MultiDimFit.mH125.38.root"
+        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys.MultiDimFit.mH125.38.root"
         obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom_stat = obs_scan_stat['val']
         obs_2sig_stat = obs_scan_stat['val_2sig']
@@ -363,7 +364,7 @@ for i in range(nBins-1):
         Text4.Draw()
 
     Text = TPaveText(0.58, 0.88,0.93,0.95,'brNDC')
-    #Text.SetNDC()
+    #Text.SetNDC() 
     Text.SetTextAlign(31);
     Text.SetTextSize(0.03)
     leftText = "CMS"
@@ -388,7 +389,13 @@ for i in range(nBins-1):
     latex2.SetTextSize(0.04)
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
-    latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
+    if not 'jet' in obsName:
+	if 'pTj1' in obsName:
+		latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
+	else:
+        	latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
+    else:
+        latex2.DrawLatex(0.45,0.65, str(_bin)+' jet(s)')
     latex2.DrawLatex(0.91,0.22, "#scale[0.7]{#color[12]{68% CL}}")
     latex2.DrawLatex(0.91,0.52, "#scale[0.7]{#color[12]{95% CL}}")
 
@@ -410,7 +417,7 @@ for i in range(nBins-1):
     c.Update()
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".pdf")
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".png")
-
+    
 with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
     f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
 
