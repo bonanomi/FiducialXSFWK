@@ -434,6 +434,7 @@ elif(obs_name == 'massZ1'): obs_reco = 'Z1Mass'
 elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
 elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
 elif(obs_name == 'pTj1'): obs_reco = 'pTj1'
+elif(obs_name == 'mass4l'): obs_reco = 'ZZMass'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
