@@ -151,7 +151,7 @@ def runFiducialXS():
     PhysicalModel = 'v3'
 
     produceDatacards(obsName, observableBins, DataModelName, PhysicalModel)
-
+    #os.chdir('../datacard/datacard_'+year)
     # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
@@ -237,7 +237,6 @@ def runFiducialXS():
             tmp_xs[channel+'_genbin'+str(obsBin)] = fidxs
 
     cmd_BR = ""
-    idx = 0.0
     for obsBin in range(nBins-1):
         fidxs4e = tmp_xs['4e_genbin'+str(obsBin)]
         fidxs4mu = tmp_xs['4mu_genbin'+str(obsBin)]
@@ -252,10 +251,7 @@ def runFiducialXS():
         K1 = frac4e/frac4e_sm
         K2 = frac4mu/frac4mu_sm * (1.0-frac4e_sm)/(1.0-frac4e)
 
-        cmd_BR += 'K1Bin'+str(obsBin)+'='+str(K1)+',K2Bin'+str(obsBin)+'='+str(K2)
-        if idx > 0:
-            cmd_BR += ','
-        idx+=1
+        cmd_BR += 'K1Bin'+str(obsBin)+'='+str(K1)+',K2Bin'+str(obsBin)+'='+str(K2)+','
 
     print(cmd_BR)
     
@@ -271,7 +267,7 @@ def runFiducialXS():
             XH[obsBin]+=XH_fs
 
         _obsxsec = XH[obsBin]
-        cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150'
+        cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --cminDefaultMinimizerStrategy 0'
         if(not opt.UNBLIND): 
             cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
             if(opt.FIXFRAC):
@@ -296,7 +292,7 @@ def runFiducialXS():
         if(not opt.UNBLIND): cmd = cmd + '_exp'
         cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
         if(not opt.UNBLIND): cmd = cmd + '.123456'
-        cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
+        cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
         if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
         else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
         if(not opt.UNBLIND): 
