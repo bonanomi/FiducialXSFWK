@@ -313,8 +313,8 @@ def smoothAndNormaliseTemplate(h1d, norm):
     normaliseHist(h1d, norm)
 
 def normaliseHist(h1d, norm):
-    if (h1d.Integral() == 0): return -1
-    h1d.Scale(norm/h1d.Integral())
+    if (h1d.Integral() != 0): #return -1
+        h1d.Scale(norm/h1d.Integral())
 
 def fillEmptyBinsHist(h1d, floor):
     nXbins=h1d.GetNbinsX()
@@ -428,7 +428,7 @@ if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
 obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 obs_name = opt.OBSNAME
-if(obs_name == 'rapidity4l'): obs_reco = 'abs(ZZy)'
+if(obs_name == 'rapidity4l'): obs_reco = 'ZZy'
 elif(obs_name == 'pT4l'): obs_reco = 'ZZPt'
 elif(obs_name == 'massZ1'): obs_reco = 'Z1Mass'
 elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
