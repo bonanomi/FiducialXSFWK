@@ -53,6 +53,11 @@ def matrix(obs_bins, obs_reco, obs_gen, obs_name, label):
         obs_bins_label = [0,1,2,3,4,5,6,7] # Number of row and columns
         obs_bins_label_medium = [0.5,1.5,2.5,3.5,4.5,5.5,6.5] # Medium point of each row and column
         bin_max = 7
+    elif len(obs_bins)-1 == 5:
+        obs_bins_label = [0,1,2,3,4,5] # Number of row and columns
+        obs_bins_label_medium = [0.5,1.5,2.5,3.5,4.5] # Medium point of each row and column
+        bin_max = 5
+
 
     tickLabel = tickBin(obs_bins)
     print(tickLabel)
@@ -138,6 +143,12 @@ def nonFid(obs_bins, obs_reco, obs_gen, obs_name, label):
         obs_bins_label_y = [0,1,2,3,4,5] # Number of row and columns
         obs_bins_label_y_medium = [0.5,1.5,2.5,3.5,4.5] # Medium point of each row and column
         bin_max = 7
+    elif len(obs_bins)-1 == 5:
+        obs_bins_label_x = [0,1,2,3,4,5] # Number of row and columns
+        obs_bins_label_x_medium = [0.5,1.5,2.5,3.5,4.5] # Medium point of each row and column
+        obs_bins_label_y = [0,1,2,3,4,5] # Number of row and columns
+        obs_bins_label_y_medium = [0.5,1.5,2.5,3.5,4.5] # Medium point of each row and column
+        bin_max = 5
 
     tickLabel = tickBin(obs_bins)
     print(tickLabel)
@@ -248,6 +259,10 @@ elif(obs_name == 'massZ2'):
     obs_reco = 'Z2Mass'
     obs_gen = 'genZ2Mass'
     label = 'm$_{Z2}$ (GeV)'
+elif (obs_name == "njets_pt30_eta2p5"):
+    obs_reco = "njets_pt30_eta2p5"
+    obs_gen = "GENnjets_pt30_eta2p5"
+    label = 'N$_{jet}$'
 
 matrix(obs_bins, obs_reco, obs_gen, obs_name, label)
 nonFid(obs_bins, obs_reco, obs_gen, obs_name, label)

@@ -154,11 +154,13 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write(ZX[year+'_'+channel]+'\n')
 
     # Param
-    file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
-    file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
-    file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.2 [-1,1]\n')
-    file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.2 [-1,1]\n')
-    file.write('CMS_zz4l_n_sig_3_'+year+' param 0.0 0.05\n')
+    if channelNumber!=2:
+        file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
+        file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.2 [-1,1]\n')
+    if channelNumber!=1:
+        file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
+        file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.2 [-1,1]\n')
+    file.write('CMS_zz4l_n_sig_'+str(channelNumber)+'_'+year+' param 0.0 0.05\n')
 
     # Theoretical
     file.write('QCDscale_ggVV lnN ')
@@ -186,7 +188,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('CMS_zjets_bkgdcompo_'+str(year)+' lnN ')
     for i in range((len(observableBins)-1)+4): # All except ZX
         file.write('- ')
-    file.write('1.34\n')
+    file.write('1.32\n')
 
     # JES
     if jes == True:

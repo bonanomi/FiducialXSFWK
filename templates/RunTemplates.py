@@ -112,7 +112,7 @@ def add_leadjet(pt,eta):
     else:
         for i in range(len(pt)):
             if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1): _pTj1 = pt[i]
-        return _pTj1 
+        return _pTj1
 
 # Rapidity
 def rapidity(p, eta):
@@ -434,6 +434,7 @@ elif(obs_name == 'massZ1'): obs_reco = 'Z1Mass'
 elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
 elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
 elif(obs_name == 'pTj1'): obs_reco = 'pTj1'
+elif(obs_name == 'mass4l'): obs_reco = 'ZZMass'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}

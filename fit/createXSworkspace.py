@@ -360,7 +360,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         elif (physicalModel=="v2"):
             rBin_channel[str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
             rBin_channel[str(genbin)].setConstant(True)
-            if ("jet" in obsName):
+            if ("jet" in obsName): # Even if we will not use v2 with jet variables, we keep this option in case of need
                 trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2*(1-@3)", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
             else:
                 trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))

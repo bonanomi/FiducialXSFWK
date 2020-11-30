@@ -43,14 +43,17 @@ if(obsName == 'pT4l'): label = 'p$_T^H$ (GeV)'
 if(obsName == 'massZ1'): label = 'm$_{Z1}$ (GeV)'
 if(obsName == 'massZ2'): label = 'm$_{Z2}$ (GeV)'
 if(obsName == 'njets_pt30_eta2p5'): label = 'N$_{jet}$'
+if(obsName == 'pTj1'): label = 'p$_T^{j1}$ (GeV)'
+if(obsName == 'mass4l'): label = 'mass4l (GeV)'
 
-bins = {'rapidity4l': [0, 0.15, 0.3, 0.6, 0.9, 1.2, 2.5], 'pT4l': [0, 10, 20, 30, 45, 80, 120, 200, 1300], 'njets_pt30_eta2p5': [0,1,2,3,4,20]}
+bins = {'rapidity4l': [0, 0.15, 0.3, 0.6, 0.9, 1.2, 2.5], 'pT4l': [0, 10, 20, 30, 45, 80, 120, 200, 1300], 'njets_pt30_eta2p5': [0,1,2,3,4,20], 'pTj1': [0,30,55,95,200,1300], 'mass4l': [105,140]}
 if obsName=="mass4l": obsbins = ['SigmaBin0','r2e2muBin0','r4muBin0','r4eBin0']
 elif obsName=="pT4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5','SigmaBin6', 'SigmaBin7']
 elif obsName=="massZ2": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="massZ1": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="rapidity4l": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4','SigmaBin5']
 elif obsName=="njets_pt30_eta2p5": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4']
+elif obsName=="pTj1": obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4']
 else: obsbins = ['SigmaBin0','SigmaBin1','SigmaBin2','SigmaBin3','SigmaBin4']
 
 for obsbin in obsbins:
@@ -795,11 +798,15 @@ for obsbin in obsbins:
 
     if (obsName=="mass4l"):
         if (obsbin=="SigmaBin0"):
-            with open('resultsXS_LHScan_mass4l_v3.py', 'w') as f:
-                f.write('resultsXS = '+str(resultsXS)+' \n')
+            with open('resultsXS_LHScan_expected_mass4l_v3.py', 'w') as f:
+                f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
+            with open('resultsXS_LHScan_observed_mass4l_v3.py', 'w') as f:
+                f.write('resultsXS = '+str(resultsXS_data)+' \n')
         else:
-            with open('resultsXS_LHScan_mass4l_v2.py', 'w') as f:
-                f.write('resultsXS = '+str(resultsXS)+' \n')
+            with open('resultsXS_LHScan_expected_mass4l_v2.py', 'w') as f:
+                f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
+            with open('resultsXS_LHScan_observed_mass4l_v2.py', 'w') as f:
+                f.write('resultsXS = '+str(resultsXS_data)+' \n')
     else:
         with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
             f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
