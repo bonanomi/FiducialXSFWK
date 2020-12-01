@@ -197,6 +197,7 @@ def impactPlots():
             elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v2_'+obsName+'_r'+channel+'Bin0_data --POI r'+channel+'Bin0'
             print cmd, '\n'
             output = processCmd(cmd)
+
 # ----------------- Main -----------------
 impactPlots()
 

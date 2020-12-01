@@ -172,6 +172,7 @@ else:
 _poi    = 'SigmaBin'
 obsName = opt.OBSNAME
 
+if(obsName == 'mass4l'): label = 'm_{4l}'
 if(obsName == 'rapidity4l'): label = '|y_{H}|'
 if(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
 if(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'

@@ -720,7 +720,8 @@ def plotXS(obsName, obs_bins):
         elif (obsName=="massZ2"): offset=20.0
         elif (obsName=="massZ1"): offset=20.0
         elif (obsName=="rapidity4l"): offset=20.0
-        elif (obsName=="pt_leadingjet_pt30_eta2p5"): offset=30.0
+        elif (obsName=="pTj1jet_pt30_eta2p5"): offset=30.0
+        elif (obsName=="pTj1"): offset=30.0
         elif (obsName=="njets_pt30_eta2p5"): offset=999.0
         else: offset = 0.0
         a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(len(obs_bins)-1)])
@@ -1146,10 +1147,10 @@ def plotXS(obsName, obs_bins):
     elif (obsName=="njets_pt30_eta2p5"):
         label = "N(jets)"
         unit = ""
-    elif (obsName=="pt_leadingjet_pt30_eta4p7"):
+    elif (obsName=="pTj1"):
         label = "p_{T}(jet)"
         unit = "GeV"
-    elif (obsName=="pt_leadingjet_pt30_eta2p5"):
+    elif (obsName=="pTj1jet_pt30_eta2p5"):
         label = "p_{T}(jet)"
         unit = "GeV"
     elif (obsName=="absrapidity_leadingjet_pt30_eta4p7"):
@@ -1234,7 +1235,7 @@ def plotXS(obsName, obs_bins):
         else: dummy.SetMaximum(1.5*(max(max(a_ggH_powheg),(max(a_data)+max(a_data_hi)))))
     if (opt.SETLOG):
         dummy.SetMinimum(0.0601*max(min(a_data),(min(a_ggH_powheg))))
-        if (obsName.startswith("pt_leading")): dummy.SetMinimum(0.0801*max(min(a_data),(min(a_ggH_powheg))))
+        if (obsName.startswith("pTj1")): dummy.SetMinimum(0.0801*max(min(a_data),(min(a_ggH_powheg))))
     else: dummy.SetMinimum(0.0001)
     dummy.SetLineColor(0)
     dummy.SetMarkerColor(0)
@@ -1242,7 +1243,7 @@ def plotXS(obsName, obs_bins):
     dummy.SetMarkerSize(0)
     dummy.GetXaxis().SetLabelSize(0.0)
     dummy.GetYaxis().SetLabelSize(0.04)
-    if (opt.SETLOG and (obsName.startswith('njets') or obsName.startswith('pt_leading'))):
+    if (opt.SETLOG and (obsName.startswith('njets') or obsName.startswith('pTj1'))):
         dummy.SetMaximum(200.0*max(max(a_data),(max(a_ggH_powheg))))
         dummy.GetXaxis().SetTitle("")
     else:
@@ -1429,7 +1430,7 @@ def plotXS(obsName, obs_bins):
 
         dummy2.GetYaxis().SetLabelSize(0.03)
         dummy2.GetYaxis().SetNdivisions(10);
-        if (obsName.startswith("pt_leading")): dummy2.GetYaxis().SetNdivisions(8);
+        if (obsName.startswith("pTj1")): dummy2.GetYaxis().SetNdivisions(8);
         dummy2.GetXaxis().SetNdivisions(510)
         ratiomax=1.0
         for i in range(len(data_hi)):

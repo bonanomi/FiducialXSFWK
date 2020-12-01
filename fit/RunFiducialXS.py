@@ -27,7 +27,7 @@ def parseOptions():
     parser.add_option('',   '--asimovModelName',dest='ASIMOVMODEL',type='string',default='SM_125', help='Name of the Asimov Model')
     parser.add_option('',   '--asimovMass',dest='ASIMOVMASS',type='string',default='125.0', help='Asimov Mass')
     parser.add_option('',   '--ModelNames',dest='MODELNAMES',type='string',default='SM_125',help='Names of models for unfolding, separated by | . Default is "SM_125"')
-    parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.0',   help='Mass value for theory prediction')
+    parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.38',   help='Mass value for theory prediction')
     parser.add_option('',   '--fixMass',  dest='FIXMASS',  type='string',default='125.0',   help='Fix mass, default is a string "125.09" or can be changed to another string, e.g."125.6" or "False"')
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
@@ -116,7 +116,9 @@ def runFiducialXS():
     observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
     ## Run for the given observable
     obsName = opt.OBSNAME
+    _th_MH = opt.THEORYMASS
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
+    print 'Theory xsec and BR at MH = '+_th_MH
     print 'Current directory: python'
 
     ## addConstrainedModel
@@ -330,7 +332,6 @@ def runFiducialXS():
                     cmd = cmd+' --setParameters '+cmd_BR
                 print cmd+'\n'
                 output = processCmd(cmd)
-
 
 # ----------------- Main -----------------
 runFiducialXS()
