@@ -112,7 +112,7 @@ def add_leadjet(pt,eta):
     else:
         for i in range(len(pt)):
             if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1): _pTj1 = pt[i]
-        return _pTj1 
+        return _pTj1
 
 # Rapidity
 def rapidity(p, eta):

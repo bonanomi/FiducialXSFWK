@@ -184,7 +184,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
     b_sig = ['EventNumber','GENmass4l', 'GENpT4l', 'GENrapidity4l', 'GENeta4l',
              'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
-             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5', 
+             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
              'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
@@ -209,6 +209,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['njets_pt30_eta2p5'] = -1
         df['njets_pt30_eta2p5_jesup'] = -1
         df['njets_pt30_eta2p5_jesdn'] = -1
+        df['pTj1'] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -527,7 +528,10 @@ elif(obs_name == "njets_pt30_eta2p5"):
     obs_gen = "GENnjets_pt30_eta2p5"
 elif(obs_name == 'pTj1'):
     obs_reco = 'pTj1'
-    obs_gen = 'GENpTj1' 
+    obs_gen = 'GENpTj1'
+elif(obs_name == 'mass4l'):
+    obs_reco = 'ZZMass'
+    obs_gen = 'GENmass4l'
 
 # Generate dataframes
 d_sig = {}
@@ -591,4 +595,3 @@ print 'Coeff fullNNLOPS'
 acceptance = {}
 err_acceptance = {}
 doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
-

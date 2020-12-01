@@ -271,7 +271,7 @@ for fState in fStates:
         lambdajesup['SMdn_125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)] = jesSMdn
 
 
-        print fState,obsName,'recobin',str(recobin),'jesSM',jesSM,'jesSMup',jesSMup,'jesSMdn',jesSMdn
+        # print fState,obsName,'recobin',str(recobin),'jesSM',jesSM,'jesSMup',jesSMup,'jesSMdn',jesSMdn
 
 
 os.system('cp ../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'.py ../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'_ORIG.py')

@@ -30,6 +30,7 @@ def parseOptions():
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='fix the fractions of 4e and 4mu when extracting the results, default is False')
+    parser.add_option('',   '--physicsModel',dest='PHYSICSMODEL',type='string',default='v3',help='In case of mass4l specify explicitly v2, physicsModel to calculate impacts plots for r2e2mu,r4e,r4mu')
 
     # Unblind option
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
@@ -129,53 +130,75 @@ def impactPlots():
     print(cmd_BR)
 
     # First step (Files from asimov and data have the same name)
-    cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH --doInitialFit --robustFit 1'
-    if (not opt.UNBLIND): 
+    cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --freezeParameters MH --doInitialFit --robustFit 1'
+    if (not opt.UNBLIND):
         cmd = cmd + ' -t -1'
         if(opt.FIXFRAC):
             cmd = cmd + ' --setParameters ' + cmd_BR
-    elif (opt.UNBLIND and opt.FIXFRAC): 
+    elif (opt.UNBLIND and opt.FIXFRAC):
         cmd = cmd + ' --setParameters ' + cmd_BR
 
     print cmd, '\n'
     output = processCmd(cmd)
     # Second step (Files from asimov and data have the same name)
-    cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH --doFits --parallel 10'
+    cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --freezeParameters MH --doFits --parallel 10'
     if (not opt.UNBLIND): cmd = cmd + ' -t -1'
     print cmd, '\n'
     output = processCmd(cmd)
 
-    for obsBin in range(nBins-1):
-        XH.append(0.0)
+    if opt.PHYSICSMODEL=='v3':
+        for obsBin in range(nBins-1):
+            XH.append(0.0)
+            for channel in ['4e','4mu','2e2mu']:
+                XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                XH[obsBin]+=XH_fs
+            _obsxsec = XH[obsBin]
+            # Third step
+            cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+            if (not opt.UNBLIND):
+                cmd = cmd + 'asimov.json -t -1 --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                #if(opt.FIXFRAC):
+                #    cmd = cmd + ',' + cmd_BR
+            elif (opt.UNBLIND):
+                cmd = cmd + 'data.json'
+                #if(opt.FIXFRAC):
+                #    cmd = cmd + ' --setParameters ' + cmd_BR
+            print cmd, '\n'
+            output = processCmd(cmd)
+            # plot
+            cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
+            elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
+            print cmd, '\n'
+            output = processCmd(cmd)
+    else: # mass4l
         for channel in ['4e','4mu','2e2mu']:
-            XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            XH[obsBin]+=XH_fs
-        _obsxsec = XH[obsBin]
-        # Third step
-        cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
-        if (not opt.UNBLIND): 
-            cmd = cmd + 'asimov.json -t -1 --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
-            #if(opt.FIXFRAC):
-            #    cmd = cmd + ',' + cmd_BR
-        elif (opt.UNBLIND): 
-            cmd = cmd + 'data.json'
-            #if(opt.FIXFRAC):
-            #    cmd = cmd + ' --setParameters ' + cmd_BR
-        print cmd, '\n'
-        output = processCmd(cmd)
-        # plot
-        cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
-        if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
-        elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
-        print cmd, '\n'
-        output = processCmd(cmd)
+            fidxs = 0
+            fidxs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            fidxs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            fidxs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            fidxs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            fidxs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            # Third step
+            cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -o impacts_v2_'+obsName+'_r'+channel+'Bin0_'
+            if (not opt.UNBLIND):
+                cmd = cmd + 'asimov.json -t -1 --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
+            elif (opt.UNBLIND):
+                cmd = cmd + 'data.json'
+            print cmd, '\n'
+            output = processCmd(cmd)
+            # plot
+            cmd = 'plotImpacts.py -i impacts_v2_'+obsName+'_r'+channel+'Bin0_'
+            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v2_'+obsName+'_r'+channel+'Bin0_asimov --POI r'+channel+'Bin0'
+            elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v2_'+obsName+'_r'+channel+'Bin0_data --POI r'+channel+'Bin0'
+            print cmd, '\n'
+            output = processCmd(cmd)
 
 # ----------------- Main -----------------
 impactPlots()
 
 print "Impacts plots done."
-

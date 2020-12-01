@@ -1,14 +1,19 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
-from array import array
-from math import *
-from decimal import *
-from sample_shortnames import *
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
+import pandas as pd
+import uproot
+from math import sqrt, log
+import sys,os
+import optparse
+import itertools
+import math
+import ROOT
+import json
 
-grootargs = []
-def callback_rootargs(option, opt, value, parser):
-    grootargs.append(opt)
+print 'Welcome in pdfUncertainty!'
 
-### Define function for parsing options
 def parseOptions():
 
     global opt, args, runAllSteps
@@ -18,294 +23,472 @@ def parseOptions():
     parser = optparse.OptionParser(usage)
 
     # input options
-    parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
-    parser.add_option('',   '--modelName',dest='MODELNAME',type='string',default='SM', help='Name of the Higgs production or spin-parity model, default is "SM", supported: "SM", "ggH", "VBF", "WH", "ZH", "ttH", "exotic","all"')
-    parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observalbe, supported: "ZZMass", "pT4l", "massZ2", "rapidity4l", "cosThetaStar", "nets_reco_pt30_eta4p7"')
-    parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
-    parser.add_option('-f', '--doFit', action="store_true", dest='DOFIT', default=False, help='doFit, default false')
-    parser.add_option('-p', '--doPlots', action="store_true", dest='DOPLOTS', default=False, help='doPlots, default false')
-    parser.add_option("-l",action="callback",callback=callback_rootargs)
-    parser.add_option("-q",action="callback",callback=callback_rootargs)
-    parser.add_option("-b",action="callback",callback=callback_rootargs)
-
+    parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
+    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
 
+    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+        sys.exit()
+
+
 # parse the arguments and options
 global opt, args, runAllSteps
 parseOptions()
-sys.argv = grootargs
 
-doFit = opt.DOFIT
-doPlots = opt.DOPLOTS
+# ------------------------------- FUNCTIONS TO GENERATE DATAFRAMES ----------------------------------------------------
+# Weights for histogram
+def weight(df, fail, xsec, gen, lumi, additional = None):
+    #Coefficient to calculate weights for histograms
+    coeff = (lumi * 1000 * xsec) / gen
+    #Gen
+    weight_gen = df.genHEPMCweight * df.PUWeight
+    weight_histo_gen = weight_gen * coeff
+    #Reco
+    if(fail == False):
+        weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
+        weight_histo_reco = weight_reco * coeff
+    elif(fail == True):
+        weight_reco = 0
+        weight_histo_reco = weight_reco * coeff
+    #Columns in pandas
+    df['weight_gen'] = weight_gen #Powheg
+    df['weight_reco'] = weight_reco #Powheg
+    df['weight_histo_gen'] = weight_histo_gen #Powheg
+    df['weight_histo_reco'] = weight_histo_reco #Powheg
+    #Specific for pdfUncertainty
+    df['weight_gen_NNLO_0'] = weight_gen * df.LHEweight_QCDscale_muR1_muF1
+    df['weight_gen_NNLO_1'] = weight_gen * df.LHEweight_QCDscale_muR1_muF2
+    df['weight_gen_NNLO_2'] = weight_gen * df.LHEweight_QCDscale_muR1_muF0p5
+    df['weight_gen_NNLO_3'] = weight_gen * df.LHEweight_QCDscale_muR2_muF1
+    df['weight_gen_NNLO_4'] = weight_gen * df.LHEweight_QCDscale_muR2_muF2
+    df['weight_gen_NNLO_5'] = weight_gen * df.LHEweight_QCDscale_muR2_muF0p5
+    df['weight_gen_NNLO_6'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF1
+    df['weight_gen_NNLO_7'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF2
+    df['weight_gen_NNLO_8'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF0p5
+    df['weight_gen_PDFup'] = weight_gen * df.LHEweight_PDFVariation_Up
+    df['weight_gen_PDFdn'] = weight_gen * df.LHEweight_PDFVariation_Dn
+    if additional == 'ggH':
+        weight_gen_NNLOPS = weight_gen * df.ggH_NNLOPS_weight
+        weight_reco_NNLOPS = weight_reco * df.ggH_NNLOPS_weight
+        weight_histo_gen_NNLOPS = weight_histo_gen * df.ggH_NNLOPS_weight
+        weight_histo_reco_NNLOPS = weight_histo_reco * df.ggH_NNLOPS_weight
+        df['weight_gen_NNLOPS'] = weight_gen_NNLOPS #NNLOPS (only ggH)
+        df['weight_reco_NNLOPS'] = weight_reco_NNLOPS #NNLOPS (only ggH)
+        df['weight_histo_gen_NNLOPS'] = weight_histo_gen_NNLOPS #NNLOPS (only ggH)
+        df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
+        #Specific for pdfUncertainty
+        #In case of NNLOPS I should use always nnloWeights[0], for coding purposes I set all weight_gen_NNLOPS_NNLO_* equal to weight_gen_NNLOPS_NNLO_0
+        df['weight_gen_NNLOPS_NNLO_0'] = weight_gen_NNLOPS * df.LHEweight_QCDscale_muR1_muF1
+        df['weight_gen_NNLOPS_NNLO_1'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_2'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_3'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_4'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_5'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_6'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_7'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_NNLO_8'] = df['weight_gen_NNLOPS_NNLO_0']
+        df['weight_gen_NNLOPS_PDFup'] = weight_gen_NNLOPS * df.LHEweight_PDFVariation_Up
+        df['weight_gen_NNLOPS_PDFdn'] = weight_gen_NNLOPS * df.LHEweight_PDFVariation_Dn
+    return df
 
-if (not os.path.exists("plots") and doPlots):
-    os.system("mkdir plots")
+# Uproot to generate pandas
+def prepareTrees(year):
+    d_sig = {}
+    d_sig_failed = {}
+    for signal in signals_original:
+        fname = eos_path_sig + '%i' %year
+        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        d_sig[signal] = uproot.open(fname)[key]
+        d_sig_failed[signal] = uproot.open(fname)[key_failed]
 
-from ROOT import *
-from LoadData import *
+    return d_sig, d_sig_failed
 
-RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-if (opt.DOPLOTS and os.path.isfile('tdrStyle.py')):
-    from tdrStyle import setTDRStyle
-    setTDRStyle()
+# Calculate cross sections
+def xsecs(year):
+    xsec_sig = {}
+    d_sig, d_sig_failed = prepareTrees(year)
+    for signal in signals_original:
+        xsec_sig[signal] = d_sig[signal].pandas.df('xsec').xsec[0]
+    return xsec_sig
 
-Histos = {}
-acceptance = {}
-qcdUncert = {}
-pdfUncert = {}
 
-nnloWeights = {
-    0: 'LHEweight_QCDscale_muR1_muF1',
-    1: 'LHEweight_QCDscale_muR1_muF2',
-    2: 'LHEweight_QCDscale_muR1_muF0p5',
-    3: 'LHEweight_QCDscale_muR2_muF1',
-    4: 'LHEweight_QCDscale_muR2_muF2',
-    5: 'LHEweight_QCDscale_muR2_muF0p5',
-    6: 'LHEweight_QCDscale_muR0p5_muF1',
-    7: 'LHEweight_QCDscale_muR0p5_muF2',
-    8: 'LHEweight_QCDscale_muR0p5_muF0p5'
-}
+def add_fin_state_reco(i, j):
+    if abs(i) == 121 and abs(j) == 121:
+        fin = '4e'
+    elif abs(i) == 169 and abs(j) == 169:
+        fin = '4mu'
+    elif (abs(i) == 121 and abs(j) == 169) or (abs(i) == 169 and abs(j) == 121):
+        fin = '2e2mu'
+    elif (abs(i) == 225 and abs(j) == 169) or (abs(i) == 169 and abs(j) == 225):
+        fin = '2tau2mu'
+    elif (abs(i) == 225 and abs(j) == 121) or (abs(i) == 121 and abs(j) == 225):
+        fin = '2tau2e'
+    elif abs(i) == 225 and abs(j) == 225:
+        fin = '4tau'
+    elif abs(i) == 0 and abs(j) == 0:
+        fin = 'other'
+    return fin
 
-def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin):
 
+def add_fin_state_gen(lepId, Hindex, number):
+    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
+        return 'other'
+    if (abs(lepId[Hindex[0]])==11) & (abs(lepId[Hindex[2]])==11):
+        fin = '4e'
+    elif (abs(lepId[Hindex[0]])==13) & (abs(lepId[Hindex[2]])==13):
+        fin = '4mu'
+    elif ((abs(lepId[Hindex[0]])==11) & (abs(lepId[Hindex[2]])==13)) | ((abs(lepId[Hindex[0]])==13) & (abs(lepId[Hindex[2]])==11)):
+        fin = '2e2mu'
+    else:
+        fin = 'other'
+    return fin
+
+
+def add_fin_state_gen_out(ZdauId,event):
+    if (abs(ZdauId[0])==11) and (abs(ZdauId[1])==11):
+        fin = '4e'
+    elif (abs(ZdauId[0])==13) and (abs(ZdauId[1])==13):
+        fin = '4mu'
+    elif ((abs(ZdauId[0])==11) and (abs(ZdauId[1])==13)) or ((abs(ZdauId[0])==13) and (abs(ZdauId[1])==11)):
+        fin = '2e2mu'
+    else:
+        fin = 'other'
+    return fin
+
+
+def add_fin_state_gen_out_ZH(ZdauId,momId):
+    if ((abs(ZdauId[0])==11) and (abs(ZdauId[1])==11) and (momId[0]==25) and (momId[1]==25)) or ((abs(ZdauId[0])==11) and (abs(ZdauId[2])==11) and (momId[0]==25) and (momId[2]==25)) or ((abs(ZdauId[1])==11) and (abs(ZdauId[2])==11) and (momId[1]==25) and (momId[2]==25)):
+        fin = '4e'
+    elif ((abs(ZdauId[0])==13) and (abs(ZdauId[1])==13) and (momId[0]==25) and (momId[1]==25)) or ((abs(ZdauId[0])==13) and (abs(ZdauId[2])==13)&(momId[0]==25) and (momId[2]==25)) or ((abs(ZdauId[1])==13) and (abs(ZdauId[2])==13) and (momId[1]==25) and (momId[2]==25)):
+        fin = '4mu'
+    elif (momId[0]==25 and (ZdauId[0]==11 or ZdauId[0]==13) and momId[1]==25 and (ZdauId[1]==11 or ZdauId[1]==13) and (ZdauId[0]!=ZdauId[1])) or (momId[0]==25 and (ZdauId[0]==11 or ZdauId[0]==13) and momId[2]==25 and (ZdauId[2]==11 or ZdauId[2]==13) and (ZdauId[0]!=ZdauId[2])) or (momId[1]==25 and (ZdauId[1]==11 or ZdauId[1]==13) and momId[2]==25 and (ZdauId[2]==11 or ZdauId[2]==13) and (ZdauId[1]!=ZdauId[2])):
+        fin = '2e2mu'
+    else:
+        fin = 'other'
+    return fin
+
+
+def add_cuth4l_gen(momMomId,Hindex):
+    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
+        return False
+    if momMomId[Hindex[0]]==25 and momMomId[Hindex[1]]==25 and momMomId[Hindex[2]]==25 and momMomId[Hindex[3]]==25:
+        return True
+    else:
+        return False
+
+
+def add_cuth4l_reco(Hindex,genIndex,momMomId,momId):
+    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
+        return False
+    if ((genIndex[Hindex[0]]>-0.5)*momMomId[max(0,genIndex[Hindex[0]])]==25) and ((genIndex[Hindex[0]]>-0.5)*momId[max(0,genIndex[Hindex[0]])]==23) and ((genIndex[Hindex[1]]>-0.5)*momMomId[max(0,genIndex[Hindex[1]])]==25) and ((genIndex[Hindex[1]]>-0.5)*momId[max(0,genIndex[Hindex[1]])]==23) and ((genIndex[Hindex[2]]>-0.5)*momMomId[max(0,genIndex[Hindex[2]])]==25) and ((genIndex[Hindex[2]]>-0.5)*momId[max(0,genIndex[Hindex[2]])]==23) and ((genIndex[Hindex[3]]>-0.5)*momMomId[max(0,genIndex[Hindex[3]])]==25) and ((genIndex[Hindex[3]]>-0.5)*momId[max(0,genIndex[Hindex[3]])]==23):
+        return True
+    else:
+        return False
+
+
+# Get the "number" of MC events to divide the weights
+def generators(year):
+    gen_sig = {}
+    for signal in signals_original:
+        fname = eos_path_sig + '%i' %year
+        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        input_file = ROOT.TFile(fname)
+        hCounters = input_file.Get("Counters")
+        gen_sig[signal] = hCounters.GetBinContent(40)
+    return gen_sig
+
+
+def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
+    b_sig = ['EventNumber','GENmass4l', 'GENpT4l', 'GENrapidity4l', 'GENeta4l',
+             'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
+             'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
+             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
+             'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1',
+             'LHEweight_QCDscale_muR1_muF1','LHEweight_QCDscale_muR1_muF2','LHEweight_QCDscale_muR1_muF0p5',
+             'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
+             'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
+             'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn']
+    if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
+    if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
+                          'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
+                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1']) #Additioanl entries for passing events
+    df = d_sig.pandas.df(b_sig, flatten = False)
+    if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
+        df['ZZMass'] = -1
+        df['ZZPt'] = -1
+        df['ZZy'] = -1
+        df['Z1Mass'] = -1
+        df['Z2Mass'] = -1
+        df['ZZEta'] = -1
+        df['Z1Flav'] = -1
+        df['Z2Flav'] = -1
+        df['lep_genindex'] = -1
+        df['lep_Hindex'] = -1
+        df['overallEventWeight'] = -1
+        df['L1prefiringWeight'] = -1
+        df['dataMCWeight'] = -1
+        df['trigEffWeight'] = -1
+        df['njets_pt30_eta2p5'] = -1
+        df['njets_pt30_eta2p5_jesup'] = -1
+        df['njets_pt30_eta2p5_jesdn'] = -1
+        df['pTj1'] = -1
+    df['gen'] = gen
+    df['xsec'] = xsec
+    if not fail:
+        df['FinState_reco'] = [add_fin_state_reco(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
+    elif fail:
+        df['FinState_reco'] = 'fail'
+    df['FinState_gen'] = [add_fin_state_gen(row[0],row[1],row[2]) for row in df[['GENlep_id', 'GENlep_Hindex', 'EventNumber']].values]
+    if signal != 'ZH125':
+        df['FinState_gen_out'] = [add_fin_state_gen_out(i,j) for i,j in zip(df.GENZ_DaughtersId,df.EventNumber)]
+    else:
+        df['FinState_gen_out'] = [add_fin_state_gen_out_ZH(i,j) for i,j in zip(df.GENZ_DaughtersId,df.GENZ_MomId)]
+    df['cuth4l_gen'] = [add_cuth4l_gen(i,j) for i,j in zip(df.GENlep_MomMomId,df.GENlep_Hindex)]
+    if not fail:
+        df['cuth4l_reco'] = [add_cuth4l_reco(row[0],row[1],row[2],row[3]) for row in df[['lep_Hindex','lep_genindex','GENlep_MomMomId','GENlep_MomId']].values]
+    elif fail:
+        df['cuth4l_reco'] = False
+    if signal != 'ggH125':
+        df = weight(df, fail, xsec, gen, lumi)
+    else:
+        df = weight(df, fail, xsec, gen, lumi, 'ggH')
+        df = df.drop(columns=['ggH_NNLOPS_weight'])
+
+    return df
+
+
+# Set up data frames
+def dataframes(year):
+    if year == 2016:
+        lumi = 35.9
+    elif year == 2017:
+        lumi = 41.5
+    elif year == 2018:
+        lumi = 59.7
+    d_df_sig = {}
+    d_df_sig_failed = {}
+    d_sig, d_sig_failed = prepareTrees(year)
+    gen_sig = generators(year)
+    xsec_sig = xsecs(year)
+    for signal in signals_original:
+        print 'Processing', signal, year
+        d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi)
+        print 'Signal created'
+        d_df_sig_failed[signal] = createDataframe(d_sig_failed[signal],True,gen_sig[signal],xsec_sig[signal],signal,lumi)
+        print 'Signal failed created'
+    return d_df_sig, d_df_sig_failed
+
+
+# Merge WplusH125 and WminusH125
+def skim_df(year):
+    d_df_sig, d_df_sig_failed = dataframes(year)
+    d_skim_sig = {}
+    d_skim_sig_failed = {}
+    frames = []
+    for signal in signals_original:
+        if (signal == 'WplusH125') or (signal == 'WminusH125'):
+            frames.append(d_df_sig[signal])
+        else:
+            d_skim_sig[signal] = d_df_sig[signal]
+    # d_skim_sig['WH125'] = pd.concat(frames)
+    frames = []
+    for signal in signals_original:
+        if (signal == 'WplusH125') or (signal == 'WminusH125'):
+            frames.append(d_df_sig_failed[signal])
+        else:
+            d_skim_sig_failed[signal] = d_df_sig_failed[signal]
+    # d_skim_sig_failed['WH125'] = pd.concat(frames)
+    print '%i SKIMMED df CREATED' %year
+    return d_skim_sig, d_skim_sig_failed
+
+
+# ------------------------------- FUNCTIONS TO CALCULATE COEFFICIENTS ----------------------------------------------------
+def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, type, year='None'):
+    #GenBin limits I'm considering
     obs_gen_low = obs_bins[genbin]
     obs_gen_high = obs_bins[genbin+1]
 
+    #Extrimities of gen area
     obs_gen_lowest = obs_bins[0]
     obs_gen_highest = obs_bins[len(obs_bins)-1]
 
-    if (obs_reco.startswith("ZZMass")):
-        m4l_low = float(obs_gen_low)
-        m4l_high = float(obs_gen_high)
-        m4l_bins = int((m4l_high-m4l_low)/2)
+    for signal in signals:
+        datafr = d_sig_tot[year][signal]
+        if type=='std':
+            nnlops = ''
+            processBin = signal+'_'+channel+'_'+obs_name+'_genbin'+str(genbin)
+        elif type=='NNLOPS':
+            nnlops = '_NNLOPS'
+            processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)
 
-    i_sample = -1
-
-    print(List)
-
-    for Sample in List:
-        if (not Sample in Tree): continue
-        if (not Tree[Sample]): continue
-	print(Tree[Sample].GetName())
-        if (obs_reco.startswith("njets")):
-            cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+")"
+        # Selections
+        cutm4l_gen = (datafr['GENmass4l'] > m4l_low) & (datafr['GENmass4l'] < m4l_high)
+        if obs_reco.startswith('njets'):
+            cutobs_gen = abs(datafr[obs_gen]) >= obs_gen_low
         else:
-            cutobs_gen = "("+obs_gen+">="+str(obs_gen_low)+" && "+obs_gen+"<"+str(obs_gen_high)+")"
-        cutm4l_gen     = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
+            cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+        if channel != '4l':
+            cutm4l_reco = (datafr['ZZMass'] > m4l_low) & (datafr['ZZMass'] < m4l_high) & (datafr['FinState_reco'] == channel)
+            cutchan_gen = datafr['FinState_gen'] == channel
+            cutchan_gen_out = datafr['FinState_gen_out'] == channel
+        else:
+            cutm4l_reco = (datafr['ZZMass'] > m4l_low) & (datafr['ZZMass'] < m4l_high)
+            cutchan_gen = (datafr['FinState_gen'] == '2e2mu') | (datafr['FinState_gen'] == '4e') | (datafr['FinState_gen'] == '4mu')
+            cutchan_gen_out = (datafr['FinState_gen_out'] == '2e2mu') | (datafr['FinState_gen_out'] == '4e') | (datafr['FinState_gen_out'] == '4mu')
+        cuth4l_gen = datafr['cuth4l_gen'] == True
+        cutnoth4l_gen = datafr['cuth4l_gen'] == False
+        passedFullSelection = datafr['FinState_reco'] != 'fail'
+        passedFiducialSelection = datafr['passedFiducialSelection_bbf'] == True
+        notPassedFiducialSelection = datafr['passedFiducialSelection_bbf'] == False
 
-        if (channel == "4l"):
-            cutchan_gen      = "((abs(GENlep_id[GENlep_Hindex[0]])==11 || abs(GENlep_id[GENlep_Hindex[0]])==13) && (abs(GENlep_id[GENlep_Hindex[2]])==11 || abs(GENlep_id[GENlep_Hindex[2]])==13))"
-            cutchan_gen_out  = "((GENZ_DaughtersId[0]==11 || GENZ_DaughtersId[0]==13) && (GENZ_DaughtersId[1]==11 || GENZ_DaughtersId[1]==13))"
-            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
-            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
-            cutchan_reco     = "(abs(Z1Flav) == 121 || abs(Z1Flav == 169) && (abs(Z2Flav) == 121 || abs(Z2Flav) == 169))"
-        if (channel == "4e"):
-            cutchan_gen      = "(abs(GENlep_id[GENlep_Hindex[0]])==11 && abs(GENlep_id[GENlep_Hindex[2]])==11)"
-            cutchan_gen_out  = "(abs(GENZ_DaughtersId[0])==11 && abs(GENZ_DaughtersId[1])==11)"
-            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
-            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
-            cutchan_reco     = "(abs(Z1Flav) == 121 && abs(Z2Flav) == 121)"
-        if (channel == "4mu"):
-            cutchan_gen      = "(abs(GENlep_id[GENlep_Hindex[0]])==13 && abs(GENlep_id[GENlep_Hindex[2]])==13)"
-            cutchan_gen_out  = "(GENZ_DaughtersId[0]==13 && GENZ_DaughtersId[1]==13)"
-            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
-            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
-            cutchan_reco     = "(abs(Z1Flav) == 169 && abs(Z2Flav) == 169)"
-        if (channel == "2e2mu"):
-            cutchan_gen      = "((abs(GENlep_id[GENlep_Hindex[0]])==11 && abs(GENlep_id[GENlep_Hindex[2]])==13) ||(abs(GENlep_id[GENlep_Hindex[0]])==13 && abs(GENlep_id[GENlep_Hindex[2]])==11))"
-            cutchan_gen_out  = "((GENZ_DaughtersId[0]==11 && GENZ_DaughtersId[1]==13) || (GENZ_DaughtersId[0]==13 && GENZ_DaughtersId[1]==11))"
-            cutm4l_gen       = "(GENmass4l>"+str(m4l_low)+" && GENmass4l<"+str(m4l_high)+")"
-            cutm4l_reco      = "(ZZMass>"+str(m4l_low)+" && ZZMass<"+str(m4l_high)+")"
-            cutchan_reco     = "((abs(Z1Flav) == 169 && abs(Z2Flav) == 121) || (abs(Z1Flav) == 121 && abs(Z2Flav) == 169))"
+        coefficients = {}
+        coefficients['fs'] = datafr[cutchan_gen_out]['weight_gen'+nnlops+'_NNLO_0'].sum()
+        for i in range(0,9):
+            if i==5 or i==7: continue
+            coefficients['fs'+str(i)] = datafr[cutchan_gen_out]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
+            # coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
+            coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen_NNLO_'+str(i)].sum()
+            coefficients['fid'+str(i)] = coefficients['fid'+str(i)] * (1/coefficients['fs']) #This stands for "Scale" in the original code
+            # coefficients['fidraw'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
+            coefficients['fidraw'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen_NNLO_'+str(i)].sum()
+            coefficients['fidraw'+str(i)] = coefficients['fidraw'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
+            coefficients['fs'+str(i)] = coefficients['fs'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
 
-        cuth4l_gen  = "(GENlep_MomMomId[GENlep_Hindex[0]]==25 && GENlep_MomMomId[GENlep_Hindex[1]]==25 && GENlep_MomMomId[GENlep_Hindex[2]]==25 && GENlep_MomMomId[GENlep_Hindex[3]]==25)"
-        cutnoth4l_gen  = "(!"+cuth4l_gen+")"
+        coefficients['fidPDF_up'] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_PDFup'].sum()
+        coefficients['fidPDF_up'] = coefficients['fidPDF_up'] * (1/coefficients['fs']) #This stands for "Scale" in the original code
+        coefficients['fidPDF_dn'] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_PDFdn'].sum()
+        coefficients['fidPDF_dn'] = coefficients['fidPDF_dn'] * (1/coefficients['fs']) #This stands for "Scale" in the original code
+        fsintegral = coefficients['fs']
+        coefficients['fs'] = coefficients['fs'] * (1/coefficients['fs'])
 
-        shortname = sample_shortnames[Sample]
-        processBin = shortname+'_'+channel+'_'+opt.OBSNAME+'_genbin'+str(genbin)
-
-        # GEN level
-        Histos[processBin+"fs"] = TH1D(processBin+"fs", processBin+"fs", 100, -1, 10000)
-        Histos[processBin+"fs"].Sumw2()
-        #TString toCut = ""
-        gen_sumWeights = str(sumw[Sample])
-	print(gen_sumWeights)
-	lumi = '59.7'
-        toCut = "((" + nnloWeights[0] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(" + cutchan_gen_out + ")"
-	if 'NNLOPS' in processBin: toCut = "((" + nnloWeights[0] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights + ")*(" + cutchan_gen_out + ")"
-        Tree[Sample].Draw("GENmass4l >> "+processBin+"fs",toCut,"goff")
-        #else:
-        #    Tree[Sample].Draw("GENmass4l >> "+processBin+"fs","(qcdWeights[0])*("+cutchan_gen_out+")","goff")
-
-	for i in range(0,9):
-            if (i==5 or i==7): continue
-            Histos[processBin+"fs"+str(i)] = TH1D(processBin+"fs"+str(i), processBin+"fs"+str(i), 100, -1, 10000)
-            Histos[processBin+"fs"+str(i)].Sumw2()
-
-            toCut = "((" + nnloWeights[i] + "*1000*" + lumi +"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +  ")*("+cutchan_gen_out+")"
-            if 'NNLOPS' in processBin: toCut = "((" + nnloWeights[0] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights + ")*(" + cutchan_gen_out + ")"
-
-            Tree[Sample].Draw("GENmass4l >> "+processBin+"fs"+str(i),toCut,"goff")
-
-            Histos[processBin+"fid"+str(i)] = TH1D(processBin+"fid"+str(i), processBin+"fid"+str(i), m4l_bins, m4l_low, m4l_high)
-            Histos[processBin+"fid"+str(i)].Sumw2()
-
-            toCut = "((" + nnloWeights[i] + "*1000*" + lumi + "*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights + ")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-
-            Tree[Sample].Draw("GENmass4l >> "+processBin+"fid"+str(i),toCut,"goff")
-            Histos[processBin+"fid"+str(i)].Scale(1.0/Histos[processBin+"fs"].Integral())
-
-            Histos[processBin+"fidraw"+str(i)] = TH1D(processBin+"fidraw"+str(i), processBin+"fidraw"+str(i), m4l_bins, m4l_low, m4l_high)
-            Histos[processBin+"fidraw"+str(i)].Sumw2()
-            Tree[Sample].Draw("GENmass4l >> "+processBin+"fidraw"+str(i),toCut,"goff")
-            Histos[processBin+"fidraw"+str(i)].Scale(1.0/Histos[processBin+"fs"+str(i)].Integral())
-            Histos[processBin+"fs"+str(i)].Scale(1.0/Histos[processBin+"fs"+str(i)].Integral())
-
-        Histos[processBin+"fidPDF_up"] = TH1D(processBin+"fidPDF_up", processBin+"fidPDF_up", m4l_bins, m4l_low, m4l_high)
-        Histos[processBin+"fidPDF_up"].Sumw2()
-        toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-	if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Up*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-        Tree[Sample].Draw("GENmass4l >> "+processBin+"fidPDF_up",toCut,"goff")
-        Histos[processBin+"fidPDF_up"].Scale(1.0/Histos[processBin+"fs"].Integral())
-
-        Histos[processBin+"fidPDF_dn"] = TH1D(processBin+"fidPDF_dn", processBin+"fidPDF_dn", m4l_bins, m4l_low, m4l_high)
-        Histos[processBin+"fidPDF_dn"].Sumw2()
-        toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-        if 'NNLOPS' in processBin: toCut = "((LHEweight_PDFVariation_Dn*1000*" + lumi+"*xsec*genHEPMCweight*PUWeight*ggH_NNLOPS_weight)/"+gen_sumWeights +")*(passedFiducialSelection_bbf==1 && "+cutm4l_gen+" && "+cutobs_gen+" && "+cutchan_gen+"  && "+cuth4l_gen+")"
-        Tree[Sample].Draw("GENmass4l >> "+processBin+"fidPDF_dn",toCut,"goff")
-        Histos[processBin+"fidPDF_dn"].Scale(1.0/Histos[processBin+"fs"].Integral())
-
-        fsintegral = Histos[processBin+"fs"].Integral()
-        Histos[processBin+"fs"].Scale(1.0/Histos[processBin+"fs"].Integral())
-
-        # GEN level
-        accerrstat=0.0
-        if (Histos[processBin+"fs"].Integral()>0):
-            # if ("NNLOPS" in processBin):
-            print(Histos[processBin+"fs"].Integral(),Histos[processBin+"fid0"].Integral())
-            acceptance[processBin] = Histos[processBin+"fid0"].Integral()/Histos[processBin+"fs"].Integral()
-            #accerrstat = sqrt(acceptance[processBin]*(1-acceptance[processBin])/fsintegral)
+        if coefficients['fs']>0:
+            if verbose: print coefficients['fs'],coefficients['fid0']
+            acceptance[processBin] = coefficients['fid0']/coefficients['fs']
             qcderrup=1.0; qcderrdn=1.0;
             accerrup=1.0; accerrdn=1.0;
-            print(processBin+'fid0', Histos[processBin+"fid0"].Integral())
-            #for i in range(9,36):
+            if verbose: print processBin,coefficients['fid0']
             for i in range(0,9):
-                #if (i==14 or i==16 or i==23 or i==25 or i==32 or i==34): continue
-                #if (i==5 or i==7 or i==14 or i==16 or i==23 or i==25): continue
-                if (i==5 or i==7): continue
-                ratio = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
-                print(i,'ratio',ratio)
-                if (ratio>qcderrup): qcderrup = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
-                if (ratio<qcderrdn): qcderrdn = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
+                if i==5 or i==7: continue
 
-                acci = Histos[processBin+"fidraw"+str(i)].Integral()/Histos[processBin+"fs"+str(i)].Integral()
-                print(i,"acc",acci)
-                print(Histos[processBin+"fidraw"+str(i)].Integral(),Histos[processBin+"fs"+str(i)].Integral())
-                if (acci/acceptance[processBin]>accerrup): accerrup=acci/acceptance[processBin]
-                if (acci/acceptance[processBin]<accerrdn): accerrdn=acci/acceptance[processBin]
+                ratio = coefficients['fid'+str(i)]/coefficients['fid0']
+                if verbose: print i, 'ratio', ratio
+                if ratio>qcderrup: qcderrup = coefficients['fid'+str(i)]/coefficients['fid0']
+                if ratio<qcderrdn: qcderrdn = coefficients['fid'+str(i)]/coefficients['fid0']
 
-            qcdUncert[processBin] = {"uncerDn":abs(qcderrdn-1.0),"uncerUp":abs(qcderrup-1.0)}
-            pdferr_up = Histos[processBin+"fidPDF_up"].Integral()/Histos[processBin+"fid0"].Integral()
-            pdferr_dn = Histos[processBin+"fidPDF_dn"].Integral()/Histos[processBin+"fid0"].Integral()
+                acci = coefficients['fidraw'+str(i)]/coefficients['fs'+str(i)]
+                if verbose: print i, 'acc', acci
+                if verbose: print coefficients['fidraw'+str(i)], coefficients['fs'+str(i)]
+                if acci/acceptance[processBin]>accerrup: accerrup=acci/acceptance[processBin]
+                if acci/acceptance[processBin]<accerrdn: accerrdn=acci/acceptance[processBin]
+            qcdUncert[processBin]={'uncerDn':abs(qcderrdn-1.0),'uncerUp':abs(qcderrup-1.0)}
+            pdferr_up = coefficients['fidPDF_up']/coefficients['fid0']
+            pdferr_dn = coefficients['fidPDF_dn']/coefficients['fid0']
             pdfUncert[processBin] = {"uncerDn":abs(pdferr_dn-1.0),"uncerUp":abs(pdferr_up-1.0)}
 
-            print(processBin,acceptance[processBin],accerrstat,qcderrup,qcderrdn,pdferr_up,pdferr_dn)
-            print("accerrup",accerrup,"accerrdn",accerrdn)
+            if verbose: print(processBin,acceptance[processBin],0.0,qcderrup,qcderrdn,pdferr_up,pdferr_dn)
 
-m4l_bins = 35
-m4l_low = 105.0
-m4l_high = 140.0
+# -----------------------------------------------------------------------------------------
+# ------------------------------- MAIN ----------------------------------------------------
+# -----------------------------------------------------------------------------------------
+signals_original = signals = ['ggH125']
+eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
+key = 'candTree'
+key_failed = 'candTree_failed'
+verbose = False
 
-# Default to inclusive cross section
-obs_reco = 'ZZMass'
-obs_gen = 'GENmass4l'
-obs_reco_low = 105.0
-obs_reco_high = 140.0
-obs_gen_low = 105.0
-obs_gen_high = 140.0
+if (opt.YEAR == '2016'): years = [2016]
+elif (opt.YEAR == '2017'): years = [2017]
+elif (opt.YEAR == '2018'): years = [2018]
+elif (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-if (opt.OBSNAME == "massZ1"):
-    obs_reco = "massZ1"
-    obs_gen = "GENmZ1"
-if (opt.OBSNAME == "massZ2"):
-    obs_reco = "massZ2"
-    obs_gen = "GENmZ2"
-if (opt.OBSNAME == "pT4l"):
-    obs_reco = "ZZPt"
-    obs_gen = "GENpT4l"
-if (opt.OBSNAME == "eta4l"):
-    obs_reco = "eta4l"
-    obs_gen = "GENeta4l"
-if (opt.OBSNAME == "njets_pt30_eta4p7"):
-    obs_reco = "njets_pt30_eta4p7"
-    obs_gen = "GENnjets_pt30_eta4p7"
-if (opt.OBSNAME == "njets_pt30_eta2p5"):
+obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+obs_name = opt.OBSNAME
+if(obs_name == 'rapidity4l'):
+    obs_reco = 'ZZy'
+    obs_gen = 'GENrapidity4l'
+elif(obs_name == 'pT4l'):
+    obs_reco = 'ZZPt'
+    obs_gen = 'GENpT4l'
+elif(obs_name == 'massZ1'):
+    obs_reco = 'Z1Mass'
+    obs_gen = 'GENmassZ1'
+elif(obs_name == 'massZ2'):
+    obs_reco = 'Z2Mass'
+    obs_gen = 'GENmassZ2'
+elif(obs_name == 'mass4l'):
+    obs_reco = 'ZZMass'
+    obs_gen = 'GENmass4l'
+elif(obs_name == "njets_pt30_eta2p5"):
     obs_reco = "njets_pt30_eta2p5"
     obs_gen = "GENnjets_pt30_eta2p5"
-if (opt.OBSNAME == "pt_leadingjet_pt30_eta4p7"):
-    obs_reco = "pt_leadingjet_pt30_eta4p7"
-    obs_gen = "GENpt_leadingjet_pt30_eta4p7"
-if (opt.OBSNAME == "pt_leadingjet_pt30_eta2p5"):
-    obs_reco = "pt_leadingjet_pt30_eta2p5"
-    obs_gen = "GENpt_leadingjet_pt30_eta2p5"
-if (opt.OBSNAME == "rapidity4l"):
-    obs_reco = "abs(rapidity4l)"
-    obs_gen = "abs(GENrapidity4l)"
-if (opt.OBSNAME == "cosThetaStar"):
-    obs_reco = "abs(cosThetaStar)"
-    obs_gen = "abs(GENcosThetaStar)"
-if (opt.OBSNAME == "cosTheta1"):
-    obs_reco = "abs(cosTheta1)"
-    obs_gen = "abs(GENcosTheta1)"
-if (opt.OBSNAME == "cosTheta2"):
-    obs_reco = "abs(cosTheta2)"
-    obs_gen = "abs(GENcosTheta2)"
-if (opt.OBSNAME == "Phi"):
-    obs_reco = "abs(Phi)"
-    obs_gen = "abs(GENPhi)"
-if (opt.OBSNAME == "Phi1"):
-    obs_reco = "abs(Phi1)"
-    obs_gen = "abs(GENPhi1)"
+elif(obs_name == 'pTj1'):
+    obs_reco = 'pTj1'
+    obs_gen = 'GENpTj1'
+elif(obs_name == 'mass4l'):
+    obs_reco = 'ZZMass'
+    obs_gen = 'GENmass4l'
 
-#obs_bins = {0:(opt.OBSBINS.split("|")[1:((len(opt.OBSBINS)-1)/2)]),1:['0','inf']}[opt.OBSNAME=='inclusive']
-obs_bins = opt.OBSBINS.split("|")
-if (not (obs_bins[0] == '' and obs_bins[len(obs_bins)-1]=='')):
-    print('BINS OPTION MUST START AND END WITH A |')
-obs_bins.pop()
-obs_bins.pop(0)
+# Generate dataframes
+d_sig = {}
+d_sig_failed = {}
+for year in years:
+    sig, sig_failed = skim_df(year)
+    d_sig[year] = sig
+    d_sig_failed[year] = sig_failed
 
-List = []
-for long, short in sample_shortnames.iteritems():
-    if (not "ggH" in short): continue
-    print(long, short)
-    List.append(long)
+# Create dataframe with all the events
+d_sig_tot = {}
+for year in years:
+    d_sup = {}
+    for signal in signals:
+        print year, signal
+        d_sup[signal] = pd.concat([d_sig[year][signal], d_sig_failed[year][signal]], ignore_index=True)
+    d_sig_tot[year] = d_sup
 
-if (obs_reco=="ZZMass"):
-    chans = ['4e','4mu','2e2mu', '4l']
-else:
-    #chans = ['4e','4mu']
-    chans = ['4e','4mu','2e2mu', '4l']
 
+# Create dataframe FullRun2
+if(opt.YEAR == 'Full'):
+    d_sig_full = {}
+    for signal in signals:
+        frame = [d_sig_tot[year][signal] for year in years]
+        d_sig_full[signal] = pd.concat(frame, ignore_index=True)
+else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (it is useful when fullNNLOPS is calculated)
+    d_sig_full = d_sig_tot[int(opt.YEAR)]
+
+
+chans = ['4e', '4mu', '2e2mu', '4l']
+m4l_low = 105.0
+m4l_high = 140.0
+acceptance = {}
+qcdUncert = {}
+pdfUncert = {}
 for chan in chans:
     for genbin in range(len(obs_bins)-1):
-        getunc(chan,List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin)
-
+        getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'std', year)
+        getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'NNLOPS', year)
 if (obs_reco.startswith("njets")):
     for chan in chans:
         for genbin in range(len(obs_bins)-2): # last bin is >=3
-            for Sample in List:
-                shortname = sample_shortnames[Sample]
-                processBin = shortname+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin)
-                processBinPlus1 = shortname+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin+1)
+            for signal in signals:
+                processBin = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin)
+                processBinPlus1 = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin+1)
                 acceptance[processBin] = acceptance[processBin]-acceptance[processBinPlus1]
                 qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
                 qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
 
-os.system('cp accUnc_'+opt.OBSNAME+'.py cp accUnc_'+opt.OBSNAME+'_ORIG.py')
-with open('accUnc_'+opt.OBSNAME+'.py', 'w') as f:
-    f.write('acc = '+str(acceptance)+' \n')
+                processBin = signal+'_NNLOPS_'+chan+'_'+obs_name+'_genbin'+str(genbin)
+                processBinPlus1 = signal+'_NNLOPS_'+chan+'_'+obs_name+'_genbin'+str(genbin+1)
+                acceptance[processBin] = acceptance[processBin]-acceptance[processBinPlus1]
+                qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
+                qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
+with open('../inputs/accUnc_'+obs_name+'.py', 'w') as f:
+    f.write('acc = '+str(acceptance)+';\n')
     f.write('qcdUncert = '+str(qcdUncert)+' \n')
     f.write('pdfUncert = '+str(pdfUncert)+' \n')
