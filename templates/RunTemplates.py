@@ -314,7 +314,7 @@ def smoothAndNormaliseTemplate(h1d, norm):
 
 def normaliseHist(h1d, norm):
     if (h1d.Integral() != 0): #return -1
-        h1d.Scale(norm/h1d.Integral())
+	    h1d.Scale(norm/h1d.Integral())
 
 def fillEmptyBinsHist(h1d, floor):
     nXbins=h1d.GetNbinsX()
