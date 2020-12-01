@@ -137,17 +137,10 @@ def runFiducialXS():
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
-    if opt.YEAR!='Full':
-        _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
-        acc = _temp.acc
-        _temp = __import__('inputs_bkg_'+obsName+'_'+opt.YEAR, globals(), locals(), ['fractionsBackground'], -1)
-        fractionsBackground = _temp.fractionsBackground
-    else:
-        _temp = __import__('inputs_sig_'+obsName+'_Full', globals(), locals(), ['acc'], -1)
-        acc = _temp.acc
-        _temp = __import__('inputs_bkg_'+obsName+'_Full', globals(), locals(), ['fractionsBackground'], -1)
-        fractionsBackground = _temp.fractionsBackground
-
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    acc = _temp.acc
+    _temp = __import__('inputs_bkg_'+obsName+'_'+opt.YEAR, globals(), locals(), ['fractionsBackground'], -1)
+    fractionsBackground = _temp.fractionsBackground
 
     DataModelName = 'SM_125'
     if obsName == 'mass4l': PhysicalModels = ['v2','v3']
@@ -223,7 +216,7 @@ def runFiducialXS():
         nBins = len(observableBins)
         if physicalModel == 'v2': # In this case implemented for mass4l only
             for channel in ['4e', '4mu', '2e2mu']:
-                cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0 -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=150'
+                cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0 -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=150 --cminDefaultMinimizerStrategy 0'
                 fidxs = 0
                 fidxs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                 fidxs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -238,7 +231,7 @@ def runFiducialXS():
                 if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r'+channel+'Bin0.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=150 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=150 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
                 else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
@@ -246,6 +239,48 @@ def runFiducialXS():
                 output = processCmd(cmd)
         elif physicalModel == 'v3':
             XH = []
+            tmp_xs = {}
+            tmp_xs_sm = {}
+            for channel in ['4e','4mu','2e2mu']:
+                for obsBin in range(nBins-1):
+                    fidxs_sm = 0
+                    fidxs_sm += higgs_xs['ggH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs_sm += higgs_xs['VBF_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs_sm += higgs_xs['WH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs_sm += higgs_xs['ZH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs_sm += higgs_xs['ttH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+
+                    fidxs = 0
+                    fidxs += higgs_xs['ggH_'+_th_MH]*higgs4l_br[_th_MH+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs += higgs_xs['VBF_'+_th_MH]*higgs4l_br[_th_MH+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs += higgs_xs['WH_'+_th_MH]*higgs4l_br[_th_MH+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs += higgs_xs['ZH_'+_th_MH]*higgs4l_br[_th_MH+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    fidxs += higgs_xs['ttH_'+_th_MH]*higgs4l_br[_th_MH+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+
+                    # fidxs = fidxs_sm
+
+                    tmp_xs_sm[channel+'_genbin'+str(obsBin)] = fidxs_sm
+                    tmp_xs[channel+'_genbin'+str(obsBin)] = fidxs
+
+            cmd_BR = ""
+            for obsBin in range(nBins-1):
+                fidxs4e = tmp_xs['4e_genbin'+str(obsBin)]
+                fidxs4mu = tmp_xs['4mu_genbin'+str(obsBin)]
+                fidxs2e2mu = tmp_xs['2e2mu_genbin'+str(obsBin)]
+                frac4e = fidxs4e/(fidxs4e+fidxs4mu+fidxs2e2mu)
+                frac4mu = fidxs4mu/(fidxs4e+fidxs4mu+fidxs2e2mu)
+                fidxs4e_sm = tmp_xs_sm['4e_genbin'+str(obsBin)]
+                fidxs4mu_sm = tmp_xs_sm['4mu_genbin'+str(obsBin)]
+                fidxs2e2mu_sm = tmp_xs_sm['2e2mu_genbin'+str(obsBin)]
+                frac4e_sm = fidxs4e_sm/(fidxs4e_sm+fidxs4mu_sm+fidxs2e2mu_sm)
+                frac4mu_sm = fidxs4mu_sm/(fidxs4e_sm+fidxs4mu_sm+fidxs2e2mu_sm)
+                K1 = frac4e/frac4e_sm
+                K2 = frac4mu/frac4mu_sm * (1.0-frac4e_sm)/(1.0-frac4e)
+
+                cmd_BR += 'K1Bin'+str(obsBin)+'='+str(K1)+',K2Bin'+str(obsBin)+'='+str(K2)+','
+
+            print(cmd_BR)
+
             for obsBin in range(nBins-1):
                 XH.append(0.0)
                 for channel in ['4e','4mu','2e2mu']:
@@ -259,8 +294,13 @@ def runFiducialXS():
                 _obsxsec = XH[obsBin]
                 if obsName=='mass4l': max_range = '5.0'
                 else: max_range = '2.5'
-                cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150'
-                if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --cminDefaultMinimizerStrategy 0'
+                if(not opt.UNBLIND):
+                    cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                    if opt.FIXFRAC:
+                        cmd = cmd+','+cmd_BR
+                if(opt.UNBLIND and opt.FIXFRAC):
+                    cmd = cmd+' --setParameters '+cmd_BR
                 print cmd, '\n'
                 output = processCmd(cmd)
             # Stat-only
@@ -279,10 +319,15 @@ def runFiducialXS():
                 if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=150 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + '--freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
                 else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
-                if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                if(not opt.UNBLIND):
+                    cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                    if(opt.FIXFRAC):
+                        cmd = cmd+','+cmd_BR
+                if(opt.UNBLIND and opt.FIXFRAC):
+                    cmd = cmd+' --setParameters '+cmd_BR
                 print cmd+'\n'
                 output = processCmd(cmd)
 
