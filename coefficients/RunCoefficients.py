@@ -547,7 +547,7 @@ for year in years:
     d_sup = {}
     for signal in signals:
         print year, signal
-        d_sup[signal] = pd.concat([d_sig[year][signal], d_sig_failed[year][signal]], ignore_index=True, sort = True)
+        d_sup[signal] = pd.concat([d_sig[year][signal], d_sig_failed[year][signal]], ignore_index=True)
     d_sig_tot[year] = d_sup
 
 
@@ -556,7 +556,7 @@ if(opt.YEAR == 'Full'):
     d_sig_full = {}
     for signal in signals:
         frame = [d_sig_tot[year][signal] for year in years]
-        d_sig_full[signal] = pd.concat(frame, ignore_index=True, sort = True)
+        d_sig_full[signal] = pd.concat(frame, ignore_index=True)
 else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (it is useful when fullNNLOPS is calculated)
     d_sig_full = d_sig_tot[int(opt.YEAR)]
 print 'Dataframes created successfully'
