@@ -154,6 +154,9 @@ colors = [kRed, kRed, kBlack, kBlack]
 
 resultsXS_data = {}
 resultsXS_asimov = {}
+if opt.OBSNAME=='mass4l':
+    resultsXS_data_v2 = {}
+    resultsXS_asimov_v2 = {}
 
 year = opt.YEAR
 
@@ -176,9 +179,11 @@ if(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
 if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
 if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
 if(obsName == 'pTj1'): label = 'p_{T}^{(Lead. jet)} (GeV)'
+if(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
 obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
 obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 nBins = len(obs_bins)
+if obsName=='mass4l': nBins = nBins + 3
 
 for i in range(nBins-1):
     _bin = i
@@ -198,9 +203,9 @@ for i in range(nBins-1):
 
     for ifile in range(len(fileList)):
         rfile = fileList[ifile].replace('OBS', _obs_bin)
-	rfile = rfile.replace('BIN', obsName)
+        rfile = rfile.replace('BIN', obsName)
         graphs.append(TGraph())
-	fname = inputPath+rfile
+        fname = inputPath+rfile
         inF = TFile.Open(fname,"READ")
         tree = inF.Get("limit")
 
@@ -391,10 +396,12 @@ for i in range(nBins-1):
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
     if not 'jet' in obsName:
-	if 'pTj1' in obsName:
-		latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
-	else:
-        	latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
+        if 'pTj1' in obsName:
+            latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
+        elif 'mass4l' in obsName:
+            latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
+        else:
+            latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
     else:
         latex2.DrawLatex(0.45,0.65, str(_bin)+' jet(s)')
     latex2.DrawLatex(0.91,0.22, "#scale[0.7]{#color[12]{68% CL}}")
@@ -409,20 +416,54 @@ for i in range(nBins-1):
     c.Update()
 
     if(opt.UNBLIND):
-        resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
-        resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+        if obsName!='mass4l':
+            resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+            resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+        else:
+            if _bin==0:
+                resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==1:
+                resultsXS_data_v2['SM_125_'+obsName+'_2e2mu_genbin0'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v2['SM_125_'+obsName+'_2e2mu_genbin0_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==2:
+                resultsXS_data_v2['SM_125_'+obsName+'_4mu_genbin0'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v2['SM_125_'+obsName+'_4mu_genbin0_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==3:
+                resultsXS_data_v2['SM_125_'+obsName+'_4e_genbin0'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v2['SM_125_'+obsName+'_4e_genbin0_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
 
-    resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
-    resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+    if obsName!='mass4l':
+        resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+        resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+    else:
+        if _bin==0:
+            resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==1:
+            resultsXS_asimov_v2['SM_125_'+obsName+'_2e2mu_genbin0'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v2['SM_125_'+obsName+'_2e2mu_genbin0_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==2:
+            resultsXS_asimov_v2['SM_125_'+obsName+'_4mu_genbin0'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v2['SM_125_'+obsName+'_4mu_genbin0_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==3:
+            resultsXS_asimov_v2['SM_125_'+obsName+'_4e_genbin0'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v2['SM_125_'+obsName+'_4e_genbin0_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
 
     c.Update()
-    c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".pdf")
-    c.SaveAs("plots/lhscan_compare_"+obsName+"_"+str(_bin)+".png")
+    c.SaveAs("plots/lhscan_compare_"+obsName+"_"+poi+".pdf")
+    c.SaveAs("plots/lhscan_compare_"+obsName+"_"+poi+".png")
 
 with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
     f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
+if obsName=='mass4l':
+    with open('resultsXS_LHScan_expected_'+obsName+'_v2.py', 'w') as f:
+        f.write('resultsXS = '+str(resultsXS_asimov_v2)+' \n')
 
 if(opt.UNBLIND):
     with open('resultsXS_LHScan_observed_'+obsName+'_v3.py', 'w') as f:
         f.write('resultsXS = '+str(resultsXS_data)+' \n')
+    if obsName=='mass4l':
+        with open('resultsXS_LHScan_observed_'+obsName+'_v2.py', 'w') as f:
+            f.write('resultsXS = '+str(resultsXS_data_v2)+' \n')
 # raw_input()
