@@ -31,6 +31,8 @@ def parseOptions():
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='fix the fractions of 4e and 4mu when extracting the results, default is False')
     parser.add_option('',   '--physicsModel',dest='PHYSICSMODEL',type='string',default='v3',help='In case of mass4l specify explicitly v2, physicsModel to calculate impacts plots for r2e2mu,r4e,r4mu')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
+
 
     # Unblind option
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
@@ -77,7 +79,7 @@ def impactPlots():
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
 
-    _temp = __import__('inputs_sig_'+obsName+'_2017', globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
 
     # Impact plot

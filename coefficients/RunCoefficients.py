@@ -443,21 +443,21 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
                 for recobin in range(len(obs_bins)-1):
                     for genbin in range(len(obs_bins)-1):
                         getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year)
-        if (os.path.exists('../inputs/inputs_sig_'+obs_name+'_'+str(year)+'_ORIG.py')):
-            os.system('rm ../inputs/inputs_sig_'+obs_name+'_'+str(year)+'_ORIG.py')
-        with open('../inputs/inputs_sig_'+obs_name+'_'+str(year)+'.py', 'w') as f:
-            f.write('observableBins = '+str(obs_bins)+';\n')
-            f.write('acc = '+str(acceptance)+' \n')
-            f.write('err_acc = '+str(err_acceptance)+' \n')
-            f.write('eff = '+str(effrecotofid)+' \n')
-            f.write('err_eff = '+str(err_effrecotofid)+' \n')
-            f.write('outinratio = '+str(outinratio)+' \n')
-            f.write('err_outinratio = '+str(err_outinratio)+' \n')
-            f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
-            f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
-            f.write('number_fake = '+str(numberFake)+' \n')
-            f.write('lambdajesup = '+str(lambdajesup)+' \n')
-            f.write('lambdajesdn = '+str(lambdajesup))
+                        if (os.path.exists('../inputs/inputs_sig_'+obs_name+'_'+str(year)+'_ORIG.py')):
+                            os.system('rm ../inputs/inputs_sig_'+obs_name+'_'+str(year)+'_ORIG.py')
+                        with open('../inputs/inputs_sig_'+obs_name+'_'+str(year)+'.py', 'w') as f:
+                            f.write('observableBins = '+str(obs_bins)+';\n')
+                            f.write('acc = '+str(acceptance)+' \n')
+                            f.write('err_acc = '+str(err_acceptance)+' \n')
+                            f.write('eff = '+str(effrecotofid)+' \n')
+                            f.write('err_eff = '+str(err_effrecotofid)+' \n')
+                            f.write('outinratio = '+str(outinratio)+' \n')
+                            f.write('err_outinratio = '+str(err_outinratio)+' \n')
+                            f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
+                            f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
+                            f.write('number_fake = '+str(numberFake)+' \n')
+                            f.write('lambdajesup = '+str(lambdajesup)+' \n')
+                            f.write('lambdajesdn = '+str(lambdajesup))
 
     elif type=='full' or type=='fullNNLOPS':
         for chan in chans:
@@ -474,6 +474,7 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
                 f.write('eff = '+str(effrecotofid)+' \n')
                 f.write('err_eff = '+str(err_effrecotofid)+' \n')
                 f.write('outinratio = '+str(outinratio)+' \n')
+                f.write('err_outinratio = '+str(err_outinratio)+' \n')
                 f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
                 f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
                 f.write('number_fake = '+str(numberFake)+' \n')

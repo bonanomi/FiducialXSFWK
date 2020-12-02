@@ -89,8 +89,9 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
     nBins = len(observableBins)
     if (('jet' in obsName) | (obsName == 'pTj1')): JES = True
     else: JES = False
+    os.chdir('../datacard/datacard_'+years[0])
     for year in years:
-        os.chdir('../datacard/datacard_'+year)
+        os.chdir('../datacard_'+year)
         print 'Current diretory: datacard_'+year
         for fState in fStates:
             if (not obsName.startswith("mass4l")):
@@ -120,6 +121,8 @@ def runFiducialXS():
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Theory xsec and BR at MH = '+_th_MH
     print 'Current directory: python'
+    
+    _fit_dir = os.getcwd()
 
     ## addConstrainedModel
     years_bis = years
@@ -134,15 +137,13 @@ def runFiducialXS():
             print 'addConstrainedModel DONE'
         elif os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
             print 'addConstrainedModel '+year+' already done'
-
+    if 'Full' in years: years.remove('Full')    
     # "__import__" to SetParameters when running the expected measurement
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
     _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
-    _temp = __import__('inputs_bkg_'+obsName+'_'+opt.YEAR, globals(), locals(), ['fractionsBackground'], -1)
-    fractionsBackground = _temp.fractionsBackground
 
     DataModelName = 'SM_125'
     if obsName == 'mass4l': PhysicalModels = ['v2','v3']
@@ -154,9 +155,11 @@ def runFiducialXS():
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
         nBins = len(observableBins)
+	
+        os.chdir(_fit_dir)
         for year in years:
             #We are already in datacard dir at this point
-            #os.chdir('../datacard/datacard_'+year)
+            os.chdir('../datacard/datacard_'+year)
             print 'Current directory: datacard_'+year
             for fState in fStates:
                 if(nBins>1):
@@ -173,10 +176,12 @@ def runFiducialXS():
             cmd = 'combineCards.py hzz4l_4muS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_4eS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_2e2muS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
+            
+            os.chdir(_fit_dir)
 
         # Combine 3 years
-    	# we go back from datacard_Y to datacard folder
-        os.chdir('../')
+    	  # we go back from datacard_Y to datacard folder
+        os.chdir('../datacard/')
         print 'Current directory: datacard'
         if (opt.YEAR == 'Full'):
             cmd = 'combineCards.py datacard_2016/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2017/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2018/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
@@ -219,6 +224,7 @@ def runFiducialXS():
         if physicalModel == 'v2': # In this case implemented for mass4l only
             for channel in ['4e', '4mu', '2e2mu']:
                 cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0 -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=300 --cminDefaultMinimizerStrategy 0'
+                
                 fidxs = 0
                 fidxs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                 fidxs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -253,6 +259,7 @@ def runFiducialXS():
                     fidxs_sm += higgs_xs['ttH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
 
                     fidxs = 0
+
                     fidxs += higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                     fidxs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                     fidxs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]

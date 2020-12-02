@@ -160,7 +160,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if(channelNumber != 1):
         file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
         file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.2 [-1,1]\n')
-
+        
     file.write('CMS_zz4l_n_sig_'+str(channelNumber)+'_'+year+' param 0.0 0.05\n')
 
     # Theoretical
