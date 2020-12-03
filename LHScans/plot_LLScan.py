@@ -57,27 +57,29 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
     bestfit = None
 
-    for i in xrange(graph.GetN()):
-        if graph.GetY()[i] < 0.003:
-            bestfit = graph.GetX()[i]
-
-    if graph.GetY()[i] == 0:
-        bestfit = graph.GetX()[i]
-
-    if bestfit is None:
-        for i in xrange(graph.GetN()):
-            if graph.GetY()[i] < 0.02:
-                    bestfit = graph.GetX()[i]
-
-    if bestfit is None:
-        for i in xrange(graph.GetN()):
-            if graph.GetY()[i] < 0.25:
-                    bestfit = graph.GetX()[i]
+    # for i in xrange(graph.GetN()):
+    #     if graph.GetY()[i] < 0.003:
+    #         bestfit = graph.GetX()[i]
+    #
+    # if graph.GetY()[i] == 0:
+    #     bestfit = graph.GetX()[i]
+    #
+    # if bestfit is None:
+    #     for i in xrange(graph.GetN()):
+    #         if graph.GetY()[i] < 0.02:
+    #                 bestfit = graph.GetX()[i]
+    #
+    # if bestfit is None:
+    #     for i in xrange(graph.GetN()):
+    #         if graph.GetY()[i] < 0.25:
+    #                 bestfit = graph.GetX()[i]
 
     graph.SetMarkerColor(color)
     spline = TSpline3("spline3", graph)
     global NAMECOUNTER
     func = TF1('splinefn'+str(NAMECOUNTER), partial(Eval, spline), graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
+    bestfit = func.GetMinimumX()#At
+    print bestfit
     NAMECOUNTER += 1
     func.SetLineColor(color)
     func.SetLineWidth(3)
