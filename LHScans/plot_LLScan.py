@@ -78,7 +78,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     spline = TSpline3("spline3", graph)
     global NAMECOUNTER
     func = TF1('splinefn'+str(NAMECOUNTER), partial(Eval, spline), graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
-    bestfit = func.GetMinimumX()#At
+    bestfit = func.GetMinimumX() #AT
     print bestfit
     NAMECOUNTER += 1
     func.SetLineColor(color)
