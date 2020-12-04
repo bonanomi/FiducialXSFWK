@@ -327,6 +327,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
         # qqzz and ggzz
         for bkg in ['qqzz', 'ggzz']:
             for f in ['2e2mu', '4e', '4mu']:
+                #df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].Z2Mass < 60)  & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
                 df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
                 len_tot = df['weight'].sum() # Total number of bkg b events in final state f
                 for i in range(len(binning)-1):
@@ -336,8 +337,9 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                     sel_bin_high = df_irr[year][bkg][var] < bin_high
                     sel_bin_mass_low = df_irr[year][bkg].ZZMass >= 105
                     sel_bin_mass_high = df_irr[year][bkg].ZZMass <= 140
+                    sel_Z2_mass = df_irr[year][bkg].Z2Mass < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
                     sel_fstate = df_irr[year][bkg]['FinState'] == f
-                    sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate
+                    sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate #& sel_Z2_mass
                     df = df_irr[year][bkg][sel].copy()
                     len_bin = df['weight'].sum() # Number of bkg events in bin i
                     fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
@@ -372,6 +374,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 sel_f_state_zx = df_red[year]['FinState'] == 1
             elif(f == '2e2mu'):
                 sel_f_state_zx = (df_red[year]['FinState'] == 2) | (df_red[year]['FinState'] == 3)
+            #df = df_red[year][(sel_f_state_zx) & (df_red[year].Z2Mass < 60) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
             df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
             for i in range(len(binning)-1):
@@ -381,7 +384,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 sel_bin_high = df_red[year][var] < bin_high
                 sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
                 sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
-                sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high
+                sel_Z2_mass = df_red[year]['Z2Mass'] < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
+                sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high #& sel_Z2_mass
                 df = df_red[year][sel].copy()
                 len_bin = df['yield_SR'].sum() # Number of bkg events in bin i
                 fractionBkg['ZJetsCR_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
