@@ -474,6 +474,11 @@ void skim_MC_tree (TString prod_mode = "ZH125", TString year = "2017"){
   oldtree->SetBranchStatus("Z2Flav",1);
   oldtree->SetBranchStatus("ZZPt",1);
   oldtree->SetBranchStatus("ZZEta",1);
+  oldtree->SetBranchStatus("costhetastar",1);
+  oldtree->SetBranchStatus("helcosthetaZ1",1);
+  oldtree->SetBranchStatus("helcosthetaZ2",1);
+  oldtree->SetBranchStatus("helphi",1);
+  oldtree->SetBranchStatus("phistarZ1",1);
   oldtree->SetBranchStatus("nCleanedJetsPt30",1);
   oldtree->SetBranchStatus("nCleanedJetsPt30_jesUp",1);
   oldtree->SetBranchStatus("nCleanedJetsPt30_jesDn",1);

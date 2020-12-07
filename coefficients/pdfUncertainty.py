@@ -214,11 +214,13 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'LHEweight_QCDscale_muR1_muF1','LHEweight_QCDscale_muR1_muF2','LHEweight_QCDscale_muR1_muF0p5',
              'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
              'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
-             'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn']
+             'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn',
+             'GENcosThetaStar','GENcosTheta1','GENcosTheta2','GENcosThetaStar','GENPhi','GENPhi1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
                           'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
-                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1']) #Additioanl entries for passing events
+                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1',
+                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']) #Additioanl entries for passing events
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
@@ -239,6 +241,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['njets_pt30_eta2p5_jesup'] = -1
         df['njets_pt30_eta2p5_jesdn'] = -1
         df['pTj1'] = -1
+        df['costhetastar'] = -1
+        df['helcosthetaZ1'] = -1
+        df['helcosthetaZ2'] = -1
+        df['helphi'] = -1
+        df['phistarZ1'] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -435,6 +442,21 @@ elif(obs_name == 'pTj1'):
 elif(obs_name == 'mass4l'):
     obs_reco = 'ZZMass'
     obs_gen = 'GENmass4l'
+elif(obs_name == 'costhetastar'):
+    obs_reco = 'costhetastar'
+    obs_gen = 'GENcosThetaStar'
+elif(obs_name == 'costhetaZ1'):
+    obs_reco = 'helcosthetaZ1'
+    obs_gen  = 'GENcosTheta1'
+elif(obs_name == 'costhetaZ2'):
+    obs_reco = 'helcosthetaZ2'
+    obs_gen  = 'GENcosTheta2'
+elif(obs_name == 'phi'):
+    obs_reco = 'helphi'
+    obs_gen  = 'GENPhi'
+elif(obs_name == 'phistar'):
+    obs_reco = 'phistarZ1'
+    obs_gen  = 'GENPhi1'
 
 # Generate dataframes
 d_sig = {}
