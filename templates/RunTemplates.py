@@ -351,14 +351,14 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                     w = df['weight'].to_numpy()
                     w = np.asarray(w).astype('float')
                     # ------
-		    if(obs_name == 'rapidity4l'):
+		    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
 			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
 		    else:
                     	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
                     print (histo.GetName())
 		    histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
-		    if (obs_name == 'rapidity4l'):
+                    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
 			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
 		    else:
                     	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
@@ -395,13 +395,14 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if(obs_name == 'rapidity4l'):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
+
 			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
                 else:
                 	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if(obs_name == 'rapidity4l'):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
 			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
 		else:
                 	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")

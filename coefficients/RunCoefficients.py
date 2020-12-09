@@ -186,7 +186,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
              'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
              'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1',
-             'GENmassZ2', 'GENmassZ1', 'GENcosThetaStar',
+             'GENmassZ2', 'GENmassZ1',
              'GENcosTheta1','GENcosTheta2','GENcosThetaStar','GENPhi','GENPhi1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',

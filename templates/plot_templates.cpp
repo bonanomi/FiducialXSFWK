@@ -153,12 +153,20 @@ int main (int argc, char ** argv){
   // TString binRangeHigh[N_BINS] = {"1", "2", "3", "4", "20"};
   // TString binRangeLeg[N_BINS]  = {"nJet=0", "nJet=1", "nJet=2", "nJet=3", "nJet>=4"};
   
-  TString obsTag = "pTj1";
+  /*TString obsTag = "pTj1";
   const int N_BINS = 4;
   TString binRange[N_BINS]     = {"30_55", "55_95", "95_200", "200_13000"};
   TString binRangeLow[N_BINS]  = {"30", "55", "95", "200"};
   TString binRangeHigh[N_BINS] = {"55", "95", "200", "13000"};
   TString binRangeLeg[N_BINS]  = {"30 < pTj1 < 55 GeV", "55 < pTj1 < 95 GeV", "95 < pTj1 < 200 GeV", "200 < pTj1 < 1300 GeV"};
+  */
+
+  TString obsTag = "costhetastar";
+  const int N_BINS = 5;
+  TString binRange[N_BINS]     = {"0.0_0.2", "0.2_0.4", "0.4_0.6", "0.6_0.8", "0.8_1.0"};
+  TString binRangeLow[N_BINS]  = {"0.0", "0.2", "0.4", "0.6", "0.8"};
+  TString binRangeHigh[N_BINS] = {"0.2", "0.4", "0.6", "0.8", "1.0"};
+  TString binRangeLeg[N_BINS]  = {"0.0 < cos(#theta) < 0.2 ", "55 < cos(#theta) < 0.4 ", "0.4 < cos(#theta) < 0.6 ", "0.6 < cos(#theta) < 0.8 ", "0.8 < cos(#theta) < 1.0 "};
 
   const int N_BKGS = 3;
   TString bkgName[N_BKGS]   = {"qqzz", "ggzz", "ZJetsCR"};

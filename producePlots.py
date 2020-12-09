@@ -1168,19 +1168,19 @@ def plotXS(obsName, obs_bins):
     elif (obsName=="rapidity4l"):
         label = "|y(H)|"
         unit = ""
-    elif (obsName=="cosThetaStar"):
+    elif (obsName=="costhetastar"):
         label = "|cos#theta*|"
         unit = ""
-    elif (obsName=="cosTheta1"):
+    elif (obsName=="costhetaZ1"):
         label = "|cos#theta_{1}|"
         unit = ""
-    elif (obsName=="cosTheta2"):
+    elif (obsName=="costhetaZ2"):
         label = "|cos#theta_{2}|"
         unit = ""
-    elif (obsName=="Phi"):
+    elif (obsName=="phi"):
         label = "|#Phi|"
         unit = ""
-    elif (obsName=="Phi1"):
+    elif (obsName=="phistar"):
         label = "|#Phi_{1}|"
         unit = ""
     elif (obsName=="mass4l"):
@@ -1189,7 +1189,7 @@ def plotXS(obsName, obs_bins):
     else:
         label = obsName
         unit = ""
-
+    print label
     c = TCanvas("c",obsName, 1400, 1400)
     if(opt.SETLOG): c.SetLogy()
     if (not obsName=="mass4l"): c.SetBottomMargin(0.35)

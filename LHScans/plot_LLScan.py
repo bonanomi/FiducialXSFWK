@@ -182,6 +182,11 @@ if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
 if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
 if(obsName == 'pTj1'): label = 'p_{T}^{(Lead. jet)} (GeV)'
 if(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
+if(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
+if(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
+if(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
+if(obsName == 'phistar'): label = '#Phi^{#star}'
+if(obsName == 'phi'): label = '#Phi'
 obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
 obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 nBins = len(obs_bins)
