@@ -46,7 +46,7 @@ observableBins = observableBins.split('|')
 observableBins.pop()
 observableBins.pop(0)
 
-_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc','eff','err_eff','outinratio','err_outinratio','inc_wrongfrac','binfrac_wrongfrac','number_fake','lambdajesup','lambdajesdn'], -1)
+_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins','acc','eff','err_eff','outinratio','err_outinratio','inc_wrongfrac','binfrac_wrongfrac','number_fake','lambdajesup','lambdajesdn'], -1)
 acc = _temp.acc
 eff = _temp.eff
 err_eff = _temp.err_eff
@@ -277,6 +277,7 @@ for fState in fStates:
 os.system('cp ../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'.py ../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'_ORIG.py')
 
 with open('../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'.py', 'w') as f:
+    f.write('observableBins = '+str(_temp.observableBins)+' \n')
     f.write('acc = '+str(acc)+' \n')
     f.write('eff = '+str(eff)+' \n')
     f.write('err_eff = '+str(err_eff)+' \n')

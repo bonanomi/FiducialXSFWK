@@ -185,11 +185,13 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
              'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
-             'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1']
+             'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1', 'GENmassZ2', 'GENmassZ1',
+             'GENcosThetaStar', 'GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
                           'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
-                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1']) #Additioanl entries for passing events
+                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1',
+                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']) #Additioanl entries for passing events
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
@@ -210,6 +212,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['njets_pt30_eta2p5_jesup'] = -1
         df['njets_pt30_eta2p5_jesdn'] = -1
         df['pTj1'] = -1
+        df['costhetastar'] = -1
+        df['helcosthetaZ1'] = -1
+        df['helcosthetaZ2'] = -1
+        df['helphi'] = -1
+        df['phistarZ1'] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -280,18 +287,31 @@ def skim_df(year):
     return d_skim_sig, d_skim_sig_failed
 
 # ------------------------------- FUNCTIONS TO CALCULATE COEFFICIENTS ----------------------------------------------------
-def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year='None'):
-    #RecoBin limits I'm considering
-    obs_reco_low = obs_bins[recobin]
-    obs_reco_high = obs_bins[recobin+1]
-
-    #GenBin limits I'm considering
-    obs_gen_low = obs_bins[genbin]
-    obs_gen_high = obs_bins[genbin+1]
-
-    #Extrimities of gen area
-    obs_gen_lowest = obs_bins[0]
-    obs_gen_highest = obs_bins[len(obs_bins)-1]
+def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year, obs_reco_2nd = 'None', obs_gen_2nd = 'None', obs_name_2nd = 'None'):
+    if not doubleDiff:
+        #RecoBin limits I'm considering
+        obs_reco_low = obs_bins[recobin]
+        obs_reco_high = obs_bins[recobin+1]
+        #GenBin limits I'm considering
+        obs_gen_low = obs_bins[genbin]
+        obs_gen_high = obs_bins[genbin+1]
+        #Extrimities of gen area
+        obs_gen_lowest = obs_bins[0]
+        obs_gen_highest = obs_bins[len(obs_bins)-1]
+    elif doubleDiff:
+        obs_reco_low = obs_bins[recobin][0]
+        obs_reco_high = obs_bins[recobin][1]
+        obs_gen_low = obs_bins[genbin][0]
+        obs_gen_high = obs_bins[genbin][1]
+        obs_gen_lowest = min(obs_bins.values())[0]
+        obs_gen_highest = max(obs_bins.values())[1]
+        #Second variable
+        obs_reco_2nd_low = obs_bins[recobin][2]
+        obs_reco_2nd_high = obs_bins[recobin][3]
+        obs_gen_2nd_low = obs_bins[genbin][2]
+        obs_gen_2nd_high = obs_bins[genbin][3]
+        obs_gen_2nd_lowest = min(obs_bins.values())[2]
+        obs_gen_2nd_highest = max(obs_bins.values())[3]
 
     for signal in signals:
         if type=='std':
@@ -309,17 +329,35 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         elif type=='fullNNLOPS' and signal!='ggH125': # In case of fullNNLOPS we are interested in ggH125 only
             continue
 
-        processBin = signal+'_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
-	if type=='fullNNLOPS':
-		processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+        if doubleDiff:
+            processBin = signal+'_'+channel+'_'+obs_name+'_'+obs_name_2nd+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+        else:
+            processBin = signal+'_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+
+        if type=='fullNNLOPS':
+            processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+        elif type=='fullNNLOPS' and doubleDiff:
+            processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_'+obs_name_2nd+'_genbin'+str(genbin)+'_recobin'+str(recobin)
 
         # Selections
         cutobs_reco = (abs(datafr[obs_reco]) >= obs_reco_low) & (abs(datafr[obs_reco]) < obs_reco_high)
         cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+        if doubleDiff:
+            cutobs_reco &= (abs(datafr[obs_reco_2nd]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd]) < obs_reco_2nd_high)
+            cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
         if 'jet' in obs_name:
             cutobs_reco_jesup = (datafr[obs_reco+'_jesup'] >= obs_reco_low) & (datafr[obs_reco+'_jesup'] < obs_reco_high)
             cutobs_reco_jesdn = (datafr[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr[obs_reco+'_jesdn'] < obs_reco_high)
+        if 'jet' in obs_name_2nd: # If it is not doubleDiff obs_reco_2nd = 'None', this if is valid only for doubleDiff
+            if 'cutobs_reco_jesup' in locals(): # If there is already cutobs_reco_jes* we need to add additional conditions (&=)
+                cutobs_reco_jesup &= (datafr[obs_reco_2nd+'_jesup'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesup'] < obs_reco_2nd_high)
+                cutobs_reco_jesdn &= (datafr[obs_reco_2nd+'_jesdn'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesdn'] < obs_reco_2nd_high)
+            else: # Otherwise it is a first declaration (=)
+                cutobs_reco_jesup = (datafr[obs_reco_2nd+'_jesup'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesup'] < obs_reco_2nd_high)
+                cutobs_reco_jesdn = (datafr[obs_reco_2nd+'_jesdn'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesdn'] < obs_reco_2nd_high)
         cutobs_gen_otherfid = ((abs(datafr[obs_gen]) >= obs_gen_lowest) & (abs(datafr[obs_gen]) < obs_gen_low)) | ((abs(datafr[obs_gen]) >= obs_gen_high) & (abs(datafr[obs_gen]) <= obs_gen_highest))
+        if doubleDiff:
+            cutobs_gen_otherfid &= ((abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_lowest) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_low)) | ((abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_high) & (abs(datafr[obs_gen_2nd]) <= obs_gen_2nd_highest))
         cutm4l_gen = (datafr['GENmass4l'] > m4l_low) & (datafr['GENmass4l'] < m4l_high)
         cutnotm4l_gen = (datafr['GENmass4l'] <= m4l_low) | (datafr['GENmass4l'] >= m4l_high)
         cuth4l_gen = datafr['cuth4l_gen'] == True
@@ -429,7 +467,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             print processBin,'acc',round(acceptance[processBin],4),'eff',round(effrecotofid[processBin],4),'outinratio',round(outinratio[processBin],4)
 
 
-def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
+def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None', obs_gen_2nd = 'None', obs_name_2nd = 'None',):
     if obs_reco != 'ZZMass':
         chans = ['4e', '4mu', '2e2mu']
     else:
@@ -440,34 +478,51 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
     if type=='std':
         for year in years:
             for chan in chans:
-                for recobin in range(len(obs_bins)-1):
-                    for genbin in range(len(obs_bins)-1):
-                        getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year)
-                        if (os.path.exists('../inputs/inputs_sig_'+obs_name+'_'+str(year)+'_ORIG.py')):
-                            os.system('rm ../inputs/inputs_sig_'+obs_name+'_'+str(year)+'_ORIG.py')
-                        with open('../inputs/inputs_sig_'+obs_name+'_'+str(year)+'.py', 'w') as f:
-                            f.write('observableBins = '+str(obs_bins)+';\n')
-                            f.write('acc = '+str(acceptance)+' \n')
-                            f.write('err_acc = '+str(err_acceptance)+' \n')
-                            f.write('eff = '+str(effrecotofid)+' \n')
-                            f.write('err_eff = '+str(err_effrecotofid)+' \n')
-                            f.write('outinratio = '+str(outinratio)+' \n')
-                            f.write('err_outinratio = '+str(err_outinratio)+' \n')
-                            f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
-                            f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
-                            f.write('number_fake = '+str(numberFake)+' \n')
-                            f.write('lambdajesup = '+str(lambdajesup)+' \n')
-                            f.write('lambdajesdn = '+str(lambdajesup))
+                if not doubleDiff:
+                    for recobin in range(len(obs_bins)-1):
+                        for genbin in range(len(obs_bins)-1):
+                            getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+                elif doubleDiff:
+                    for recobin in range(len(obs_bins)):
+                        for genbin in range(len(obs_bins)):
+                            getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+            # Write dictionaries
+            if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
+            else: obs_name_dic = obs_name
+            if (os.path.exists('../inputs/inputs_sig_'+obs_name_dic+'_'+str(year)+'_ORIG.py')):
+                os.system('rm ../inputs/inputs_sig_'+obs_name_dic+'_'+str(year)+'_ORIG.py')
+            with open('../inputs/inputs_sig_'+obs_name_dic+'_'+str(year)+'.py', 'w') as f:
+                f.write('observableBins = '+str(obs_bins)+';\n')
+                f.write('acc = '+str(acceptance)+' \n')
+                f.write('err_acc = '+str(err_acceptance)+' \n')
+                f.write('eff = '+str(effrecotofid)+' \n')
+                f.write('err_eff = '+str(err_effrecotofid)+' \n')
+                f.write('outinratio = '+str(outinratio)+' \n')
+                f.write('err_outinratio = '+str(err_outinratio)+' \n')
+                f.write('inc_wrongfrac = '+str(wrongfrac)+' \n')
+                f.write('binfrac_wrongfrac = '+str(binfrac_wrongfrac)+' \n')
+                f.write('number_fake = '+str(numberFake)+' \n')
+                f.write('lambdajesup = '+str(lambdajesup)+' \n')
+                f.write('lambdajesdn = '+str(lambdajesup))
 
     elif type=='full' or type=='fullNNLOPS':
         for chan in chans:
-            for recobin in range(len(obs_bins)-1):
-                for genbin in range(len(obs_bins)-1):
-                    getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type)
+            if not doubleDiff:
+                for recobin in range(len(obs_bins)-1):
+                    for genbin in range(len(obs_bins)-1):
+                        getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, 'None', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+            elif doubleDiff:
+                for recobin in range(len(obs_bins)):
+                    for genbin in range(len(obs_bins)):
+                        getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, 'None', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+
+        # Write dictionaries
+        if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
+        else: obs_name_dic = obs_name
         if type=='full':
-            if (os.path.exists('../inputs/inputs_sig_'+obs_name+'_Full_ORIG.py')):
-                os.system('rm ../inputs/inputs_sig_'+obs_name+'_Full_ORIG.py')
-            with open('../inputs/inputs_sig_'+obs_name+'_Full.py', 'w') as f:
+            if (os.path.exists('../inputs/inputs_sig_'+obs_name_dic+'_Full_ORIG.py')):
+                os.system('rm ../inputs/inputs_sig_'+obs_name_dic+'_Full_ORIG.py')
+            with open('../inputs/inputs_sig_'+obs_name_dic+'_Full.py', 'w') as f:
                 f.write('observableBins = '+str(obs_bins)+';\n')
                 f.write('acc = '+str(acceptance)+' \n')
                 f.write('err_acc = '+str(err_acceptance)+' \n')
@@ -482,12 +537,12 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type):
                 f.write('lambdajesdn = '+str(lambdajesup))
         elif type=='fullNNLOPS':
             if(opt.YEAR == 'Full'):
-                with open('../inputs/inputs_sig_'+obs_name+'_NNLOPS_Full.py', 'w') as f:
+                with open('../inputs/inputs_sig_'+obs_name_dic+'_NNLOPS_Full.py', 'w') as f:
                     f.write('observableBins = '+str(obs_bins)+';\n')
                     f.write('acc = '+str(acceptance)+' \n')
                     f.write('err_acc = '+str(err_acceptance)+' \n')
             else:
-                with open('../inputs/inputs_sig_'+obs_name+'_NNLOPS_'+opt.YEAR+'.py', 'w') as f:
+                with open('../inputs/inputs_sig_'+obs_name_dic+'_NNLOPS_'+opt.YEAR+'.py', 'w') as f:
                     f.write('observableBins = '+str(obs_bins)+';\n')
                     f.write('acc = '+str(acceptance)+' \n')
                     f.write('err_acc = '+str(err_acceptance)+' \n')
@@ -506,33 +561,130 @@ if (opt.YEAR == '2017'): years = [2017]
 if (opt.YEAR == '2018'): years = [2018]
 if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
-obs_name = opt.OBSNAME
-if(obs_name == 'rapidity4l'):
+if not 'vs' in opt.OBSBINS: #It is not a double-differential analysis
+    obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+    obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+    doubleDiff = False
+    print 'It is a single-differential measurement, binning', obs_bins
+else: #It is a double-differential analysis
+    doubleDiff = True
+    # The structure of obs_bins is:
+    # index of the dictionary is the number of the bin
+    # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
+    # The first two entries are the lower and upper bound of the first variable
+    # The second two entries are the lower and upper bound of the second variable
+    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
+        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+        obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
+        obs_bins_2nd = {}
+        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
+            obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
+            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+        obs_bins = {}
+        k = 0 #Bin index
+        for i in range(len(obs_bins_1st)-1):
+            for j in range(len(obs_bins_2nd[i])-1):
+                obs_bins[k] = []
+                obs_bins[k].append(obs_bins_1st[i])
+                obs_bins[k].append(obs_bins_1st[i+1])
+                obs_bins[k].append(obs_bins_2nd[i][j])
+                obs_bins[k].append(obs_bins_2nd[i][j+1])
+                k +=1
+    elif opt.OBSBINS.count('vs')>1 and opt.OBSBINS.count('/')>1: #Situation like this one '|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|'
+        obs_bins_tmp = opt.OBSBINS.split(' / ') #['|50|80| vs |10|30|', '|50|80| vs |30|60|', '|80|110| vs |10|25|', '|80|110| vs |25|30|']
+        obs_bins_1st={}
+        obs_bins_2nd={}
+        obs_bins={}
+        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_1st {0: ['50', '80'], 1: ['50', '80'], 2: ['80', '110'], 3: ['80', '110']} and obs_bins_2nd {0: ['10', '30'], 1: ['30', '60'], 2: ['10', '25'], 3: ['25', '30']}
+            obs_bins_tmp_bis = obs_bins_tmp[i].split(' vs ')
+            obs_bins_1st[i] = obs_bins_tmp_bis[0].split('|')[1:len(obs_bins_tmp_bis[0].split('|'))-1]
+            obs_bins_1st[i] = [float(j) for j in obs_bins_1st[i]] #Convert a list of str to a list of float
+            obs_bins_2nd[i] = obs_bins_tmp_bis[1].split('|')[1:len(obs_bins_tmp_bis[1].split('|'))-1]
+            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+            obs_bins[i] = []
+            obs_bins[i].append(obs_bins_1st[i][0])
+            obs_bins[i].append(obs_bins_1st[i][1])
+            obs_bins[i].append(obs_bins_2nd[i][0])
+            obs_bins[i].append(obs_bins_2nd[i][1])
+    elif opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')==0: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250|'
+        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250|']
+        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+        obs_bins_2nd = obs_bins_tmp[1].split('|')[1:len(obs_bins_tmp[1].split('|'))-1] #['0', '10', '20', '45', '90', '250']
+        obs_bins_2nd = [float(i) for i in obs_bins_2nd] #Convert a list of str to a list of float
+        obs_bins = {}
+        k = 0 #Bin index
+        for i in range(len(obs_bins_1st)-1):
+            for j in range(len(obs_bins_2nd)-1):
+                obs_bins[k] = []
+                obs_bins[k].append(obs_bins_1st[i])
+                obs_bins[k].append(obs_bins_1st[i+1])
+                obs_bins[k].append(obs_bins_2nd[j])
+                obs_bins[k].append(obs_bins_2nd[j+1])
+                k +=1
+    else:
+        print 'Problem in the definition of the binning'
+        quit()
+    print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
+    print obs_bins
+
+if doubleDiff:
+    obs_name = opt.OBSNAME.split(' vs ')[0]
+    obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
+else:
+    obs_name = opt.OBSNAME
+
+if(opt.OBSNAME == 'rapidity4l'):
     obs_reco = 'ZZy'
     obs_gen = 'GENrapidity4l'
-elif(obs_name == 'pT4l'):
+elif(opt.OBSNAME == 'pT4l'):
     obs_reco = 'ZZPt'
     obs_gen = 'GENpT4l'
-elif(obs_name == 'massZ1'):
+elif(opt.OBSNAME == 'massZ1'):
     obs_reco = 'Z1Mass'
     obs_gen = 'GENmassZ1'
-elif(obs_name == 'massZ2'):
+elif(opt.OBSNAME == 'massZ2'):
     obs_reco = 'Z2Mass'
     obs_gen = 'GENmassZ2'
-elif(obs_name == 'mass4l'):
+elif(opt.OBSNAME == 'mass4l'):
     obs_reco = 'ZZMass'
     obs_gen = 'GENmass4l'
-elif(obs_name == "njets_pt30_eta2p5"):
+elif(opt.OBSNAME == "njets_pt30_eta2p5"):
     obs_reco = "njets_pt30_eta2p5"
     obs_gen = "GENnjets_pt30_eta2p5"
-elif(obs_name == 'pTj1'):
+elif(opt.OBSNAME == 'pTj1'):
     obs_reco = 'pTj1'
     obs_gen = 'GENpTj1'
-elif(obs_name == 'mass4l'):
+elif(opt.OBSNAME == 'mass4l'):
     obs_reco = 'ZZMass'
     obs_gen = 'GENmass4l'
+elif(opt.OBSNAME == 'njets_pt30_eta2p5 vs pT4l'):
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'ZZPt'
+    obs_gen = 'GENnjets_pt30_eta2p5'
+    obs_gen_2nd = 'GENpT4l'
+elif(opt.OBSNAME == 'massZ1 vs massZ2'):
+    obs_reco = 'Z1Mass'
+    obs_reco_2nd = 'Z2Mass'
+    obs_gen = 'GENmassZ1'
+    obs_gen_2nd = 'GENmassZ2'
+elif(opt.OBSNAME == 'costhetastar'):
+    obs_reco = 'costhetastar'
+    obs_gen = 'GENcosThetaStar'
+elif(opt.OBSNAME == 'costhetaZ1'):
+    obs_reco = 'helcosthetaZ1'
+    obs_gen  = 'GENcosTheta1'
+elif(opt.OBSNAME == 'costhetaZ2'):
+    obs_reco = 'helcosthetaZ2'
+    obs_gen  = 'GENcosTheta2'
+elif(opt.OBSNAME == 'phi'):
+    obs_reco = 'helphi'
+    obs_gen  = 'GENPhi'
+elif(opt.OBSNAME == 'phistar'):
+    obs_reco = 'phistarZ1'
+    obs_gen  = 'GENPhi1'
 
 # Generate dataframes
 d_sig = {}
@@ -575,7 +727,10 @@ err_acceptance = {}
 lambdajesup = {}
 lambdajesdn = {}
 numberFake = {}
-doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std')
+if doubleDiff:
+    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+else:
+    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std')
 
 if (opt.YEAR == 'Full'):
     print 'Coeff full'
@@ -590,9 +745,15 @@ if (opt.YEAR == 'Full'):
     numberFake = {}
     lambdajesup = {}
     lambdajesdn = {}
-    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full')
+    if doubleDiff:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+    else:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full')
 
 print 'Coeff fullNNLOPS'
 acceptance = {}
 err_acceptance = {}
-doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
+if doubleDiff:
+    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+else:
+    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')

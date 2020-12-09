@@ -147,7 +147,9 @@ def dataframes(year):
     for bkg in bkgs:
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt', 'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta']
+        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
+                 'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
+                 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
@@ -435,6 +437,11 @@ elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
 elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
 elif(obs_name == 'pTj1'): obs_reco = 'pTj1'
 elif(obs_name == 'mass4l'): obs_reco = 'ZZMass'
+elif(obs_name == 'costhetastar'): obs_reco = 'costhetastar'
+elif(obs_name == 'costhetaZ1'): obs_reco = 'helcosthetaZ1'
+elif(obs_name == 'costhetaZ2'): obs_reco = 'helcosthetaZ2'
+elif(obs_name == 'phi'): obs_reco = 'helphi'
+elif(obs_name == 'phistar'): obs_reco = 'phistarZ1'
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
@@ -443,7 +450,8 @@ for year in years:
     d_bkg[year] = bkg
 
 # Generate pandas for ZX
-branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta', 'JetPt', 'JetEta']
+branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
+               'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
