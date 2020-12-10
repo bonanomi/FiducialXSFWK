@@ -215,7 +215,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
              'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
              'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn',
-             'GENcosThetaStar','GENcosTheta1','GENcosTheta2','GENcosThetaStar','GENPhi','GENPhi1']
+             'GENcosTheta1','GENcosTheta2','GENcosThetaStar','GENPhi','GENPhi1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
                           'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
