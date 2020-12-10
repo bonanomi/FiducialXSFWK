@@ -145,20 +145,27 @@ int main (int argc, char ** argv){
   // TString binRangeLow[N_BINS]  = {"12", "24", "28", "32", "40", "48"};
   // TString binRangeHigh[N_BINS] = {"24", "28", "32", "40", "48", "65"};
   // TString binRangeLeg[N_BINS]  = {"12 <  m(Z2) < 24 GeV", "24 < m(Z2) < 28 GeV", "28 < m(Z2) < 32 GeV", "32 < m(Z2) < 40 GeV", "40 < m(Z2) < 48 GeV", "48 < m(Z2) < 65 GeV"};
- 
+
   // TString obsTag = "njets_pt30_eta2p5";
   // const int N_BINS = 5;
   // TString binRange[N_BINS]     = {"0_1", "1_2", "2_3", "3_4", "4_20"};
   // TString binRangeLow[N_BINS]  = {"0", "1", "2", "3", "4"};
   // TString binRangeHigh[N_BINS] = {"1", "2", "3", "4", "20"};
   // TString binRangeLeg[N_BINS]  = {"nJet=0", "nJet=1", "nJet=2", "nJet=3", "nJet>=4"};
-  
-  TString obsTag = "pTj1";
-  const int N_BINS = 4;
-  TString binRange[N_BINS]     = {"30_55", "55_95", "95_200", "200_13000"};
-  TString binRangeLow[N_BINS]  = {"30", "55", "95", "200"};
-  TString binRangeHigh[N_BINS] = {"55", "95", "200", "13000"};
-  TString binRangeLeg[N_BINS]  = {"30 < pTj1 < 55 GeV", "55 < pTj1 < 95 GeV", "95 < pTj1 < 200 GeV", "200 < pTj1 < 1300 GeV"};
+
+  // TString obsTag = "pTj1";
+  // const int N_BINS = 4;
+  // TString binRange[N_BINS]     = {"30_55", "55_95", "95_200", "200_13000"};
+  // TString binRangeLow[N_BINS]  = {"30", "55", "95", "200"};
+  // TString binRangeHigh[N_BINS] = {"55", "95", "200", "13000"};
+  // TString binRangeLeg[N_BINS]  = {"30 < pTj1 < 55 GeV", "55 < pTj1 < 95 GeV", "95 < pTj1 < 200 GeV", "200 < pTj1 < 1300 GeV"};
+
+  TString obsTag = "massZ1_massZ2";
+  const int N_BINS = 5;
+  TString binRange[N_BINS]     = {"40_82_12_32", "40_74_32_65", "74_120_32_65", "82_120_24_32", "82_120_12_24"};
+  TString binRangeLow[N_BINS]  = {"40_12", "40_32", "74_32", "82_24", "82_12"};
+  TString binRangeHigh[N_BINS] = {"82_32", "74_65", "120_65", "120_32", "120_24"};
+  TString binRangeLeg[N_BINS]  = {"40 < m(Z1) < 82 / 12 < m(Z2) < 32 GeV", "40 < m(Z1) < 74 / 32 < m(Z2) 65 GeV", "74 < m(Z1) < 120 / 32 < m(Z2) 65 GeV", "82 < m(Z1) < 120 / 24 < m(Z2) 32 GeV", "82 < m(Z1) < 120 / 12 < m(Z2) 24 GeV"};
 
   const int N_BKGS = 3;
   TString bkgName[N_BKGS]   = {"qqzz", "ggzz", "ZJetsCR"};

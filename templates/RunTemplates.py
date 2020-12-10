@@ -108,7 +108,7 @@ def add_njets(pt,eta):
 def add_leadjet(pt,eta):
     _pTj1 = 0.0
     if len(pt) == 0:
-	return _pTj1
+        return _pTj1
     else:
         for i in range(len(pt)):
             if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1): _pTj1 = pt[i]
@@ -322,50 +322,86 @@ def fillEmptyBinsHist(h1d, floor):
     nXbins=h1d.GetNbinsX()
     for i in range(1, nXbins+1): h1d.SetBinContent(i, h1d.GetBinContent(i)+floor)
 
-def doTemplates(df_irr, df_red, binning, var, var_string):
+def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
     for year in years:
-	checkDir(str(year)+"/"+var_string)
+        checkDir(str(year)+"/"+var_string)
         fractionBkg = {}
         # qqzz and ggzz
         for bkg in ['qqzz', 'ggzz']:
             for f in ['2e2mu', '4e', '4mu']:
                 df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
                 len_tot = df['weight'].sum() # Total number of bkg b events in final state f
-                for i in range(len(binning)-1):
-                    bin_low = binning[i]
-                    bin_high = binning[i+1]
-                    sel_bin_low = df_irr[year][bkg][var] >= bin_low
-                    sel_bin_high = df_irr[year][bkg][var] < bin_high
-                    sel_bin_mass_low = df_irr[year][bkg].ZZMass >= 105
-                    sel_bin_mass_high = df_irr[year][bkg].ZZMass <= 140
-                    sel_fstate = df_irr[year][bkg]['FinState'] == f
-                    sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate
-                    df = df_irr[year][bkg][sel].copy()
-                    len_bin = df['weight'].sum() # Number of bkg events in bin i
-                    fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
-                    # ------
-                    sel = sel_bin_low & sel_bin_high & sel_fstate
-                    df = df_irr[year][bkg][sel].copy()
-                    mass4l = df['ZZMass'].to_numpy()
-                    mass4l = np.asarray(mass4l).astype('float')
-                    w = df['weight'].to_numpy()
-                    w = np.asarray(w).astype('float')
-                    # ------
-		    if(obs_name == 'rapidity4l'):
-			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
-		    else:
-                    	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
-                    print (histo.GetName())
-		    histo.FillN(len(mass4l), mass4l, w)
-                    smoothAndNormaliseTemplate(histo, 1)
-		    if (obs_name == 'rapidity4l'):
-			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
-		    else:
-                    	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
-		    outFile.cd()
-                    histo.Write()
-                    outFile.Close()
-                    histo.Delete()
+                if not doubleDiff:
+                    for i in range(len(binning)-1):
+                        bin_low = binning[i]
+                        bin_high = binning[i+1]
+                        sel_bin_low = df_irr[year][bkg][var] >= bin_low
+                        sel_bin_high = df_irr[year][bkg][var] < bin_high
+                        sel_bin_mass_low = df_irr[year][bkg].ZZMass >= 105
+                        sel_bin_mass_high = df_irr[year][bkg].ZZMass <= 140
+                        sel_fstate = df_irr[year][bkg]['FinState'] == f
+                        sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate
+                        df = df_irr[year][bkg][sel].copy()
+                        len_bin = df['weight'].sum() # Number of bkg events in bin i
+                        fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
+                        # ------
+                        sel = sel_bin_low & sel_bin_high & sel_fstate
+                        sel &= sel_bin_2nd_low & sel_bin_2nd_high
+                        df = df_irr[year][bkg][sel].copy()
+                        mass4l = df['ZZMass'].to_numpy()
+                        mass4l = np.asarray(mass4l).astype('float')
+                        w = df['weight'].to_numpy()
+                        w = np.asarray(w).astype('float')
+                        # ------
+                        if(obs_name == 'rapidity4l'):
+                            histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                        else:
+                            histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+                        print (histo.GetName())
+                        histo.FillN(len(mass4l), mass4l, w)
+                        smoothAndNormaliseTemplate(histo, 1)
+                        if (obs_name == 'rapidity4l'):
+                            outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+                        else:
+                            outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
+                        outFile.cd()
+                        histo.Write()
+                        outFile.Close()
+                        histo.Delete()
+                elif doubleDiff:
+                    for i in range(len(binning)):
+                        bin_low = binning[i][0]
+                        bin_high = binning[i][1]
+                        bin_low_2nd = binning[i][2]
+                        bin_high_2nd = binning[i][3]
+                        sel_bin_low = df_irr[year][bkg][var] >= bin_low
+                        sel_bin_high = df_irr[year][bkg][var] < bin_high
+                        sel_bin_2nd_low = df_irr[year][bkg][var_2nd] >= bin_low_2nd
+                        sel_bin_2nd_high = df_irr[year][bkg][var_2nd] < bin_high_2nd
+                        sel_bin_mass_low = df_irr[year][bkg].ZZMass >= 105
+                        sel_bin_mass_high = df_irr[year][bkg].ZZMass <= 140
+                        sel_fstate = df_irr[year][bkg]['FinState'] == f
+                        sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate & sel_bin_2nd_low & sel_bin_2nd_high
+                        df = df_irr[year][bkg][sel].copy()
+                        len_bin = df['weight'].sum() # Number of bkg events in bin i
+                        fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
+                        # ------
+                        sel = sel_bin_low & sel_bin_high & sel_fstate & sel_bin_2nd_low & sel_bin_2nd_high
+                        df = df_irr[year][bkg][sel].copy()
+                        mass4l = df['ZZMass'].to_numpy()
+                        mass4l = np.asarray(mass4l).astype('float')
+                        w = df['weight'].to_numpy()
+                        w = np.asarray(w).astype('float')
+                        # ------
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, 105, 140)
+                        print (histo.GetName())
+                        histo.FillN(len(mass4l), mass4l, w)
+                        smoothAndNormaliseTemplate(histo, 1)
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
+                        outFile.cd()
+                        histo.Write()
+                        outFile.Close()
+                        histo.Delete()
         # ZX for different final states
         for f in ['2e2mu', '4e', '4mu']:
             if(f == '4e'):
@@ -376,37 +412,68 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 sel_f_state_zx = (df_red[year]['FinState'] == 2) | (df_red[year]['FinState'] == 3)
             df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
-            for i in range(len(binning)-1):
-                bin_low = binning[i]
-                bin_high = binning[i+1]
-                sel_bin_low = df_red[year][var] >= bin_low
-                sel_bin_high = df_red[year][var] < bin_high
-                sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
-                sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
-                sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high
-                df = df_red[year][sel].copy()
-                len_bin = df['yield_SR'].sum() # Number of bkg events in bin i
-                fractionBkg['ZJetsCR_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
-                # ------
-                mass4l = df['ZZMass'].to_numpy()
-                mass4l = np.asarray(mass4l).astype('float')
-                w = df['yield_SR'].to_numpy()
-                w = np.asarray(w).astype('float')
-                # ------
-                if(obs_name == 'rapidity4l'):
-			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
-                else:
-                	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
-                histo.FillN(len(mass4l), mass4l, w)
-                smoothAndNormaliseTemplate(histo, 1)
-                if(obs_name == 'rapidity4l'):
-			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
-		else:
-                	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
-                outFile.cd()
-                histo.Write()
-                outFile.Close()
-                histo.Delete()
+            if not doubleDiff:
+                for i in range(len(binning)-1):
+                    bin_low = binning[i]
+                    bin_high = binning[i+1]
+                    sel_bin_low = df_red[year][var] >= bin_low
+                    sel_bin_high = df_red[year][var] < bin_high
+                    sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
+                    sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
+                    sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high
+                    df = df_red[year][sel].copy()
+                    len_bin = df['yield_SR'].sum() # Number of bkg events in bin i
+                    fractionBkg['ZJetsCR_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
+                    # ------
+                    mass4l = df['ZZMass'].to_numpy()
+                    mass4l = np.asarray(mass4l).astype('float')
+                    w = df['yield_SR'].to_numpy()
+                    w = np.asarray(w).astype('float')
+                    # ------
+                    if(obs_name == 'rapidity4l'):
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                    else:
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+                    histo.FillN(len(mass4l), mass4l, w)
+                    smoothAndNormaliseTemplate(histo, 1)
+                    if(obs_name == 'rapidity4l'):
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+                    else:
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
+                    outFile.cd()
+                    histo.Write()
+                    outFile.Close()
+                    histo.Delete()
+            elif doubleDiff:
+                for i in range(len(binning)):
+                    bin_low = binning[i][0]
+                    bin_high = binning[i][1]
+                    bin_low_2nd = binning[i][2]
+                    bin_high_2nd = binning[i][3]
+                    sel_bin_low = df_red[year][var] >= bin_low
+                    sel_bin_high = df_red[year][var] < bin_high
+                    sel_bin_2nd_low = df_red[year][var_2nd] >= bin_low_2nd
+                    sel_bin_2nd_high = df_red[year][var_2nd] < bin_high_2nd
+                    sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
+                    sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
+                    sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high & sel_bin_2nd_low & sel_bin_2nd_high
+                    df = df_red[year][sel].copy()
+                    len_bin = df['yield_SR'].sum() # Number of bkg events in bin i
+                    fractionBkg['ZJetsCR_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
+                    # ------
+                    mass4l = df['ZZMass'].to_numpy()
+                    mass4l = np.asarray(mass4l).astype('float')
+                    w = df['yield_SR'].to_numpy()
+                    w = np.asarray(w).astype('float')
+                    # ------
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, 105, 140)
+                    histo.FillN(len(mass4l), mass4l, w)
+                    smoothAndNormaliseTemplate(histo, 1)
+                    outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
+                    outFile.cd()
+                    histo.Write()
+                    outFile.Close()
+                    histo.Delete()
         with open('../inputs/inputs_bkg_'+var_string+'_'+str(year)+'.py', 'w') as f:
             f.write('observableBins = '+json.dumps(binning)+';\n')
             f.write('fractionsBackground = '+json.dumps(fractionBkg))
@@ -427,8 +494,74 @@ if (opt.YEAR == '2017'): years = [2017]
 if (opt.YEAR == '2018'): years = [2018]
 if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+if not 'vs' in opt.OBSBINS: #It is not a double-differential analysis
+    obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+    obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+    doubleDiff = False
+    print 'It is a single-differential measurement, binning', obs_bins
+else: #It is a double-differential analysis
+    doubleDiff = True
+    # The structure of obs_bins is:
+    # index of the dictionary is the number of the bin
+    # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
+    # The first two entries are the lower and upper bound of the first variable
+    # The second two entries are the lower and upper bound of the second variable
+    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
+        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+        obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
+        obs_bins_2nd = {}
+        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
+            obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
+            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+        obs_bins = {}
+        k = 0 #Bin index
+        for i in range(len(obs_bins_1st)-1):
+            for j in range(len(obs_bins_2nd[i])-1):
+                obs_bins[k] = []
+                obs_bins[k].append(obs_bins_1st[i])
+                obs_bins[k].append(obs_bins_1st[i+1])
+                obs_bins[k].append(obs_bins_2nd[i][j])
+                obs_bins[k].append(obs_bins_2nd[i][j+1])
+                k +=1
+    elif opt.OBSBINS.count('vs')>1 and opt.OBSBINS.count('/')>1: #Situation like this one '|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|'
+        obs_bins_tmp = opt.OBSBINS.split(' / ') #['|50|80| vs |10|30|', '|50|80| vs |30|60|', '|80|110| vs |10|25|', '|80|110| vs |25|30|']
+        obs_bins_1st={}
+        obs_bins_2nd={}
+        obs_bins={}
+        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_1st {0: ['50', '80'], 1: ['50', '80'], 2: ['80', '110'], 3: ['80', '110']} and obs_bins_2nd {0: ['10', '30'], 1: ['30', '60'], 2: ['10', '25'], 3: ['25', '30']}
+            obs_bins_tmp_bis = obs_bins_tmp[i].split(' vs ')
+            obs_bins_1st[i] = obs_bins_tmp_bis[0].split('|')[1:len(obs_bins_tmp_bis[0].split('|'))-1]
+            obs_bins_1st[i] = [float(j) for j in obs_bins_1st[i]] #Convert a list of str to a list of float
+            obs_bins_2nd[i] = obs_bins_tmp_bis[1].split('|')[1:len(obs_bins_tmp_bis[1].split('|'))-1]
+            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+            obs_bins[i] = []
+            obs_bins[i].append(obs_bins_1st[i][0])
+            obs_bins[i].append(obs_bins_1st[i][1])
+            obs_bins[i].append(obs_bins_2nd[i][0])
+            obs_bins[i].append(obs_bins_2nd[i][1])
+    elif opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')==0: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250|'
+        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250|']
+        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+        obs_bins_2nd = obs_bins_tmp[1].split('|')[1:len(obs_bins_tmp[1].split('|'))-1] #['0', '10', '20', '45', '90', '250']
+        obs_bins_2nd = [float(i) for i in obs_bins_2nd] #Convert a list of str to a list of float
+        obs_bins = {}
+        k = 0 #Bin index
+        for i in range(len(obs_bins_1st)-1):
+            for j in range(len(obs_bins_2nd)-1):
+                obs_bins[k] = []
+                obs_bins[k].append(obs_bins_1st[i])
+                obs_bins[k].append(obs_bins_1st[i+1])
+                obs_bins[k].append(obs_bins_2nd[j])
+                obs_bins[k].append(obs_bins_2nd[j+1])
+                k +=1
+    else:
+        print 'Problem in the definition of the binning'
+        quit()
+    print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
+    print obs_bins
 obs_name = opt.OBSNAME
 if(obs_name == 'rapidity4l'): obs_reco = 'ZZy'
 elif(obs_name == 'pT4l'): obs_reco = 'ZZPt'
@@ -442,6 +575,15 @@ elif(obs_name == 'costhetaZ1'): obs_reco = 'helcosthetaZ1'
 elif(obs_name == 'costhetaZ2'): obs_reco = 'helcosthetaZ2'
 elif(obs_name == 'phi'): obs_reco = 'helphi'
 elif(obs_name == 'phistar'): obs_reco = 'phistarZ1'
+elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
+    obs_name = 'njets_pt30_eta2p5_pT4l'
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'ZZPt'
+elif(obs_name == 'massZ1 vs massZ2'):
+    obs_name = 'massZ1_massZ2'
+    obs_reco = 'Z1Mass'
+    obs_reco_2nd = 'Z2Mass'
+
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
@@ -461,4 +603,4 @@ for year in years:
     dfZX[year] = add_rapidity(dfZX[year])
     print(year,'done')
 
-doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name)
+doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name, obs_reco_2nd)
