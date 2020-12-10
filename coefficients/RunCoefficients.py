@@ -303,15 +303,15 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         obs_reco_high = obs_bins[recobin][1]
         obs_gen_low = obs_bins[genbin][0]
         obs_gen_high = obs_bins[genbin][1]
-        obs_gen_lowest = min(obs_bins.values())[0]
-        obs_gen_highest = max(obs_bins.values())[1]
+        obs_gen_lowest = min(x[0] for x in obs_bins.values())
+        obs_gen_highest = max(x[1] for x in obs_bins.values())
         #Second variable
         obs_reco_2nd_low = obs_bins[recobin][2]
         obs_reco_2nd_high = obs_bins[recobin][3]
         obs_gen_2nd_low = obs_bins[genbin][2]
         obs_gen_2nd_high = obs_bins[genbin][3]
-        obs_gen_2nd_lowest = min(obs_bins.values())[2]
-        obs_gen_2nd_highest = max(obs_bins.values())[3]
+        obs_gen_2nd_lowest = min(x[2] for x in obs_bins.values())
+        obs_gen_2nd_highest = max(x[3] for x in obs_bins.values())
 
     for signal in signals:
         if type=='std':

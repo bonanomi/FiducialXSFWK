@@ -24,6 +24,7 @@ def parseOptions():
     parser.add_option('',   '--finalPlot',dest='FINALPLOT',    type='string',default='',   help='If making final plot, it changes sys.path to avoid conflicts')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('-f', '--doFit', action="store_true", dest='DOFIT', default=False, help='doFit, default false')
+    parser.add_option('', '--doubleDiff', action="store_true", dest='DOUBLEDIFF', default=False, help='double-differential measurements, default false')
     parser.add_option('-p', '--doPlots', action="store_true", dest='DOPLOTS', default=False, help='doPlots, default false')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
@@ -41,12 +42,15 @@ sys.argv = grootargs
 sys.path.append('../inputs')
 obsName = opt.OBSNAME
 
-observableBins = opt.OBSBINS
-observableBins = observableBins.split('|')
-observableBins.pop()
-observableBins.pop(0)
+# observableBins = opt.OBSBINS
+# observableBins = observableBins.split('|')
+# observableBins.pop()
+# observableBins.pop(0)
 
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins','acc','eff','err_eff','outinratio','err_outinratio','inc_wrongfrac','binfrac_wrongfrac','number_fake','lambdajesup','lambdajesdn'], -1)
+observableBins = _temp.observableBins
+if not opt.DOUBLEDIFF: lenObsBins = len(observableBins)-1
+elif opt.DOUBLEDIFF: lenObsBins = len(observableBins)
 acc = _temp.acc
 eff = _temp.eff
 err_eff = _temp.err_eff
@@ -73,7 +77,7 @@ for fState in fStates:
     upfactors_diag = {}
     dnfactors_diag = {}
 
-    for recobin in range(len(observableBins)-1):
+    for recobin in range(lenObsBins):
 
         fout_ggH = max(outinratio['ggH125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)],0.0)
         fout_VBF = max(outinratio['VBFH125_'+fState+'_'+obsName+'_genbin'+str(recobin)+'_recobin'+str(recobin)],0.0)
@@ -87,7 +91,7 @@ for fState in fStates:
         ZHxs_allgen=0.0
         ttHxs_allgen=0.0
 
-        for genbin in range(len(observableBins)-1):
+        for genbin in range(lenObsBins):
             ggHxs_allgen += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             VBFxs_allgen += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             WHxs_allgen += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -100,7 +104,7 @@ for fState in fStates:
         outin_SM += ZHxs_allgen*fout_ZH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
         outin_SM += ttHxs_allgen*fout_ttH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
 
-        for genbin in range(len(observableBins)-1):
+        for genbin in range(lenObsBins):
 
             ggHxs = higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             #ggHxs = acc['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -236,7 +240,7 @@ for fState in fStates:
             #print 'dnfactors',upfactors,'dnfactors',dnfactors
 
 
-    for recobin in range(len(observableBins)-1):
+    for recobin in range(lenObsBins):
 
         jesSM = ggHxs*(1.0+lambdajesup['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)
         #jesSM = ggHxs*(1.0+lambdajesup['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)])/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)
@@ -277,7 +281,7 @@ for fState in fStates:
 os.system('cp ../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'.py ../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'_ORIG.py')
 
 with open('../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'.py', 'w') as f:
-    f.write('observableBins = '+str(_temp.observableBins)+' \n')
+    f.write('observableBins = '+str(observableBins)+' \n')
     f.write('acc = '+str(acc)+' \n')
     f.write('eff = '+str(eff)+' \n')
     f.write('err_eff = '+str(err_eff)+' \n')
