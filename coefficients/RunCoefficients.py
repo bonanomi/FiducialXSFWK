@@ -476,17 +476,15 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
     m4l_low = 105.0
     m4l_high = 140.0
 
+    nBins = len(obs_bins)
+    if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
+
     if type=='std':
         for year in years:
             for chan in chans:
-                if not doubleDiff:
-                    for recobin in range(len(obs_bins)-1):
-                        for genbin in range(len(obs_bins)-1):
-                            getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-                elif doubleDiff:
-                    for recobin in range(len(obs_bins)):
-                        for genbin in range(len(obs_bins)):
-                            getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+                for recobin in range(nBins):
+                    for genbin in range(nBins):
+                        getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
             # Write dictionaries
             if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
             else: obs_name_dic = obs_name
@@ -508,14 +506,9 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
 
     elif type=='full' or type=='fullNNLOPS':
         for chan in chans:
-            if not doubleDiff:
-                for recobin in range(len(obs_bins)-1):
-                    for genbin in range(len(obs_bins)-1):
-                        getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, 'None', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-            elif doubleDiff:
-                for recobin in range(len(obs_bins)):
-                    for genbin in range(len(obs_bins)):
-                        getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, 'None', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+            for recobin in range(nBins):
+                for genbin in range(nBins):
+                    getCoeff(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, type, 'None', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
 
         # Write dictionaries
         if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd

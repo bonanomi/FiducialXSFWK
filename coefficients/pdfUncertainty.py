@@ -31,9 +31,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -214,6 +214,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
              'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
              'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn',
+             'GENmassZ1', 'GENmassZ2',
              'GENcosThetaStar','GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
@@ -317,13 +318,23 @@ def skim_df(year):
 
 # ------------------------------- FUNCTIONS TO CALCULATE COEFFICIENTS ----------------------------------------------------
 def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, type, year='None'):
-    #GenBin limits I'm considering
-    obs_gen_low = obs_bins[genbin]
-    obs_gen_high = obs_bins[genbin+1]
-
-    #Extrimities of gen area
-    obs_gen_lowest = obs_bins[0]
-    obs_gen_highest = obs_bins[len(obs_bins)-1]
+    if not doubleDiff:
+        #GenBin limits I'm considering
+        obs_gen_low = obs_bins[genbin]
+        obs_gen_high = obs_bins[genbin+1]
+        #Extrimities of gen area
+        obs_gen_lowest = obs_bins[0]
+        obs_gen_highest = obs_bins[lenObsBins-1]
+    else:
+        obs_gen_low = obs_bins[genbin][0]
+        obs_gen_high = obs_bins[genbin][1]
+        obs_gen_lowest = min(x[0] for x in obs_bins.values())
+        obs_gen_highest = max(x[1] for x in obs_bins.values())
+        #Second variable
+        obs_gen_2nd_low = obs_bins[genbin][2]
+        obs_gen_2nd_high = obs_bins[genbin][3]
+        obs_gen_2nd_lowest = min(x[2] for x in obs_bins.values())
+        obs_gen_2nd_highest = max(x[3] for x in obs_bins.values())
 
     for signal in signals:
         datafr = d_sig_tot[year][signal]
@@ -340,6 +351,8 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
             cutobs_gen = abs(datafr[obs_gen]) >= obs_gen_low
         else:
             cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+            if doubleDiff:
+                cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
         if channel != '4l':
             cutm4l_reco = (datafr['ZZMass'] > m4l_low) & (datafr['ZZMass'] < m4l_high) & (datafr['FinState_reco'] == channel)
             cutchan_gen = datafr['FinState_gen'] == channel
@@ -414,9 +427,8 @@ elif (opt.YEAR == '2017'): years = [2017]
 elif (opt.YEAR == '2018'): years = [2018]
 elif (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
 obs_name = opt.OBSNAME
+doubleDiff=False
 if(obs_name == 'rapidity4l'):
     obs_reco = 'ZZy'
     obs_gen = 'GENrapidity4l'
@@ -456,6 +468,18 @@ elif(obs_name == 'phi'):
 elif(obs_name == 'phistar'):
     obs_reco = 'phistarZ1'
     obs_gen  = 'GENPhi1'
+elif(obs_name == 'massZ1 vs massZ2'):
+    doubleDiff = True
+    obs_name = 'massZ1_massZ2'
+    obs_reco = 'Z1Mass'
+    obs_reco_2nd = 'Z2Mass'
+    obs_gen = 'GENmassZ1'
+    obs_gen_2nd = 'GENmassZ2'
+
+sys.path.append('../inputs')
+_temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+obs_bins = _temp.observableBins
+sys.path.remove('../inputs')
 
 # Generate dataframes
 d_sig = {}
@@ -491,13 +515,15 @@ m4l_high = 140.0
 acceptance = {}
 qcdUncert = {}
 pdfUncert = {}
+lenObsBins = len(obs_bins)
+if doubleDiff: lenObsBins = lenObsBins+1
 for chan in chans:
-    for genbin in range(len(obs_bins)-1):
+    for genbin in range(lenObsBins-1):
         getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'std', year)
         getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'NNLOPS', year)
 if (obs_reco.startswith("njets")):
     for chan in chans:
-        for genbin in range(len(obs_bins)-2): # last bin is >=3
+        for genbin in range(lenObsBins-2): # last bin is >=3
             for signal in signals:
                 processBin = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin)
                 processBinPlus1 = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin+1)
