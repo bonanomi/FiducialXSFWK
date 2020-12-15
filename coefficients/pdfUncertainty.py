@@ -347,7 +347,7 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
 
         # Selections
         cutm4l_gen = (datafr['GENmass4l'] > m4l_low) & (datafr['GENmass4l'] < m4l_high)
-        if obs_reco.startswith('njets'):
+        if obs_reco.startswith('njets') and not doubleDiff:
             cutobs_gen = abs(datafr[obs_gen]) >= obs_gen_low
         else:
             cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
@@ -475,6 +475,17 @@ elif(obs_name == 'massZ1 vs massZ2'):
     obs_reco_2nd = 'Z2Mass'
     obs_gen = 'GENmassZ1'
     obs_gen_2nd = 'GENmassZ2'
+elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
+    doubleDiff = True
+    obs_name = 'njets_pt30_eta2p5_pT4l'
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'ZZPt'
+    obs_gen = 'GENnjets_pt30_eta2p5'
+    obs_gen_2nd = 'GENpT4l'
+else:
+    print 'Missin varibale'
+    sys.exit()
+
 
 sys.path.append('../inputs')
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
@@ -521,7 +532,7 @@ for chan in chans:
     for genbin in range(lenObsBins-1):
         getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'std', year)
         getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'NNLOPS', year)
-if (obs_reco.startswith("njets")):
+if (obs_reco.startswith("njets")) and not doubleDiff:
     for chan in chans:
         for genbin in range(lenObsBins-2): # last bin is >=3
             for signal in signals:

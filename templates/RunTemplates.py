@@ -570,7 +570,8 @@ for year in years:
     print(year,'done')
 
 yield_bkg = {}
-doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name, obs_reco_2nd)
+if not doubleDiff:doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name)
+else: doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name, obs_reco_2nd)
 
 #Write file with expected background yields
 with open('../inputs/inputs_bkgTemplate_'+obs_name+'.py', 'w') as f:

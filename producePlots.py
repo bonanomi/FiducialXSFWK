@@ -27,7 +27,7 @@ def parseOptions():
     parser.add_option('',   '--unfoldModel',dest='UNFOLD',type='string',default='SM_125', help='Name of the unfolding model for central value')
     parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observalbe, supported: "inclusive", "pT", "eta", "Njets"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
-    parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.0',   help='Mass value for theory prediction')
+    parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.38',   help='Mass value for theory prediction')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='Use results from fixed fraction fit, default is False')
     parser.add_option('',   '--setLog', action='store_true', dest='SETLOG', default=False, help='set plot to log scale y, default is False')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
@@ -59,7 +59,7 @@ datamodel = opt.UNFOLD
 sys.path.append('./inputs')
 sys.path.append('./LHScans')
 
-def plotXS(obsName, obs_bins):
+def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
     _temp = __import__('inputs_sig_'+obsName+'_2017', globals(), locals(), ['acc'], -1)
     acc = _temp.acc
@@ -713,13 +713,93 @@ def plotXS(obsName, obs_bins):
         v_data_hi_allunc = TVectorD(len(data_hi_allunc), array('d',[data_hi_allunc[i] for i in range(len(data_hi_allunc))]))
         v_data_lo_allunc = TVectorD(len(data_lo_allunc), array('d',[data_lo_allunc[i] for i in range(len(data_lo_allunc))]))
 
-    else:
+    elif doubleDiff:
+        offset = 20.0
+        a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(len(obs_bins)-1)])
+        v_observable  = TVectorD(len(a_observable),a_observable)
+        a_dobservable = array('d',[0.5*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        v_dobservable = TVectorD(len(a_dobservable),a_dobservable)
 
+        a_observable_1  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))+min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
+        v_observable_1  = TVectorD(len(a_observable_1),a_observable_1)
+        a_dobservable_1 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        v_dobservable_1 = TVectorD(len(a_dobservable_1),a_dobservable_1)
+
+        a_observable_2  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))-min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
+        v_observable_2  = TVectorD(len(a_observable_2),a_observable_2)
+        a_dobservable_2 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        v_dobservable_2 = TVectorD(len(a_dobservable_2),a_dobservable_2)
+
+        a_zeros = array('d',[0.0 for i in range(len(obs_bins)-1)])
+        v_zeros = TVectorD(len(a_zeros),a_zeros)
+        a_twos = array('d',[0.015*(float(obs_bins[len(obs_bins)-1])-float(obs_bins[0])) for i in range(len(obs_bins)-1)])
+        v_twos = TVectorD(len(a_twos),a_twos)
+
+        a_ggH_powheg = array('d',[ggH_powheg[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_powheg))])
+        v_ggH_powheg = TVectorD(len(a_ggH_powheg),a_ggH_powheg)
+        a_ggH_powheg_unc_hi =  array('d',[ggH_powheg_NLOunc_hi[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_powheg_unc_hi))])
+        a_ggH_powheg_unc_lo =  array('d',[ggH_powheg_NLOunc_lo[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_powheg_unc_lo))])
+        v_ggH_powheg_unc_hi = TVectorD(len(a_ggH_powheg_unc_hi),a_ggH_powheg_unc_hi)
+        v_ggH_powheg_unc_lo = TVectorD(len(a_ggH_powheg_unc_lo),a_ggH_powheg_unc_lo)
+
+        a_ggH_minloHJ = array('d',[ggH_minloHJ[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_minloHJ))])
+        v_ggH_minloHJ = TVectorD(len(a_ggH_minloHJ),a_ggH_minloHJ)
+        a_ggH_minloHJ_unc_hi =  array('d',[ggH_minloHJ_NNLOunc_hi[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_minloHJ_unc_hi))])
+        a_ggH_minloHJ_unc_lo =  array('d',[ggH_minloHJ_NNLOunc_lo[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_minloHJ_unc_lo))])
+        v_ggH_minloHJ_unc_hi = TVectorD(len(a_ggH_minloHJ_unc_hi),a_ggH_minloHJ_unc_hi)
+        v_ggH_minloHJ_unc_lo = TVectorD(len(a_ggH_minloHJ_unc_lo),a_ggH_minloHJ_unc_lo)
+
+        '''
+        a_ggH_HRes = array('d',[ggH_HRes[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_HRes))])
+        v_ggH_HRes = TVectorD(len(a_ggH_HRes),a_ggH_HRes)
+        a_ggH_HRes_unc_hi =  array('d',[ggH_HRes_NNLOunc_hi[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_HRes_unc_hi))])
+        a_ggH_HRes_unc_lo =  array('d',[ggH_HRes_NNLOunc_lo[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_HRes_unc_lo))])
+        v_ggH_HRes_unc_hi = TVectorD(len(a_ggH_HRes_unc_hi),a_ggH_HRes_unc_hi)
+        v_ggH_HRes_unc_lo = TVectorD(len(a_ggH_HRes_unc_lo),a_ggH_HRes_unc_lo)
+        '''
+
+        a_XH = array('d',[XH[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(XH))])
+        v_XH = TVectorD(len(a_XH),a_XH)
+
+        a_XH_hi = array('d',[XH_unc[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(XH_unc))])
+        a_XH_lo = array('d',[XH_unc[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(XH_unc))])
+        v_XH_hi = TVectorD(len(a_XH_hi),a_XH_hi)
+        v_XH_lo = TVectorD(len(a_XH_lo),a_XH_lo)
+
+        a_data = array('d',[data[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(data))])
+        v_data = TVectorD(len(a_data),a_data)
+        a_data_hi = array('d',[data_hi[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(data_hi))])
+        v_data_hi = TVectorD(len(a_data_hi),a_data_hi)
+        a_data_lo = array('d',[data_lo[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(data_lo))])
+        v_data_lo = TVectorD(len(a_data_lo),a_data_lo)
+
+        a_data_hi2 = array('d',[data_hi2[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(data_hi2))])
+        v_data_hi2 = TVectorD(len(a_data_hi2),a_data_hi2)
+        a_data_lo2 = array('d',[data_lo2[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(data_lo2))])
+        v_data_lo2 = TVectorD(len(a_data_lo2),a_data_lo2)
+        a_systematics_hi = array('d',[(systematics_hi[i])/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(systematics_hi))])
+        v_systematics_hi = TVectorD(len(a_systematics_hi),a_systematics_hi)
+        a_systematics_lo = array('d',[(systematics_lo[i])/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(systematics_lo))])
+        v_systematics_lo = TVectorD(len(a_systematics_lo),a_systematics_lo)
+
+        a_systematics_hi2 = array('d',[(systematics_hi2[i])/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(systematics_hi2))])
+        v_systematics_hi2 = TVectorD(len(a_systematics_hi2),a_systematics_hi2)
+        a_systematics_lo2 = array('d',[(systematics_lo2[i])/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(systematics_lo2))])
+        v_systematics_lo2 = TVectorD(len(a_systematics_lo2),a_systematics_lo2)
+
+        a_modeldep_hi = array('d',[(modeldep_hi[i])/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(modeldep_hi))])
+        v_modeldep_hi = TVectorD(len(a_modeldep_hi),a_modeldep_hi)
+        a_modeldep_lo = array('d',[(modeldep_lo[i])/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(modeldep_lo))])
+        v_modeldep_lo = TVectorD(len(a_modeldep_lo),a_modeldep_lo)
+
+        v_data_hi_allunc = TVectorD(len(data_hi_allunc), array('d',[data_hi_allunc[i] for i in range(len(data_hi_allunc))]))
+        v_data_lo_allunc = TVectorD(len(data_lo_allunc), array('d',[data_lo_allunc[i] for i in range(len(data_lo_allunc))]))
+
+    else:
         if (obsName=="pT4l"): offset=20.0
         elif (obsName=="massZ2"): offset=20.0
         elif (obsName=="massZ1"): offset=20.0
         elif (obsName=="rapidity4l"): offset=20.0
-        elif doubleDiff: offset=20.0
         elif (obsName=="pTj1jet_pt30_eta2p5"): offset=30.0
         elif (obsName=="pTj1"): offset=30.0
         elif (obsName=="njets_pt30_eta2p5"): offset=999.0
@@ -804,6 +884,7 @@ def plotXS(obsName, obs_bins):
         v_data_hi_allunc = TVectorD(len(data_hi_allunc), array('d',[data_hi_allunc[i] for i in range(len(data_hi_allunc))]))
         v_data_lo_allunc = TVectorD(len(data_lo_allunc), array('d',[data_lo_allunc[i] for i in range(len(data_lo_allunc))]))
 
+
     g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
     g_ggH_powheg.SetFillStyle(3254);
     g_ggH_powheg.SetFillColor(ROOT.kAzure+2)
@@ -876,13 +957,6 @@ def plotXS(obsName, obs_bins):
             h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
             for i in range(1,nBins-1):
                 h_ggH_powheg.SetBinContent(i,v_ggH_powheg[i])
-        # elif doubleDiff:
-        #     h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
-        #     # print(nBins-2)
-        #     # print(array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]))
-        #     print('h_ggH_powheg', h_ggH_powheg.GetSize()-2)
-        #     for i in range(1,nBins-1):
-        #         h_ggH_powheg.SetBinContent(i,v_ggH_powheg[i])
         else:
             h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
             for i in range(nBins-1):
@@ -916,8 +990,8 @@ def plotXS(obsName, obs_bins):
         for i in range(4):
             h_ggH_minloHJ.SetBinContent(i+1,v_ggH_minloHJ[i])
     elif doubleDiff:
-        h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",5, 0, 5)
-        for i in range(5):
+        h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",nBins-1, 0, nBins-1)
+        for i in range(nBins-1):
             h_ggH_minloHJ.SetBinContent(i+1,v_ggH_minloHJ[i])
 
     g_ggH_minloHJ = TGraphAsymmErrors(v_observable_2,v_ggH_minloHJ,v_dobservable_2,v_dobservable_2,v_ggH_minloHJ_unc_lo,v_ggH_minloHJ_unc_hi)
@@ -938,11 +1012,6 @@ def plotXS(obsName, obs_bins):
             h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
             for i in range(1,nBins-1):
                 h_ggH_minloHJ.SetBinContent(i,v_ggH_minloHJ[i])
-        # elif doubleDiff:
-        #     h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
-        #     print('h_ggH_minloHJ', h_ggH_minloHJ.GetSize()-2)
-        #     for i in range(1,nBins-1):
-        #         h_ggH_minloHJ.SetBinContent(i,v_ggH_minloHJ[i])
         else:
             h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
             for i in range(nBins-1):
@@ -1089,11 +1158,6 @@ def plotXS(obsName, obs_bins):
             h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
             for i in range(1,nBins-1):
                 h_ratio_powheg.SetBinContent(i,v_ratio_powheg[i])
-        # elif doubleDiff:
-        #     h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
-        #     print('h_ratio_powheg', h_ratio_powheg.GetSize()-2)
-        #     for i in range(1,nBins-1):
-        #         h_ratio_powheg.SetBinContent(i,v_ratio_powheg[i])
         else:
             h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
             for i in range(nBins-1):
@@ -1176,11 +1240,6 @@ def plotXS(obsName, obs_bins):
             h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
             for i in range(1,nBins-1):
                 h_ratio_minloHJ.SetBinContent(i,v_ratio_minloHJ[i])
-        # elif doubleDiff:
-        #     h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
-        #     print('h_ratio_minloHJ', h_ratio_minloHJ.GetSize()-2)
-        #     for i in range(1,nBins-1):
-        #         h_ratio_minloHJ.SetBinContent(i,v_ratio_minloHJ[i])
         else:
             h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
             for i in range(nBins-1):
@@ -1289,12 +1348,12 @@ def plotXS(obsName, obs_bins):
         for i in range(4):
             h_XH.SetBinContent(i+1,a_XH[i])
     elif doubleDiff:
-        dummy = TH1D("dummy","dummy", 5, 0, 5)
-        for i in range(1,5):
+        dummy = TH1D("dummy","dummy", nBins-1, 0, nBins-1)
+        for i in range(1,nBins-1):
             dummy.SetBinContent(i,2.5*max(a_ggH_powheg))
-        h_XH = TH1D("h_XH","h_XH",5, 0, 5)
+        h_XH = TH1D("h_XH","h_XH",nBins-1, 0, nBins-1)
         print "mass4l",a_XH
-        for i in range(5):
+        for i in range(nBins-1):
             h_XH.SetBinContent(i+1,a_XH[i])
     else:
         if ("jet" in obsName and (not obsName.startswith("njets"))):
@@ -1307,15 +1366,6 @@ def plotXS(obsName, obs_bins):
             h_XH = TH1D("h_XH","h_XH",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
             for i in range(1,nBins-1):
                 h_XH.SetBinContent(i,a_XH[i])
-        # elif doubleDiff:
-        #     dummy = TH1D("dummy","dummy", int(float(obs_bins[nBins-1])-float(obs_bins[1])), float(obs_bins[1]), float(obs_bins[nBins-1]))
-        #     print('dummy', dummy.GetSize()-2)
-        #     for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[1]))):
-        #         dummy.SetBinContent(i,2.5*max(a_ggH_powheg))
-        #     h_XH = TH1D("h_XH","h_XH",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
-        #     print('h_XH', h_XH.GetSize()-2)
-        #     for i in range(1,nBins-1):
-        #         h_XH.SetBinContent(i,a_XH[i])
         else:
             dummy = TH1D("dummy","dummy", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
             for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[0]))):
@@ -1327,6 +1377,7 @@ def plotXS(obsName, obs_bins):
     if(opt.SETLOG):
         if (obsName=="massZ2"): dummy.SetMaximum(500.0*max(max(a_data),(max(a_ggH_powheg)))) #AT
         if (obsName=="massZ1"): dummy.SetMaximum(500.0*max(max(a_data),(max(a_ggH_powheg)))) #AT
+        if doubleDiff: dummy.SetMaximum(300*max(max(a_data),(max(a_ggH_powheg))))
         else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
     else:
         if (obsName=="mass4l") or doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
@@ -1356,13 +1407,6 @@ def plotXS(obsName, obs_bins):
         dummy.GetXaxis().SetBinLabel(2,'')
         dummy.GetXaxis().SetBinLabel(3,'')
         dummy.GetXaxis().SetBinLabel(4,'')
-    # if doubleDiff:
-    #     dummy.GetXaxis().SetTitle('')
-    #     dummy.GetXaxis().SetLabelSize(0.0)
-    #     dummy.GetXaxis().SetBinLabel(1,'')
-    #     dummy.GetXaxis().SetBinLabel(2,'')
-    #     dummy.GetXaxis().SetBinLabel(3,'')
-    #     dummy.GetXaxis().SetBinLabel(4,'')
     if (obsName=="mass4l"):
         dummy.GetXaxis().SetLabelSize(0.08)
         dummy.GetXaxis().SetBinLabel(1,'4l')
@@ -1372,11 +1416,13 @@ def plotXS(obsName, obs_bins):
     if doubleDiff:
         dummy.GetXaxis().SetLabelSize(0.08)
         dummy.GetXaxis().SetTitle('')
-        dummy.GetXaxis().SetBinLabel(1,'')
-        dummy.GetXaxis().SetBinLabel(2,'')
-        dummy.GetXaxis().SetBinLabel(3,'')
-        dummy.GetXaxis().SetBinLabel(4,'')
-        dummy.GetXaxis().SetBinLabel(5,'')
+        for i in range(1,nBins-1):
+            dummy.GetXaxis().SetBinLabel(i,'')
+        # dummy.GetXaxis().SetBinLabel(1,'')
+        # dummy.GetXaxis().SetBinLabel(2,'')
+        # dummy.GetXaxis().SetBinLabel(3,'')
+        # dummy.GetXaxis().SetBinLabel(4,'')
+        # dummy.GetXaxis().SetBinLabel(5,'')
 
     dummy.GetXaxis().SetTitleSize(0.0)
 
@@ -1385,7 +1431,10 @@ def plotXS(obsName, obs_bins):
     elif (unit==''):
         dummy.GetYaxis().SetTitle("d#sigma_{fid }/d"+label+" (fb)")
     elif doubleDiff:
-        dummy.GetYaxis().SetTitle("d#sigma_{fid }/d"+label+"d"+label_2nd+" (fb/"+unit+unit_2nd+")")
+        if unit==unit_2nd:
+            dummy.GetYaxis().SetTitle("d^{2}#sigma_{fid }/d"+label+"d"+label_2nd+" (fb/"+unit+"^{2})")
+        else:
+            dummy.GetYaxis().SetTitle("d^{2}#sigma_{fid }/d"+label+"d"+label_2nd+" (fb/"+unit+unit_2nd+")")
         dummy.GetYaxis().SetTitleSize(0.04)
     else:
         dummy.GetYaxis().SetTitle("d#sigma_{fid }/d"+label+" (fb/"+unit+")")
@@ -1413,7 +1462,7 @@ def plotXS(obsName, obs_bins):
     legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG) + XH", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
     legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG)", "f")
-    legend . AddEntry(dummy, "(LHC HXSWG YR4, m_{H}=125 GeV)", "")
+    legend . AddEntry(dummy, "(LHC HXSWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
 
     legend.SetShadowColor(0);
     legend.SetFillColor(0);
@@ -1515,26 +1564,23 @@ def plotXS(obsName, obs_bins):
             dummy2.GetXaxis().SetBinLabel(3,'4#mu')
             dummy2.GetXaxis().SetBinLabel(4,'4e')
         elif doubleDiff:
-            dummy2 = TH1D("dummy2","dummy2", 5, 0, 5)
-            for i in range(1,5):
+            dummy2 = TH1D("dummy2","dummy2", nBins-1, 0, nBins-1)
+            for i in range(1,nBins-1):
                 dummy2.SetBinContent(i,1.02)
             dummy2.GetXaxis().SetTitle("")
             dummy2.GetXaxis().SetLabelSize(0.08)
-            dummy2.GetXaxis().SetBinLabel(1,'0')
-            dummy2.GetXaxis().SetBinLabel(2,'1')
-            dummy2.GetXaxis().SetBinLabel(3,'2')
-            dummy2.GetXaxis().SetBinLabel(4,'3')
-            dummy2.GetXaxis().SetBinLabel(5,'4')
+            for i in range(1,nBins):
+                dummy2.GetXaxis().SetBinLabel(i,str(i-1))
+                # dummy2.GetXaxis().SetBinLabel(1,'0')
+                # dummy2.GetXaxis().SetBinLabel(2,'1')
+                # dummy2.GetXaxis().SetBinLabel(3,'2')
+                # dummy2.GetXaxis().SetBinLabel(4,'3')
+                # dummy2.GetXaxis().SetBinLabel(5,'4')
         else:
             if ("jet" in obsName and (not obsName.startswith("njets"))):
                 dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[1])), float(obs_bins[1]), float(obs_bins[nBins-1]))
                 for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[1]))):
                     dummy2.SetBinContent(i,1.02)
-            # elif doubleDiff:
-            #     dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[1])), float(obs_bins[1]), float(obs_bins[nBins-1]))
-            #     print('dummy2', dummy2.GetSize()-2)
-            #     for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[1]))):
-            #         dummy2.SetBinContent(i,1.02)
             else:
                 if (obsName=="pT4l"):
                     dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
@@ -1542,7 +1588,8 @@ def plotXS(obsName, obs_bins):
                     dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
                 for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[0]))):
                     dummy2.SetBinContent(i,1.02)
-        dummy2.GetXaxis().SetLabelSize(0.08)
+        if doubleDiff:dummy2.GetXaxis().SetLabelSize(0.08)
+        else: dummy2.GetXaxis().SetLabelSize(0.04)
 
         dummy2.SetLineColor(0)
         dummy2.SetMarkerColor(0)
@@ -1556,14 +1603,6 @@ def plotXS(obsName, obs_bins):
             dummy2.GetXaxis().SetBinLabel(3,'2')
             dummy2.GetXaxis().SetBinLabel(4,' 3')
             dummy2.GetXaxis().SetBinLabel(5,'#geq 4')
-        # if doubleDiff:
-        #     dummy2.GetXaxis().SetTitle('')
-        #     dummy2.GetXaxis().SetLabelSize(0.08)
-        #     dummy2.GetXaxis().SetBinLabel(1,'0')
-        #     dummy2.GetXaxis().SetBinLabel(2,'1')
-        #     dummy2.GetXaxis().SetBinLabel(3,'2')
-        #     dummy2.GetXaxis().SetBinLabel(4,' 3')
-            # dummy2.GetXaxis().SetBinLabel(5,'#geq 4')
         elif (label=="inclusive"):
             dummy2.GetXaxis().SetTitle("")
         elif (unit==""):
@@ -1674,6 +1713,7 @@ def plotXS(obsName, obs_bins):
     #      f.write('\\end{table} \n')
     #      f.write('\\end{document} \n')
 doubleDiff = False
+obs_name = opt.OBSNAME
 if 'vs' in opt.OBSNAME:
     doubleDiff = True
     obs_name_tmp = opt.OBSNAME.split(' vs ')
@@ -1690,8 +1730,11 @@ if not doubleDiff:
     if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
         obs_bins[len(obs_bins)-1]='5'
 else:
+    obs_bins_boundaries = obs_bins
     obs_bins = [i for i in range(len(obs_bins)+1)]
 
-plotXS(obs_name, obs_bins)
+print('obs_bins', obs_bins)
+if doubleDiff: plotXS(obs_name, obs_bins, obs_bins_boundaries)
+else: plotXS(obs_name, obs_bins)
 sys.path.remove('./inputs')
 sys.path.remove('./LHScans')

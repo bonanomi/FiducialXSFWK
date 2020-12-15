@@ -336,7 +336,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
 
         if type=='fullNNLOPS':
             processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
-        elif type=='fullNNLOPS' and doubleDiff:
+        if type=='fullNNLOPS' and doubleDiff:
             processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_'+obs_name_2nd+'_genbin'+str(genbin)+'_recobin'+str(recobin)
 
         # Selections
