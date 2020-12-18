@@ -53,9 +53,9 @@ def parseOptions():
     # prepare the global flag if all the step should be run
     runAllSteps = not(opt.combineOnly or opt.impactsOnly)
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -87,6 +87,7 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
     print '[Producing workspace/datacards for obsName '+obsName+', bins '+str(observableBins)+']'
     fStates = ['2e2mu','4mu','4e']
     nBins = len(observableBins)
+    if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
     if (('jet' in obsName) | (obsName == 'pTj1')): JES = True
     else: JES = False
     os.chdir('../datacard/datacard_'+years[0])
@@ -95,12 +96,12 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
         print 'Current diretory: datacard_'+year
         for fState in fStates:
             if (not obsName.startswith("mass4l")):
-                for obsBin in range(nBins-1):
-                    ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, physicalmodel, year, JES)
+                for obsBin in range(nBins):
+                    ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff)
                     createDatacard(obsName, fState, nBins, obsBin, observableBins, physicalmodel, year, ndata, JES)
                     os.chdir('../datacard/datacard_'+year)
             else:
-                ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, physicalmodel, year, JES)
+                ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff)
                 createDatacard(obsName, fState, nBins, 0, observableBins, physicalmodel, year, ndata, JES)
                 os.chdir('../datacard/datacard_'+year)
 
@@ -110,14 +111,20 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
                 # os.system("sed -i 's~_xs.Databin0~_xs_"+ModelName+"_"+obsName+"_"+PhysicalModel+".Databin0~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
 
 
-
 def runFiducialXS():
-
-    # prepare the set of bin boundaries to run over, only 1 bin in case of the inclusive measurement
-    observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-    ## Run for the given observable
-    obsName = opt.OBSNAME
+    # variable for double-differential measurements and obsName
+    global doubleDiff
+    if 'vs' in opt.OBSNAME:
+        obsName_tmp = opt.OBSNAME.split(' vs ')
+        obsName = obsName_tmp[0]+'_'+obsName_tmp[1]
+        doubleDiff = True
+    else:
+        obsName = opt.OBSNAME
+        doubleDiff = False
     _th_MH = opt.THEORYMASS
+    # prepare the set of bin boundaries to run over, it is retrieved from inputs file
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+    observableBins = _temp.observableBins
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Theory xsec and BR at MH = '+_th_MH
     print 'Current directory: python'
@@ -130,7 +137,8 @@ def runFiducialXS():
         years_bis.append('Full')
     for year in years_bis:
         if not os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
-            cmd = 'python addConstrainedModel.py -l -q -b --obsName="'+opt.OBSNAME+'" --obsBins="'+opt.OBSBINS+'" --year="'+year+'"'
+            cmd = 'python addConstrainedModel.py -l -q -b --obsName="'+obsName+'" --obsBins="'+opt.OBSBINS+'" --year="'+year+'"'
+            if doubleDiff: cmd += ' --doubleDiff'
             print cmd
             output = processCmd(cmd)
             print output
@@ -155,6 +163,7 @@ def runFiducialXS():
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
         nBins = len(observableBins)
+        if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 
         os.chdir(_fit_dir)
         for year in years:
@@ -162,9 +171,9 @@ def runFiducialXS():
             os.chdir('../datacard/datacard_'+year)
             print 'Current directory: datacard_'+year
             for fState in fStates:
-                if(nBins>1):
+                if(nBins>0):
                     cmd = 'combineCards.py '
-                    for obsBin in range(nBins-1):
+                    for obsBin in range(nBins):
                         cmd = cmd + 'hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt '
                     cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
                     print cmd, '\n'
@@ -203,11 +212,11 @@ def runFiducialXS():
 
         # text-to-workspace
         if (physicalModel=="v3"):
-            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducialV3 --PO higgsMassRange=115,135 --PO nBin='+str(nBins-1)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
+            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducialV3 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
         elif (physicalModel=="v2"):
-            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins-1)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
+            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
 
@@ -220,7 +229,7 @@ def runFiducialXS():
     	# From datacard directory to combine_files, to store fit results
         os.chdir('../combine_files/')
         print 'Current directory: combine_files'
-        nBins = len(observableBins)
+        # nBins = len(observableBins)
         if physicalModel == 'v2': # In this case implemented for mass4l only
             for channel in ['4e', '4mu', '2e2mu']:
                 cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0 -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=300 --cminDefaultMinimizerStrategy 0'
@@ -250,7 +259,7 @@ def runFiducialXS():
             tmp_xs = {}
             tmp_xs_sm = {}
             for channel in ['4e','4mu','2e2mu']:
-                for obsBin in range(nBins-1):
+                for obsBin in range(nBins):
                     fidxs_sm = 0
                     fidxs_sm += higgs_xs['ggH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                     fidxs_sm += higgs_xs['VBF_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -272,7 +281,7 @@ def runFiducialXS():
                     tmp_xs[channel+'_genbin'+str(obsBin)] = fidxs
 
             cmd_BR = ""
-            for obsBin in range(nBins-1):
+            for obsBin in range(nBins):
                 fidxs4e = tmp_xs['4e_genbin'+str(obsBin)]
                 fidxs4mu = tmp_xs['4mu_genbin'+str(obsBin)]
                 fidxs2e2mu = tmp_xs['2e2mu_genbin'+str(obsBin)]
@@ -290,7 +299,7 @@ def runFiducialXS():
 
             print(cmd_BR)
 
-            for obsBin in range(nBins-1):
+            for obsBin in range(nBins):
                 XH.append(0.0)
                 for channel in ['4e','4mu','2e2mu']:
                     XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -314,7 +323,7 @@ def runFiducialXS():
                 output = processCmd(cmd)
             # Stat-only
             XH = []
-            for obsBin in range(nBins-1):
+            for obsBin in range(nBins):
                 XH.append(0.0)
                 for channel in ['4e','4mu','2e2mu']:
                     XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -343,3 +352,4 @@ def runFiducialXS():
 # ----------------- Main -----------------
 runFiducialXS()
 print "all modules successfully compiled"
+sys.path.remove('../inputs/')

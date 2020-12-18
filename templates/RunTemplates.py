@@ -61,12 +61,12 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = eos_path + 'MC_%i' %year
-        if year == 2016:
-            fname += '_CorrectBTag'
+        fname = eos_path + 'MC_samples/%i' %year
+        # if year == 2016:
+        #     fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        fname += '/%s/ZZ4lAnalysis.root' %bkg
+        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         d_bkg[bkg] = uproot.open(fname)[key]
 
     return d_bkg
@@ -87,14 +87,14 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = eos_path + 'MC_%i' %year
-        if year == 2016:
-            fname += '_CorrectBTag'
+        fname = eos_path + 'MC_samples/%i' %year
+        # if year == 2016:
+        #     fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        fname += '/%s/ZZ4lAnalysis.root' %bkg
+        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
-        hCounters = input_file.Get("ZZTree/Counters")
+        hCounters = input_file.Get("Counters")
         gen_bkg[bkg] = hCounters.GetBinContent(40)
 
     return gen_bkg
@@ -108,7 +108,7 @@ def add_njets(pt,eta):
 def add_leadjet(pt,eta):
     _pTj1 = 0.0
     if len(pt) == 0:
-	return _pTj1
+        return _pTj1
     else:
         for i in range(len(pt)):
             if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1): _pTj1 = pt[i]
@@ -147,7 +147,9 @@ def dataframes(year):
     for bkg in bkgs:
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt', 'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta','costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
+        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
+                 'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
+                 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
@@ -214,7 +216,7 @@ def GetFakeRate(lep_Pt, lep_eta, lep_ID):
 
 # Open Fake Rates files
 def openFR(year):
-    fnameFR = eos_path + 'FRfiles/newData_FakeRates_SS_%i.root' %year
+    fnameFR = eos_path_FR + 'FRfiles/newData_FakeRates_SS_%i.root' %year
     file = uproot.open(fnameFR)
     # Retrieve FR from TGraphErrors
     input_file_FR = ROOT.TFile(fnameFR)
@@ -294,8 +296,8 @@ def ZXYield(df, year):
     return Yield
 
 def doZX(year):
-    keyZX = 'CRZLLTree/candTree'
-    data = eos_path + 'Data_%i/AllData/ZZ4lAnalysis.root' %year
+    keyZX = 'CRZLL'
+    data = eos_path + 'Data/reducedTree_AllData_'+str(year)+'.root'
     ttreeZX = uproot.open(data)[keyZX]
     dfZX = ttreeZX.pandas.df(branches_ZX, flatten = False)
     dfZX = dfZX[dfZX.Z2Flav > 0] #Keep just same-sign events
@@ -320,49 +322,73 @@ def fillEmptyBinsHist(h1d, floor):
     nXbins=h1d.GetNbinsX()
     for i in range(1, nXbins+1): h1d.SetBinContent(i, h1d.GetBinContent(i)+floor)
 
-def doTemplates(df_irr, df_red, binning, var, var_string):
+def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
     for year in years:
-	checkDir(str(year)+"/"+var_string)
+        checkDir(str(year)+"/"+var_string)
         fractionBkg = {}
+        nBins = len(obs_bins)
+        if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
         # qqzz and ggzz
         for bkg in ['qqzz', 'ggzz']:
             for f in ['2e2mu', '4e', '4mu']:
                 #df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].Z2Mass < 60)  & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
                 df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
                 len_tot = df['weight'].sum() # Total number of bkg b events in final state f
-                for i in range(len(binning)-1):
-                    bin_low = binning[i]
-                    bin_high = binning[i+1]
+                yield_bkg[year,bkg,f] = len_tot
+                for i in range(nBins):
+                    if not doubleDiff:
+                        bin_low = binning[i]
+                        bin_high = binning[i+1]
+                    else:
+                        bin_low = binning[i][0]
+                        bin_high = binning[i][1]
+                        bin_low_2nd = binning[i][2]
+                        bin_high_2nd = binning[i][3]
                     sel_bin_low = df_irr[year][bkg][var] >= bin_low
                     sel_bin_high = df_irr[year][bkg][var] < bin_high
+                    if doubleDiff:
+                        sel_bin_2nd_low = df_irr[year][bkg][var_2nd] >= bin_low_2nd
+                        sel_bin_2nd_high = df_irr[year][bkg][var_2nd] < bin_high_2nd
                     sel_bin_mass_low = df_irr[year][bkg].ZZMass >= 105
                     sel_bin_mass_high = df_irr[year][bkg].ZZMass <= 140
                     sel_Z2_mass = df_irr[year][bkg].Z2Mass < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
                     sel_fstate = df_irr[year][bkg]['FinState'] == f
-                    sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate #& sel_Z2_mass
+
+                    sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate
+                    if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
+
                     df = df_irr[year][bkg][sel].copy()
                     len_bin = df['weight'].sum() # Number of bkg events in bin i
                     fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
                     # ------
                     sel = sel_bin_low & sel_bin_high & sel_fstate
+                    if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
                     df = df_irr[year][bkg][sel].copy()
                     mass4l = df['ZZMass'].to_numpy()
                     mass4l = np.asarray(mass4l).astype('float')
                     w = df['weight'].to_numpy()
                     w = np.asarray(w).astype('float')
                     # ------
-		    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
-			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
-		    else:
-                    	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+
+                    if(obs_name == 'rapidity4l'):
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                    elif doubleDiff:
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, 105, 140)
+                    else:
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+
                     print (histo.GetName())
-		    histo.FillN(len(mass4l), mass4l, w)
+                    histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
-                    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
-			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
-		    else:
-                    	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
-		    outFile.cd()
+
+                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+                    elif doubleDiff:
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
+                    else:
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
+                    outFile.cd()
+
                     histo.Write()
                     outFile.Close()
                     histo.Delete()
@@ -377,15 +403,28 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
             #df = df_red[year][(sel_f_state_zx) & (df_red[year].Z2Mass < 60) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
             df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
-            for i in range(len(binning)-1):
-                bin_low = binning[i]
-                bin_high = binning[i+1]
+            yield_bkg[year,'ZX',f] = len_tot
+            for i in range(nBins):
+                if not doubleDiff:
+                    bin_low = binning[i]
+                    bin_high = binning[i+1]
+                else:
+                    bin_low = binning[i][0]
+                    bin_high = binning[i][1]
+                    bin_low_2nd = binning[i][2]
+                    bin_high_2nd = binning[i][3]
                 sel_bin_low = df_red[year][var] >= bin_low
                 sel_bin_high = df_red[year][var] < bin_high
+                if doubleDiff:
+                    sel_bin_2nd_low = df_red[year][var_2nd] >= bin_low_2nd
+                    sel_bin_2nd_high = df_red[year][var_2nd] < bin_high_2nd
                 sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
                 sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
+                
                 sel_Z2_mass = df_red[year]['Z2Mass'] < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
                 sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high #& sel_Z2_mass
+                if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
+
                 df = df_red[year][sel].copy()
                 len_bin = df['yield_SR'].sum() # Number of bkg events in bin i
                 fractionBkg['ZJetsCR_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
@@ -395,17 +434,23 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
 
-			histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                elif doubleDiff:
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, 105, 140)
                 else:
-                	histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
+
                 if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
-			outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
-		else:
-                	outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
+                    outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+                elif doubleDiff:
+                    outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
+                else:
+                    outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
+
                 outFile.cd()
                 histo.Write()
                 outFile.Close()
@@ -421,8 +466,9 @@ def doTemplates(df_irr, df_red, binning, var, var_string):
 # General settings
 bkgs = ['ZZTo4lext', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
         'ggTo4e_Contin_MCFM701', 'ggTo4mu_Contin_MCFM701', 'ggTo4tau_Contin_MCFM701']
-eos_path = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/'
-key = 'ZZTree/candTree'
+eos_path_FR = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/'
+eos_path = '/eos/user/a/atarabin/'
+key = 'candTree'
 # years = [2016, 2017, 2018]
 
 if (opt.YEAR == '2016'): years = [2016]
@@ -430,8 +476,74 @@ if (opt.YEAR == '2017'): years = [2017]
 if (opt.YEAR == '2018'): years = [2018]
 if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+if not 'vs' in opt.OBSBINS: #It is not a double-differential analysis
+    obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+    obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+    doubleDiff = False
+    print 'It is a single-differential measurement, binning', obs_bins
+else: #It is a double-differential analysis
+    doubleDiff = True
+    # The structure of obs_bins is:
+    # index of the dictionary is the number of the bin
+    # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
+    # The first two entries are the lower and upper bound of the first variable
+    # The second two entries are the lower and upper bound of the second variable
+    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
+        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+        obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
+        obs_bins_2nd = {}
+        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
+            obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
+            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+        obs_bins = {}
+        k = 0 #Bin index
+        for i in range(len(obs_bins_1st)-1):
+            for j in range(len(obs_bins_2nd[i])-1):
+                obs_bins[k] = []
+                obs_bins[k].append(obs_bins_1st[i])
+                obs_bins[k].append(obs_bins_1st[i+1])
+                obs_bins[k].append(obs_bins_2nd[i][j])
+                obs_bins[k].append(obs_bins_2nd[i][j+1])
+                k +=1
+    elif opt.OBSBINS.count('vs')>1 and opt.OBSBINS.count('/')>1: #Situation like this one '|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|'
+        obs_bins_tmp = opt.OBSBINS.split(' / ') #['|50|80| vs |10|30|', '|50|80| vs |30|60|', '|80|110| vs |10|25|', '|80|110| vs |25|30|']
+        obs_bins_1st={}
+        obs_bins_2nd={}
+        obs_bins={}
+        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_1st {0: ['50', '80'], 1: ['50', '80'], 2: ['80', '110'], 3: ['80', '110']} and obs_bins_2nd {0: ['10', '30'], 1: ['30', '60'], 2: ['10', '25'], 3: ['25', '30']}
+            obs_bins_tmp_bis = obs_bins_tmp[i].split(' vs ')
+            obs_bins_1st[i] = obs_bins_tmp_bis[0].split('|')[1:len(obs_bins_tmp_bis[0].split('|'))-1]
+            obs_bins_1st[i] = [float(j) for j in obs_bins_1st[i]] #Convert a list of str to a list of float
+            obs_bins_2nd[i] = obs_bins_tmp_bis[1].split('|')[1:len(obs_bins_tmp_bis[1].split('|'))-1]
+            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+            obs_bins[i] = []
+            obs_bins[i].append(obs_bins_1st[i][0])
+            obs_bins[i].append(obs_bins_1st[i][1])
+            obs_bins[i].append(obs_bins_2nd[i][0])
+            obs_bins[i].append(obs_bins_2nd[i][1])
+    elif opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')==0: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250|'
+        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250|']
+        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+        obs_bins_2nd = obs_bins_tmp[1].split('|')[1:len(obs_bins_tmp[1].split('|'))-1] #['0', '10', '20', '45', '90', '250']
+        obs_bins_2nd = [float(i) for i in obs_bins_2nd] #Convert a list of str to a list of float
+        obs_bins = {}
+        k = 0 #Bin index
+        for i in range(len(obs_bins_1st)-1):
+            for j in range(len(obs_bins_2nd)-1):
+                obs_bins[k] = []
+                obs_bins[k].append(obs_bins_1st[i])
+                obs_bins[k].append(obs_bins_1st[i+1])
+                obs_bins[k].append(obs_bins_2nd[j])
+                obs_bins[k].append(obs_bins_2nd[j+1])
+                k +=1
+    else:
+        print 'Problem in the definition of the binning'
+        quit()
+    print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
+    print obs_bins
 obs_name = opt.OBSNAME
 if(obs_name == 'rapidity4l'): obs_reco = 'ZZy'
 elif(obs_name == 'pT4l'): obs_reco = 'ZZPt'
@@ -441,10 +553,19 @@ elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
 elif(obs_name == 'pTj1'): obs_reco = 'pTj1'
 elif(obs_name == 'mass4l'): obs_reco = 'ZZMass'
 elif(obs_name == 'costhetastar'): obs_reco = 'costhetastar'
-elif(obs_name == 'costhetaZ1'): obs_reco = 'helcosthetaZ1' 
+elif(obs_name == 'costhetaZ1'): obs_reco = 'helcosthetaZ1'
 elif(obs_name == 'costhetaZ2'): obs_reco = 'helcosthetaZ2'
 elif(obs_name == 'phi'): obs_reco = 'helphi'
 elif(obs_name == 'phistar'): obs_reco = 'phistarZ1'
+elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
+    obs_name = 'njets_pt30_eta2p5_pT4l'
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'ZZPt'
+elif(obs_name == 'massZ1 vs massZ2'):
+    obs_name = 'massZ1_massZ2'
+    obs_reco = 'Z1Mass'
+    obs_reco_2nd = 'Z2Mass'
+
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg = {}
@@ -453,7 +574,8 @@ for year in years:
     d_bkg[year] = bkg
 
 # Generate pandas for ZX
-branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
+branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
+               'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
@@ -463,4 +585,11 @@ for year in years:
     dfZX[year] = add_rapidity(dfZX[year])
     print(year,'done')
 
-doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name)
+yield_bkg = {}
+if not doubleDiff:doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name)
+else: doTemplates(d_bkg, dfZX, obs_bins, obs_reco, obs_name, obs_reco_2nd)
+
+#Write file with expected background yields
+with open('../inputs/inputs_bkgTemplate_'+obs_name+'.py', 'w') as f:
+    f.write('observableBins = '+str(obs_bins)+';\n')
+    f.write('expected_yield = '+str(yield_bkg))
