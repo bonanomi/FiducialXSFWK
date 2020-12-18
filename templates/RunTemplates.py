@@ -61,12 +61,12 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = eos_path + 'MC_%i' %year
-        if year == 2016:
-            fname += '_CorrectBTag'
+        fname = eos_path + 'MC_samples/%i' %year
+        # if year == 2016:
+        #     fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        fname += '/%s/ZZ4lAnalysis.root' %bkg
+        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         d_bkg[bkg] = uproot.open(fname)[key]
 
     return d_bkg
@@ -87,14 +87,14 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = eos_path + 'MC_%i' %year
-        if year == 2016:
-            fname += '_CorrectBTag'
+        fname = eos_path + 'MC_samples/%i' %year
+        # if year == 2016:
+        #     fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
             bkg += '1'
-        fname += '/%s/ZZ4lAnalysis.root' %bkg
+        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
-        hCounters = input_file.Get("ZZTree/Counters")
+        hCounters = input_file.Get("Counters")
         gen_bkg[bkg] = hCounters.GetBinContent(40)
 
     return gen_bkg
@@ -216,7 +216,7 @@ def GetFakeRate(lep_Pt, lep_eta, lep_ID):
 
 # Open Fake Rates files
 def openFR(year):
-    fnameFR = eos_path + 'FRfiles/newData_FakeRates_SS_%i.root' %year
+    fnameFR = eos_path_FR + 'FRfiles/newData_FakeRates_SS_%i.root' %year
     file = uproot.open(fnameFR)
     # Retrieve FR from TGraphErrors
     input_file_FR = ROOT.TFile(fnameFR)
@@ -296,8 +296,8 @@ def ZXYield(df, year):
     return Yield
 
 def doZX(year):
-    keyZX = 'CRZLLTree/candTree'
-    data = eos_path + 'Data_%i/AllData/ZZ4lAnalysis.root' %year
+    keyZX = 'CRZLL'
+    data = eos_path + 'Data/reducedTree_AllData_'+str(year)+'.root'
     ttreeZX = uproot.open(data)[keyZX]
     dfZX = ttreeZX.pandas.df(branches_ZX, flatten = False)
     dfZX = dfZX[dfZX.Z2Flav > 0] #Keep just same-sign events
@@ -451,8 +451,9 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
 # General settings
 bkgs = ['ZZTo4lext', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
         'ggTo4e_Contin_MCFM701', 'ggTo4mu_Contin_MCFM701', 'ggTo4tau_Contin_MCFM701']
-eos_path = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/'
-key = 'ZZTree/candTree'
+eos_path_FR = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/'
+eos_path = '/eos/user/a/atarabin/'
+key = 'candTree'
 # years = [2016, 2017, 2018]
 
 if (opt.YEAR == '2016'): years = [2016]

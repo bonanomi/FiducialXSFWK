@@ -1570,7 +1570,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             dummy2.GetXaxis().SetTitle("")
             dummy2.GetXaxis().SetLabelSize(0.08)
             for i in range(1,nBins):
-                dummy2.GetXaxis().SetBinLabel(i,str(i-1))
+                dummy2.GetXaxis().SetBinLabel(i,'Bin '+str(i-1))
                 # dummy2.GetXaxis().SetBinLabel(1,'0')
                 # dummy2.GetXaxis().SetBinLabel(2,'1')
                 # dummy2.GetXaxis().SetBinLabel(3,'2')

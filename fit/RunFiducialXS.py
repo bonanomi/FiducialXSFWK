@@ -171,7 +171,7 @@ def runFiducialXS():
             os.chdir('../datacard/datacard_'+year)
             print 'Current directory: datacard_'+year
             for fState in fStates:
-                if(nBins>1):
+                if(nBins>0):
                     cmd = 'combineCards.py '
                     for obsBin in range(nBins):
                         cmd = cmd + 'hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt '
