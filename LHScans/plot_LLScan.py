@@ -183,6 +183,11 @@ if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
 if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
 if(obsName == 'pTj1'): label = 'p_{T}^{(Lead. jet)} (GeV)'
 if(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
+if(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
+if(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
+if(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
+if(obsName == 'phistar'): label = '#Phi^{#star}'
+if(obsName == 'phi'): label = '#Phi'
 if(obsName == 'massZ1 vs massZ2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
@@ -193,6 +198,7 @@ sys.path.append('../inputs')
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 obs_bins = _temp.observableBins
 sys.path.remove('../inputs')
+
 nBins = len(obs_bins)
 if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 if obsName=='mass4l': nBins = nBins + 3 #in case of mass4l len(obs_bins)=1, we need to add +3 for cross section in the three different final states

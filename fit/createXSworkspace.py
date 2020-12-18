@@ -69,8 +69,13 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     # mass4mu = ROOT.RooRealVar("mass4mu", "mass4mu", 105.0, 140.0)
     # mass2e2mu = ROOT.RooRealVar("mass2e2mu", "mass2e2mu",105.0, 140.0)
     if (not obsName=="mass4l"):
-        if (obsName=="rapidity4l" or obsName=="cosThetaStar" or obsName=="cosTheta1" or obsName=="cosTheta2" or obsName=="Phi" or obsName=="Phi1"):
+        if (obsName=="rapidity4l" or obsName=="costhetastar" or obsName=="costhetaZ1" or obsName=="costhetaZ2" or obsName=="phi" or obsName=="phistar"):
             if(obsName == "rapidity4l") : obsName_help = "ZZy"
+            elif(obsName == "costhetaZ1") : obsName_help = "helcosthetaZ1"
+            elif(obsName == "costhetaZ2") : obsName_help = "helcosthetaZ2"
+            elif(obsName == "phi")        : obsName_help = "helphi"
+            elif(obsName == "phistar")    : obsName_help = "phistarZ1"
+            elif(obsName == "costhetastar") : obsName_help = "costhetastar"
             observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
             # observable = ROOT.RooRealVar(obsName,obsName,-1.0*float(obs_bin_highest),float(obs_bin_highest))
         else:

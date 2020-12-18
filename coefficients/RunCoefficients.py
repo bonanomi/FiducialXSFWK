@@ -341,10 +341,13 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
 
         # Selections
         cutobs_reco = (abs(datafr[obs_reco]) >= obs_reco_low) & (abs(datafr[obs_reco]) < obs_reco_high)
+        #cutobs_reco &= (datafr['Z2Mass'] < 60)
         cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
         if doubleDiff:
             cutobs_reco &= (abs(datafr[obs_reco_2nd]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd]) < obs_reco_2nd_high)
             cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
+        #cutobs_gen &= (datafr['GENmassZ2'] < 60)
+        
         if 'jet' in obs_name:
             cutobs_reco_jesup = (datafr[obs_reco+'_jesup'] >= obs_reco_low) & (datafr[obs_reco+'_jesup'] < obs_reco_high)
             cutobs_reco_jesdn = (datafr[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr[obs_reco+'_jesdn'] < obs_reco_high)
@@ -664,19 +667,19 @@ elif(opt.OBSNAME == 'massZ1 vs massZ2'):
     obs_reco_2nd = 'Z2Mass'
     obs_gen = 'GENmassZ1'
     obs_gen_2nd = 'GENmassZ2'
-elif(opt.OBSNAME == 'costhetastar'):
+elif(obs_name == 'costhetastar'):
     obs_reco = 'costhetastar'
     obs_gen = 'GENcosThetaStar'
-elif(opt.OBSNAME == 'costhetaZ1'):
+elif(obs_name == 'costhetaZ1'):
     obs_reco = 'helcosthetaZ1'
     obs_gen  = 'GENcosTheta1'
-elif(opt.OBSNAME == 'costhetaZ2'):
+elif(obs_name == 'costhetaZ2'):
     obs_reco = 'helcosthetaZ2'
     obs_gen  = 'GENcosTheta2'
-elif(opt.OBSNAME == 'phi'):
+elif(obs_name == 'phi'):
     obs_reco = 'helphi'
     obs_gen  = 'GENPhi'
-elif(opt.OBSNAME == 'phistar'):
+elif(obs_name == 'phistar'):
     obs_reco = 'phistarZ1'
     obs_gen  = 'GENPhi1'
 

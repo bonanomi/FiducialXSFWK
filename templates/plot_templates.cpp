@@ -159,6 +159,13 @@ int main (int argc, char ** argv){
   // TString binRangeLow[N_BINS]  = {"30", "55", "95", "200"};
   // TString binRangeHigh[N_BINS] = {"55", "95", "200", "13000"};
   // TString binRangeLeg[N_BINS]  = {"30 < pTj1 < 55 GeV", "55 < pTj1 < 95 GeV", "95 < pTj1 < 200 GeV", "200 < pTj1 < 1300 GeV"};
+  
+//   TString obsTag = "costhetastar";
+//   const int N_BINS = 5;
+//   TString binRange[N_BINS]     = {"0.0_0.2", "0.2_0.4", "0.4_0.6", "0.6_0.8", "0.8_1.0"};
+//   TString binRangeLow[N_BINS]  = {"0.0", "0.2", "0.4", "0.6", "0.8"};
+//   TString binRangeHigh[N_BINS] = {"0.2", "0.4", "0.6", "0.8", "1.0"};
+//   TString binRangeLeg[N_BINS]  = {"0.0 < cos(#theta) < 0.2 ", "55 < cos(#theta) < 0.4 ", "0.4 < cos(#theta) < 0.6 ", "0.6 < cos(#theta) < 0.8 ", "0.8 < cos(#theta) < 1.0 "};
 
   TString obsTag = "massZ1_massZ2";
   const int N_BINS = 5;
@@ -166,6 +173,7 @@ int main (int argc, char ** argv){
   TString binRangeLow[N_BINS]  = {"40_12", "40_32", "74_32", "82_24", "82_12"};
   TString binRangeHigh[N_BINS] = {"82_32", "74_65", "120_65", "120_32", "120_24"};
   TString binRangeLeg[N_BINS]  = {"40 < m(Z1) < 82 / 12 < m(Z2) < 32 GeV", "40 < m(Z1) < 74 / 32 < m(Z2) 65 GeV", "74 < m(Z1) < 120 / 32 < m(Z2) 65 GeV", "82 < m(Z1) < 120 / 24 < m(Z2) 32 GeV", "82 < m(Z1) < 120 / 12 < m(Z2) 24 GeV"};
+
 
   const int N_BKGS = 3;
   TString bkgName[N_BKGS]   = {"qqzz", "ggzz", "ZJetsCR"};
