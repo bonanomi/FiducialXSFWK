@@ -1305,19 +1305,19 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif (obsName=="rapidity4l"):
         label = "|y(H)|"
         unit = ""
-    elif (obsName=="cosThetaStar"):
+    elif (obsName=="costhetastar"):
         label = "|cos#theta*|"
         unit = ""
-    elif (obsName=="cosTheta1"):
+    elif (obsName=="costhetaZ1"):
         label = "|cos#theta_{1}|"
         unit = ""
-    elif (obsName=="cosTheta2"):
+    elif (obsName=="costhetaZ2"):
         label = "|cos#theta_{2}|"
         unit = ""
-    elif (obsName=="Phi"):
+    elif (obsName=="phi"):
         label = "|#Phi|"
         unit = ""
-    elif (obsName=="Phi1"):
+    elif (obsName=="phistar"):
         label = "|#Phi_{1}|"
         unit = ""
     elif (obsName=="mass4l"):
@@ -1509,7 +1509,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
-    # latex2.DrawLatex(0.19, 0.94, "CMS") #AT Tolta scritta CMS
+    latex2.DrawLatex(0.19, 0.94, "CMS #bf{#it{Preliminary}}") #AT Tolta scritta CMS
     latex2.SetTextSize(0.6*c.GetTopMargin())
     latex2.SetTextFont(52)
     latex2.SetTextAlign(11)
