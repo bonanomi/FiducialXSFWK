@@ -11,38 +11,44 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     processName = 'trueH'+channel+'Bin'
 
     # Background expectations in [105,140]
-    bkg_qqzz = {}
-    bkg_qqzz['2016_2e2mu'] = 26.079487245654125
-    bkg_qqzz['2016_4e'] = 9.416905347804663
-    bkg_qqzz['2016_4mu'] = 22.327126146498454
-    bkg_qqzz['2017_2e2mu'] = 29.824908413 #14.998985147 #29.649379102635237
-    bkg_qqzz['2017_4e'] = 10.1053020211 #5.15676840688 #9.912444551671058
-    bkg_qqzz['2017_4mu'] = 26.3103880671 #12.6333277479 #26.57920447504215
-    bkg_qqzz['2018_2e2mu'] = 43.14035102064523
-    bkg_qqzz['2018_4e'] = 13.033793192674157
-    bkg_qqzz['2018_4mu'] = 38.774732781504355
+    sys.path.append('../inputs')
+    _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
+    expected_yield = _temp.expected_yield
+    sys.path.remove('../inputs')
 
-    bkg_ggzz = {}
-    bkg_ggzz['2016_2e2mu'] = 2.1354071862105046
-    bkg_ggzz['2016_4e'] = 1.2047085561080217
-    bkg_ggzz['2016_4mu'] = 2.4823777973777252
-    bkg_ggzz['2017_2e2mu'] = 1.99032561607 #0.965204958226 #2.334396026294916
-    bkg_ggzz['2017_4e'] = 1.26621968326 #0.565844597635 #1.2379253364867422
-    bkg_ggzz['2017_4mu'] = 2.8809450136  #1.42919245518 #2.8757178358247417
-    bkg_ggzz['2018_2e2mu'] = 3.38606853989503
-    bkg_ggzz['2018_4e'] = 1.9682465482920186
-    bkg_ggzz['2018_4mu'] = 4.483239853533689
-
-    bkg_zx = {}
-    bkg_zx['2016_2e2mu'] = 12.57494261733606
-    bkg_zx['2016_4e'] = 3.295497544812088
-    bkg_zx['2016_4mu'] = 9.065862569934886
-    bkg_zx['2017_2e2mu'] = 12.07 #12.344443134966895
-    bkg_zx['2017_4e'] = 3.05 #3.1395112978473105
-    bkg_zx['2017_4mu'] = 10.13 #10.874994231420253
-    bkg_zx['2018_2e2mu'] = 18.93941736832197
-    bkg_zx['2018_4e'] = 4.426316103466345
-    bkg_zx['2018_4mu'] = 17.05146905705311
+    #Hard coding values for bkgs
+    # bkg_qqzz = {}
+    # bkg_qqzz['2016_2e2mu'] = 26.079487245654125
+    # bkg_qqzz['2016_4e'] = 9.416905347804663
+    # bkg_qqzz['2016_4mu'] = 22.327126146498454
+    # bkg_qqzz['2017_2e2mu'] = 29.824908413 #14.998985147 #29.649379102635237
+    # bkg_qqzz['2017_4e'] = 10.1053020211 #5.15676840688 #9.912444551671058
+    # bkg_qqzz['2017_4mu'] = 26.3103880671 #12.6333277479 #26.57920447504215
+    # bkg_qqzz['2018_2e2mu'] = 43.14035102064523
+    # bkg_qqzz['2018_4e'] = 13.033793192674157
+    # bkg_qqzz['2018_4mu'] = 38.774732781504355
+    #
+    # bkg_ggzz = {}
+    # bkg_ggzz['2016_2e2mu'] = 2.1354071862105046
+    # bkg_ggzz['2016_4e'] = 1.2047085561080217
+    # bkg_ggzz['2016_4mu'] = 2.4823777973777252
+    # bkg_ggzz['2017_2e2mu'] = 1.99032561607 #0.965204958226 #2.334396026294916
+    # bkg_ggzz['2017_4e'] = 1.26621968326 #0.565844597635 #1.2379253364867422
+    # bkg_ggzz['2017_4mu'] = 2.8809450136  #1.42919245518 #2.8757178358247417
+    # bkg_ggzz['2018_2e2mu'] = 3.38606853989503
+    # bkg_ggzz['2018_4e'] = 1.9682465482920186
+    # bkg_ggzz['2018_4mu'] = 4.483239853533689
+    #
+    # bkg_zx = {}
+    # bkg_zx['2016_2e2mu'] = 12.57494261733606
+    # bkg_zx['2016_4e'] = 3.295497544812088
+    # bkg_zx['2016_4mu'] = 9.065862569934886
+    # bkg_zx['2017_2e2mu'] = 12.07 #12.344443134966895
+    # bkg_zx['2017_4e'] = 3.05 #3.1395112978473105
+    # bkg_zx['2017_4mu'] = 10.13 #10.874994231420253
+    # bkg_zx['2018_2e2mu'] = 18.93941736832197
+    # bkg_zx['2018_4e'] = 4.426316103466345
+    # bkg_zx['2018_4mu'] = 17.05146905705311
 
     # lumi
     lumi = {}
@@ -78,9 +84,9 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     ZX['2016_2e2mu'] = '0.65673/1.35484'
     ZX['2016_4e'] = '0.60745/1.42863'
     ZX['2016_4mu'] = '0.69481/1.30542'
-    ZX['2017_2e2mu'] = '1.152/0.868' #'0.67262/1.33282'
-    ZX['2017_4e'] = '1.152/0.868' #'0.63816/1.37505'
-    ZX['2017_4mu'] = '1.152/0.868' #'0.69350/1.30685'
+    ZX['2017_2e2mu'] = '0.868/1.152' #'0.67262/1.33282'
+    ZX['2017_4e'] = '0.868/1.152' #'0.63816/1.37505'
+    ZX['2017_4mu'] = '0.868/1.152' #'0.69350/1.30685'
     ZX['2018_2e2mu'] = '0.67618/1.32828'
     ZX['2018_4e'] = '0.64540/1.36539'
     ZX['2018_4mu'] = '0.69559/1.30459'
@@ -122,7 +128,8 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('rate ')
     for i in range(nBins+2): # In addition to the observableBins, there are out_trueH, fakeH
         file.write('1.0 ')
-    file.write(str(bkg_qqzz[year+'_'+channel])+' '+str(bkg_ggzz[year+'_'+channel])+' '+str(bkg_zx[year+'_'+channel])+'\n')
+    # file.write(str(bkg_qqzz[year+'_'+channel])+' '+str(bkg_ggzz[year+'_'+channel])+' '+str(bkg_zx[year+'_'+channel])+'\n') #Old implementation with hard coding bkg expectation values
+    file.write(str(expected_yield[int(year),'qqzz',channel])+' '+str(expected_yield[int(year),'ggzz',channel])+' '+str(expected_yield[int(year),'ZX',channel])+'\n')
     file.write('------------ \n')
 
     # norm_fake

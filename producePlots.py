@@ -283,7 +283,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             ggH_powheg[obsBin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             #ggH_minloHJ[obsBin]+=ggH_xsBR*acc_ggH_powheg['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]
             ggH_minloHJ[obsBin]+=ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            
+
             # for total uncertainty, correlate br and acc uncertainties across all channels (XH+ggH)
             total_NNLOunc_fs_powheg_hi =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
             total_NNLOunc_fs_powheg_lo =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
@@ -1305,19 +1305,19 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif (obsName=="rapidity4l"):
         label = "|y(H)|"
         unit = ""
-    elif (obsName=="costhetastar"):
+    elif (obsName=="cosThetaStar"):
         label = "|cos#theta*|"
         unit = ""
-    elif (obsName=="costhetaZ1"):
+    elif (obsName=="cosTheta1"):
         label = "|cos#theta_{1}|"
         unit = ""
-    elif (obsName=="costhetaZ2"):
+    elif (obsName=="cosTheta2"):
         label = "|cos#theta_{2}|"
         unit = ""
-    elif (obsName=="phi"):
+    elif (obsName=="Phi"):
         label = "|#Phi|"
         unit = ""
-    elif (obsName=="phistar"):
+    elif (obsName=="Phi1"):
         label = "|#Phi_{1}|"
         unit = ""
     elif (obsName=="mass4l"):
@@ -1331,7 +1331,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     else:
         label = obsName
         unit = ""
-    print label
+
     c = TCanvas("c",obsName, 1400, 1400)
     if(opt.SETLOG): c.SetLogy()
     if (not obsName=="mass4l"): c.SetBottomMargin(0.35)
@@ -1509,7 +1509,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
-    latex2.DrawLatex(0.19, 0.94, "CMS #bf{#it{Preliminary}}") #AT Tolta scritta CMS
+    # latex2.DrawLatex(0.19, 0.94, "CMS") #AT Tolta scritta CMS
     latex2.SetTextSize(0.6*c.GetTopMargin())
     latex2.SetTextFont(52)
     latex2.SetTextAlign(11)
