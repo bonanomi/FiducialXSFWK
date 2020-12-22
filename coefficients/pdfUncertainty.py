@@ -209,7 +209,6 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
              'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
-             'GENmassZ1', 'GENmassZ2',
              'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1',
              'LHEweight_QCDscale_muR1_muF1','LHEweight_QCDscale_muR1_muF2','LHEweight_QCDscale_muR1_muF0p5',
              'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
