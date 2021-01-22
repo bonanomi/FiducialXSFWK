@@ -149,7 +149,8 @@ def dataframes(year):
             bkg += '1'
         b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
-                 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
+                 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
+                 'pTHj']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
@@ -420,7 +421,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     sel_bin_2nd_high = df_red[year][var_2nd] < bin_high_2nd
                 sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
                 sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
-                
+
                 sel_Z2_mass = df_red[year]['Z2Mass'] < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
                 sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high #& sel_Z2_mass
                 if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
@@ -488,7 +489,7 @@ else: #It is a double-differential analysis
     # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
     # The first two entries are the lower and upper bound of the first variable
     # The second two entries are the lower and upper bound of the second variable
-    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
@@ -565,6 +566,10 @@ elif(obs_name == 'massZ1 vs massZ2'):
     obs_name = 'massZ1_massZ2'
     obs_reco = 'Z1Mass'
     obs_reco_2nd = 'Z2Mass'
+elif(obs_name == 'njets_pt30_eta2p5 vs pTHj'):
+    obs_name = 'njets_pt30_eta2p5_pTHj'
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'pTHj'
 
 
 # Generate pandas for ggZZ and qqZZ
@@ -575,7 +580,8 @@ for year in years:
 
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
-               'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']
+               'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
+               'pTHj']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)

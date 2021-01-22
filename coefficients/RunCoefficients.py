@@ -186,12 +186,14 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
              'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
              'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1', 'GENmassZ2', 'GENmassZ1',
-             'GENcosThetaStar', 'GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1']
+             'GENcosThetaStar', 'GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1',
+             'GENpTHj']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
                           'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
                           'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1',
-                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']) #Additioanl entries for passing events
+                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
+                          'pTHj']) #Additioanl entries for passing events
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
@@ -217,6 +219,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['helcosthetaZ2'] = -1
         df['helphi'] = -1
         df['phistarZ1'] = -1
+        df['pTHj'] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -347,7 +350,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             cutobs_reco &= (abs(datafr[obs_reco_2nd]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd]) < obs_reco_2nd_high)
             cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
         #cutobs_gen &= (datafr['GENmassZ2'] < 60)
-        
+
         if 'jet' in obs_name:
             cutobs_reco_jesup = (datafr[obs_reco+'_jesup'] >= obs_reco_low) & (datafr[obs_reco+'_jesup'] < obs_reco_high)
             cutobs_reco_jesdn = (datafr[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr[obs_reco+'_jesdn'] < obs_reco_high)
@@ -570,7 +573,7 @@ else: #It is a double-differential analysis
     # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
     # The first two entries are the lower and upper bound of the first variable
     # The second two entries are the lower and upper bound of the second variable
-    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
@@ -657,6 +660,21 @@ elif(opt.OBSNAME == 'pTj1'):
 elif(opt.OBSNAME == 'mass4l'):
     obs_reco = 'ZZMass'
     obs_gen = 'GENmass4l'
+elif(opt.OBSNAME == 'costhetastar'):
+    obs_reco = 'costhetastar'
+    obs_gen = 'GENcosThetaStar'
+elif(opt.OBSNAME == 'costhetaZ1'):
+    obs_reco = 'helcosthetaZ1'
+    obs_gen  = 'GENcosTheta1'
+elif(opt.OBSNAME == 'costhetaZ2'):
+    obs_reco = 'helcosthetaZ2'
+    obs_gen  = 'GENcosTheta2'
+elif(opt.OBSNAME == 'phi'):
+    obs_reco = 'helphi'
+    obs_gen  = 'GENPhi'
+elif(opt.OBSNAME == 'phistar'):
+    obs_reco = 'phistarZ1'
+    obs_gen  = 'GENPhi1'
 elif(opt.OBSNAME == 'njets_pt30_eta2p5 vs pT4l'):
     obs_reco = 'njets_pt30_eta2p5'
     obs_reco_2nd = 'ZZPt'
@@ -667,21 +685,12 @@ elif(opt.OBSNAME == 'massZ1 vs massZ2'):
     obs_reco_2nd = 'Z2Mass'
     obs_gen = 'GENmassZ1'
     obs_gen_2nd = 'GENmassZ2'
-elif(obs_name == 'costhetastar'):
-    obs_reco = 'costhetastar'
-    obs_gen = 'GENcosThetaStar'
-elif(obs_name == 'costhetaZ1'):
-    obs_reco = 'helcosthetaZ1'
-    obs_gen  = 'GENcosTheta1'
-elif(obs_name == 'costhetaZ2'):
-    obs_reco = 'helcosthetaZ2'
-    obs_gen  = 'GENcosTheta2'
-elif(obs_name == 'phi'):
-    obs_reco = 'helphi'
-    obs_gen  = 'GENPhi'
-elif(obs_name == 'phistar'):
-    obs_reco = 'phistarZ1'
-    obs_gen  = 'GENPhi1'
+elif(opt.OBSNAME == 'njets_pt30_eta2p5 vs pTHj'):
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'pTHj'
+    obs_gen = 'GENnjets_pt30_eta2p5'
+    obs_gen_2nd = 'GENpTHj'
+
 
 # Generate dataframes
 d_sig = {}

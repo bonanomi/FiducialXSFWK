@@ -216,12 +216,14 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
              'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
              'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn',
              'GENmassZ1', 'GENmassZ2',
-             'GENcosThetaStar','GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1']
+             'GENcosThetaStar','GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1',
+             'GENpTHj']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
                           'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
                           'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1',
-                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1']) #Additioanl entries for passing events
+                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
+                          'pTHj']) #Additioanl entries for passing events
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
@@ -247,6 +249,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['helcosthetaZ2'] = -1
         df['helphi'] = -1
         df['phistarZ1'] = -1
+        df['pTHj'] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -483,8 +486,15 @@ elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
     obs_reco_2nd = 'ZZPt'
     obs_gen = 'GENnjets_pt30_eta2p5'
     obs_gen_2nd = 'GENpT4l'
+elif(obs_name == 'njets_pt30_eta2p5 vs pTHj'):
+    doubleDiff = True
+    obs_name = 'njets_pt30_eta2p5_pTHj'
+    obs_reco = 'njets_pt30_eta2p5'
+    obs_reco_2nd = 'pTHj'
+    obs_gen = 'GENnjets_pt30_eta2p5'
+    obs_gen_2nd = 'GENpTHj'
 else:
-    print 'Missin varibale'
+    print 'Missing varibale'
     sys.exit()
 
 

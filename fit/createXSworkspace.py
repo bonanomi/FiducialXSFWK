@@ -90,6 +90,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             elif obsName == 'njets_pt30_eta2p5_pT4l':
                 obsName_help = 'njets_pt30_eta2p5'
                 obsName_2nd_help = 'ZZPt'
+            elif obsName == 'njets_pt30_eta2p5_pTHj':
+                obsName_help = 'njets_pt30_eta2p5'
+                obsName_2nd_help = 'pTHj'
             observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
             if doubleDiff: observable_2nd = ROOT.RooRealVar(obsName_2nd_help,obsName_2nd_help,float(obs_bin_2nd_lowest),float(obs_bin_2nd_highest)) #ATdouble
         observable.Print()
