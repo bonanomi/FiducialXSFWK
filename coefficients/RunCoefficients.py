@@ -27,6 +27,7 @@ def parseOptions():
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
+    parser.add_option('',   '--AC', action='store_true', dest='AC', default=False, help='AC samples')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -77,7 +78,10 @@ def prepareTrees(year):
     d_sig = {}
     d_sig_failed = {}
     for signal in signals_original:
-        fname = eos_path_sig + '%i' %year
+        if(opt.AC==False):
+            fname = eos_path_sig + '%i' %year
+        else:
+            fname = eos_path_sig + 'AC%i' %year
         fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
@@ -172,7 +176,10 @@ def add_cuth4l_reco(Hindex,genIndex,momMomId,momId):
 def generators(year):
     gen_sig = {}
     for signal in signals_original:
-        fname = eos_path_sig + '%i' %year
+        if(opt.AC==False):
+            fname = eos_path_sig + '%i' %year
+        else:
+            fname = eos_path_sig + 'AC%i' %year
         fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
@@ -485,6 +492,8 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
     nBins = len(obs_bins)
     if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
 
+    if(opt.AC==True): add_ac = '_AC_'
+    else: add_ac = ''
     if type=='std':
         for year in years:
             for chan in chans:
@@ -494,9 +503,9 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
             # Write dictionaries
             if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
             else: obs_name_dic = obs_name
-            if (os.path.exists('../inputs/inputs_sig_'+obs_name_dic+'_'+str(year)+'_ORIG.py')):
-                os.system('rm ../inputs/inputs_sig_'+obs_name_dic+'_'+str(year)+'_ORIG.py')
-            with open('../inputs/inputs_sig_'+obs_name_dic+'_'+str(year)+'.py', 'w') as f:
+            if (os.path.exists('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year)+'_ORIG.py')):
+                os.system('rm ../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year)+'_ORIG.py')
+            with open('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year)+'.py', 'w') as f:
                 f.write('observableBins = '+str(obs_bins)+';\n')
                 f.write('acc = '+str(acceptance)+' \n')
                 f.write('err_acc = '+str(err_acceptance)+' \n')
@@ -520,9 +529,9 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
         if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
         else: obs_name_dic = obs_name
         if type=='full':
-            if (os.path.exists('../inputs/inputs_sig_'+obs_name_dic+'_Full_ORIG.py')):
-                os.system('rm ../inputs/inputs_sig_'+obs_name_dic+'_Full_ORIG.py')
-            with open('../inputs/inputs_sig_'+obs_name_dic+'_Full.py', 'w') as f:
+            if (os.path.exists('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_Full_ORIG.py')):
+                os.system('rm ../inputs/inputs_sig_'+add_ac+obs_name_dic+'_Full_ORIG.py')
+            with open('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_Full.py', 'w') as f:
                 f.write('observableBins = '+str(obs_bins)+';\n')
                 f.write('acc = '+str(acceptance)+' \n')
                 f.write('err_acc = '+str(err_acceptance)+' \n')
@@ -552,6 +561,10 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
 # -----------------------------------------------------------------------------------------
 signals_original = ['VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
 signals = ['ggH125', 'VBFH125', 'WH125', 'ZH125', 'ttH125']
+if(opt.AC):
+    signals_AC = ['VBFH0M_M125', 'WH0M_M125', 'ZH0M_M125', 'ggH0M_M125', 'ttH0M_M125']
+    signals_original = signals_AC
+    signals = signals_AC
 eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
 key = 'candTree'
 key_failed = 'candTree_failed'
@@ -759,7 +772,9 @@ if (opt.YEAR == 'Full'):
 print 'Coeff fullNNLOPS'
 acceptance = {}
 err_acceptance = {}
-if doubleDiff:
-    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-else:
-    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
+# For AC there is no NNLOPS samples
+if not opt.AC:
+    if doubleDiff:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+    else:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
