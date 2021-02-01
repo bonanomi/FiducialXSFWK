@@ -150,7 +150,7 @@ def impactPlots():
     output = processCmd(cmd)
 
     # Second step (Files from asimov and data have the same name)
-    cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --doFits --parallel 10 --redefineSignalPOIs '
+    cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --doFits --robustFit 1 --parallel 10 --redefineSignalPOIs '
     for obsBin in range(nBins-1):
         cmd += 'SigmaBin' + str(obsBin) + ','
     cmd = cmd[:-1]
