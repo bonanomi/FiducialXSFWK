@@ -481,7 +481,7 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     dummy_zx.SetLineWidth(2)
 
 
-    legend = TLegend(.60,.41,.93,.89)
+    legend = TLegend(.20,.41,.53,.89)
     # legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     if (not opt.UNBLIND):
        legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
