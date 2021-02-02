@@ -597,7 +597,7 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     latex2.SetTextFont(42)
     latex2.SetTextSize(0.45*c.GetTopMargin())
     #latex2.DrawLatex(0.20,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit+"    Unfolding model: "+modelName.replace("_"," ")+" GeV")
-    if (obsName!='mass4l'): latex2.DrawLatex(0.25,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit)
+    if (obsName!='mass4l'): latex2.DrawLatex(0.65,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit)
 
     checkDir("plots")
     checkDir("plots/"+obsName)

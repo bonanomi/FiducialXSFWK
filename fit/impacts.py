@@ -92,8 +92,8 @@ def impactPlots():
     xsec = []
     _th_MH = opt.THEORYMASS
     if opt.PHYSICSMODEL=='v3':
+        cmd_XSEC =''
         for obsBin in range(nBins-1):
-            cmd_XSEC =''
             for channel in ['4e','4mu','2e2mu']:
                 fidxs_sm = 0
                 fidxs_sm += higgs_xs['ggH_'+'125.0']*higgs4l_br['125.0'+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -112,7 +112,7 @@ def impactPlots():
                 tmp_xs_sm[channel+'_genbin'+str(obsBin)] = fidxs_sm
                 tmp_xs[channel+'_genbin'+str(obsBin)] = fidxs
             cmd_XSEC += 'SigmaBin'+str(obsBin)+'='+str(tmp_xs['2e2mu_genbin'+str(obsBin)]+tmp_xs['4e_genbin'+str(obsBin)]+tmp_xs['4mu_genbin'+str(obsBin)])+','
-            cmd_XSEC = cmd_XSEC[:-1]
+        cmd_XSEC = cmd_XSEC[:-1]
 
         cmd_BR = ''
         for obsBin in range(nBins-1):
@@ -129,8 +129,7 @@ def impactPlots():
             K1 = frac4e/frac4e_sm
             K2 = frac4mu/frac4mu_sm * (1.0-frac4e_sm)/(1.0-frac4e)
 
-            cmd_BR += 'K1Bin'+str(obsBin)+'='+str(K1)+',K2Bin'+str(obsBin)+'='+str(K2)
-
+            cmd_BR += 'K1Bin'+str(obsBin)+'='+str(K1)+',K2Bin'+str(obsBin)+'='+str(K2)+','
         print(cmd_BR)
 
     if (obsName == 'mass4l'): max_sigma = '5'
@@ -145,7 +144,7 @@ def impactPlots():
     for obsBin in range(nBins-1):
         cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
     if (not opt.UNBLIND):
-        cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR + ',' + cmd_XSEC
+        cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR[:-1] + ',' + cmd_XSEC
     print cmd, '\n'
     output = processCmd(cmd)
 
@@ -158,7 +157,7 @@ def impactPlots():
     for obsBin in range(nBins-1):
         cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
     if (not opt.UNBLIND):
-        cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR + ',' + cmd_XSEC
+        cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR[:-1] + ',' + cmd_XSEC
     print cmd, '\n'
     output = processCmd(cmd)
 
@@ -174,15 +173,9 @@ def impactPlots():
             #     XH[obsBin]+=XH_fs
             # _obsxsec = XH[obsBin]
             # Third step
-            cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --redefineSignalPOIs '
-            for obsBin in range(nBins-1):
-                cmd += 'SigmaBin' + str(obsBin) + ','
-            cmd = cmd[:-1]
-            cmd += ' --setParameterRanges MH=125.38,125.38'
-            for obsBin in range(nBins-1):
-                cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
+            cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --redefineSignalPOIs SigmaBin' + str(obsBin) + ' --setParameterRanges MH=125.38,125.38:SigmaBin' + str(obsBin) + '=0,'+max_sigma
             if (not opt.UNBLIND):
-                cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR + ',' + cmd_XSEC
+                cmd = cmd + ' -t -1 --setParameters MH=125.38,' + ['K1'+s for s in cmd_BR.split('K1')[1:]][obsBin] + cmd_XSEC.split(',')[obsBin]
             cmd += ' -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
             if (not opt.UNBLIND):
                 cmd = cmd + 'asimov.json'
