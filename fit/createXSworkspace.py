@@ -339,9 +339,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         fideff_var[genbin] = ROOT.RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff[genbin]);
 
         if(not("jet" in obsName)):
-            # trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
+            trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
             # Try dropping lumi to measure signal strength
-            trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0", ROOT.RooArgList(fideff_var[genbin]) );
+            #trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0", ROOT.RooArgList(fideff_var[genbin]) );
 
         else:
             trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", ROOT.RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
@@ -350,6 +350,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     fracBin = {}
     rBin = {}
     rBin_channel = {}
+    rHBin = {}
     fracSM4eBin = {}
     fracSM4muBin = {}
     K1Bin = {}
@@ -404,14 +405,16 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
             ## We are interested in the inclusive signal strenght and in the fractions of 4e, 4mu (2e2mu = 1 - 4e - 4mu) events
             fracSM4eBin[str(genbin)] = ROOT.RooRealVar('fracSM4eBin'+str(genbin), 'fracSM4eBin'+str(genbin), fidxs['4e']/fidxs['4l'], 0.0, 1.0)
+            fracSM4eBin[str(genbin)].setConstant(True)
             fracSM4muBin[str(genbin)] = ROOT.RooRealVar('fracSM4muBin'+str(genbin), 'fracSM4muBin'+str(genbin), fidxs['4mu']/fidxs['4l'], 0.0, 1.0)
+            fracSM4muBin[str(genbin)].setConstant(True)
             rBin[str(genbin)] = ROOT.RooRealVar('rBin'+str(genbin), "rBin"+str(genbin), 1.0, 0.0, 5.0)
 
             rHBin['4e'+str(genbin)] = ROOT.RooFormulaVar("Sigma4eBin"+str(genbin),"@0*@1", ROOT.RooArgList(rBin[str(genbin)], fracSM4eBin[str(genbin)]))
             rHBin['4mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma4muBin"+str(genbin),"@0*@1", ROOT.RooArgList(rBin[str(genbin)], fracSM4muBin[str(genbin)]))
             rHBin['2e2mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma2e2muBin"+str(genbin),"(@0*(1.0-@1-@2))", ROOT.RooArgList(rBin[str(genbin)], fracSM4muBin[str(genbin)], fracSM4eBin[str(genbin)]))
 
-            trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin]))
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin],lumi))
 
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin

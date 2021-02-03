@@ -131,28 +131,31 @@ class DifferentialFiducial( PhysicsModel ):
         POIs=""
         if self.debug>0:print "Setting pois"
         for iBin in range(0,self.nBin):
+            fracSM4e = self.modelBuilder.out.var("fracSM4eBin%d" % (iBin)).getVal()
+            fracSM4mu = self.modelBuilder.out.var("fracSM4muBin%d" % (iBin)).getVal()
+
             if self.modelBuilder.out.var("rBin%d" % (iBin)):
                 self.modelBuilder.out.var("rBin%d" % (iBin)).setRange(self.Range[0], self.Range[1])
                 self.modelBuilder.out.var("rBin%d" % (iBin)).setConstant(False)
             else :
                 self.modelBuilder.doVar("rBin%d[1, %s,%s]" % (iBin, self.Range[0],self.Range[1]))
-
-            if self.modelBuilder.out.var("frac4eBin%d" % (iBin)):
-                self.modelBuilder.out.var("frac4eBin%d" % (iBin)).setRange(self.fracRange[0], self.fracRange[1])
-                self.modelBuilder.out.var("frac4eBin%d" % (iBin)).setConstant(False)
+            ''''
+            if self.modelBuilder.out.var("fracSM4eBin%d" % (iBin)):
+                self.modelBuilder.out.var("fracSM4eBin%d" % (iBin)).setRange(self.fracRange[0], self.fracRange[1])
+                self.modelBuilder.out.var("fracSM4eBin%d" % (iBin)).setConstant(False)
             else :
-                self.modelBuilder.doVar("frac4eBin%d[0.25, %s,%s]" % (iBin, self.fracRange[0],self.fracRange[1]))
+                self.modelBuilder.doVar("fracSM4eBin%d[0.25, %s,%s]" % (iBin, self.fracRange[0],self.fracRange[1]))
 
-            if self.modelBuilder.out.var("frac4muBin%d" % (iBin)):
-                self.modelBuilder.out.var("frac4muBin%d" % (iBin)).setRange(self.fracRange[0], self.fracRange[1])
-                self.modelBuilder.out.var("frac4muBin%d" % (iBin)).setConstant(False)
+            if self.modelBuilder.out.var("fracSM4muBin%d" % (iBin)):
+                self.modelBuilder.out.var("fracSM4muBin%d" % (iBin)).setRange(self.fracRange[0], self.fracRange[1])
+                self.modelBuilder.out.var("fracSM4muBin%d" % (iBin)).setConstant(False)
             else :
-                self.modelBuilder.doVar("frac4muBin%d[0.25, %s,%s]" % (iBin, self.fracRange[0],self.fracRange[1]))
-
+                self.modelBuilder.doVar("fracSM4muBin%d[0.25, %s,%s]" % (iBin, self.fracRange[0],self.fracRange[1]))
+            '''
             if iBin>=0:
                 POIs+="rBin%d,"%iBin
-                POIs+="frac4eBin%d,"%iBin
-                POIs+="frac4muBin%d,"%iBin
+                #POIs+="fracSM4eBin%d,"%iBin
+                #POIs+="fracSM4muBin%d,"%iBin
                 if self.debug>0:print "Added Bin%d to the POIs"%iBin
         poiNames=[]
         if self.modelBuilder.out.var("MH"):
@@ -182,9 +185,9 @@ class DifferentialFiducial( PhysicsModel ):
     def setup(self):        
         for iBin in range(0,self.nBin):
             #these define the signal strenghts per production mode and should be implemented in createXSworkspace
-            self.modelBuilder.factory_('expr::r_trueH2e2muBin%d("@0*(1-@1-@2)", rBin%d, frac4eBin%d, frac4muBin%d)' % (iBin,iBin,iBin,iBin))
-            self.modelBuilder.factory_('expr::r_trueH4eBin%d("@0*@1", rBin%d, frac4eBin%d)'% (iBin,iBin,iBin))
-            self.modelBuilder.factory_('expr::r_trueH4muBin%d("@0*@1", rBin%d, frac4muBin%d)'% (iBin,iBin,iBin))
+            self.modelBuilder.factory_('expr::r_trueH2e2muBin%d("@0*(1-@1-@2)", rBin%d, fracSM4eBin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin))
+            self.modelBuilder.factory_('expr::r_trueH4eBin%d("@0*@1", rBin%d, fracSM4eBin%d)'% (iBin,iBin,iBin))
+            self.modelBuilder.factory_('expr::r_trueH4muBin%d("@0*@1", rBin%d, fracSM4muBin%d)'% (iBin,iBin,iBin))
 
     # def getYieldScale(self,bin,process):
     #     if not self.DC.isSignal[process]: return 1
@@ -203,7 +206,7 @@ class DifferentialFiducial( PhysicsModel ):
         ## i.e. sum of per fs mu has to be 1.0
         for iBin in range(0,self.nBin):
             for channel in ['4e', '4mu', '2e2mu']:
-                Process += ['trueH'+channel+'Bin'+str(iBin)]
+                Processes += ['trueH'+channel+'Bin'+str(iBin)]
         if process in Processes: return 'r_'+process
         else: return 1
 

@@ -162,7 +162,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.2 [-1,1]\n')
 
     file.write('CMS_zz4l_n_sig_'+str(channelNumber)+'_'+year+' param 0.0 0.05\n')
-
+    '''
+    if(physicalModel=='kfwk'):
+        for i in range(nBins):
+            file.write('fracSM4eBin'+str(i)+' flatParam 0.25 [0, 1]\n')
+            file.write('fracSM4muBin'+str(i)+' flatParam 0.25 [0, 1]\n')
+    '''
     # Theoretical
     file.write('QCDscale_ggVV lnN ')
     for i in range(nBins+3): # Signal + out + fake + qqzz
