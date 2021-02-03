@@ -135,7 +135,7 @@ class DifferentialFiducial( PhysicsModel ):
                 self.modelBuilder.out.var("rBin%d" % (iBin)).setRange(self.Range[0], self.Range[1])
                 self.modelBuilder.out.var("rBin%d" % (iBin)).setConstant(False)
             else :
-                self.modelBuilder.doVar("rBin%d[1, %s,%s]" % (iBi, self.Range[0],self.Range[1]))
+                self.modelBuilder.doVar("rBin%d[1, %s,%s]" % (iBin, self.Range[0],self.Range[1]))
 
             if self.modelBuilder.out.var("frac4eBin%d" % (iBin)):
                 self.modelBuilder.out.var("frac4eBin%d" % (iBin)).setRange(self.fracRange[0], self.fracRange[1])
@@ -181,20 +181,31 @@ class DifferentialFiducial( PhysicsModel ):
 
     def setup(self):        
         for iBin in range(0,self.nBin):
+            #these define the signal strenghts per production mode and should be implemented in createXSworkspace
             self.modelBuilder.factory_('expr::r_trueH2e2muBin%d("@0*(1-@1-@2)", rBin%d, frac4eBin%d, frac4muBin%d)' % (iBin,iBin,iBin,iBin))
             self.modelBuilder.factory_('expr::r_trueH4eBin%d("@0*@1", rBin%d, frac4eBin%d)'% (iBin,iBin,iBin))
             self.modelBuilder.factory_('expr::r_trueH4muBin%d("@0*@1", rBin%d, frac4muBin%d)'% (iBin,iBin,iBin))
 
+    # def getYieldScale(self,bin,process):
+    #     if not self.DC.isSignal[process]: return 1
+    #     name = "fiducial_%s" % process
+             
+    #     self.modelBuilder.factory_('expr::%s("@0", r_%s)' % (name, process))
+    #     if process in [ "trueH2e2muBin0","trueH4eBin0","trueH4muBin0","trueH2e2muBin1","trueH4eBin1","trueH4muBin1","trueH2e2muBin2","trueH4eBin2","trueH4muBin2","trueH2e2muBin3","trueH4eBin3","trueH4muBin3"]: 
+    #         return name
+    #     else :
+    #         return 1
+    
     def getYieldScale(self,bin,process):
         if not self.DC.isSignal[process]: return 1
-        name = "fiducial_%s" % process
-             
-        self.modelBuilder.factory_('expr::%s("@0", r_%s)' % (name, process))
-        if process in [ "trueH2e2muBin0","trueH4eBin0","trueH4muBin0","trueH2e2muBin1","trueH4eBin1","trueH4muBin1","trueH2e2muBin2","trueH4eBin2","trueH4muBin2","trueH2e2muBin3","trueH4eBin3","trueH4muBin3"]: 
-            return name
-        else :
-            return 1
-
+        Processes = []
+        ## Inclusive signal strength has to be 1.0
+        ## i.e. sum of per fs mu has to be 1.0
+        for iBin in range(0,self.nBin):
+            for channel in ['4e', '4mu', '2e2mu']:
+                Process += ['trueH'+channel+'Bin'+str(iBin)]
+        if process in Processes: return 'r_'+process
+        else: return 1
 
 class InclusiveFiducialV2( PhysicsModel ):
     ''' Model used to unfold differential distributions '''
@@ -496,6 +507,8 @@ class InclusiveFiducialV3( PhysicsModel ):
             self.modelBuilder.doVar("K2[1,%s,%s]" % (0.0, (1.0-fracSM4e)/fracSM4mu))
 
         POIs+="Sigma,"
+        ## Possible remove these, keep BR constant in the fit.
+        ## Would make sense as they are always at boundary.
         POIs+="K1,"
         POIs+="K2"
 

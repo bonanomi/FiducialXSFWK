@@ -155,7 +155,7 @@ def runFiducialXS():
 
     DataModelName = 'SM_125'
     if obsName == 'mass4l': PhysicalModels = ['v2','v3']
-    else: PhysicalModels = ['v3']
+    else: PhysicalModels = ['kfwk'] #['v3']
 
     for physicalModel in PhysicalModels:
         produceDatacards(obsName, observableBins, DataModelName, physicalModel)
@@ -219,7 +219,10 @@ def runFiducialXS():
             cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
-
+        elif (physicalmodel=="kfwk"):
+            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducial --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
+            print cmd, '\n'
+            processCmd(cmd)
 
         # The workspace got from text2workspace changes name from hzz4l_ to SM_125 and it is transferred to the combine_files directory
         cmd = 'cp hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root ../combine_files/'+DataModelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
@@ -342,6 +345,49 @@ def runFiducialXS():
                 else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
                 if(not opt.UNBLIND):
                     cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                    if(opt.FIXFRAC):
+                        cmd = cmd+','+cmd_BR
+                if(opt.UNBLIND and opt.FIXFRAC):
+                    cmd = cmd+' --setParameters '+cmd_BR
+                print cmd+'\n'
+                output = processCmd(cmd)
+        elif physicalModel == 'kfwk':
+
+            for obsBin in range(nBins):
+
+                _obsxsec = 1.0 #XH[obsBin]
+                if obsName=='mass4l': max_range = '5.0'
+                else: max_range = '2.5'
+                cmd = 'combine -n _'+obsName+'rBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_kfwk.root -m 125.38 --freezeParameters MH -P rBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges rBin'+str(obsBin)+'=0.0,'+max_range+' --redefineSignalPOI rBin'+str(obsBin)+' --algo=grid --points=300 --cminDefaultMinimizerStrategy 0'
+                if(not opt.UNBLIND):
+                    cmd = cmd + ' -t -1 --saveToys --setParameters rBin'+str(obsBin)+'='+str(round(_obsxsec,4))
+                    if opt.FIXFRAC:
+                        cmd = cmd+','+cmd_BR
+                if(opt.UNBLIND and opt.FIXFRAC):
+                    cmd = cmd+' --setParameters '+cmd_BR
+                print cmd, '\n'
+                output = processCmd(cmd)
+            # Stat-only
+            XH = []
+            for obsBin in range(nBins):
+                XH.append(0.0)
+                for channel in ['4e','4mu','2e2mu']:
+                    XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                    XH[obsBin]+=XH_fs
+                _obsxsec = XH[obsBin]
+                cmd = 'combine -n _'+obsName+'rBin'+str(obsBin)+'_NoSys'
+                if(not opt.UNBLIND): cmd = cmd + '_exp'
+                cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'rBin'+str(obsBin)+'.MultiDimFit.mH125.38'
+                if(not opt.UNBLIND): cmd = cmd + '.123456'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P rBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges rBin0=0.0,'+max_range+' --redefineSignalPOI rBin'+str(obsBin)+' --algo=grid --points=300 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
+                else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+                if(not opt.UNBLIND):
+                    cmd = cmd + ' -t -1 --saveToys --setParameters rBin'+str(obsBin)+'='+str(round(_obsxsec,4))
                     if(opt.FIXFRAC):
                         cmd = cmd+','+cmd_BR
                 if(opt.UNBLIND and opt.FIXFRAC):
