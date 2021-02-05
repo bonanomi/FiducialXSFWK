@@ -24,6 +24,8 @@ def parseOptions():
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105,   help='Lower bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140,   help='Upper bound for m4l')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -332,8 +334,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
         # qqzz and ggzz
         for bkg in ['qqzz', 'ggzz']:
             for f in ['2e2mu', '4e', '4mu']:
-                #df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].Z2Mass < 60)  & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
-                df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 140)].copy()
+                #df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].Z2Mass < 60)  & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 160)].copy()
+                df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= opt.LOWER_BOUND) & (df_irr[year][bkg].ZZMass <= opt.UPPER_BOUND)].copy()
                 len_tot = df['weight'].sum() # Total number of bkg b events in final state f
                 yield_bkg[year,bkg,f] = len_tot
                 for i in range(nBins):
@@ -350,8 +352,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     if doubleDiff:
                         sel_bin_2nd_low = df_irr[year][bkg][var_2nd] >= bin_low_2nd
                         sel_bin_2nd_high = df_irr[year][bkg][var_2nd] < bin_high_2nd
-                    sel_bin_mass_low = df_irr[year][bkg].ZZMass >= 105
-                    sel_bin_mass_high = df_irr[year][bkg].ZZMass <= 140
+                    sel_bin_mass_low = df_irr[year][bkg].ZZMass >= opt.LOWER_BOUND
+                    sel_bin_mass_high = df_irr[year][bkg].ZZMass <= opt.UPPER_BOUND
                     sel_Z2_mass = df_irr[year][bkg].Z2Mass < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
                     sel_fstate = df_irr[year][bkg]['FinState'] == f
 
@@ -372,11 +374,11 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     # ------
 
                     if(obs_name == 'rapidity4l'):
-                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff:
-                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, 105, 140)
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     else:
-                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
 
                     print (histo.GetName())
                     histo.FillN(len(mass4l), mass4l, w)
@@ -401,8 +403,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 sel_f_state_zx = df_red[year]['FinState'] == 1
             elif(f == '2e2mu'):
                 sel_f_state_zx = (df_red[year]['FinState'] == 2) | (df_red[year]['FinState'] == 3)
-            #df = df_red[year][(sel_f_state_zx) & (df_red[year].Z2Mass < 60) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
-            df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=140)].copy()
+            #df = df_red[year][(sel_f_state_zx) & (df_red[year].Z2Mass < 60) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=160)].copy()
+            df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= opt.LOWER_BOUND) & (df_red[year].ZZMass <=opt.UPPER_BOUND)].copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
             yield_bkg[year,'ZX',f] = len_tot
             for i in range(nBins):
@@ -419,8 +421,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 if doubleDiff:
                     sel_bin_2nd_low = df_red[year][var_2nd] >= bin_low_2nd
                     sel_bin_2nd_high = df_red[year][var_2nd] < bin_high_2nd
-                sel_bin_mass_low = df_red[year]['ZZMass'] >= 105
-                sel_bin_mass_high = df_red[year]['ZZMass'] <= 140
+                sel_bin_mass_low = df_red[year]['ZZMass'] >= opt.LOWER_BOUND
+                sel_bin_mass_high = df_red[year]['ZZMass'] <= opt.UPPER_BOUND
 
                 sel_Z2_mass = df_red[year]['Z2Mass'] < 60 ## Uncomment below to cut mZ2 at 60 GeV, hence removing non-reso evts
                 sel = sel_bin_low & sel_bin_high & sel_f_state_zx & sel_bin_mass_low & sel_bin_mass_high #& sel_Z2_mass
@@ -437,11 +439,11 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 # ------
 
                 if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
-                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, 105, 140)
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff:
-                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, 105, 140)
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 else:
-                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, 105, 140)
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
 

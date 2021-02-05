@@ -27,6 +27,8 @@ def parseOptions():
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
     parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.38',   help='Mass value for theory prediction')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
+    parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -436,8 +438,8 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     c = TCanvas("c","c",1000,800)
     c.cd()
 
-    #dummy = TH1D("","",1,105.6,140.6)
-    dummy = TH1D("","",1,105.0,140.0)
+    #dummy = TH1D("","",1,105.6,160.6)
+    dummy = TH1D("","",1,opt.LOWER_BOUND,opt.UPPER_BOUND)
     dummy.SetBinContent(1,2)
     dummy.SetFillColor(0)
     dummy.SetLineColor(0)
@@ -480,8 +482,8 @@ def plotAsimov_sim(asimovDataModel, asimovPhysicalModel, modelName, physicalMode
     dummy_zx.SetLineColor(kGreen+3)
     dummy_zx.SetLineWidth(2)
 
-
-    legend = TLegend(.20,.41,.53,.89)
+    if opt.UPPER_BOUND == 160: legend = TLegend(.60,.41,.93,.89)
+    else: legend = TLegend(.20,.41,.53,.89)
     # legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     if (not opt.UNBLIND):
        legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")

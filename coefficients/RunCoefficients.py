@@ -28,6 +28,8 @@ def parseOptions():
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
     parser.add_option('',   '--AC', action='store_true', dest='AC', default=False, help='AC samples')
+    parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -486,8 +488,8 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
         chans = ['4e', '4mu', '2e2mu']
     else:
         chans = ['4l', '4e', '4mu', '2e2mu']
-    m4l_low = 105.0
-    m4l_high = 140.0
+    m4l_low = opt.LOWER_BOUND
+    m4l_high = opt.UPPER_BOUND
 
     nBins = len(obs_bins)
     if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)

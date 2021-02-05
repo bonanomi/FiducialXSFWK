@@ -1,6 +1,6 @@
 import os,sys
 
-def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes):
+def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound):
     # Name of the bin (aFINALSTATE_ recobinX)
     if(channel == '4mu'): channelNumber = 1
     if(channel == '4e'): channelNumber = 2
@@ -10,7 +10,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # Root of the name of the process (signal from genBin)
     processName = 'trueH'+channel+'Bin'
 
-    # Background expectations in [105,140]
+    # Background expectations in [105,160]
     sys.path.append('../inputs')
     _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
     expected_yield = _temp.expected_yield
@@ -24,7 +24,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # bkg_qqzz['2017_2e2mu'] = 29.824908413 #14.998985147 #29.649379102635237
     # bkg_qqzz['2017_4e'] = 10.1053020211 #5.15676840688 #9.912444551671058
     # bkg_qqzz['2017_4mu'] = 26.3103880671 #12.6333277479 #26.57920447504215
-    # bkg_qqzz['2018_2e2mu'] = 43.14035102064523
+    # bkg_qqzz['2018_2e2mu'] = 43.16035102064523
     # bkg_qqzz['2018_4e'] = 13.033793192674157
     # bkg_qqzz['2018_4mu'] = 38.774732781504355
     #
@@ -110,7 +110,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('observation '+str(nData)+'\n')
 
     file.write('------------ \n')
-    file.write('## mass window [105.0,140.0]\n')
+    file.write('## mass window ['+lowerBound+','+upperBound+']\n')
     file.write('bin ')
     for i in range(nBins+5): # In addition to the observableBins, there are out_trueH, fakeH, bkg_ggzz, bkg_qqzz, bkg_zjets
         file.write(binName+' ')
