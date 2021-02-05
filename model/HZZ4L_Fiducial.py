@@ -673,6 +673,128 @@ class DifferentialFiducialV3( PhysicsModel ):
         if process in Processes: return 'Sigma_'+process
         else: return 1
 
+class DifferentialFiducialK( PhysicsModel ):
+    ''' Model used to unfold differential distributions for Fiducial cross-section model for both H->4l and Z->4l'''
+
+    def __init__(self):
+        PhysicsModel.__init__(self)
+        self.muBinRange=[0.,5.]
+        self.nBin=4
+        self.MHRange=[20.0,200.0]
+        self.defautMH=125.0
+        self.fState="inclusive"
+        self.debug=1
+
+    def setPhysicsOptions(self,physOptions):
+        if self.debug>0:print "Setting PhysicsModel Options"
+        for po in physOptions:
+            if po.startswith("range="):
+                self.muBinRange=po.replace("range=","").split(",")
+                if len(self.muBinRange)!=2:
+                    raise RunTimeError, "muBinRange require minimal and maximal values: range=min,max"
+                if self.debug>0:print "New muBinRange is ", self.muBinRange
+            if po.startswith("higgsMassRange="):
+                if self.debug>0: print "setting MHRange floating:",po.replace("higgsMassRange=","").split(",")
+                self.MHRange=po.replace("higgsMassRange=","").split(",")
+                #checks
+                if len(self.MHRange) != 2:
+                    raise RuntimeError, "MHRange definition requires two extrema: higgsMassRange=min,max"
+                elif float(self.MHRange[0]) >= float(self.MHRange[1]):
+                    raise RuntimeError, "Extrema for MH defined with inverterd order. Second must be larger the first"
+            if po.startswith("mass="):
+                self.defaultMH=float( po.replace('mass=','') )
+            if po.startswith("nBin="):
+                self.nBin=int(po.replace("nBin=",""))
+                if self.debug>0:print "new n. of bins is ",self.nBin
+            if po.startswith("fState="):
+                self.fState=po.replace("fState=","")
+                print(self.fState)
+                if self.debug>0:print "Final state is ",self.fState
+            #verbose
+            if po.startswith("verbose"):
+                self.debug = 1
+
+
+    def doParametersOfInterest(self):
+        POIs=""
+        if self.debug>0:print "Setting pois"
+
+        for iBin in range(0,self.nBin):
+            # get values from the workspace
+            if(self.fState!='4mu'):
+                fracSM4e = self.modelBuilder.out.var("fracSM4eBin%d" % (iBin)).getVal()
+            if(self.fState!='4e'):
+                fracSM4mu = self.modelBuilder.out.var("fracSM4muBin%d" % (iBin)).getVal()
+            SigmaBin = self.modelBuilder.out.var("SigmaBin%d" % (iBin)).getVal()
+
+            if self.modelBuilder.out.var("muBin%d" % (iBin)):
+                self.modelBuilder.out.var("muBin%d" % (iBin)).setRange(self.muBinRange[0], self.muBinRange[1])
+                self.modelBuilder.out.var("muBin%d" % (iBin)).setConstant(False)
+            else :
+                self.modelBuilder.doVar("muBin%d[1, %s,%s]" % (iBi, self.muBinRange[0],self.muBinRange[1]))
+
+            if iBin>=0:
+                POIs+="muBin%d,"%iBin
+                print(self.fState)
+                if self.debug>0:print "Added Bin%d to the POIs"%iBin
+
+        poiNames=[]
+        if self.modelBuilder.out.var("MH"):
+            if len(self.MHRange) == 2:
+                print 'MH will be left floating within', self.MHRange[0], 'and', self.MHRange[1]
+                self.modelBuilder.out.var("MH").setRange(float(self.MHRange[0]),float(self.MHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+                poiNames += [ 'MH' ]
+            else:
+                print 'MH will be assumed to be', self.defaultMH
+                self.modelBuilder.out.var("MH").removeRange()
+                self.modelBuilder.out.var("MH").setVal(self.defaultMH)
+        else:
+            if len(self.MHRange) == 2:
+                print 'MH will be left floating within', self.MHRange[0], 'and', self.MHRange[1]
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.MHRange[0],self.MHRange[1]))
+                poiNames += [ 'MH' ]
+            else:
+                print 'MH (not there before) will be assumed to be', self.defaultMH
+                self.modelBuilder.doVar("MH[%g]" % self.defaultMH)
+        for poi in poiNames:
+            POIs += "%s,"%poi
+        POIs = POIs[:-1] # remove last comma
+        self.modelBuilder.doSet("POI",POIs)
+        self.setup()
+
+    def setup(self):        
+        for iBin in range(0,self.nBin):
+            if (self.fState=='4e'):
+                self.modelBuilder.factory_('expr::Sigma_trueH4eBin%d("@0*@1*@2", muBin%d, SigmaBin%d, fracSM4eBin%d)' % (iBin,iBin,iBin,iBin))
+            elif (self.fState=='4mu'):
+                self.modelBuilder.factory_('expr::Sigma_trueH4muBin%d("@0*@1*@2", muBin%d, SigmaBin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin))
+            elif (self.fState=='2e2mu'):
+                self.modelBuilder.factory_('expr::Sigma_trueH2e2muBin%d("@0*@1*(1.0-@2-@3)", muBin%d, SigmaBin%d, fracSM4eBin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin) )
+            else:
+                self.modelBuilder.factory_('expr::Sigma_trueH4eBin%d("@0*@1*@2", muBin%d, SigmaBin%d, fracSM4eBin%d)' % (iBin,iBin,iBin,iBin))
+                self.modelBuilder.factory_('expr::Sigma_trueH4muBin%d("@0*@1*@2", muBin%d, SigmaBin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin))
+                self.modelBuilder.factory_('expr::Sigma_trueH2e2muBin%d("@0*@1*(1.0-@2-@3)", muBin%d, SigmaBin%d, fracSM4eBin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin) )
+
+    def getYieldScale(self,bin,process):
+        if not self.DC.isSignal[process]: return 1
+        if (self.fState=='4e'):
+            fStates = ['4e']
+        elif (self.fState=='4mu'):
+            fStates = ['4mu']
+        elif (self.fState=='2e2mu'):
+            fStates = ['2e2mu']
+        else:
+            fStates = ['4e', '4mu', '2e2mu']
+
+        Processes = []
+        Boson = 'H'
+        for iBin in range(0,self.nBin):
+            for channel in fStates:       
+                Processes += ['true'+Boson+channel+'Bin'+str(iBin)]
+        if process in Processes: return 'Sigma_'+process
+        else: return 1
+
 
 class H4lZ4lInclusiveFiducialRatio( PhysicsModel ):
     ''' Model used to unfold differential distributions '''
@@ -1025,6 +1147,7 @@ inclusiveFiducialV3=InclusiveFiducialV3()
 differentialFiducial=DifferentialFiducial()
 differentialFiducialV2=DifferentialFiducialV2()
 differentialFiducialV3=DifferentialFiducialV3()
+differentialFiducialK=DifferentialFiducialK()
 
 h4lZ4lInclusiveFiducialRatio=H4lZ4lInclusiveFiducialRatio()
 h4lZ4lInclusiveFiducialRatioV2=H4lZ4lInclusiveFiducialRatioV2()
