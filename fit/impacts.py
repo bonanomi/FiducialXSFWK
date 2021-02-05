@@ -135,7 +135,7 @@ def impactPlots():
     if (obsName == 'mass4l'): max_sigma = '5'
     else: max_sigma = '2.5'
 
-    # First step (Files from asimov and data have the same name)
+    ### First step (Files from asimov and data have the same name)
     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --doInitialFit --robustFit 1 --redefineSignalPOIs '
     for obsBin in range(nBins-1):
         cmd += 'SigmaBin' + str(obsBin) + ','
@@ -148,7 +148,7 @@ def impactPlots():
     print cmd, '\n'
     output = processCmd(cmd)
 
-    # Second step (Files from asimov and data have the same name)
+    ### Second step (Files from asimov and data have the same name)
     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --doFits --robustFit 1 --parallel 10 --redefineSignalPOIs '
     for obsBin in range(nBins-1):
         cmd += 'SigmaBin' + str(obsBin) + ','
@@ -163,16 +163,7 @@ def impactPlots():
 
     if opt.PHYSICSMODEL=='v3':
         for obsBin in range(nBins-1):
-            # XH.append(0.0)
-            # for channel in ['4e','4mu','2e2mu']:
-            #     XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            #     XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            #     XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            #     XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            #     XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            #     XH[obsBin]+=XH_fs
-            # _obsxsec = XH[obsBin]
-            # Third step
+            ### Third step
             cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --redefineSignalPOIs SigmaBin' + str(obsBin) + ' --setParameterRanges MH=125.38,125.38:SigmaBin' + str(obsBin) + '=0,'+max_sigma
             if (not opt.UNBLIND):
                 cmd = cmd + ' -t -1 --setParameters MH=125.38,' + ['K1'+s for s in cmd_BR.split('K1')[1:]][obsBin] + cmd_XSEC.split(',')[obsBin]

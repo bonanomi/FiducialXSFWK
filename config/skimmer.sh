@@ -16,8 +16,16 @@
 
 for year in 2016
 do
-    for process in ZZTo4lext
-    do
-        root -q -b skim_MC_tree_Matteo.C"(\"$process\",\"$year\")"
-    done
+   for process in ggH0M_M125
+   do
+       root -q -b skim_MC_tree.C"(\"$process\",\"$year\")"
+   done
 done
+
+# for year in 2016 2017 2018
+# do
+#    for process in ggH0M_M125 ttH0M_M125 VBFH0M_M125 WH0M_M125 ZH0M_M125
+#    do
+#        root -q -b skim_MC_tree.C"(\"$process\",\"$year\")"
+#    done
+# done

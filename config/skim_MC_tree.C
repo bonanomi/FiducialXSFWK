@@ -169,7 +169,10 @@ int Fiducial(float Z1Flav,float Z2Flav,float Z1Mass,float Z2Mass,float lep1Iso,f
 void add(TString input_dir, TString year, TString prod_mode, TString process, bool t_failed=true){
   // Add additional branches
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
-  TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  TString new_full_path;
+  if(process!="AC") new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  else new_full_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  cout << new_full_path << endl;
   TFile *f = new TFile(new_full_path.Data(),"UPDATE");
   TTree *T;
   if (t_failed) {
@@ -222,7 +225,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *GENabsdphijj = T->Branch("GENabsdphijj",&_GENabsdphijj,"GENabsdphijj/F");
 
 
-  if(process=="signal"){ // Bkgs don't store gen-level information
+  if(process=="signal" || process=="AC"){ // Bkgs don't store gen-level information
     T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
     T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);
     T->SetBranchAddress("GenLep3Pt",&GenLep3Pt);
@@ -330,7 +333,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   for (Long64_t i=0;i<nentries;i++) {
     T->GetEntry(i);
 
-    if(process=="signal"){
+    if(process=="signal" || process=="AC"){
       // Sort GenLeptons
       float GenLep1Mass = mass_lep(GenLep1Id);
       float GenLep2Mass = mass_lep(GenLep2Id);
@@ -558,7 +561,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
     ZZy->Fill();
 
-    if(process=="signal"){
+    if(process=="signal" || process=="AC"){
       // GEN matching
       for(unsigned int i=0;i<LepPt->size();i++){
         _lep_genindex.push_back(-1);
@@ -616,9 +619,10 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
 
   TString process;
   if(prod_mode=="ZZTo4lext") process = "qqZZ";
-  else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" | prod_mode=="ggTo2e2tau_Contin_MCFM701" | prod_mode=="ggTo2mu2tau_Contin_MCFM701" | prod_mode=="ggTo4e_Contin_MCFM701" |
-          prod_mode=="ggTo4mu_Contin_MCFM701" | prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
-  else process = "signal";
+  else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" || prod_mode=="ggTo2e2tau_Contin_MCFM701" || prod_mode=="ggTo2mu2tau_Contin_MCFM701" || prod_mode=="ggTo4e_Contin_MCFM701" ||
+          prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
+  else if(prod_mode.Contains("H125")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
+  else process = "AC";
   if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 
   cout << process << endl;
@@ -627,11 +631,18 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
   if(process=="signal") {
     input_dir = "/eos/user/a/atarabin/MC_samples";
     full_path = Form("%s/%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    cout << full_path << endl;
+  }
+  else if(process=="AC"){
+    input_dir = "/eos/user/a/atarabin/MC_samples";
+    full_path = Form("%s/AC%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    cout << full_path << endl;
   }
   else {
     input_dir = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased";
     full_path = Form("%s/MC_%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
     if(year=="2016") full_path = Form("%s/MC_%s_CorrectBTag/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    cout << full_path << endl;
   }
   std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
 
@@ -640,7 +651,7 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
   TH1F *hCounters = (TH1F*) oldFile->Get("ZZTree/Counters");
   // If it is a bkg process we don't deal with gen-level information. In case of bkgs the oldtree_failed remains empty
   TTree *oldtree_failed;
-  if(process=="signal") oldtree_failed = (TTree*) oldFile->Get("ZZTree/candTree_failed");
+  if(process=="signal" || process=="AC") oldtree_failed = (TTree*) oldFile->Get("ZZTree/candTree_failed");
 
   //// candTree
   // Deactivate all branches
@@ -708,7 +719,7 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
   oldtree->SetBranchStatus("dataMCWeight",1);
   oldtree->SetBranchStatus("trigEffWeight",1);
   if(process=="signal"){
-    //Gen-variables (à-la BBF)
+    //Gen-variables (à-la CJLST)
     oldtree->SetBranchStatus("GenHMass",1);
     oldtree->SetBranchStatus("GenHPt",1);
     oldtree->SetBranchStatus("GenHRapidity",1);
@@ -803,7 +814,7 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
   if(prod_mode == "ggH125") oldtree->SetBranchStatus("ggH_NNLOPS_weight",1); // Additional entry for the weight in case of ggH
 
   //skim oldtree_failed for signal only
-  if(process=="signal"){
+  if(process=="signal" || process=="AC"){
     //// candTree_failed
     // Deactivate all branches
     oldtree_failed->SetBranchStatus("*",0);
@@ -920,14 +931,17 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
   }
 
   // Copy branches in the new file
-  if(process!="signal") input_dir = "/eos/user/a/atarabin/MC_samples"; //Bkg only (At the moment bkgs original root file are not stored in our folder but in CJLST's)
+  if(process!="signal" && process!="AC") input_dir = "/eos/user/a/atarabin/MC_samples"; //Bkg only (At the moment bkgs original root file are not stored in our folder but in CJLST's)
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
-  TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  TString new_full_path;
+  if(process!="AC") new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  else new_full_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  cout << new_full_path << endl;
   TFile *newfile = new TFile(new_full_path.Data(),"RECREATE");
   TTree *newtree = (TTree*) oldtree->CloneTree(0);
   newtree->CopyEntries(oldtree);
   newtree->Write(); // Write candTree
-  if(process=="signal"){
+  if(process=="signal" || process=="AC"){
     TTree *newtree_failed = (TTree*) oldtree_failed->CloneTree(0);
     newtree_failed->CopyEntries(oldtree_failed);
     newtree_failed->Write(); // Write candTree_failed
@@ -936,10 +950,10 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
   newfile->Close();
 
   bool t_failed;
-  if(process=="signal") add(input_dir, year, prod_mode, process);
+  if(process=="signal" || process=="AC") add(input_dir, year, prod_mode, process);
   add(input_dir, year, prod_mode, process, t_failed = false);
 
-  if(process=="signal"){
+  if(process=="signal" || process=="AC"){
     // Merge together into a single TTree. Useful for efficiencies calculation.
     TFile* inputfile = TFile::Open(new_full_path.Data(), "READ");
     TTree* tree1 = (TTree*) inputfile->Get("candTree");
@@ -947,7 +961,10 @@ void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
     TH1F* cnts = (TH1F*) inputfile->Get("Counters");
 
     TString merged_name = Form("%s_mergedTree_MC_%s.root", prod_mode.Data(), year.Data());
-    TString merged_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    TString merged_path;
+    if(process!="AC") merged_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    else merged_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    cout << merged_path << endl;
 
     TFile* mergedTTree = new TFile(merged_path.Data(), "RECREATE");
     TList* alist = new TList;
