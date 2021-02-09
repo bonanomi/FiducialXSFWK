@@ -1,4 +1,5 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+# from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 
 class InclusiveFiducial( PhysicsModel ):
     ''' Model used to unfold differential distributions '''
@@ -1136,9 +1137,107 @@ class H4lZ4lInclusiveFiducialRatioV2( PhysicsModel ):
         else:
             return 1
 
+class TrilinearHiggs(PhysicsModel):
+    "Float independently cross sections and branching ratios"
+    # def __init__(self):
+    #     PhysicsModel.__init__(self)
+    #     # SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+    #     self.mHRange = []
+    #     self.poiNames = []
 
+    def __init__(self):
+        PhysicsModel.__init__(self)
+        self.nBin=4
+        self.MHRange=[20.0,200.0]
+        self.defautMH=125.38
 
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
+    def doParametersOfInterest(self):
+        """Create POI and other parameters, and define the POI set."""
+        POIs=""
+        # trilinear Higgs couplings modified 
+        self.modelBuilder.doVar("k_lambda[1,-20.,20.]")
+        # self.poiNames="k_lambda"
+        POIs = "k_lambda"
+        self.modelBuilder.doSet("POI",POIs)
+        print POIs
+        self.setup()
+
+    def setup(self):
+        # Let's start with ggH
+        #Use inclusive value for ggH: EWK reweighting tool not available. Taken directly from arXiv:1607.04251
+        proc = "ggH"
+        C1_ggH = 0.0066
+        C1_map = {}
+        for i in range(5): # equivalent to nBins above
+            C1_map["ggH_gen%g"%i] = C1_ggH
+ 
+        #Define dZH constant variable
+        dZH = -1.536e-3
+
+        #Loop over processes*gen bins in map to define how cross-section scales
+        # for proc in C1_map:
+        #   self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_map[proc],dZH,dZH,C1_map[proc],dZH))
+        # For the moment ggH scaling only
+        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_ggH,dZH,dZH,C1_ggH,dZH))
+
+        #Scaling @ decay: define expression for how BR scales as function of klambda: h->gammagamma
+        #Use following parameters taken directly from: arXiv:1607.04251
+        # C1_hgg = 0.0049
+        C1_hzz = 0.0083 # hzz4l
+        C1_tot = 2.5e-3
+        self.modelBuilder.factory_("expr::BRscal_hzz(\"1+(((@0-1)*(%g-%g))/(1+(@0-1)*%g))\",k_lambda)"%(C1_hzz,C1_tot,C1_tot))
+        self.modelBuilder.factory_('expr::XSBRscal_ggH_hzz(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)')
+        
+        # print self.poiNames
+        # self.modelBuilder.doSet("POI",self.poiNames)
+
+    def getYieldScale(self,bin,process):
+        if not self.DC.isSignal[process]: return 1
+        name = "XSBRscal_ggH_hzz" #% (production,decay)
+        # self.modelBuilder.factory_('expr::%s(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)'%(name))
+        return name
+
+        # Processes = []
+        # Boson = 'H'
+        # for iBin in range(5): #,self.nBin):
+        #     for channel in fStates:       
+        #         Processes += ['ggH_gen'+str(iBin)+'_hzz']
+        # if process in Processes: 
+
+        #     return 'Sigma_'+process
+        # else: return 1
+
+    # def getHiggsSignalYieldScale(self,production,decay):
+        
+    #     #XSBR
+    #     name = "XSBRscal_%s_%s" % (production,decay)
+    #     #Name has not been defined in doParametersOfInterest: combine XS + BR
+    #     if self.modelBuilder.out.function(name) == None:
+    #       #XS
+    #       if self.modelBuilder.out.function( "XSscal_%s"%(production) ) == None:
+    #         print "DEBUG: proc not given XS scaling"
+    #         raise RuntimeError, "Production mode %s not supported"%production
+    #       else:
+    #         XSscal = "XSscal_%s_%s"%(production,decay)
+    #       #BR
+    #       if self.modelBuilder.out.function( "BRscal_%s"%(decay) ) == None:
+    #         print "DEBUG: proc not given BR scaling"
+    #         raise RuntimeError, "Decay mode %s not supported"%decay
+    #       else:
+    #         BRscal = "BRscal_%s"%decay
+    #       #XSBR
+    #       self.modelBuilder.factory_('expr::%s(\"(@0*@1)\", XSscal_%s, BRscal_%s)'%(name,production,decay))
+    #       print '[LHC-CMS Trilinear]', name, ": ", self.modelBuilder.out.function(name).Print("")
+    #     return name
                      
 inclusiveFiducial=InclusiveFiducial()
 inclusiveFiducialV2=InclusiveFiducialV2()
@@ -1152,3 +1251,5 @@ differentialFiducialK=DifferentialFiducialK()
 h4lZ4lInclusiveFiducialRatio=H4lZ4lInclusiveFiducialRatio()
 h4lZ4lInclusiveFiducialRatioV2=H4lZ4lInclusiveFiducialRatioV2()
 
+
+trilinearHiggs = TrilinearHiggs()

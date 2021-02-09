@@ -155,7 +155,7 @@ def runFiducialXS():
 
     DataModelName = 'SM_125'
     if obsName == 'mass4l': PhysicalModels = ['v2','v3']
-    else: PhysicalModels = ['kfwk'] #['v3']
+    else: PhysicalModels = ['kLambda'] #['kfwk'] #['v3']
 
     for physicalModel in PhysicalModels:
         produceDatacards(obsName, observableBins, DataModelName, physicalModel)
@@ -221,6 +221,10 @@ def runFiducialXS():
             processCmd(cmd)
         elif (physicalModel=="kfwk"):
             cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducial --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
+            print cmd, '\n'
+            processCmd(cmd)
+        elif (physicalModel=="kLambda"):
+            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:trilinearHiggs -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
 
@@ -401,6 +405,8 @@ def runFiducialXS():
                 print cmd+'\n'
                 output = processCmd(cmd)
 
+        elif physicalModel == 'kLambda':
+                continue
 # ----------------- Main -----------------
 runFiducialXS()
 print "all modules successfully compiled"

@@ -8,7 +8,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
 
     # Root of the name of the process (signal from genBin)
-    processName = 'trueH'+channel+'Bin'
+    processName = 'ggH_gen'#'trueH'+channel+'Bin'
 
     # Background expectations in [105,140]
     bkg_qqzz = {}
@@ -111,7 +111,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('\n')
     file.write('process ')
     for i in range(nBins):
-        file.write(processName+str(i)+' ')
+        file.write(processName+str(i)+'_hzz ')
     file.write('out_trueH fakeH bkg_qqzz bkg_ggzz bkg_zjets')
     file.write('\n')
     file.write('process ')

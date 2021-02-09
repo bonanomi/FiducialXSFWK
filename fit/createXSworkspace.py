@@ -47,16 +47,16 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         inc_outfrac = _temp.inc_outfrac
         binfrac_outfrac = _temp.binfrac_wrongfrac
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio','lambdajesup','lambdajesdn'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
+        #,'lambdajesup','lambdajesdn'], -1)
         acc = _temp.acc
         eff = _temp.eff
         outinratio = _temp.outinratio
-    lambdajesup = _temp.lambdajesup
-    lambdajesdn = _temp.lambdajesdn
+    # lambdajesup = _temp.lambdajesup
+    # lambdajesdn = _temp.lambdajesdn
     inc_wrongfrac = _temp.inc_wrongfrac
     binfrac_wrongfrac = _temp.binfrac_wrongfrac
     #number_fake = _temp.number_fake
-
     # import h4l xs br
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
@@ -280,10 +280,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     # Coefficients for wrong signal combination events
     if (addfakeH):
         inc_wrongfrac_ggH=inc_wrongfrac["ggH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-        inc_wrongfrac_qqH=inc_wrongfrac["VBFH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-        inc_wrongfrac_WH=inc_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-        inc_wrongfrac_ZH=inc_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-        inc_wrongfrac_ttH=inc_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+        # inc_wrongfrac_qqH=inc_wrongfrac["VBFH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+        # inc_wrongfrac_WH=inc_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+        # inc_wrongfrac_ZH=inc_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+        # inc_wrongfrac_ttH=inc_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     else:
         inc_wrongfrac_ggH=0.0
         inc_wrongfrac_qqH=0.0
@@ -292,17 +292,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         inc_wrongfrac_ttH=0.0
 
     binfrac_wrongfrac_ggH=binfrac_wrongfrac["ggH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    binfrac_wrongfrac_qqH=binfrac_wrongfrac["VBFH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    binfrac_wrongfrac_WH=binfrac_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    binfrac_wrongfrac_ZH=binfrac_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    binfrac_wrongfrac_ttH=binfrac_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    # binfrac_wrongfrac_qqH=binfrac_wrongfrac["VBFH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    # binfrac_wrongfrac_WH=binfrac_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    # binfrac_wrongfrac_ZH=binfrac_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    # binfrac_wrongfrac_ttH=binfrac_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
 
     if (channel=='4e'):
-        n_fakeH = (0.24*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.20*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.10*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
+        n_fakeH = 0.0#(0.24*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.20*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.10*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
     if (channel=='4mu'):
-        n_fakeH = (0.45*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.38*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.20*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
+        n_fakeH = 0.0#(0.45*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.38*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.20*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
     if (channel=='2e2mu'):
-        n_fakeH = (0.57*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.51*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.25*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
+        n_fakeH = 0.0#(0.57*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.51*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.25*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
 
     #numberFake_WH = number_fake["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     #numberFake_ZH = number_fake["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
@@ -331,7 +331,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     for genbin in range(nBins):
         trueH_shape[genbin] = trueH.Clone();
-        trueH_shape[genbin].SetName("trueH"+channel+"Bin"+str(genbin))
+        trueH_shape[genbin].SetName("ggH_gen"+str(genbin)+"_hzz") #"trueH"+channel+"Bin"+str(genbin))
         if (usecfactor): fideff[genbin] = cfactor[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         print "fideff[genbin]", fideff[genbin]
@@ -339,7 +339,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         fideff_var[genbin] = ROOT.RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff[genbin]);
 
         # if(not("jet" in obsName)):
-        trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
+        # trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
+        # print(trueH_norm[genbin].getVal())
+        trueH_norm[genbin] = ROOT.RooFormulaVar("ggH_gen"+str(genbin)+"_hzz_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
         #     # Try dropping lumi to measure signal strength
         #     #trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0", ROOT.RooArgList(fideff_var[genbin]) );
 
@@ -427,6 +429,38 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
             # trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin],lumi))
             trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_norm","@0*@1*@2" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin],lumi))
+
+        elif(physicalModel=="kLambda"):
+            fidxs = {}
+            for fState in ['4e','4mu', '2e2mu']:
+                fidxs[fState] = 0
+                fidxs[fState] += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                # fidxs[fState] += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                # fidxs[fState] += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                # fidxs[fState] += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                # fidxs[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs['4l'] = fidxs['4e'] + fidxs['4mu'] + fidxs['2e2mu'] 
+
+            ## We are interested in the inclusive signal strenght and in the fractions of 4e, 4mu (2e2mu = 1 - 4e - 4mu) events
+            fracSM4eBin[str(genbin)] = ROOT.RooRealVar('fracSM4eBin'+str(genbin), 'fracSM4eBin'+str(genbin), fidxs['4e']/fidxs['4l'], 0.0, 1.0)
+            fracSM4eBin[str(genbin)].setConstant(True)
+
+            fracSM4muBin[str(genbin)] = ROOT.RooRealVar('fracSM4muBin'+str(genbin), 'fracSM4muBin'+str(genbin), fidxs['4mu']/fidxs['4l'], 0.0, 1.0)
+            fracSM4muBin[str(genbin)].setConstant(True)
+
+            SigmaBin[str(genbin)] = ROOT.RooRealVar('SigmaBin'+str(genbin), 'SigmaBin'+str(genbin), fidxs['4l'], 0.0, 10.0)
+            SigmaBin[str(genbin)].setConstant(True)
+            ## Here for the different FS
+            rHBin['4e'+str(genbin)] = ROOT.RooFormulaVar("Sigma4eBin"+str(genbin),"@0*@1", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)]))
+            rHBin['4mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma4muBin"+str(genbin),"@0*@1", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4muBin[str(genbin)]))
+            rHBin['2e2mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma2e2muBin"+str(genbin),"(@0*(1.0-@1-@2))", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4muBin[str(genbin)], fracSM4eBin[str(genbin)]))
+            print(rHBin['4e'+str(genbin)].getVal(), rHBin['4mu'+str(genbin)].getVal(), rHBin['2e2mu'+str(genbin)].getVal())
+
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar("ggH_gen"+str(genbin)+"_hzz_final","@0*@1*@2" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin],lumi))
+            # "trueH"+channel+"Bin"+str(genbin)+recobin+"_final"
+
+    # for genbin in range(nBins):
+    #     trueH_norm[genbin] = trueH_norm_final[genbin]
 
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin

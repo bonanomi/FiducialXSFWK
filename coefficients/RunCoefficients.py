@@ -275,14 +275,14 @@ def skim_df(year):
             frames.append(d_df_sig[signal])
         else:
             d_skim_sig[signal] = d_df_sig[signal]
-    d_skim_sig['WH125'] = pd.concat(frames)
+    #d_skim_sig['WH125'] = pd.concat(frames)
     frames = []
     for signal in signals_original:
         if (signal == 'WplusH125') or (signal == 'WminusH125'):
             frames.append(d_df_sig_failed[signal])
         else:
             d_skim_sig_failed[signal] = d_df_sig_failed[signal]
-    d_skim_sig_failed['WH125'] = pd.concat(frames)
+    #d_skim_sig_failed['WH125'] = pd.concat(frames)
     print '%i SKIMMED df CREATED' %year
     return d_skim_sig, d_skim_sig_failed
 
@@ -547,8 +547,8 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
 # -----------------------------------------------------------------------------------------
 # ------------------------------- MAIN ----------------------------------------------------
 # -----------------------------------------------------------------------------------------
-signals_original = ['VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
-signals = ['ggH125', 'VBFH125', 'WH125', 'ZH125', 'ttH125']
+signals_original = ['ggH125']#'VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
+signals = ['ggH125']#, 'VBFH125', 'WH125', 'ZH125', 'ttH125']
 eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
 key = 'candTree'
 key_failed = 'candTree_failed'
