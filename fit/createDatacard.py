@@ -110,7 +110,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('observation '+str(nData)+'\n')
 
     file.write('------------ \n')
-    file.write('## mass window ['+lowerBound+','+upperBound+']\n')
+    file.write('## mass window ['+str(lowerBound)+','+str(upperBound)+']\n')
     file.write('bin ')
     for i in range(nBins+5): # In addition to the observableBins, there are out_trueH, fakeH, bkg_ggzz, bkg_qqzz, bkg_zjets
         file.write(binName+' ')
