@@ -8,7 +8,7 @@ from math import trunc
 sys.path.append('../../inputs/')
 sys.path.append('../../templates/')
 
-def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, JES, doubleDiff):
+def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, JES, doubleDiff, process):
     print '\n'
     print 'Creating WorkSpace', year
 
@@ -42,12 +42,12 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     # from inputs_sig imports some coefficients
     if (usecfactor):
-        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['cfactor','inc_wrongfrac','binfrac_wrongfrac','inc_outfrac','binfrac_outfrac'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+process+'_'+year, globals(), locals(), ['cfactor','inc_wrongfrac','binfrac_wrongfrac','inc_outfrac','binfrac_outfrac'], -1)
         cfactor = _temp.cfactor
         inc_outfrac = _temp.inc_outfrac
         binfrac_outfrac = _temp.binfrac_wrongfrac
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+process+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
         #,'lambdajesup','lambdajesdn'], -1)
         acc = _temp.acc
         eff = _temp.eff
@@ -279,8 +279,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     # Coefficients for wrong signal combination events
     if (addfakeH):
-        inc_wrongfrac_ggH=inc_wrongfrac["ggH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-        # inc_wrongfrac_qqH=inc_wrongfrac["VBFH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+        # inc_wrongfrac_ggH=inc_wrongfrac["ggH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+        inc_wrongfrac_qqH=inc_wrongfrac[process+"125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
         # inc_wrongfrac_WH=inc_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
         # inc_wrongfrac_ZH=inc_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
         # inc_wrongfrac_ttH=inc_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
@@ -291,8 +291,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         inc_wrongfrac_ZH=0.0
         inc_wrongfrac_ttH=0.0
 
-    binfrac_wrongfrac_ggH=binfrac_wrongfrac["ggH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-    # binfrac_wrongfrac_qqH=binfrac_wrongfrac["VBFH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    # binfrac_wrongfrac_ggH=binfrac_wrongfrac["ggH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    binfrac_wrongfrac_qqH=binfrac_wrongfrac[process+"125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     # binfrac_wrongfrac_WH=binfrac_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     # binfrac_wrongfrac_ZH=binfrac_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     # binfrac_wrongfrac_ttH=binfrac_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
@@ -331,7 +331,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     for genbin in range(nBins):
         trueH_shape[genbin] = trueH.Clone();
-        trueH_shape[genbin].SetName("ggH_gen"+str(genbin)+"_hzz") #"trueH"+channel+"Bin"+str(genbin))
+        trueH_shape[genbin].SetName(process+"_gen"+str(genbin)+"_hzz") #"trueH"+channel+"Bin"+str(genbin))
         if (usecfactor): fideff[genbin] = cfactor[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         print "fideff[genbin]", fideff[genbin]
@@ -341,7 +341,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         # if(not("jet" in obsName)):
         # trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
         # print(trueH_norm[genbin].getVal())
-        trueH_norm[genbin] = ROOT.RooFormulaVar("ggH_gen"+str(genbin)+"_hzz_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
+
+        # trueH_norm[genbin] = ROOT.RooFormulaVar("VBFH_gen"+str(genbin)+"_hzz_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
+
         #     # Try dropping lumi to measure signal strength
         #     #trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0", ROOT.RooArgList(fideff_var[genbin]) );
 
@@ -434,8 +436,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             fidxs = {}
             for fState in ['4e','4mu', '2e2mu']:
                 fidxs[fState] = 0
-                fidxs[fState] += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                # fidxs[fState] += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                # fidxs[fState] += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                fidxs[fState] += higgs_xs[process+'_125.0']*higgs4l_br['125.0_'+fState]*acc[process+'125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 # fidxs[fState] += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 # fidxs[fState] += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                 # fidxs[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -456,11 +458,12 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             rHBin['2e2mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma2e2muBin"+str(genbin),"(@0*(1.0-@1-@2))", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4muBin[str(genbin)], fracSM4eBin[str(genbin)]))
             print(rHBin['4e'+str(genbin)].getVal(), rHBin['4mu'+str(genbin)].getVal(), rHBin['2e2mu'+str(genbin)].getVal())
 
-            trueH_norm_final[genbin] = ROOT.RooFormulaVar("ggH_gen"+str(genbin)+"_hzz_final","@0*@1*@2" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin],lumi))
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar(process+"_gen"+str(genbin)+"_hzz_final","@0*@1*@2" ,ROOT.RooArgList(rHBin[channel+str(genbin)],fideff_var[genbin],lumi))
             # "trueH"+channel+"Bin"+str(genbin)+recobin+"_final"
 
-    # for genbin in range(nBins):
-    #     trueH_norm[genbin] = trueH_norm_final[genbin]
+    for genbin in range(nBins):
+         trueH_norm[genbin] = trueH_norm_final[genbin]
+         trueH_norm[genbin].SetName(process+"_gen"+str(genbin)+"_hzz_norm")
 
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin
@@ -733,14 +736,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     if (addfakeH):
         if (usecfactor):
-            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.Cfactor.root','RECREATE')
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'_'+process+'.Databin'+str(obsBin)+'.Cfactor.root','RECREATE')
         else:
-            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root','RECREATE')
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'_'+process+'.Databin'+str(obsBin)+'.root','RECREATE')
     else:
         if (usecfactor):
-            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.Cfactor.NoFakeH.root','RECREATE')
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'_'+process+'.Databin'+str(obsBin)+'.Cfactor.NoFakeH.root','RECREATE')
         else:
-            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.NoFakeH.root','RECREATE')
+            fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'_'+process+'.Databin'+str(obsBin)+'.NoFakeH.root','RECREATE')
 
     print "write ws to fout"
     fout.WriteTObject(wout)

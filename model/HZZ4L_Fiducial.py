@@ -1138,6 +1138,8 @@ class H4lZ4lInclusiveFiducialRatioV2( PhysicsModel ):
             return 1
 
 class TrilinearHiggs(PhysicsModel):
+    # combine hzz4l_all_13TeV_xs_pT4l_bin_kLambda.root -n _kl -M MultiDimFit --algo=grid -P k_lambda --points=500 -m 125.38 --cminDefaultMinimizerStrategy 0 -t -1 --freezeParameters MH --saveWorkspace --setParameterRanges k_lambda=-10,20 --setParameters k_lambda=1.0
+
     "Float independently cross sections and branching ratios"
     # def __init__(self):
     #     PhysicsModel.__init__(self)
@@ -1174,12 +1176,14 @@ class TrilinearHiggs(PhysicsModel):
     def setup(self):
         # Let's start with ggH
         #Use inclusive value for ggH: EWK reweighting tool not available. Taken directly from arXiv:1607.04251
-        proc = "ggH"
+        proc_vbf = "VBFH" #"ggH"
+        proc_ggh = "ggH"
+        proc_ttH = "ttH"
+
         C1_ggH = 0.0066
-        C1_map = {}
-        for i in range(5): # equivalent to nBins above
-            C1_map["ggH_gen%g"%i] = C1_ggH
- 
+        C1_vbf = 0.0063
+        C1_ttH = 0.0352
+
         #Define dZH constant variable
         dZH = -1.536e-3
 
@@ -1187,7 +1191,9 @@ class TrilinearHiggs(PhysicsModel):
         # for proc in C1_map:
         #   self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_map[proc],dZH,dZH,C1_map[proc],dZH))
         # For the moment ggH scaling only
-        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_ggH,dZH,dZH,C1_ggH,dZH))
+        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_vbf,C1_vbf,dZH,dZH,C1_vbf,dZH))
+        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_ggh,C1_ggH,dZH,dZH,C1_ggH,dZH))
+        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_ttH,C1_ttH,dZH,dZH,C1_ttH,dZH))
 
         #Scaling @ decay: define expression for how BR scales as function of klambda: h->gammagamma
         #Use following parameters taken directly from: arXiv:1607.04251
@@ -1195,14 +1201,19 @@ class TrilinearHiggs(PhysicsModel):
         C1_hzz = 0.0083 # hzz4l
         C1_tot = 2.5e-3
         self.modelBuilder.factory_("expr::BRscal_hzz(\"1+(((@0-1)*(%g-%g))/(1+(@0-1)*%g))\",k_lambda)"%(C1_hzz,C1_tot,C1_tot))
+        self.modelBuilder.factory_('expr::XSBRscal_VBFH_hzz(\"(@0*@1)\", XSscal_VBFH, BRscal_hzz)')
         self.modelBuilder.factory_('expr::XSBRscal_ggH_hzz(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)')
+        self.modelBuilder.factory_('expr::XSBRscal_ttH_hzz(\"(@0*@1)\", XSscal_ttH, BRscal_hzz)')
         
         # print self.poiNames
         # self.modelBuilder.doSet("POI",self.poiNames)
 
     def getYieldScale(self,bin,process):
         if not self.DC.isSignal[process]: return 1
-        name = "XSBRscal_ggH_hzz" #% (production,decay)
+        _process = process.split('_')[0]
+        
+        name = "XSBRscal_%s_hzz" %_process #% (production,decay)
+        # name = "XSBRscal_VBFH_hzz"
         # self.modelBuilder.factory_('expr::%s(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)'%(name))
         return name
 

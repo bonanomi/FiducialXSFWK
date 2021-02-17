@@ -1,6 +1,6 @@
 import os,sys
 
-def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes):
+def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, process):
     # Name of the bin (aFINALSTATE_ recobinX)
     if(channel == '4mu'): channelNumber = 1
     if(channel == '4e'): channelNumber = 2
@@ -8,7 +8,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
 
     # Root of the name of the process (signal from genBin)
-    processName = 'ggH_gen'#'trueH'+channel+'Bin'
+    processName = process+'_gen'#'trueH'+channel+'Bin'
 
     # Background expectations in [105,140]
     bkg_qqzz = {}
@@ -88,7 +88,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'_'+process+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -96,7 +96,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     file.write('------------ \n')
 
-    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
+    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+obsName+'_'+physicalModel+'_'+process+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
 
     file.write('------------ \n')
 
