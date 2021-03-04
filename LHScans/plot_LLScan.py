@@ -194,6 +194,13 @@ if(obsName == 'massZ1 vs massZ2'):
     label = 'm_{Z1} (GeV)'
     label_2nd = 'm_{Z2} (GeV)'
     doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs pTHj'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'p_{T}^{Hj} (GeV)'
+    doubleDiff = True
+
 sys.path.append('../inputs')
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 obs_bins = _temp.observableBins
@@ -413,7 +420,7 @@ for i in range(nBins):
     latex2.SetTextSize(0.04)
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
-    if not 'jet' in obsName:
+    if not 'jet' in obsName or doubleDiff:
         if 'pTj1' in obsName:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
         elif 'mass4l' in obsName:

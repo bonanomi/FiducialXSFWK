@@ -169,7 +169,10 @@ int Fiducial(float Z1Flav,float Z2Flav,float Z1Mass,float Z2Mass,float lep1Iso,f
 void add(TString input_dir, TString year, TString prod_mode, TString process, bool t_failed=true){
   // Add additional branches
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
-  TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  TString new_full_path;
+  if(process!="AC") new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  else new_full_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  cout << new_full_path << endl;
   TFile *f = new TFile(new_full_path.Data(),"UPDATE");
   TTree *T;
   if (t_failed) {
@@ -183,10 +186,11 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   // Gen-variables
   float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
+  Float_t GENmass4l,GENpT4l,GENeta4l;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
   Short_t _GENnjets_pt30_eta2p5;
-  Float_t _GENpTj1;
-  bool _passedFiducialSelection,_passedFiducialSelection_NOISO,_passedFullSelection;
+  Float_t _GENpTj1, _GENpTj2, _GENpTHj, _GENpTHjj, _GENmHj, _GENmHjj, _GENmjj, _GENdetajj, _GENdphijj, _GENabsdetajj, _GENabsdphijj;
+  bool _passedFiducialSelection,_passedFiducialSelection_NOISO,_passedFullSelection, passedFiducialSelection_bbf;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
   vector<Short_t> _GenLepIdSorted;
   vector<TLorentzVector> GenLepSorted;
@@ -197,6 +201,9 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   vector<float> *GENlep_id = 0;
   vector<float> *GenCleanedJetPt = 0;
   vector<float> *GenCleanedJetEta = 0;
+  vector<float> *GenCleanedJetMass = 0;
+  vector<float> *GenCleanedJetPhi = 0;
+  vector<Short_t> *GENlep_Hindex = 0;
   TBranch *GenLepPtSorted = T->Branch("GenLepPtSorted",&_GenLepPtSorted);
   TBranch *GenLepEtaSorted = T->Branch("GenLepEtaSorted",&_GenLepEtaSorted);
   TBranch *GenLepPhiSorted = T->Branch("GenLepPhiSorted",&_GenLepPhiSorted);
@@ -206,8 +213,19 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
   TBranch *GENnjets_pt30_eta2p5 = T->Branch("GENnjets_pt30_eta2p5",&_GENnjets_pt30_eta2p5,"GENnjets_pt30_eta2p5/S");
   TBranch *GENpTj1 = T->Branch("GENpTj1",&_GENpTj1,"GENpTj1/F");
+  TBranch *GENpTj2 = T->Branch("GENpTj2",&_GENpTj2,"GENpTj2/F");
+  TBranch *GENpTHj = T->Branch("GENpTHj",&_GENpTHj,"GENpTHj/F");
+  TBranch *GENpTHjj = T->Branch("GENpTHjj",&_GENpTHjj,"GENpTHjj/F");
+  TBranch *GENmHj = T->Branch("GENmHj",&_GENmHj,"GENmHj/F");
+  TBranch *GENmHjj = T->Branch("GENmHjj",&_GENmHjj,"GENmHjj/F");
+  TBranch *GENmjj = T->Branch("GENmjj",&_GENmjj,"GENmjj/F");
+  TBranch *GENdetajj = T->Branch("GENdetajj",&_GENdetajj,"GENdetajj/F");
+  TBranch *GENdphijj = T->Branch("GENdphijj",&_GENdphijj,"GENdphijj/F");
+  TBranch *GENabsdetajj = T->Branch("GENabsdetajj",&_GENabsdetajj,"GENabsdetajj/F");
+  TBranch *GENabsdphijj = T->Branch("GENabsdphijj",&_GENabsdphijj,"GENabsdphijj/F");
 
-  if(process=="signal"){ // Bkgs don't store gen-level information
+
+  if(process=="signal" || process=="AC"){ // Bkgs don't store gen-level information
     T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
     T->SetBranchAddress("GenLep2Pt",&GenLep2Pt);
     T->SetBranchAddress("GenLep3Pt",&GenLep3Pt);
@@ -239,13 +257,20 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     T->SetBranchAddress("GENlep_id",&GENlep_id);
     T->SetBranchAddress("GenCleanedJetPt",&GenCleanedJetPt);
     T->SetBranchAddress("GenCleanedJetEta",&GenCleanedJetEta);
+    T->SetBranchAddress("GenCleanedJetMass",&GenCleanedJetMass);
+    T->SetBranchAddress("GenCleanedJetPhi",&GenCleanedJetPhi);
+    T->SetBranchAddress("GENmass4l",&GENmass4l);
+    T->SetBranchAddress("GENpT4l",&GENpT4l);
+    T->SetBranchAddress("GENeta4l",&GENeta4l);
+    T->SetBranchAddress("GENlep_Hindex",&GENlep_Hindex);
+    T->SetBranchAddress("passedFiducialSelection_bbf",&passedFiducialSelection_bbf);
   }
 
   // Reco-variables and Gen-Reco-matching variables
   float _ZZy,ZZPt,ZZEta,ZZPhi,ZZMass;
   Short_t nCleanedJetsPt30,nCleanedJetsPt30_jesUp,nCleanedJetsPt30_jesDn;
   Short_t _njets_pt30_eta2p5,_njets_pt30_eta2p5_jesup,_njets_pt30_eta2p5_jesdn;
-  Float_t _pTj1, _pTj2, _pTHj, _pTHjj, _mHj, _mHjj, _mjj, _detajj, _dphijj;
+  Float_t _pTj1, _pTj2, _pTHj, _pTHjj, _mHj, _mHjj, _mjj, _detajj, _dphijj, _absdetajj, _absdphijj;
   Float_t Mj1, ETAj1, PHIj1, Mj2, ETAj2, PHIj2;
   vector<float> *LepPt = 0;
   vector<float> *LepPhi = 0;
@@ -277,6 +302,8 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *mjj = T->Branch("mjj",&_mjj,"mjj/F");
   TBranch *detajj = T->Branch("detajj",&_detajj,"detajj/F");
   TBranch *dphijj = T->Branch("dphijj",&_dphijj,"dphijj/F");
+  TBranch *absdetajj = T->Branch("absdetajj",&_absdetajj,"absdetajj/F");
+  TBranch *absdphijj = T->Branch("absdphijj",&_absdphijj,"absdphijj/F");
 
   if (!t_failed) {
     T->SetBranchAddress("ZZMass",&ZZMass);
@@ -306,7 +333,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   for (Long64_t i=0;i<nentries;i++) {
     T->GetEntry(i);
 
-    if(process=="signal"){
+    if(process=="signal" || process=="AC"){
       // Sort GenLeptons
       float GenLep1Mass = mass_lep(GenLep1Id);
       float GenLep2Mass = mass_lep(GenLep2Id);
@@ -350,13 +377,84 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 
       // leading GENjet pT
       _GENpTj1 = 0;
+      Mj1 = 0;
+      ETAj1 = 0;
+      PHIj1 = 0;
       for (unsigned int i = 0; i < GenCleanedJetPt->size(); ++i)
       {
-        if(GenCleanedJetPt->at(i) > 30. && abs(GenCleanedJetEta->at(i)) < 2.5 && GenCleanedJetPt->at(i) > _GENpTj1) {
+        if(GenCleanedJetPt->at(i)>30 && abs(GenCleanedJetEta->at(i))<2.5 && GenCleanedJetPt->at(i) > _GENpTj1) {
           _GENpTj1 = GenCleanedJetPt->at(i);
+          Mj1 = GenCleanedJetMass->at(i);
+          ETAj1 = GenCleanedJetEta->at(i);
+          PHIj1 = GenCleanedJetPhi->at(i);
         }
       }
+      // sub-leading GENjet pT
+      _GENpTj2 = 0;
+      Mj2 = 0;
+      ETAj2 = 0;
+      PHIj2 = 0;
+      for (unsigned int i = 0; i < GenCleanedJetPt->size(); ++i)
+      {
+        if(GenCleanedJetPt->at(i)>30 && abs(GenCleanedJetEta->at(i))<2.5 && GenCleanedJetPt->at(i) > _GENpTj2 && _GENpTj1 != GenCleanedJetPt->at(i)) {
+          _GENpTj2 = GenCleanedJetPt->at(i);
+          Mj2 = GenCleanedJetMass->at(i);
+          ETAj2 = GenCleanedJetEta->at(i);
+          PHIj2 = GenCleanedJetPhi->at(i);
+        }
+      }
+
+      // H+Njets GENvariables
+      // If the event does not pass fiducial selections the variable is equal to one
+      Float_t GENphi4l = -1;
+      _GENpTHj = -1;
+      _GENpTHjj = -1;
+      _GENmHj = -1;
+      _GENmHjj = -1;
+      _GENdetajj = -1;
+      _GENabsdetajj = -1;
+      _GENmjj = -1;
+      _GENdphijj = -1;
+      _GENabsdphijj = -1;
+      if(passedFiducialSelection_bbf){
+        // We need to calculate GENPhi4l first since it is not calculated in the fwk
+        TLorentzVector LS3_Z1_1, LS3_Z1_2, LS3_Z2_1, LS3_Z2_2;
+        LS3_Z1_1.SetPtEtaPhiM(GENlep_pt->at(GENlep_Hindex->at(0)),GENlep_eta->at(GENlep_Hindex->at(0)),GENlep_phi->at(GENlep_Hindex->at(0)),GENlep_mass->at(GENlep_Hindex->at(0)));
+        LS3_Z1_2.SetPtEtaPhiM(GENlep_pt->at(GENlep_Hindex->at(1)),GENlep_eta->at(GENlep_Hindex->at(1)),GENlep_phi->at(GENlep_Hindex->at(1)),GENlep_mass->at(GENlep_Hindex->at(1)));
+        LS3_Z2_1.SetPtEtaPhiM(GENlep_pt->at(GENlep_Hindex->at(2)),GENlep_eta->at(GENlep_Hindex->at(2)),GENlep_phi->at(GENlep_Hindex->at(2)),GENlep_mass->at(GENlep_Hindex->at(2)));
+        LS3_Z2_2.SetPtEtaPhiM(GENlep_pt->at(GENlep_Hindex->at(3)),GENlep_eta->at(GENlep_Hindex->at(3)),GENlep_phi->at(GENlep_Hindex->at(3)),GENlep_mass->at(GENlep_Hindex->at(3)));
+        GENphi4l = (LS3_Z1_1+LS3_Z1_2+LS3_Z2_1+LS3_Z2_2).Phi();
+
+        TLorentzVector GENH;
+        TLorentzVector GENj1;
+        TLorentzVector GENj2;
+        GENH.SetPtEtaPhiM(GENpT4l,GENeta4l,GENphi4l,GENmass4l);
+        GENj1.SetPtEtaPhiM(_GENpTj1,ETAj1,PHIj1,Mj1);
+        GENj2.SetPtEtaPhiM(_GENpTj2,ETAj2,PHIj2,Mj2);
+        _GENpTHj = (GENH+GENj1).Pt();
+        _GENpTHjj = (GENH+GENj1+GENj2).Pt();
+        _GENmHj = (GENH+GENj1).M();
+        _GENmHjj = (GENH+GENj1+GENj2).M();
+        _GENdetajj = GENj1.Eta()-GENj2.Eta();
+        _GENabsdetajj = abs(_GENdetajj);
+        _GENmjj = (GENj1+GENj2).M();
+        _GENdphijj = GENj1.Phi()-GENj2.Phi();
+        if(_GENdphijj>3.14) _GENdphijj -= 3.14;
+        if(_GENdphijj<-3.14) _GENdphijj += 3.14;
+        _GENabsdphijj = abs(_GENdphijj);
+      }
+
       GENpTj1->Fill();
+      GENpTj2->Fill();
+      GENpTHj->Fill();
+      GENpTHjj->Fill();
+      GENmHj->Fill();
+      GENmHjj->Fill();
+      GENdetajj->Fill();
+      GENdphijj->Fill();
+      GENabsdetajj->Fill();
+      GENabsdphijj->Fill();
+      GENmjj->Fill();
       GenLepPtSorted->Fill();
       GenLepEtaSorted->Fill();
       GenLepPhiSorted->Fill();
@@ -416,8 +514,12 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     _mHj = (H+j1).M();
     _mHjj = (H+j1+j2).M();
     _detajj = j1.Eta()-j2.Eta();
-    _dphijj = j1.Phi()-j2.Phi();
+    _absdetajj = abs(_detajj);
     _mjj = (j1+j2).M();
+    _dphijj = j1.Phi()-j2.Phi();
+    if(_dphijj>3.14) _dphijj -= 3.14;
+    if(_dphijj<-3.14) _dphijj += 3.14;
+    _absdphijj = abs(_dphijj);
 
     // njets
     _njets_pt30_eta2p5 = 0;
@@ -448,6 +550,8 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     mHjj->Fill();
     detajj->Fill();
     dphijj->Fill();
+    absdetajj->Fill();
+    absdphijj->Fill();
     mjj->Fill();
     njets_pt30_eta2p5->Fill();
     njets_pt30_eta2p5_jesdn->Fill();
@@ -457,7 +561,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
     ZZy->Fill();
 
-    if(process=="signal"){
+    if(process=="signal" || process=="AC"){
       // GEN matching
       for(unsigned int i=0;i<LepPt->size();i++){
         _lep_genindex.push_back(-1);
@@ -511,13 +615,14 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 }
 
 //---------------------------------------------------------- MAIN ----------------------------------------------------------
-void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
+void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
 
   TString process;
   if(prod_mode=="ZZTo4lext") process = "qqZZ";
-  else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" | prod_mode=="ggTo2e2tau_Contin_MCFM701" | prod_mode=="ggTo2mu2tau_Contin_MCFM701" | prod_mode=="ggTo4e_Contin_MCFM701" |
-          prod_mode=="ggTo4mu_Contin_MCFM701" | prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
-  else process = "signal";
+  else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" || prod_mode=="ggTo2e2tau_Contin_MCFM701" || prod_mode=="ggTo2mu2tau_Contin_MCFM701" || prod_mode=="ggTo4e_Contin_MCFM701" ||
+          prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
+  else if(prod_mode.Contains("H125")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
+  else process = "AC";
   if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 
   cout << process << endl;
@@ -526,11 +631,18 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
   if(process=="signal") {
     input_dir = "/eos/user/a/atarabin/MC_samples";
     full_path = Form("%s/%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    cout << full_path << endl;
+  }
+  else if(process=="AC"){
+    input_dir = "/eos/user/a/atarabin/MC_samples";
+    full_path = Form("%s/AC%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    cout << full_path << endl;
   }
   else {
     input_dir = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased";
     full_path = Form("%s/MC_%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
     if(year=="2016") full_path = Form("%s/MC_%s_CorrectBTag/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    cout << full_path << endl;
   }
   std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
 
@@ -539,7 +651,7 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
   TH1F *hCounters = (TH1F*) oldFile->Get("ZZTree/Counters");
   // If it is a bkg process we don't deal with gen-level information. In case of bkgs the oldtree_failed remains empty
   TTree *oldtree_failed;
-  if(process=="signal") oldtree_failed = (TTree*) oldFile->Get("ZZTree/candTree_failed");
+  if(process=="signal" || process=="AC") oldtree_failed = (TTree*) oldFile->Get("ZZTree/candTree_failed");
 
   //// candTree
   // Deactivate all branches
@@ -607,7 +719,6 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
   oldtree->SetBranchStatus("dataMCWeight",1);
   oldtree->SetBranchStatus("trigEffWeight",1);
   if(process=="signal"){
-    //Gen-variables (à-la BBF)
     oldtree->SetBranchStatus("GenHMass",1);
     oldtree->SetBranchStatus("GenHPt",1);
     oldtree->SetBranchStatus("GenHRapidity",1);
@@ -702,7 +813,7 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
   if(prod_mode == "ggH125") oldtree->SetBranchStatus("ggH_NNLOPS_weight",1); // Additional entry for the weight in case of ggH
 
   //skim oldtree_failed for signal only
-  if(process=="signal"){
+  if(process=="signal" || process=="AC"){
     //// candTree_failed
     // Deactivate all branches
     oldtree_failed->SetBranchStatus("*",0);
@@ -819,14 +930,17 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
   }
 
   // Copy branches in the new file
-  if(process!="signal") input_dir = "/eos/user/a/atarabin/MC_samples"; //Bkg only (At the moment bkgs original root file are not stored in our folder but in CJLST's)
+  if(process!="signal" && process!="AC") input_dir = "/eos/user/a/atarabin/MC_samples"; //Bkg only (At the moment bkgs original root file are not stored in our folder but in CJLST's)
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
-  TString new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  TString new_full_path;
+  if(process!="AC") new_full_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  else new_full_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  cout << new_full_path << endl;
   TFile *newfile = new TFile(new_full_path.Data(),"RECREATE");
   TTree *newtree = (TTree*) oldtree->CloneTree(0);
   newtree->CopyEntries(oldtree);
   newtree->Write(); // Write candTree
-  if(process=="signal"){
+  if(process=="signal" || process=="AC"){
     TTree *newtree_failed = (TTree*) oldtree_failed->CloneTree(0);
     newtree_failed->CopyEntries(oldtree_failed);
     newtree_failed->Write(); // Write candTree_failed
@@ -835,10 +949,10 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
   newfile->Close();
 
   bool t_failed;
-  if(process=="signal") add(input_dir, year, prod_mode, process);
+  if(process=="signal" || process=="AC") add(input_dir, year, prod_mode, process);
   add(input_dir, year, prod_mode, process, t_failed = false);
 
-  if(process=="signal"){
+  if(process=="signal" || process=="AC"){
     // Merge together into a single TTree. Useful for efficiencies calculation.
     TFile* inputfile = TFile::Open(new_full_path.Data(), "READ");
     TTree* tree1 = (TTree*) inputfile->Get("candTree");
@@ -846,7 +960,10 @@ void skim_MC_tree (TString prod_mode = "ZZTo4lext", TString year = "2018"){
     TH1F* cnts = (TH1F*) inputfile->Get("Counters");
 
     TString merged_name = Form("%s_mergedTree_MC_%s.root", prod_mode.Data(), year.Data());
-    TString merged_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    TString merged_path;
+    if(process!="AC") merged_path = Form("%s/%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    else merged_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    cout << merged_path << endl;
 
     TFile* mergedTTree = new TFile(merged_path.Data(), "RECREATE");
     TList* alist = new TList;
