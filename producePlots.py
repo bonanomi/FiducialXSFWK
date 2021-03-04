@@ -283,7 +283,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             ggH_powheg[obsBin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             #ggH_minloHJ[obsBin]+=ggH_xsBR*acc_ggH_powheg['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]
             ggH_minloHJ[obsBin]+=ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            
+
             # for total uncertainty, correlate br and acc uncertainties across all channels (XH+ggH)
             total_NNLOunc_fs_powheg_hi =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
             total_NNLOunc_fs_powheg_lo =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
@@ -1331,7 +1331,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     else:
         label = obsName
         unit = ""
-    print label
+
     c = TCanvas("c",obsName, 1400, 1400)
     if(opt.SETLOG): c.SetLogy()
     if (not obsName=="mass4l"): c.SetBottomMargin(0.35)
