@@ -174,6 +174,7 @@ else:
 _poi    = 'SigmaBin'
 obsName = opt.OBSNAME
 
+doubleDiff = False
 if(obsName == 'mass4l'): label = 'm_{4l}'
 if(obsName == 'rapidity4l'): label = '|y_{H}|'
 if(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
@@ -187,12 +188,22 @@ if(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
 if(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
 if(obsName == 'phistar'): label = '#Phi^{#star}'
 if(obsName == 'phi'): label = '#Phi'
-obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
-nBins = len(obs_bins)
-if obsName=='mass4l': nBins = nBins + 3
+if(obsName == 'massZ1 vs massZ2'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'm_{Z1} (GeV)'
+    label_2nd = 'm_{Z2} (GeV)'
+    doubleDiff = True
+sys.path.append('../inputs')
+_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+obs_bins = _temp.observableBins
+sys.path.remove('../inputs')
 
-for i in range(nBins-1):
+nBins = len(obs_bins)
+if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
+if obsName=='mass4l': nBins = nBins + 3 #in case of mass4l len(obs_bins)=1, we need to add +3 for cross section in the three different final states
+
+for i in range(nBins):
     _bin = i
     _obs_bin = _poi+str(i)
 
@@ -407,6 +418,9 @@ for i in range(nBins-1):
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
         elif 'mass4l' in obsName:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
+        elif doubleDiff:
+            latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin][0])+' < '+label+' < '+str(obs_bins[_bin][1]))
+            latex2.DrawLatex(0.55,0.60, str(obs_bins[_bin][2])+' < '+label_2nd+' < '+str(obs_bins[_bin][3]))
         else:
             latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
     else:
