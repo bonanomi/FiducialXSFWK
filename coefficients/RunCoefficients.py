@@ -570,7 +570,7 @@ else: #It is a double-differential analysis
     # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
     # The first two entries are the lower and upper bound of the first variable
     # The second two entries are the lower and upper bound of the second variable
-    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
