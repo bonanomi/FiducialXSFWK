@@ -271,7 +271,16 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   Short_t nCleanedJetsPt30,nCleanedJetsPt30_jesUp,nCleanedJetsPt30_jesDn;
   Short_t _njets_pt30_eta2p5,_njets_pt30_eta2p5_jesup,_njets_pt30_eta2p5_jesdn;
   Float_t _pTj1, _pTj2, _pTHj, _pTHjj, _mHj, _mHjj, _mjj, _detajj, _dphijj, _absdetajj, _absdphijj;
+  Float_t _pTj1_jesup, _pTj1_jesdn, _pTj2_jesup, _pTj2_jesdn;
+  Float_t _pTHj_jesup, _pTHj_jesdn, _pTHjj_jesup, _pTHjj_jesdn;
+  Float_t _mHj_jesup, _mHj_jesdn, _mHjj_jesup, _mHjj_jesdn, _mjj_jesup, _mjj_jesdn;
+  Float_t _detajj_jesup, _detajj_jesdn, _dphijj_jesup, _dphijj_jesdn;
+  Float_t _absdetajj_jesup, _absdetajj_jesdn, _absdphijj_jesup, _absdphijj_jesdn;
   Float_t Mj1, ETAj1, PHIj1, Mj2, ETAj2, PHIj2;
+  Float_t Mj1_jesup, ETAj1_jesup, PHIj1_jesup, Mj2_jesup, ETAj2_jesup, PHIj2_jesup;
+  Float_t Mj1_jesdn, ETAj1_jesdn, PHIj1_jesdn, Mj2_jesdn, ETAj2_jesdn, PHIj2_jesdn;
+  Float_t _TCj, _TCj1, _TCjmax, _TBj1, _TBj, _TBjmax;
+  Float_t tc, tcj, yj;
   vector<float> *LepPt = 0;
   vector<float> *LepPhi = 0;
   vector<float> *LepEta = 0;
@@ -294,17 +303,44 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *njets_pt30_eta2p5_jesup = T->Branch("njets_pt30_eta2p5_jesup",&_njets_pt30_eta2p5_jesup,"_njets_pt30_eta2p5_jesup/S");
   TBranch *njets_pt30_eta2p5_jesdn = T->Branch("njets_pt30_eta2p5_jesdn",&_njets_pt30_eta2p5_jesdn,"_njets_pt30_eta2p5_jesdn/S");
   TBranch *pTj1 = T->Branch("pTj1",&_pTj1,"pTj1/F");
+  TBranch *pTj1_jesup = T->Branch("pTj1_jesup",&_pTj1_jesup,"pTj1_jesup/F");
+  TBranch *pTj1_jesdn = T->Branch("pTj1_jesdn",&_pTj1_jesdn,"pTj1_jesdn/F");
   TBranch *pTj2 = T->Branch("pTj2",&_pTj2,"pTj2/F");
+  TBranch *pTj2_jesup = T->Branch("pTj2_jesup",&_pTj2_jesup,"pTj2_jesup/F");
+  TBranch *pTj2_jesdn = T->Branch("pTj2_jesdn",&_pTj2_jesdn,"pTj2_jesdn/F");
   TBranch *pTHj = T->Branch("pTHj",&_pTHj,"pTHj/F");
+  TBranch *pTHj_jesup = T->Branch("pTHj_jesup",&_pTHj_jesup,"pTHj_jesup/F");
+  TBranch *pTHj_jesdn = T->Branch("pTHj_jesdn",&_pTHj_jesdn,"pTHj_jesdn/F");
   TBranch *pTHjj = T->Branch("pTHjj",&_pTHjj,"pTHjj/F");
+  TBranch *pTHjj_jesup = T->Branch("pTHjj_jesup",&_pTHjj_jesup,"pTHjj_jesup/F");
+  TBranch *pTHjj_jesdn = T->Branch("pTHjj_jesdn",&_pTHjj_jesdn,"pTHjj_jesdn/F");
   TBranch *mHj = T->Branch("mHj",&_mHj,"mHj/F");
+  TBranch *mHj_jesup = T->Branch("mHj_jesup",&_mHj_jesup,"mHj_jesup/F");
+  TBranch *mHj_jesdn = T->Branch("mHj_jesdn",&_mHj_jesdn,"mHj_jesdn/F");
   TBranch *mHjj = T->Branch("mHjj",&_mHjj,"mHjj/F");
+  TBranch *mHjj_jesup = T->Branch("mHjj_jesup",&_mHjj_jesup,"mHjj_jesup/F");
+  TBranch *mHjj_jesdn = T->Branch("mHjj_jesdn",&_mHjj_jesdn,"mHjj_jesdn/F");
   TBranch *mjj = T->Branch("mjj",&_mjj,"mjj/F");
+  TBranch *mjj_jesup = T->Branch("mjj_jesup",&_mjj_jesup,"mjj_jesup/F");
+  TBranch *mjj_jesdn = T->Branch("mjj_jesdn",&_mjj_jesdn,"mjj_jesdn/F");
   TBranch *detajj = T->Branch("detajj",&_detajj,"detajj/F");
   TBranch *dphijj = T->Branch("dphijj",&_dphijj,"dphijj/F");
+  TBranch *detajj_jesup = T->Branch("detajj_jesup",&_detajj_jesup,"detajj_jesup/F");
+  TBranch *detajj_jesdn = T->Branch("detajj_jesdn",&_detajj_jesdn,"detajj_jesdn/F");
+  TBranch *dphijj_jesup = T->Branch("dphijj_jesup",&_dphijj_jesup,"dphijj_jesup/F");
+  TBranch *dphijj_jesdn = T->Branch("dphijj_jesdn",&_dphijj_jesdn,"dphijj_jesdn/F");
   TBranch *absdetajj = T->Branch("absdetajj",&_absdetajj,"absdetajj/F");
   TBranch *absdphijj = T->Branch("absdphijj",&_absdphijj,"absdphijj/F");
-
+  TBranch *absdetajj_jesup = T->Branch("absdetajj_jesup",&_absdetajj_jesup,"absdetajj_jesup/F");
+  TBranch *absdetajj_jesdn = T->Branch("absdetajj_jesdn",&_absdetajj_jesdn,"absdetajj_jesdn/F");
+  TBranch *absdphijj_jesup = T->Branch("absdphijj_jesup",&_absdphijj_jesup,"absdphijj_jesup/F");
+  TBranch *absdphijj_jesdn = T->Branch("absdphijj_jesdn",&_absdphijj_jesdn,"absdphijj_jesdn/F");
+  TBranch *TCj = T->Branch("TCj",&_TCj,"TCj/F");
+  TBranch *TCjmax = T->Branch("TCjmax",&_TCjmax,"TCjmax/F");
+  TBranch *TCj1 = T->Branch("TCj1",&_TCj1,"TCj1/F");
+  TBranch *TBj1 = T->Branch("TBj1",&_TBj1,"TBj1/F");
+  TBranch *TBj = T->Branch("TBj",&_TBj,"TBj/F");
+  TBranch *TBjmax = T->Branch("TBjmax", &_TBjmax, "TBjmax/F");
   if (!t_failed) {
     T->SetBranchAddress("ZZMass",&ZZMass);
     T->SetBranchAddress("ZZPt",&ZZPt);
@@ -474,10 +510,10 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     if (t_failed) continue; // From now on reco-only variables
 
     // leading jet pT
-    _pTj1 = 0;
-    Mj1 = 0;
-    ETAj1 = 0;
-    PHIj1 = 0;
+    _pTj1 = 0; _pTj1_jesup = 0.; _pTj1_jesdn = 0.;
+    Mj1 = 0; Mj1_jesup = 0; Mj1_jesdn = 0;
+    ETAj1 = 0; ETAj1_jesup = 0; ETAj1_jesdn = 0;
+    PHIj1 = 0; PHIj1_jesup = 0; PHIj1_jesdn = 0;
     for (unsigned int i = 0; i < JetPt->size(); ++i)
     {
       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt->at(i) > _pTj1) {
@@ -486,12 +522,24 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         ETAj1 = JetEta->at(i);
         PHIj1 = JetPhi->at(i);
       }
+      if(JetPt_JESUp->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt_JESUp->at(i) > _pTj1_jesup) {
+        _pTj1_jesup = JetPt_JESUp->at(i);
+        Mj1_jesup = JetMass->at(i);
+        ETAj1_jesup = JetEta->at(i);
+        PHIj1_jesup = JetPhi->at(i);
+      }
+      if(JetPt_JESDown->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt_JESDown->at(i) > _pTj1_jesdn) {
+        _pTj1_jesdn = JetPt_JESDown->at(i);
+        Mj1_jesdn = JetMass->at(i);
+        ETAj1_jesdn = JetEta->at(i);
+        PHIj1_jesdn = JetPhi->at(i);
+      }
     }
     // sub-leading jet pT
-    _pTj2 = 0;
-    Mj2 = 0;
-    ETAj2 = 0;
-    PHIj2 = 0;
+    _pTj2 = 0; _pTj2_jesup = 0.; _pTj2_jesdn = 0.;
+    Mj2 = 0; Mj2_jesup = 0; Mj2_jesdn = 0;
+    ETAj2 = 0; ETAj2_jesup = 0; ETAj2_jesdn = 0;
+    PHIj2 = 0; PHIj2_jesup = 0; PHIj2_jesdn = 0;
     for (unsigned int i = 0; i < JetPt->size(); ++i)
     {
       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt->at(i) > _pTj2 && _pTj1 != JetPt->at(i)) {
@@ -500,26 +548,67 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         ETAj2 = JetEta->at(i);
         PHIj2 = JetPhi->at(i);
       }
+      if(JetPt_JESUp->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt_JESUp->at(i) > _pTj2_jesup && _pTj1_jesup != JetPt_JESUp->at(i)) {
+        _pTj2_jesup = JetPt_JESUp->at(i);
+        Mj2_jesup = JetMass->at(i);
+        ETAj2_jesup = JetEta->at(i);
+        PHIj2_jesup = JetPhi->at(i);
+      }
+      if(JetPt_JESDown->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt_JESDown->at(i) > _pTj2_jesdn && _pTj1_jesdn != JetPt_JESDown->at(i)) {
+        _pTj2_jesdn = JetPt_JESDown->at(i);
+        Mj2_jesdn = JetMass->at(i);
+        ETAj2_jesdn = JetEta->at(i);
+        PHIj2_jesdn = JetPhi->at(i);
+      }
     }
 
     // H+Njets variables
     TLorentzVector H;
     TLorentzVector j1;
     TLorentzVector j2;
+    TLorentzVector j1_jesup;
+    TLorentzVector j1_jesdn;
+    TLorentzVector j2_jesup;
+    TLorentzVector j2_jesdn;
     H.SetPtEtaPhiM(ZZPt,ZZEta,ZZPhi,ZZMass);
     j1.SetPtEtaPhiM(_pTj1,ETAj1,PHIj1,Mj1);
+    j1_jesup.SetPtEtaPhiM(_pTj1_jesup,ETAj1_jesup,PHIj1_jesup,Mj1_jesup);
+    j1_jesdn.SetPtEtaPhiM(_pTj1_jesdn,ETAj1_jesdn,PHIj1_jesdn,Mj1_jesdn);
     j2.SetPtEtaPhiM(_pTj2,ETAj2,PHIj2,Mj2);
+    j2_jesup.SetPtEtaPhiM(_pTj2_jesup,ETAj2_jesup,PHIj2_jesup,Mj2_jesup);
+    j2_jesdn.SetPtEtaPhiM(_pTj2_jesdn,ETAj2_jesdn,PHIj2_jesdn,Mj2_jesdn);
     _pTHj = (H+j1).Pt();
+    _pTHj_jesup = (H+j1_jesup).Pt();
+    _pTHj_jesdn = (H+j1_jesdn).Pt();
     _pTHjj = (H+j1+j2).Pt();
+    _pTHjj_jesup = (H+j1_jesdn+j2_jesdn).Pt();
+    _pTHjj_jesdn = (H+j1_jesup+j2_jesup).Pt();
     _mHj = (H+j1).M();
+    _mHj_jesup = (H+j1_jesup).M();
+    _mHj_jesdn = (H+j1_jesdn).M();
     _mHjj = (H+j1+j2).M();
+    _mHjj_jesup = (H+j1_jesup+j2_jesup).M();
+    _mHjj_jesdn = (H+j1_jesdn+j2_jesdn).M();
     _detajj = j1.Eta()-j2.Eta();
+    _detajj_jesdn = j1_jesdn.Eta()-j2_jesdn.Eta();
+    _detajj_jesup = j1_jesup.Eta()-j2_jesup.Eta();
     _absdetajj = abs(_detajj);
+    _absdetajj_jesdn = abs(_detajj_jesdn);
+    _absdetajj_jesup = abs(_detajj_jesup);
     _mjj = (j1+j2).M();
+    _mjj_jesup = (j1_jesup+j2_jesup).M();
+    _mjj_jesdn = (j1_jesdn+j2_jesdn).M();
     _dphijj = j1.Phi()-j2.Phi();
     if(_dphijj>3.14) _dphijj -= 3.14;
     if(_dphijj<-3.14) _dphijj += 3.14;
+    if(_dphijj_jesdn>3.14) _dphijj_jesdn -= 3.14;
+    if(_dphijj_jesup>3.14) _dphijj_jesup -= 3.14;
+    if(_dphijj<-3.14) _dphijj += 3.14;
+    if(_dphijj_jesup<-3.14) _dphijj_jesup += 3.14;
+    if(_dphijj_jesdn<-3.14) _dphijj_jesdn += 3.14;
     _absdphijj = abs(_dphijj);
+    _absdphijj_jesdn = abs(_dphijj_jesdn);
+    _absdphijj_jesup = abs(_dphijj_jesup);
 
     // njets
     _njets_pt30_eta2p5 = 0;
@@ -542,17 +631,36 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         _njets_pt30_eta2p5_jesup++;
       }
     }
+
     pTj1->Fill();
+    pTj1_jesup->Fill();
+    pTj1_jesdn->Fill();
     pTj2->Fill();
+    pTj2_jesup->Fill();
+    pTj2_jesdn->Fill();
     pTHj->Fill();
+    pTHj_jesup->Fill();
+    pTHj_jesdn->Fill();
     pTHjj->Fill();
+    pTHjj_jesup->Fill();
+    pTHjj_jesdn->Fill();
     mHj->Fill();
+    mHj_jesup->Fill();
+    mHj_jesdn->Fill();
     mHjj->Fill();
+    mHjj_jesup->Fill();
+    mHjj_jesdn->Fill();
     detajj->Fill();
+    detajj_jesup->Fill();
+    detajj_jesdn->Fill();
     dphijj->Fill();
+    dphijj_jesup->Fill();
+    dphijj_jesdn->Fill();
     absdetajj->Fill();
     absdphijj->Fill();
     mjj->Fill();
+    mjj_jesup->Fill();
+    mjj_jesdn->Fill();
     njets_pt30_eta2p5->Fill();
     njets_pt30_eta2p5_jesdn->Fill();
     njets_pt30_eta2p5_jesup->Fill();
@@ -560,7 +668,29 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     // Reco-rapidity
     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
     ZZy->Fill();
-
+    
+    _TCj = 0; _TBj = 0;
+    _TCjmax = 0; _TBjmax = 0;
+    _TCj1 = (_pTj1*_pTj1 + Mj1*Mj1)/(2*j1.E());
+    _TBj1 = j1.E() - abs(j1.Pz());
+    for (unsigned int i = 0; i < JetPt->size(); ++i)
+    { 
+      // Define TCj for all jets with pT > pT_cut
+       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5) {
+          TLorentzVector theJet;
+          theJet.SetPtEtaPhiM(JetPt->at(i), JetEta->at(i), JetPhi->at(i), JetMass->at(i));
+          _TCj = (pow(theJet.Pt(), 2) + pow(theJet.M(), 2))/(2*theJet.E());
+          _TBj = theJet.E() - abs(theJet.Pz());
+          if (_TCj > _TCjmax) _TCjmax = _TCj;
+          if (_TBj > _TBjmax) _TBjmax = _TBj;
+       }
+    }
+    TCj->Fill();
+    TBj->Fill();
+    TCjmax->Fill();
+    TBjmax->Fill();
+    TCj1->Fill();
+    TBj1->Fill();
     if(process=="signal" || process=="AC"){
       // GEN matching
       for(unsigned int i=0;i<LepPt->size();i++){

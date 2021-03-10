@@ -14,6 +14,9 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     sys.path.append('../inputs')
     _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
     expected_yield = _temp.expected_yield
+    _temp = __import__('JESNP_'+year+'_'+obsName, globals(), locals(), ['JESNP'], -1)
+    jesnp = _temp.JESNP 
+    print(jesnp)
     sys.path.remove('../inputs')
 
     #Hard coding values for bkgs
@@ -95,7 +98,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # -------------------------------------------------------------------------------------------------
 
     file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
-
+    
     file.write('imax 1 \n')
     file.write('jmax * \n')
     file.write('kmax * \n')
@@ -200,7 +203,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # JES
     if jes == True:
-        file.write('JES param 0.0 1.0\n')
+        file.write('CMS_scale_j_'+year+' lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write(jesnp['recobin'+str(obsBin)]+' ')
+        file.write('-\n') # ZX
+        #file.write('JES param 0.0 1.0\n')
 
     file.close()
 
