@@ -1,5 +1,6 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 # from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
+import os
 
 class InclusiveFiducial( PhysicsModel ):
     ''' Model used to unfold differential distributions '''
@@ -1169,86 +1170,109 @@ class TrilinearHiggs(PhysicsModel):
         self.modelBuilder.doVar("k_lambda[1,-20.,20.]")
         # self.poiNames="k_lambda"
         POIs = "k_lambda"
-        self.modelBuilder.doSet("POI",POIs)
-        print POIs
-        self.setup()
+        C1_ttH = [0.0530525859571, 0.0472618825815, 0.0392337055167, 0.0278818345971, 0.0141882242091]
+        C1_tH = []
+        C1_VH = [0.0165863149378, 0.012328663897, 0.00774755197694, 0.0034957241269, 0.00024199147094]
 
-    def setup(self):
-        # Let's start with ggH
-        #Use inclusive value for ggH: EWK reweighting tool not available. Taken directly from arXiv:1607.04251
-        proc_vbf = "VBFH" #"ggH"
-        proc_ggh = "ggH"
-        proc_ttH = "ttH"
+        # f_C1_ttH = open("C1/ttH_C1.txt","r")
+        # f_C1_tH = open("C1/tHj_C1.txt","r")
+        # f_C1_VH = open("C1/VH_C1.txt","r")
+
+        # for genbin in f_C1_ttH: C1_ttH.append( float(genbin[ genbin.find(":")+1:-2]) )
+        # for genbin in f_C1_tH: C1_tH.append( float(genbin[ genbin.find(":")+1:-2]) )
+        # for genbin in f_C1_VH: C1_VH.append( float(genbin[ genbin.find(":")+1:-2]) )
 
         C1_ggH = 0.0066
         C1_vbf = 0.0063
-        C1_ttH = 0.0352
+        #Define mapping of C1 to production process
+        C1_map = {}
+        for i in range( len( C1_ttH ) ):
+          C1_map["ttH_gen%g"%i] = C1_ttH[i]
+          C1_map["WH_gen%g"%i] = C1_VH[i]
+          C1_map["ZH_gen%g"%i] = C1_VH[i]
+          #ggH at inclusive level
+          C1_map["ggH_gen%g"%i] = C1_ggH
+          C1_map["VBFH_gen%g"%i] = C1_vbf
 
         #Define dZH constant variable
         dZH = -1.536e-3
 
         #Loop over processes*gen bins in map to define how cross-section scales
-        # for proc in C1_map:
-        #   self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_map[proc],dZH,dZH,C1_map[proc],dZH))
-        # For the moment ggH scaling only
-        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_vbf,C1_vbf,dZH,dZH,C1_vbf,dZH))
-        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_ggh,C1_ggH,dZH,dZH,C1_ggH,dZH))
-        self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_ttH,C1_ttH,dZH,dZH,C1_ttH,dZH))
-
+        for proc in C1_map:
+          self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_map[proc],dZH,dZH,C1_map[proc],dZH))
         #Scaling @ decay: define expression for how BR scales as function of klambda: h->gammagamma
         #Use following parameters taken directly from: arXiv:1607.04251
-        # C1_hgg = 0.0049
         C1_hzz = 0.0083 # hzz4l
         C1_tot = 2.5e-3
+        # self.modelBuilder.factory_("expr::BRscal_hgg(\"1+(((@0-1)*(%g-%g))/(1+(@0-1)*%g))\",k_lambda)"%(C1_hgg,C1_tot,C1_tot))
         self.modelBuilder.factory_("expr::BRscal_hzz(\"1+(((@0-1)*(%g-%g))/(1+(@0-1)*%g))\",k_lambda)"%(C1_hzz,C1_tot,C1_tot))
-        self.modelBuilder.factory_('expr::XSBRscal_VBFH_hzz(\"(@0*@1)\", XSscal_VBFH, BRscal_hzz)')
-        self.modelBuilder.factory_('expr::XSBRscal_ggH_hzz(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)')
-        self.modelBuilder.factory_('expr::XSBRscal_ttH_hzz(\"(@0*@1)\", XSscal_ttH, BRscal_hzz)')
+        self.modelBuilder.doSet("POI",POIs)
+        print POIs
+        # self.setup()
+
+    # def setup(self):
+    #     # Let's start with ggH
+    #     #Use inclusive value for ggH: EWK reweighting tool not available. Taken directly from arXiv:1607.04251
+    #     proc_vbf = "VBFH" #"ggH"
+    #     proc_ggh = "ggH"
+    #     proc_ttH = "ttH"
+
+    #     C1_ggH = 0.0066
+    #     C1_vbf = 0.0063
+    #     C1_ttH = 0.0352
+
+    #     #Define dZH constant variable
+    #     dZH = -1.536e-3
+
+    #     #Loop over processes*gen bins in map to define how cross-section scales
+    #     # for proc in C1_map:
+    #     #   self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc,C1_map[proc],dZH,dZH,C1_map[proc],dZH))
+    #     # For the moment ggH scaling only
+    #     self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_vbf,C1_vbf,dZH,dZH,C1_vbf,dZH))
+    #     self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_ggh,C1_ggH,dZH,dZH,C1_ggH,dZH))
+    #     self.modelBuilder.factory_("expr::XSscal_%s(\"(1+@0*%g+%g)/((1-(@0*@0-1)*%g)*(1+%g+%g))\",k_lambda)"%(proc_ttH,C1_ttH,dZH,dZH,C1_ttH,dZH))
+
+    #     #Scaling @ decay: define expression for how BR scales as function of klambda: h->gammagamma
+    #     #Use following parameters taken directly from: arXiv:1607.04251
+    #     # C1_hgg = 0.0049
+    #     C1_hzz = 0.0083 # hzz4l
+    #     C1_tot = 2.5e-3
+    #     self.modelBuilder.factory_("expr::BRscal_hzz(\"1+(((@0-1)*(%g-%g))/(1+(@0-1)*%g))\",k_lambda)"%(C1_hzz,C1_tot,C1_tot))
+    #     self.modelBuilder.factory_('expr::XSBRscal_VBFH_hzz(\"(@0*@1)\", XSscal_VBFH, BRscal_hzz)')
+    #     self.modelBuilder.factory_('expr::XSBRscal_ggH_hzz(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)')
+    #     self.modelBuilder.factory_('expr::XSBRscal_ttH_hzz(\"(@0*@1)\", XSscal_ttH, BRscal_hzz)')
         
-        # print self.poiNames
-        # self.modelBuilder.doSet("POI",self.poiNames)
+    #     # print self.poiNames
+    #     # self.modelBuilder.doSet("POI",self.poiNames)
 
     def getYieldScale(self,bin,process):
         if not self.DC.isSignal[process]: return 1
-        _process = process.split('_')[0]
-        
-        name = "XSBRscal_%s_hzz" %_process #% (production,decay)
-        # name = "XSBRscal_VBFH_hzz"
-        # self.modelBuilder.factory_('expr::%s(\"(@0*@1)\", XSscal_ggH, BRscal_hzz)'%(name))
+        # _process = process.split('_')[0]
+        decay = "hzz"
+        process = process[:-4]
+        print(process, decay)
+        name = "XSBRscal_%s_hzz" %process
+        #Name has not been defined in doParametersOfInterest: combine XS + BR
+        if self.modelBuilder.out.function(name) == None:
+          #XS
+          if self.modelBuilder.out.function( "XSscal_%s"%(process) ) == None:
+            print "DEBUG: proc not given XS scaling"
+            raise RuntimeError, "Production mode %s not supported"%process
+          else:
+            XSscal = "XSscal_%s_%s"%(process,decay)
+          #BR
+          if self.modelBuilder.out.function( "BRscal_%s"%(decay) ) == None:
+            print "DEBUG: proc not given BR scaling"
+            raise RuntimeError, "Decay mode %s not supported"%decay
+          else:
+            BRscal = "BRscal_%s"%decay
+          #XSBR
+          self.modelBuilder.factory_('expr::%s(\"(@0*@1)\", XSscal_%s, BRscal_%s)'%(name,process,decay))
+          print '[LHC-CMS Trilinear]', name, ": ", self.modelBuilder.out.function(name).Print("")
+        #if ('WH' in process) or ('ZH' in process): 
+        #    return name
+        #else: return 1
         return name
-
-        # Processes = []
-        # Boson = 'H'
-        # for iBin in range(5): #,self.nBin):
-        #     for channel in fStates:       
-        #         Processes += ['ggH_gen'+str(iBin)+'_hzz']
-        # if process in Processes: 
-
-        #     return 'Sigma_'+process
-        # else: return 1
-
-    # def getHiggsSignalYieldScale(self,production,decay):
-        
-    #     #XSBR
-    #     name = "XSBRscal_%s_%s" % (production,decay)
-    #     #Name has not been defined in doParametersOfInterest: combine XS + BR
-    #     if self.modelBuilder.out.function(name) == None:
-    #       #XS
-    #       if self.modelBuilder.out.function( "XSscal_%s"%(production) ) == None:
-    #         print "DEBUG: proc not given XS scaling"
-    #         raise RuntimeError, "Production mode %s not supported"%production
-    #       else:
-    #         XSscal = "XSscal_%s_%s"%(production,decay)
-    #       #BR
-    #       if self.modelBuilder.out.function( "BRscal_%s"%(decay) ) == None:
-    #         print "DEBUG: proc not given BR scaling"
-    #         raise RuntimeError, "Decay mode %s not supported"%decay
-    #       else:
-    #         BRscal = "BRscal_%s"%decay
-    #       #XSBR
-    #       self.modelBuilder.factory_('expr::%s(\"(@0*@1)\", XSscal_%s, BRscal_%s)'%(name,production,decay))
-    #       print '[LHC-CMS Trilinear]', name, ": ", self.modelBuilder.out.function(name).Print("")
-    #     return name
                      
 inclusiveFiducial=InclusiveFiducial()
 inclusiveFiducialV2=InclusiveFiducialV2()

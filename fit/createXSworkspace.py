@@ -9,8 +9,19 @@ sys.path.append('../../inputs/')
 sys.path.append('../../templates/')
 
 def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, JES, doubleDiff, process):
+    # Load some libraries
+    ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
+    ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so") #Print 0 in case of succesfull loading
+    ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include")
+    ROOT.gSystem.AddIncludePath("-Iinclude/")
+
+    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
+    # print(processes)
+    # for process in processes:
+    print('--------------------------------------------------------------------->', os.getcwd())
     print '\n'
     print 'Creating WorkSpace', year
+    print 'For process', process
 
     if not doubleDiff:
         obsBin_low = observableBins[obsBin]
@@ -32,22 +43,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     print recobin
     doJES = JES
 
-    # Load some libraries
-    ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
-    ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so") #Print 0 in case of succesfull loading
-    ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include")
-    ROOT.gSystem.AddIncludePath("-Iinclude/")
-
-    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
-
     # from inputs_sig imports some coefficients
     if (usecfactor):
-        _temp = __import__('inputs_sig_'+obsName+'_'+process+'_'+year, globals(), locals(), ['cfactor','inc_wrongfrac','binfrac_wrongfrac','inc_outfrac','binfrac_outfrac'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['cfactor','inc_wrongfrac','binfrac_wrongfrac','inc_outfrac','binfrac_outfrac'], -1)
         cfactor = _temp.cfactor
         inc_outfrac = _temp.inc_outfrac
         binfrac_outfrac = _temp.binfrac_wrongfrac
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_'+process+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
         #,'lambdajesup','lambdajesdn'], -1)
         acc = _temp.acc
         eff = _temp.eff
@@ -296,13 +299,18 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     # binfrac_wrongfrac_WH=binfrac_wrongfrac["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     # binfrac_wrongfrac_ZH=binfrac_wrongfrac["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     # binfrac_wrongfrac_ttH=binfrac_wrongfrac["ttH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
-
+    fake_SF = {'WH': {'4e': 0.24, '4mu': 0.45, '2e2mu': 0.57},
+               'ZH': {'4e': 0.20, '4mu': 0.38, '2e2mu': 0.51},
+               'ttH': {'4e': 0.10, '4mu': 0.20, '2e2mu': 0.25},
+               'ggH': {'4e': 0.0, '4mu': 0.0, '2e2mu': 0.0},
+               'VBFH': {'4e': 0.0, '4mu': 0.0, '2e2mu': 0.0}
+               }
     if (channel=='4e'):
-        n_fakeH = 0.0#(0.24*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.20*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.10*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
+        n_fakeH = fake_SF[process][channel]*inc_wrongfrac_qqH*binfrac_wrongfrac_qqH #(0.24*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.20*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.10*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
     if (channel=='4mu'):
-        n_fakeH = 0.0#(0.45*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.38*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.20*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
+        n_fakeH = fake_SF[process][channel]*inc_wrongfrac_qqH*binfrac_wrongfrac_qqH #(0.45*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.38*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.20*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
     if (channel=='2e2mu'):
-        n_fakeH = 0.0#(0.57*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.51*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.25*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
+        n_fakeH = fake_SF[process][channel]*inc_wrongfrac_qqH*binfrac_wrongfrac_qqH #(0.57*inc_wrongfrac_WH*binfrac_wrongfrac_WH+0.51*inc_wrongfrac_ZH*binfrac_wrongfrac_ZH+0.25*inc_wrongfrac_ttH*binfrac_wrongfrac_ttH)
 
     #numberFake_WH = number_fake["WH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     #numberFake_ZH = number_fake["ZH125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
@@ -332,8 +340,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     for genbin in range(nBins):
         trueH_shape[genbin] = trueH.Clone();
         trueH_shape[genbin].SetName(process+"_gen"+str(genbin)+"_hzz") #"trueH"+channel+"Bin"+str(genbin))
-        if (usecfactor): fideff[genbin] = cfactor[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
-        else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
+        fideff[genbin] = eff[process+"125_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         print "fideff[genbin]", fideff[genbin]
         print "model name is ", modelName
         fideff_var[genbin] = ROOT.RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff[genbin]);
@@ -465,7 +472,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
          trueH_norm[genbin] = trueH_norm_final[genbin]
          trueH_norm[genbin].SetName(process+"_gen"+str(genbin)+"_hzz_norm")
 
-    outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    outin = outinratio[process+"125_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin
     outin_var = ROOT.RooRealVar("outfracBin_"+recobin+"_"+channel+year,"outfracBin_"+recobin+"_"+channel+year, outin);
     outin_var.setConstant(True)
@@ -749,4 +756,5 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     fout.WriteTObject(wout)
     fout.Close()
     os.chdir('../../fit')
+    print('==================================================================================>', os.getcwd())
     return data_obs.numEntries()
