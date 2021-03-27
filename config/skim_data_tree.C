@@ -35,6 +35,9 @@ void add(TString newpath, int year, TString tree_dir){
   float _chan, _CMS_zz4l_mass, _ZZy;
   float _njets_pt30_eta2p5, _pTj1, _pTj2, _pTHj, _pTHjj, _mHj, _mHjj, _mjj, _detajj, _dphijj;
   Float_t Mj1, ETAj1, PHIj1, Mj2, ETAj2, PHIj2;
+  Float_t _TCjmax, _TBjmax, _TCj, _TBj, _TCj1, _TBj1;
+  Float_t _pTj1_eta4p7;
+  Short_t _njets_pt30_eta4p7;
   vector<float> *JetPt = 0;
   vector<float> *JetEta = 0;
   vector<float> *JetPhi = 0;
@@ -52,6 +55,13 @@ void add(TString newpath, int year, TString tree_dir){
   TBranch *mjj = T->Branch("mjj",&_mjj,"mjj/F");
   TBranch *detajj = T->Branch("detajj",&_detajj,"detajj/F");
   TBranch *dphijj = T->Branch("dphijj",&_dphijj,"dphijj/F");
+  TBranch *TCjmax = T->Branch("TCjmax",&_TCjmax,"TCjmax/F");
+  TBranch *TBjmax = T->Branch("TBjmax",&_TBjmax,"TBjmax/F");
+  TBranch *TCj1 = T->Branch("TCj1",&_TCj1,"TCj1/F");
+  TBranch *TBj1 = T->Branch("TBj1",&_TBj1,"TBj1/F");
+  TBranch *pTj1_eta4p7 = T->Branch("pTj1_eta4p7",&_pTj1_eta4p7,"pTj1_eta4p7/F");
+  TBranch *njets_pt30_eta4p7 = T->Branch("njets_pt30_eta4p7",&_njets_pt30_eta4p7,"njets_pt30_eta4p7/S");
+
   T->SetBranchAddress("Z1Flav",&Z1Flav);
   T->SetBranchAddress("Z2Flav",&Z2Flav);
   T->SetBranchAddress("ZZMass",&ZZMass);
@@ -80,14 +90,19 @@ void add(TString newpath, int year, TString tree_dir){
 
     // njets
     _njets_pt30_eta2p5 = 0;
+    _njets_pt30_eta4p7 = 0;
     for(unsigned int i=0;i<JetPt->size();i++){
       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5){
         _njets_pt30_eta2p5 = _njets_pt30_eta2p5 + 1;
+      }
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<4.7){
+        _njets_pt30_eta4p7++;
       }
     }
 
     // leading jet pT
     _pTj1 = 0;
+    _pTj1_eta4p7 = 0;
     Mj1 = 0;
     ETAj1 = 0;
     PHIj1 = 0;
@@ -98,6 +113,9 @@ void add(TString newpath, int year, TString tree_dir){
         Mj1 = JetMass->at(i);
         ETAj1 = JetEta->at(i);
         PHIj1 = JetPhi->at(i);
+      }
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<4.7 && JetPt->at(i) > _pTj1_eta4p7) {
+        _pTj1_eta4p7 = JetPt->at(i);
       }
     }
     // sub-leading jet pT
@@ -128,7 +146,21 @@ void add(TString newpath, int year, TString tree_dir){
     _mHjj = (H+j1+j2).M();
     _detajj = j1.Eta()-j2.Eta();
     _dphijj = j1.Phi()-j2.Phi();
-
+    _TCj = -1; _TBj = -1;
+    _TCj1 = 0; _TBj1 = 0;
+    _TCj1 = sqrt(_pTj1*_pTj1 + Mj1*Mj1)/(2*cosh(j1.Rapidity() - H.Rapidity()));
+    _TBj1 = sqrt(_pTj1*_pTj1 + Mj1*Mj1)*exp(-1*abs(j1.Rapidity() - H.Rapidity()));
+    for (unsigned int i = 0; i < JetPt->size(); ++i)
+    {
+       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5) {
+          TLorentzVector theJet;
+          theJet.SetPtEtaPhiM(JetPt->at(i), JetEta->at(i), JetPhi->at(i), JetMass->at(i));
+          _TCj = sqrt(pow(theJet.Pt(), 2) + pow(theJet.M(), 2))/(2*cosh(theJet.Rapidity() - H.Rapidity())); //theJet.E());
+          _TBj = theJet.E() - abs(theJet.Pz());
+          if (_TCj > _TCjmax) _TCjmax = _TCj;
+          if (_TBj > _TBjmax) _TBjmax = _TBj;
+       }
+    }
     njets_pt30_eta2p5->Fill();
     pTj1->Fill();
     pTj2->Fill();
@@ -142,6 +174,12 @@ void add(TString newpath, int year, TString tree_dir){
     ZZy->Fill();
     chan->Fill();
     CMS_zz4l_mass->Fill();
+    TCjmax->Fill();
+    TBjmax->Fill();
+    TCj1->Fill();
+    TBj1->Fill();
+    njets_pt30_eta4p7->Fill();
+    pTj1_eta4p7->Fill();
   }
   T->Print();
   T->Write("", TObject::kOverwrite);
@@ -149,7 +187,7 @@ void add(TString newpath, int year, TString tree_dir){
 }
 
 
-void skim_data_tree (int year = 2016){
+void skim_data_tree (int year = 2018){
 
   TString path = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased";
   auto oldFile = TFile::Open(Form("%s/Data_%d/AllData/ZZ4lAnalysis.root", path.Data(), year));

@@ -12,6 +12,11 @@ import ROOT
 import json
 from tdrStyle import *
 
+sys.path.append('../inputs/')
+from observables import observables
+
+print 'Welcome in RunTemplates!'
+
 def parseOptions():
 
     global opt, args, runAllSteps
@@ -152,7 +157,8 @@ def dataframes(year):
         b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
                  'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-                 'pTHj']
+                 'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
+                 'njets_pt30_eta4p7', 'pTj1_eta4p7']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
@@ -162,7 +168,7 @@ def dataframes(year):
         df = d_bkg[bkg].pandas.df(b_bkg, flatten = False)
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
         df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
-        df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
+        #df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         df = add_rapidity(df)
         if (bkg != 'ZZTo4lext') & (bkg != 'ZZTo4lext1'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
@@ -311,15 +317,17 @@ def doZX(year):
 # ------------------------------- FUNCTIONS FOR TEMPLATES ----------------------------------------------------
 def smoothAndNormaliseTemplate(h1d, norm):
     #smooth
-    h1d.Smooth(10000)
+    h1d.Smooth()#10000)
     #norm + floor + norm
-    normaliseHist(h1d, norm)
-    fillEmptyBinsHist(h1d,.001/(h1d.GetNbinsX()))
+    #normaliseHist(h1d, norm)
+    fillEmptyBinsHist(h1d,.01/(h1d.GetNbinsX()))
     normaliseHist(h1d, norm)
 
 def normaliseHist(h1d, norm):
-    if (h1d.Integral() != 0): #return -1
-	    h1d.Scale(norm/h1d.Integral())
+    if (h1d.Integral() > 0): #return -1
+	h1d.Scale(norm/h1d.Integral())
+    else: 
+        return -1
 
 def fillEmptyBinsHist(h1d, floor):
     nXbins=h1d.GetNbinsX()
@@ -338,6 +346,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= opt.LOWER_BOUND) & (df_irr[year][bkg].ZZMass <= opt.UPPER_BOUND)].copy()
                 len_tot = df['weight'].sum() # Total number of bkg b events in final state f
                 yield_bkg[year,bkg,f] = len_tot
+                print(year, bkg, f, len_tot)
                 for i in range(nBins):
                     if not doubleDiff:
                         bin_low = binning[i]
@@ -362,7 +371,10 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
 
                     df = df_irr[year][bkg][sel].copy()
                     len_bin = df['weight'].sum() # Number of bkg events in bin i
-                    fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
+                    if(len_tot <= 0): 
+                        fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = 0.0
+                    else:
+                        fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
                     # ------
                     sel = sel_bin_low & sel_bin_high & sel_fstate
                     if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
@@ -405,8 +417,10 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 sel_f_state_zx = (df_red[year]['FinState'] == 2) | (df_red[year]['FinState'] == 3)
             #df = df_red[year][(sel_f_state_zx) & (df_red[year].Z2Mass < 60) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=160)].copy()
             df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= opt.LOWER_BOUND) & (df_red[year].ZZMass <=opt.UPPER_BOUND)].copy()
+            df_inclusive = df.copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
             yield_bkg[year,'ZX',f] = len_tot
+            print(year, f, len_tot)
             for i in range(nBins):
                 if not doubleDiff:
                     bin_low = binning[i]
@@ -432,12 +446,12 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 len_bin = df['yield_SR'].sum() # Number of bkg events in bin i
                 fractionBkg['ZJetsCR_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
                 # ------
+                if(len_bin <= 0): df = df_inclusive
                 mass4l = df['ZZMass'].to_numpy()
                 mass4l = np.asarray(mass4l).astype('float')
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-
                 if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff:
@@ -446,14 +460,12 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-
                 if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                 elif doubleDiff:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
                 else:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+".root", "RECREATE")
-
                 outFile.cd()
                 histo.Write()
                 outFile.Close()
@@ -547,31 +559,25 @@ else: #It is a double-differential analysis
         quit()
     print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
     print obs_bins
+
 obs_name = opt.OBSNAME
-if(obs_name == 'rapidity4l'): obs_reco = 'ZZy'
-elif(obs_name == 'pT4l'): obs_reco = 'ZZPt'
-elif(obs_name == 'massZ1'): obs_reco = 'Z1Mass'
-elif(obs_name == 'massZ2'): obs_reco = 'Z2Mass'
-elif(obs_name == 'njets_pt30_eta2p5'): obs_reco = 'njets_pt30_eta2p5'
-elif(obs_name == 'pTj1'): obs_reco = 'pTj1'
-elif(obs_name == 'mass4l'): obs_reco = 'ZZMass'
-elif(obs_name == 'costhetastar'): obs_reco = 'costhetastar'
-elif(obs_name == 'costhetaZ1'): obs_reco = 'helcosthetaZ1'
-elif(obs_name == 'costhetaZ2'): obs_reco = 'helcosthetaZ2'
-elif(obs_name == 'phi'): obs_reco = 'helphi'
-elif(obs_name == 'phistar'): obs_reco = 'phistarZ1'
-elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
-    obs_name = 'njets_pt30_eta2p5_pT4l'
-    obs_reco = 'njets_pt30_eta2p5'
-    obs_reco_2nd = 'ZZPt'
-elif(obs_name == 'massZ1 vs massZ2'):
-    obs_name = 'massZ1_massZ2'
-    obs_reco = 'Z1Mass'
-    obs_reco_2nd = 'Z2Mass'
-elif(obs_name == 'njets_pt30_eta2p5 vs pTHj'):
-    obs_name = 'njets_pt30_eta2p5_pTHj'
-    obs_reco = 'njets_pt30_eta2p5'
-    obs_reco_2nd = 'pTHj'
+
+_temp = __import__('observables', globals(), locals(), ['observables'], -1)
+observables = _temp.observables
+
+if doubleDiff:
+    obs_reco_2nd = observables[obs_name]['obs_reco_2nd']
+
+obs_reco = observables[obs_name]['obs_reco']
+
+if doubleDiff:
+    obs_name = opt.OBSNAME.split(' vs ')[0]
+    obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
+    obs_name = obs_name + '_' + obs_name_2nd
+
+print 'Following observables extracted from dictionary: RECO = ',obs_reco 
+if doubleDiff:
+    print 'It is a double-differential measurement: RECO_2nd = ',obs_reco_2nd
 
 
 # Generate pandas for ggZZ and qqZZ
@@ -583,13 +589,13 @@ for year in years:
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-               'pTHj']
+               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7', 'pTj1_eta4p7']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
     dfZX[year] = doZX(year)
     dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
-    dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
+    #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     dfZX[year] = add_rapidity(dfZX[year])
     print(year,'done')
 

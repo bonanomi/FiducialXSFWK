@@ -14,9 +14,10 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     sys.path.append('../inputs')
     _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
     expected_yield = _temp.expected_yield
-    _temp = __import__('JESNP_'+year+'_'+obsName, globals(), locals(), ['JESNP'], -1)
-    jesnp = _temp.JESNP 
-    print(jesnp)
+    if jes:
+        _temp = __import__('JESNP_'+year+'_'+obsName, globals(), locals(), ['JESNP'], -1)
+        jesnp = _temp.JESNP 
+        print(jesnp)
     sys.path.remove('../inputs')
 
     #Hard coding values for bkgs

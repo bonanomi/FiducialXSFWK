@@ -12,6 +12,9 @@ import math
 import ROOT
 import json
 
+sys.path.append('../inputs/')
+from observables import observables
+
 print 'Welcome in RunCoefficients!'
 
 def parseOptions():
@@ -189,28 +192,22 @@ def generators(year):
     return gen_sig
 
 
-def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
-    b_sig = ['EventNumber','GENmass4l', 'GENpT4l', 'GENrapidity4l', 'GENeta4l',
-             'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex',
-             'GENZ_DaughtersId', 'GENZ_MomId', 'passedFiducialSelection_bbf',
-             'PUWeight', 'genHEPMCweight','GENnjets_pt30_eta2p5',
-             'GenCleanedJetPt', 'GenCleanedJetEta', 'GENpTj1', 'GENmassZ2', 'GENmassZ1',
-             'GENcosThetaStar', 'GENcosTheta1','GENcosTheta2','GENPhi','GENPhi1',
-             'GENpTHj']
+def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2nd='None',obs_gen_2nd='None'):
+    b_sig = ['EventNumber','GENmass4l', 'GENlep_id', 'GENlep_MomId', 
+             'GENlep_MomMomId', 'GENlep_Hindex', 'GENZ_DaughtersId', 
+             'GENZ_MomId', 'passedFiducialSelection_bbf', 'PUWeight', 'genHEPMCweight']
+    b_sig.append(obs_gen)
+    if (obs_gen_2nd!='None'): b_sig.append(obs_gen_2nd)
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
-    if not fail: b_sig.extend(['ZZMass', 'ZZPt', 'ZZy', 'Z1Mass', 'Z2Mass', 'ZZEta', 'Z1Flav', 'Z2Flav',
-                          'lep_genindex', 'lep_Hindex', 'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'njets_pt30_eta2p5',
-                          'njets_pt30_eta2p5_jesup', 'njets_pt30_eta2p5_jesdn', 'pTj1',
-                          'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-                          'pTHj']) #Additioanl entries for passing events
+    if not fail: 
+        b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'lep_genindex', 'lep_Hindex', 'overallEventWeight', 
+                      'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
+        b_sig.append(obs_reco)
+        if (obs_reco_2nd!='None'): b_sig.append(obs_reco_2nd)
+
     df = d_sig.pandas.df(b_sig, flatten = False)
     if fail: #Negative branches for failed events (it is useful when creating fiducial pandas)
         df['ZZMass'] = -1
-        df['ZZPt'] = -1
-        df['ZZy'] = -1
-        df['Z1Mass'] = -1
-        df['Z2Mass'] = -1
-        df['ZZEta'] = -1
         df['Z1Flav'] = -1
         df['Z2Flav'] = -1
         df['lep_genindex'] = -1
@@ -219,16 +216,8 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
         df['L1prefiringWeight'] = -1
         df['dataMCWeight'] = -1
         df['trigEffWeight'] = -1
-        df['njets_pt30_eta2p5'] = -1
-        df['njets_pt30_eta2p5_jesup'] = -1
-        df['njets_pt30_eta2p5_jesdn'] = -1
-        df['pTj1'] = -1
-        df['costhetastar'] = -1
-        df['helcosthetaZ1'] = -1
-        df['helcosthetaZ2'] = -1
-        df['helphi'] = -1
-        df['phistarZ1'] = -1
-        df['pTHj'] = -1
+        df[obs_reco] = -1
+        if (obs_reco_2nd!='None'): df[obs_reco_2nd] = -1
     df['gen'] = gen
     df['xsec'] = xsec
     if not fail:
@@ -255,7 +244,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi):
 
 
 # Set up data frames
-def dataframes(year):
+def dataframes(year, doubleDiff):
     if year == 2016:
         lumi = 35.9
     elif year == 2017:
@@ -269,16 +258,22 @@ def dataframes(year):
     xsec_sig = xsecs(year)
     for signal in signals_original:
         print 'Processing', signal, year
-        d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi)
+        if doubleDiff:
+            d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi,obs_reco,obs_gen,obs_reco_2nd,obs_gen_2nd)
+        else:
+            d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi,obs_reco,obs_gen)
         print 'Signal created'
-        d_df_sig_failed[signal] = createDataframe(d_sig_failed[signal],True,gen_sig[signal],xsec_sig[signal],signal,lumi)
+        if doubleDiff:
+            d_df_sig_failed[signal] = createDataframe(d_sig_failed[signal],True,gen_sig[signal],xsec_sig[signal],signal,lumi,obs_reco,obs_gen,obs_reco_2nd,obs_gen_2nd)
+        else:
+            d_df_sig_failed[signal] = createDataframe(d_sig_failed[signal],True,gen_sig[signal],xsec_sig[signal],signal,lumi,obs_reco,obs_gen)
         print 'Signal failed created'
     return d_df_sig, d_df_sig_failed
 
 
 # Merge WplusH125 and WminusH125
-def skim_df(year):
-    d_df_sig, d_df_sig_failed = dataframes(year)
+def skim_df(year, doubleDiff):
+    d_df_sig, d_df_sig_failed = dataframes(year, doubleDiff)
     d_skim_sig = {}
     d_skim_sig_failed = {}
     frames = []
@@ -359,7 +354,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             cutobs_reco &= (abs(datafr[obs_reco_2nd]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd]) < obs_reco_2nd_high)
             cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
         #cutobs_gen &= (datafr['GENmassZ2'] < 60)
-
+	'''
         if 'jet' in obs_name:
             cutobs_reco_jesup = (datafr[obs_reco+'_jesup'] >= obs_reco_low) & (datafr[obs_reco+'_jesup'] < obs_reco_high)
             cutobs_reco_jesdn = (datafr[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr[obs_reco+'_jesdn'] < obs_reco_high)
@@ -370,6 +365,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             else: # Otherwise it is a first declaration (=)
                 cutobs_reco_jesup = (datafr[obs_reco_2nd+'_jesup'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesup'] < obs_reco_2nd_high)
                 cutobs_reco_jesdn = (datafr[obs_reco_2nd+'_jesdn'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesdn'] < obs_reco_2nd_high)
+        '''
         cutobs_gen_otherfid = ((abs(datafr[obs_gen]) >= obs_gen_lowest) & (abs(datafr[obs_gen]) < obs_gen_low)) | ((abs(datafr[obs_gen]) >= obs_gen_high) & (abs(datafr[obs_gen]) <= obs_gen_highest))
         if doubleDiff:
             cutobs_gen_otherfid |= ((abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_lowest) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_low)) | ((abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_high) & (abs(datafr[obs_gen_2nd]) <= obs_gen_2nd_highest))
@@ -458,7 +454,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         # --------------- numberFake ---------------
 #         numberFake[processBin] = datafr[PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco & cutchan_reco]['weight_histo_reco'].sum()
         numberFake[processBin] = -1
-
+	'''
         if 'jet' in obs_name:
             # --------------- lambdajesup ---------------
             lambdajesup_num_1 = datafr[passedFullSelection & cutm4l_reco & cutobs_reco_jesup & cuth4l_reco][recoweight].sum()
@@ -475,8 +471,9 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             else:
                 lambdajesdn[processBin] = 0.0
         else:
-            lambdajesup[processBin] = 0.0
-            lambdajesdn[processBin] = 0.0
+	'''
+        lambdajesup[processBin] = 0.0
+        lambdajesdn[processBin] = 0.0
 
         if opt.VERBOSE:
             print processBin,'acc',round(acceptance[processBin],4),'eff',round(effrecotofid[processBin],4),'outinratio',round(outinratio[processBin],4), '\n'
@@ -646,70 +643,31 @@ else: #It is a double-differential analysis
 if doubleDiff:
     obs_name = opt.OBSNAME.split(' vs ')[0]
     obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
+    obs_name_2d = opt.OBSNAME
 else:
     obs_name = opt.OBSNAME
 
-if(opt.OBSNAME == 'rapidity4l'):
-    obs_reco = 'ZZy'
-    obs_gen = 'GENrapidity4l'
-elif(opt.OBSNAME == 'pT4l'):
-    obs_reco = 'ZZPt'
-    obs_gen = 'GENpT4l'
-elif(opt.OBSNAME == 'massZ1'):
-    obs_reco = 'Z1Mass'
-    obs_gen = 'GENmassZ1'
-elif(opt.OBSNAME == 'massZ2'):
-    obs_reco = 'Z2Mass'
-    obs_gen = 'GENmassZ2'
-elif(opt.OBSNAME == 'mass4l'):
-    obs_reco = 'ZZMass'
-    obs_gen = 'GENmass4l'
-elif(opt.OBSNAME == "njets_pt30_eta2p5"):
-    obs_reco = "njets_pt30_eta2p5"
-    obs_gen = "GENnjets_pt30_eta2p5"
-elif(opt.OBSNAME == 'pTj1'):
-    obs_reco = 'pTj1'
-    obs_gen = 'GENpTj1'
-elif(opt.OBSNAME == 'mass4l'):
-    obs_reco = 'ZZMass'
-    obs_gen = 'GENmass4l'
-elif(opt.OBSNAME == 'costhetastar'):
-    obs_reco = 'costhetastar'
-    obs_gen = 'GENcosThetaStar'
-elif(opt.OBSNAME == 'costhetaZ1'):
-    obs_reco = 'helcosthetaZ1'
-    obs_gen  = 'GENcosTheta1'
-elif(opt.OBSNAME == 'costhetaZ2'):
-    obs_reco = 'helcosthetaZ2'
-    obs_gen  = 'GENcosTheta2'
-elif(opt.OBSNAME == 'phi'):
-    obs_reco = 'helphi'
-    obs_gen  = 'GENPhi'
-elif(opt.OBSNAME == 'phistar'):
-    obs_reco = 'phistarZ1'
-    obs_gen  = 'GENPhi1'
-elif(opt.OBSNAME == 'njets_pt30_eta2p5 vs pT4l'):
-    obs_reco = 'njets_pt30_eta2p5'
-    obs_reco_2nd = 'ZZPt'
-    obs_gen = 'GENnjets_pt30_eta2p5'
-    obs_gen_2nd = 'GENpT4l'
-elif(opt.OBSNAME == 'massZ1 vs massZ2'):
-    obs_reco = 'Z1Mass'
-    obs_reco_2nd = 'Z2Mass'
-    obs_gen = 'GENmassZ1'
-    obs_gen_2nd = 'GENmassZ2'
-elif(opt.OBSNAME == 'njets_pt30_eta2p5 vs pTHj'):
-    obs_reco = 'njets_pt30_eta2p5'
-    obs_reco_2nd = 'pTHj'
-    obs_gen = 'GENnjets_pt30_eta2p5'
-    obs_gen_2nd = 'GENpTHj'
+_temp = __import__('observables', globals(), locals(), ['observables'], -1)
+observables = _temp.observables
+print(observables)
+if doubleDiff:
+    obs_reco = observables[obs_name_2d]['obs_reco']
+    obs_reco_2nd = observables[obs_name_2d]['obs_reco_2nd']
+    obs_gen = observables[obs_name_2d]['obs_gen']
+    obs_gen_2nd = observables[obs_name_2d]['obs_gen_2nd']
+else:
+    obs_reco = observables[obs_name]['obs_reco']
+    obs_gen = observables[obs_name]['obs_gen']
 
+print 'Following observables extracted from dictionary: RECO = ',obs_reco,' GEN = ',obs_gen
+if doubleDiff:
+    print 'It is a double-differential measurement: RECO_2nd = ',obs_reco_2nd,' GEN_2nd = ',obs_gen_2nd
 
 # Generate dataframes
 d_sig = {}
 d_sig_failed = {}
 for year in years:
-    sig, sig_failed = skim_df(year)
+    sig, sig_failed = skim_df(year, doubleDiff)
     d_sig[year] = sig
     d_sig_failed[year] = sig_failed
 

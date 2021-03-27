@@ -189,7 +189,11 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   Float_t GENmass4l,GENpT4l,GENeta4l;
   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
   Short_t _GENnjets_pt30_eta2p5;
+  Short_t _GENnjets_pt30_eta4p7;
+  Float_t _GENpTj1_eta4p7;
   Float_t _GENpTj1, _GENpTj2, _GENpTHj, _GENpTHjj, _GENmHj, _GENmHjj, _GENmjj, _GENdetajj, _GENdphijj, _GENabsdetajj, _GENabsdphijj;
+  Float_t _GENTCj1, _GENTBj1;
+  Float_t _GENTCj, _GENTBj, _GENTCjmax, _GENTBjmax;
   bool _passedFiducialSelection,_passedFiducialSelection_NOISO,_passedFullSelection, passedFiducialSelection_bbf;
   vector<float> _GenLepPtSorted,_GenLepEtaSorted,_GenLepPhiSorted;
   vector<Short_t> _GenLepIdSorted;
@@ -212,7 +216,9 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *passedFiducialSelection_NOISO = T->Branch("passedFiducialSelection_NOISO",&_passedFiducialSelection_NOISO,"passedFiducialSelection_NOISO/B");
   TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
   TBranch *GENnjets_pt30_eta2p5 = T->Branch("GENnjets_pt30_eta2p5",&_GENnjets_pt30_eta2p5,"GENnjets_pt30_eta2p5/S");
+  TBranch *GENnjets_pt30_eta4p7 = T->Branch("GENnjets_pt30_eta4p7",&_GENnjets_pt30_eta4p7,"GENnjets_pt30_eta4p7/S");
   TBranch *GENpTj1 = T->Branch("GENpTj1",&_GENpTj1,"GENpTj1/F");
+  TBranch *GENpTj1_eta4p7 = T->Branch("GENpTj1_eta4p7",&_GENpTj1_eta4p7,"GENpTj1_eta4p7/F");
   TBranch *GENpTj2 = T->Branch("GENpTj2",&_GENpTj2,"GENpTj2/F");
   TBranch *GENpTHj = T->Branch("GENpTHj",&_GENpTHj,"GENpTHj/F");
   TBranch *GENpTHjj = T->Branch("GENpTHjj",&_GENpTHjj,"GENpTHjj/F");
@@ -223,7 +229,10 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *GENdphijj = T->Branch("GENdphijj",&_GENdphijj,"GENdphijj/F");
   TBranch *GENabsdetajj = T->Branch("GENabsdetajj",&_GENabsdetajj,"GENabsdetajj/F");
   TBranch *GENabsdphijj = T->Branch("GENabsdphijj",&_GENabsdphijj,"GENabsdphijj/F");
-
+  TBranch *GENTCj1 = T->Branch("GENTCj1",&_GENTCj1,"GENTCj1/F");
+  TBranch *GENTBj1 = T->Branch("GENTBj1",&_GENTBj1,"GENTBj1/F");
+  TBranch *GENTCjmax = T->Branch("GENTCjmax",&_GENTCjmax,"GENTCjmax/F");
+  TBranch *GENTBjmax = T->Branch("GENTBjmax",&_GENTBjmax,"GENTBjmax/F");
 
   if(process=="signal" || process=="AC"){ // Bkgs don't store gen-level information
     T->SetBranchAddress("GenLep1Pt",&GenLep1Pt);
@@ -269,8 +278,9 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   // Reco-variables and Gen-Reco-matching variables
   float _ZZy,ZZPt,ZZEta,ZZPhi,ZZMass;
   Short_t nCleanedJetsPt30,nCleanedJetsPt30_jesUp,nCleanedJetsPt30_jesDn;
-  Short_t _njets_pt30_eta2p5,_njets_pt30_eta2p5_jesup,_njets_pt30_eta2p5_jesdn;
+  Short_t _njets_pt30_eta2p5,_njets_pt30_eta2p5_jesup,_njets_pt30_eta2p5_jesdn, _njets_pt30_eta4p7;
   Float_t _pTj1, _pTj2, _pTHj, _pTHjj, _mHj, _mHjj, _mjj, _detajj, _dphijj, _absdetajj, _absdphijj;
+  Float_t _pTj1_eta4p7;
   Float_t _pTj1_jesup, _pTj1_jesdn, _pTj2_jesup, _pTj2_jesdn;
   Float_t _pTHj_jesup, _pTHj_jesdn, _pTHjj_jesup, _pTHjj_jesdn;
   Float_t _mHj_jesup, _mHj_jesdn, _mHjj_jesup, _mHjj_jesdn, _mjj_jesup, _mjj_jesdn;
@@ -300,9 +310,11 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   TBranch *lep_genindex = T->Branch("lep_genindex",&_lep_genindex);
   TBranch *lep_Hindex = T->Branch("lep_Hindex",&_lep_Hindex);
   TBranch *njets_pt30_eta2p5 = T->Branch("njets_pt30_eta2p5",&_njets_pt30_eta2p5,"njets_pt30_eta2p5/S");
+  TBranch *njets_pt30_eta4p7 = T->Branch("njets_pt30_eta4p7",&_njets_pt30_eta4p7,"njets_pt30_eta4p7/S");
   TBranch *njets_pt30_eta2p5_jesup = T->Branch("njets_pt30_eta2p5_jesup",&_njets_pt30_eta2p5_jesup,"_njets_pt30_eta2p5_jesup/S");
   TBranch *njets_pt30_eta2p5_jesdn = T->Branch("njets_pt30_eta2p5_jesdn",&_njets_pt30_eta2p5_jesdn,"_njets_pt30_eta2p5_jesdn/S");
   TBranch *pTj1 = T->Branch("pTj1",&_pTj1,"pTj1/F");
+  TBranch *pTj1_eta4p7 = T->Branch("pTj1_eta4p7",&_pTj1_eta4p7,"pTj1_eta4p7/F");
   TBranch *pTj1_jesup = T->Branch("pTj1_jesup",&_pTj1_jesup,"pTj1_jesup/F");
   TBranch *pTj1_jesdn = T->Branch("pTj1_jesdn",&_pTj1_jesdn,"pTj1_jesdn/F");
   TBranch *pTj2 = T->Branch("pTj2",&_pTj2,"pTj2/F");
@@ -410,9 +422,17 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
           _GENnjets_pt30_eta2p5++;
         }
       }
+      // GenJet variables (kinematical cuts pT>30 && abs(eta)<2.5)
+      _GENnjets_pt30_eta4p7 = 0;
+      for(unsigned int i =0;i<GenCleanedJetPt->size();i++){
+        if(GenCleanedJetPt->at(i)>30 && abs(GenCleanedJetEta->at(i))<4.7){
+          _GENnjets_pt30_eta4p7++;
+        }
+      }
 
       // leading GENjet pT
       _GENpTj1 = 0;
+      _GENpTj1_eta4p7 = 0;
       Mj1 = 0;
       ETAj1 = 0;
       PHIj1 = 0;
@@ -424,6 +444,10 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
           ETAj1 = GenCleanedJetEta->at(i);
           PHIj1 = GenCleanedJetPhi->at(i);
         }
+        if(GenCleanedJetPt->at(i)>30 && abs(GenCleanedJetEta->at(i))<4.7 && GenCleanedJetPt->at(i) > _GENpTj1_eta4p7) {
+          _GENpTj1_eta4p7 = GenCleanedJetPt->at(i);
+        }
+
       }
       // sub-leading GENjet pT
       _GENpTj2 = 0;
@@ -440,6 +464,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         }
       }
 
+
       // H+Njets GENvariables
       // If the event does not pass fiducial selections the variable is equal to one
       Float_t GENphi4l = -1;
@@ -452,6 +477,9 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
       _GENmjj = -1;
       _GENdphijj = -1;
       _GENabsdphijj = -1;
+      _GENTCjmax = 0; _GENTBjmax = 0;
+      _GENTCj = -1; _GENTBj = -1;
+      _GENTCj1 = 0; _GENTBj1 = 0;
       if(passedFiducialSelection_bbf){
         // We need to calculate GENPhi4l first since it is not calculated in the fwk
         TLorentzVector LS3_Z1_1, LS3_Z1_2, LS3_Z2_1, LS3_Z2_2;
@@ -467,6 +495,20 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         GENH.SetPtEtaPhiM(GENpT4l,GENeta4l,GENphi4l,GENmass4l);
         GENj1.SetPtEtaPhiM(_GENpTj1,ETAj1,PHIj1,Mj1);
         GENj2.SetPtEtaPhiM(_GENpTj2,ETAj2,PHIj2,Mj2);
+        _GENTCj1 = sqrt(_GENpTj1*_GENpTj1 + Mj1*Mj1)/(2*cosh(GENj1.Rapidity() - GENH.Rapidity()));
+        _GENTBj1 = sqrt(_GENpTj1*_GENpTj1 + Mj1*Mj1)*exp(-1*abs(GENj1.Rapidity() - GENH.Rapidity()));
+
+        for (unsigned int i = 0; i < GenCleanedJetPt->size(); ++i)
+        {
+           if(GenCleanedJetPt->at(i)>30 && abs(GenCleanedJetEta->at(i))<2.5) {
+              TLorentzVector theJet;
+              theJet.SetPtEtaPhiM(GenCleanedJetPt->at(i), GenCleanedJetEta->at(i), GenCleanedJetPhi->at(i), GenCleanedJetMass->at(i));
+              _GENTCj = sqrt(pow(theJet.Pt(), 2) + pow(theJet.M(), 2))/(2*cosh(theJet.Rapidity() - GENH.Rapidity()));
+              _GENTBj = sqrt(pow(theJet.Pt(), 2) + pow(theJet.M(), 2))*exp(-1*(theJet.Rapidity() - GENH.Rapidity()));
+              if (_GENTCj > _GENTCjmax) _GENTCjmax = _GENTCj;
+              if (_GENTBj > _GENTBjmax) _GENTBjmax = _GENTBj;
+           }
+        }
         _GENpTHj = (GENH+GENj1).Pt();
         _GENpTHjj = (GENH+GENj1+GENj2).Pt();
         _GENmHj = (GENH+GENj1).M();
@@ -474,13 +516,14 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         _GENdetajj = GENj1.Eta()-GENj2.Eta();
         _GENabsdetajj = abs(_GENdetajj);
         _GENmjj = (GENj1+GENj2).M();
-        _GENdphijj = GENj1.Phi()-GENj2.Phi();
-        if(_GENdphijj>3.14) _GENdphijj -= 3.14;
-        if(_GENdphijj<-3.14) _GENdphijj += 3.14;
+        _GENdphijj = PHIj1 - PHIj2;//GENj1.Phi()-GENj2.Phi();
+        //if(_GENdphijj>3.14) _GENdphijj -= 3.14;
+        //if(_GENdphijj<-3.14) _GENdphijj += 3.14;
         _GENabsdphijj = abs(_GENdphijj);
       }
 
       GENpTj1->Fill();
+      GENpTj1_eta4p7->Fill();
       GENpTj2->Fill();
       GENpTHj->Fill();
       GENpTHjj->Fill();
@@ -491,6 +534,8 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
       GENabsdetajj->Fill();
       GENabsdphijj->Fill();
       GENmjj->Fill();
+      GENTCjmax->Fill();
+      GENTBjmax->Fill();
       GenLepPtSorted->Fill();
       GenLepEtaSorted->Fill();
       GenLepPhiSorted->Fill();
@@ -499,6 +544,10 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
       passedFiducialSelection_NOISO->Fill();
       passedFullSelection->Fill();
       GENnjets_pt30_eta2p5->Fill();
+      GENnjets_pt30_eta4p7->Fill();
+
+      GENTCj1->Fill();
+      GENTBj1->Fill();
 
       GenLepSorted.clear();
       _GenLepPtSorted.clear();
@@ -511,6 +560,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 
     // leading jet pT
     _pTj1 = 0; _pTj1_jesup = 0.; _pTj1_jesdn = 0.;
+    _pTj1_eta4p7 = 0;
     Mj1 = 0; Mj1_jesup = 0; Mj1_jesdn = 0;
     ETAj1 = 0; ETAj1_jesup = 0; ETAj1_jesdn = 0;
     PHIj1 = 0; PHIj1_jesup = 0; PHIj1_jesdn = 0;
@@ -521,6 +571,9 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
         Mj1 = JetMass->at(i);
         ETAj1 = JetEta->at(i);
         PHIj1 = JetPhi->at(i);
+      }
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<4.7 && JetPt->at(i) > _pTj1_eta4p7) {
+        _pTj1_eta4p7 = JetPt->at(i);
       }
       if(JetPt_JESUp->at(i)>30 && abs(JetEta->at(i))<2.5 && JetPt_JESUp->at(i) > _pTj1_jesup) {
         _pTj1_jesup = JetPt_JESUp->at(i);
@@ -598,12 +651,11 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     _mjj = (j1+j2).M();
     _mjj_jesup = (j1_jesup+j2_jesup).M();
     _mjj_jesdn = (j1_jesdn+j2_jesdn).M();
-    _dphijj = j1.Phi()-j2.Phi();
-    if(_dphijj>3.14) _dphijj -= 3.14;
-    if(_dphijj<-3.14) _dphijj += 3.14;
+    _dphijj = j1.Phi() - j2.Phi();
+    //if(_dphijj>3.14) _dphijj -= 3.14;
+    //if(_dphijj<-3.14) _dphijj += 3.14;
     if(_dphijj_jesdn>3.14) _dphijj_jesdn -= 3.14;
     if(_dphijj_jesup>3.14) _dphijj_jesup -= 3.14;
-    if(_dphijj<-3.14) _dphijj += 3.14;
     if(_dphijj_jesup<-3.14) _dphijj_jesup += 3.14;
     if(_dphijj_jesdn<-3.14) _dphijj_jesdn += 3.14;
     _absdphijj = abs(_dphijj);
@@ -615,6 +667,13 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     for(unsigned int i=0;i<JetPt->size();i++){
       if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5){
         _njets_pt30_eta2p5++;
+      }
+    }
+    // njets 4.7 eta
+    _njets_pt30_eta4p7 = 0;
+    for(unsigned int i=0;i<JetPt->size();i++){
+      if(JetPt->at(i)>30 && abs(JetEta->at(i))<4.7){
+        _njets_pt30_eta4p7++;
       }
     }
     // JES down
@@ -633,6 +692,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     }
 
     pTj1->Fill();
+    pTj1_eta4p7->Fill();
     pTj1_jesup->Fill();
     pTj1_jesdn->Fill();
     pTj2->Fill();
@@ -662,6 +722,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     mjj_jesup->Fill();
     mjj_jesdn->Fill();
     njets_pt30_eta2p5->Fill();
+    njets_pt30_eta4p7->Fill();
     njets_pt30_eta2p5_jesdn->Fill();
     njets_pt30_eta2p5_jesup->Fill();
 
@@ -671,16 +732,17 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     
     _TCj = 0; _TBj = 0;
     _TCjmax = 0; _TBjmax = 0;
-    _TCj1 = (_pTj1*_pTj1 + Mj1*Mj1)/(2*j1.E());
-    _TBj1 = j1.E() - abs(j1.Pz());
+    _TCj1 = 0; _TBj1 = 0;
+    _TCj1 = sqrt(_pTj1*_pTj1 + Mj1*Mj1)/(2*cosh(j1.Rapidity() - H.Rapidity()));
+    _TBj1 = sqrt(_pTj1*_pTj1 + Mj1*Mj1)*exp(-1*abs(j1.Rapidity() - H.Rapidity()));
     for (unsigned int i = 0; i < JetPt->size(); ++i)
     { 
       // Define TCj for all jets with pT > pT_cut
        if(JetPt->at(i)>30 && abs(JetEta->at(i))<2.5) {
           TLorentzVector theJet;
           theJet.SetPtEtaPhiM(JetPt->at(i), JetEta->at(i), JetPhi->at(i), JetMass->at(i));
-          _TCj = (pow(theJet.Pt(), 2) + pow(theJet.M(), 2))/(2*theJet.E());
-          _TBj = theJet.E() - abs(theJet.Pz());
+          _TCj = sqrt(pow(theJet.Pt(), 2) + pow(theJet.M(), 2))/(2*cosh(theJet.Rapidity() - H.Rapidity())); //theJet.E());
+          _TBj = sqrt(pow(theJet.Pt(), 2) + pow(theJet.M(), 2))*exp(-1*(theJet.Rapidity() - H.Rapidity()));
           if (_TCj > _TCjmax) _TCjmax = _TCj;
           if (_TBj > _TBjmax) _TBjmax = _TBj;
        }
@@ -745,7 +807,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 }
 
 //---------------------------------------------------------- MAIN ----------------------------------------------------------
-void skim_MC_tree (TString prod_mode = "ggH125", TString year = "2016"){
+void skim_MC_tree (TString prod_mode = "VBFH125", TString year = "2018"){
 
   TString process;
   if(prod_mode=="ZZTo4lext") process = "qqZZ";

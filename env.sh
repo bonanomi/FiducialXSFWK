@@ -8,3 +8,5 @@ cd $base_path;
 mkdir plots;
 cd templates; mkdir 2016; mkdir 2017; mkdir 2018;
 cd $base_path;
+mkdir scripts;
+cd $base_path;

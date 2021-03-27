@@ -181,13 +181,16 @@ if(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
 if(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
 if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
 if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
-if(obsName == 'pTj1'): label = 'p_{T}^{(Lead. jet)} (GeV)'
+if(obsName == 'pTj1'): label = 'p_{T}^{(j1, 2.5)} (GeV)'
+if(obsName == 'pTj1_eta4p7'): label = 'p_{T}^{(j1, 4.7)} (GeV)'
 if(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
 if(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
 if(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
 if(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
 if(obsName == 'phistar'): label = '#Phi^{#star}'
 if(obsName == 'phi'): label = '#Phi'
+if(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
+if(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
 if(obsName == 'massZ1 vs massZ2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
@@ -199,6 +202,78 @@ if(obsName == 'njets_pt30_eta2p5 vs pTHj'):
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{Hj} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs pT4l'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'p_{T}^{H} (GeV)'
+    doubleDiff = True
+if(obsName == 'rapidity4l vs pT4l'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = '|y_{H}|'
+    label_2nd = 'p_{T}^{H} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs mjj'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'm_{jj} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs mHjj'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'm_{Hjj} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs mHj'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'm_{Hj} (GeV)'
+    doubleDiff = True
+if(obsName == 'pTj1 vs pTj2'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'p_{T}^{j,1} (GeV)'
+    label_2nd = 'p_{T}^{j,2} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs TCjmax'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'T_{Cj} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs TBjmax'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'T_{Bj} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs pTj2'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet}'
+    label_2nd = 'p_{T}^{j,2} (GeV)'
+    doubleDiff = True
+if(obsName == 'pT4l vs pTj1'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'p_{T}^{H} (GeV)'
+    label_2nd = 'p_{T}^{j,1} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta2p5 vs pTj1'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet} (2.5)'
+    label_2nd = 'p_{T}^{j,1} (GeV)'
+    doubleDiff = True
+if(obsName == 'njets_pt30_eta4p7 vs pTj1_eta4p7'):
+    obsName_tmp = obsName.split(' vs ')
+    obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
+    label = 'N_{jet} (4.7)'
+    label_2nd = 'p_{T}^{j,1} (GeV)'
     doubleDiff = True
 
 sys.path.append('../inputs')
@@ -267,8 +342,26 @@ for i in range(nBins):
                 elif _bin == 6:
                     graphs[ifile].SetPoint(ipoint,entry.SigmaBin6,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
-                else:
+                elif _bin == 7:
                     graphs[ifile].SetPoint(ipoint,entry.SigmaBin7,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 8:
+                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin8,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 9:
+                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin9,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 10:
+                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin10,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 11:
+                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin11,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 12:
+                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin12,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                else:
+                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin13,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
 
     c=TCanvas("c", "c", 1000, 800)
@@ -421,7 +514,7 @@ for i in range(nBins):
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
     if not 'jet' in obsName or doubleDiff:
-        if 'pTj1' in obsName:
+        if ('pTj1' in obsName) and not doubleDiff:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
         elif 'mass4l' in obsName:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))

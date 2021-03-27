@@ -8,7 +8,7 @@ from math import trunc
 sys.path.append('../../inputs/')
 sys.path.append('../../templates/')
 
-def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, JES, doubleDiff, lowerBound, upperBound):
+def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfactor, addfakeH, modelName, physicalModel, year, JES, doubleDiff, lowerBound, upperBound, rawObsName):
     print '\n'
     print 'Creating WorkSpace', year
 
@@ -30,7 +30,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     recobin = "recobin"+str(obsBin)
     print recobin
-    doJES = JES
+    JES = False
+    doJES = False
 
     # Load some libraries
     ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
@@ -65,36 +66,16 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     _temp = __import__('inputs_bkg_'+obsName+'_'+year, globals(), locals(), ['fractionsBackground'], -1)
     fractionsBackground = _temp.fractionsBackground
 
-    # mass4e = ROOT.RooRealVar("mass4e", "mass4e", 105.0, 160.0)
-    # mass4mu = ROOT.RooRealVar("mass4mu", "mass4mu", 105.0, 160.0)
-    # mass2e2mu = ROOT.RooRealVar("mass2e2mu", "mass2e2mu",105.0, 160.0)
+    _temp = __import__('observables', globals(), locals(), ['observables'], -1)
+    observables = _temp.observables
+
     if (not obsName=="mass4l"):
-        if (obsName=="rapidity4l" or obsName=="costhetastar" or obsName=="costhetaZ1" or obsName=="costhetaZ2" or obsName=="phi" or obsName=="phistar"):
-            if(obsName == "rapidity4l") : obsName_help = "ZZy"
-            elif(obsName == "costhetaZ1") : obsName_help = "helcosthetaZ1"
-            elif(obsName == "costhetaZ2") : obsName_help = "helcosthetaZ2"
-            elif(obsName == "phi")        : obsName_help = "helphi"
-            elif(obsName == "phistar")    : obsName_help = "phistarZ1"
-            elif(obsName == "costhetastar") : obsName_help = "costhetastar"
-            observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
-            # observable = ROOT.RooRealVar(obsName,obsName,-1.0*float(obs_bin_highest),float(obs_bin_highest))
-        else:
-            if obsName == "pT4l": obsName_help = "ZZPt"
-            elif obsName == "massZ2": obsName_help = "Z2Mass"
-            elif obsName == "massZ1": obsName_help = "Z1Mass"
-            elif obsName == "njets_pt30_eta2p5": obsName_help = "njets_pt30_eta2p5"
-            elif obsName == "pTj1": obsName_help = "pTj1"
-            elif obsName == "massZ1_massZ2":
-                obsName_help = 'Z1Mass'
-                obsName_2nd_help = 'Z2Mass'
-            elif obsName == 'njets_pt30_eta2p5_pT4l':
-                obsName_help = 'njets_pt30_eta2p5'
-                obsName_2nd_help = 'ZZPt'
-            elif obsName == 'njets_pt30_eta2p5_pTHj':
-                obsName_help = 'njets_pt30_eta2p5'
-                obsName_2nd_help = 'pTHj'
-            observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
-            if doubleDiff: observable_2nd = ROOT.RooRealVar(obsName_2nd_help,obsName_2nd_help,float(obs_bin_2nd_lowest),float(obs_bin_2nd_highest)) #ATdouble
+        obsName_help = observables[rawObsName]['obs_reco']
+        if doubleDiff: obsName_2nd_help = observables[rawObsName]['obs_reco_2nd']
+        
+        observable = ROOT.RooRealVar(obsName_help,obsName_help,float(obs_bin_lowest),float(obs_bin_highest))
+        if doubleDiff: observable_2nd = ROOT.RooRealVar(obsName_2nd_help,obsName_2nd_help,float(obs_bin_2nd_lowest),float(obs_bin_2nd_highest)) #ATdouble
+
         observable.Print()
         if doubleDiff: observable_2nd.Print()
 
@@ -325,11 +306,11 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     trueH_norm = {}
 
     # nuisance describes the jet energy scale uncertainty
-    JES = ROOT.RooRealVar("JES","JES", 0, -5.0, 5.0)
-    if (obsName == "nJets"  or ("jet" in obsName)):
-        lambda_JES_sig = lambdajesup[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin]
-        lambda_JES_sig_var = ROOT.RooRealVar("lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, "lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, lambda_JES_sig)
-        JES_sig_rfv = ROOT.RooFormulaVar("JES_rfv_sig_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_sig_var) )
+    #JES = ROOT.RooRealVar("JES","JES", 0, -5.0, 5.0)
+    #if (obsName == "nJets"  or ("jet" in obsName)):
+    #    lambda_JES_sig = lambdajesup[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin]
+    #    lambda_JES_sig_var = ROOT.RooRealVar("lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, "lambda_sig_"+modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+""+"_"+recobin, lambda_JES_sig)
+    #    JES_sig_rfv = ROOT.RooFormulaVar("JES_rfv_sig_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_sig_var) )
 
 
     for genbin in range(nBins):
@@ -341,10 +322,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         print "model name is ", modelName
         fideff_var[genbin] = ROOT.RooRealVar("effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year,"effBin"+str(genbin)+"_"+recobin+"_"+channel+"_"+year, fideff[genbin]);
 
-        if(not("jet" in obsName)):
-            trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
-        else:
-            trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", ROOT.RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
+        #if(not("jet" in obsName)):
+        trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
+        #else:
+        #    trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*(1-@2)", ROOT.RooArgList(fideff_var[genbin], lumi, JES_sig_rfv) );
 
     trueH_norm_final = {}
     fracBin = {}
@@ -379,18 +360,18 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             SigmaHBin['4e'+str(genbin)] = ROOT.RooFormulaVar("Sigma4eBin"+str(genbin),"(@0*@1*@2)", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)], K1Bin[str(genbin)]))
             SigmaHBin['4mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma4muBin"+str(genbin),"(@0*(1.0-@1*@2)*@3*@4/(1.0-@1))", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)], K1Bin[str(genbin)], K2Bin[str(genbin)], fracSM4muBin[str(genbin)]))
             SigmaHBin['2e2mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma2e2muBin"+str(genbin),"(@0*(1.0-@1*@2)*(1.0-@3*@4/(1.0-@1)))", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)], K1Bin[str(genbin)], K2Bin[str(genbin)], fracSM4muBin[str(genbin)]))
-            if ("jet" in obsName):
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
-            else:
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
+            #if ("jet" in obsName):
+            #    trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2*(1-@3)" ,ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi,JES_sig_rfv))
+            #else:
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2" ,ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
         elif (physicalModel=="v2"):
             rBin_channel[str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
             rBin_channel[str(genbin)].setConstant(True)
 
-            if ("jet" in obsName): # Even though we will not use v2 with jet variables, we keep this option in case of need
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2*(1-@3)", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
-            else:
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
+           # if ("jet" in obsName): # Even though we will not use v2 with jet variables, we keep this option in case of need
+           #     trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2*(1-@3)", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
+            #else:
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
 
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin
@@ -417,7 +398,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
 
     print obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets
-
+    '''
     if (obsName=="nJets" or ("jet" in obsName)):
         #######
         lambda_JES_qqzz = 0.0 #lambda_qqzz_jes[modelName+"_"+channel+"_nJets_"+recobin]
@@ -433,8 +414,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         lambda_JES_zjets = 0.0 #lambda_zjets_jes[modelName+"_"+channel+"_nJets_"+recobin]
         lambda_JES_zjets_var = ROOT.RooRealVar("lambda_zjets_"+recobin+"_"+channel,"lambda_zjets_"+recobin+"_"+channel, lambda_JES_zjets)
         JES_zjets_rfv = ROOT.RooFormulaVar("JES_rfv_zjets_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_zjets_var) )
-
-
+    '''
+    
     os.chdir('../../templates/'+year+"/"+obsName+"/")
 
     if doubleDiff:
@@ -497,14 +478,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     # bkg fractions in reco bin; implemented in terms of fractions
 
-    if( not (obsName=='nJets' or ("jet" in obsName) ) or (not doJES)) :
-        qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0", ROOT.RooArgList(frac_qqzz_var) )
-        ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0", ROOT.RooArgList(frac_ggzz_var) )
-        zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0", ROOT.RooArgList(frac_zjets_var) )
-    else :
-        qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0*(1-@1)", ROOT.RooArgList(frac_qqzz_var, JES_qqzz_rfv) )
-        ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0*(1-@1)", ROOT.RooArgList(frac_ggzz_var, JES_ggzz_rfv) )
-        zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0*(1-@1)", ROOT.RooArgList(frac_zjets_var, JES_zjets_rfv) )
+    #if( not (obsName=='nJets' or ("jet" in obsName) ) or (not doJES)) :
+    qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0", ROOT.RooArgList(frac_qqzz_var) )
+    ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0", ROOT.RooArgList(frac_ggzz_var) )
+    zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0", ROOT.RooArgList(frac_zjets_var) )
+    #else :
+    #    qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0*(1-@1)", ROOT.RooArgList(frac_qqzz_var, JES_qqzz_rfv) )
+    #    ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0*(1-@1)", ROOT.RooArgList(frac_ggzz_var, JES_ggzz_rfv) )
+    #    zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0*(1-@1)", ROOT.RooArgList(frac_zjets_var, JES_zjets_rfv) )
 
     # Data
     # if not os.path.isfile('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/reducedTree_'+year+'.root'):
