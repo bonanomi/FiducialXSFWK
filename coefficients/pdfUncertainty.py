@@ -430,8 +430,10 @@ if doubleDiff:
 else:
     obs_name = opt.OBSNAME
 
+sys.path.append('../inputs/')
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
+sys.path.remove('../inputs/')
 
 if doubleDiff:
     obs_reco = observables[obs_name_2d]['obs_reco']
