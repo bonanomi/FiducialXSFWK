@@ -211,13 +211,13 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
              'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
              'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
              'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn']
-    b_sig.append(obs_gen)
+    if (obs_gen != 'GENmass4l'): b_sig.append(obs_gen)
     if (obs_gen_2nd!='None'): b_sig.append(obs_gen_2nd)
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail:
         b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'lep_genindex', 'lep_Hindex', 'overallEventWeight',
                       'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
-        b_sig.append(obs_reco)
+        if (obs_reco!='ZZMass'): b_sig.append(obs_reco)
         if (obs_reco_2nd!='None'): b_sig.append(obs_reco_2nd)
 
     df = d_sig.pandas.df(b_sig, flatten = False)
@@ -231,7 +231,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df['L1prefiringWeight'] = -1
         df['dataMCWeight'] = -1
         df['trigEffWeight'] = -1
-        df[obs_reco] = -1
+        if (obs_reco != 'ZZMass'): df[obs_reco] = -1
         if (obs_reco_2nd!='None'): df[obs_reco_2nd] = -1
     df['gen'] = gen
     df['xsec'] = xsec
