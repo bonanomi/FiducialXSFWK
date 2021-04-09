@@ -1,5 +1,5 @@
 import sys, os, pwd, commands
-from tqdm import tqdm
+#from tqdm import tqdm
 from subprocess import *
 import optparse, shlex, re
 

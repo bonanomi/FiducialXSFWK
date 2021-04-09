@@ -196,13 +196,13 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
     b_sig = ['EventNumber','GENmass4l', 'GENlep_id', 'GENlep_MomId', 
              'GENlep_MomMomId', 'GENlep_Hindex', 'GENZ_DaughtersId', 
              'GENZ_MomId', 'passedFiducialSelection_bbf', 'PUWeight', 'genHEPMCweight']
-    b_sig.append(obs_gen)
+    if (obs_gen != 'GENmass4l'): b_sig.append(obs_gen)
     if (obs_gen_2nd!='None'): b_sig.append(obs_gen_2nd)
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail: 
         b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'lep_genindex', 'lep_Hindex', 'overallEventWeight', 
                       'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
-        b_sig.append(obs_reco)
+        if (obs_reco!='ZZMass'): b_sig.append(obs_reco) #We need to include the if condition otherwise for mass4l ZZMass would be repeated twice
         if (obs_reco_2nd!='None'): b_sig.append(obs_reco_2nd)
 
     df = d_sig.pandas.df(b_sig, flatten = False)
@@ -216,7 +216,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df['L1prefiringWeight'] = -1
         df['dataMCWeight'] = -1
         df['trigEffWeight'] = -1
-        df[obs_reco] = -1
+        if (obs_reco != 'ZZMass'): df[obs_reco] = -1
         if (obs_reco_2nd!='None'): df[obs_reco_2nd] = -1
     df['gen'] = gen
     df['xsec'] = xsec
@@ -670,6 +670,7 @@ for year in years:
     sig, sig_failed = skim_df(year, doubleDiff)
     d_sig[year] = sig
     d_sig_failed[year] = sig_failed
+
 
 # Create dataframe with all the events
 d_sig_tot = {}
