@@ -131,7 +131,7 @@ def add_subleadjet(pt,eta,phi,mass,leadJet):
 def count_jets(pt,eta,phi,mass):
     n = 0
     for i in range(len(pt)):
-        if pt[i]>30 and abs(eta[i])<2.5: n=+1
+        if pt[i]>30 and abs(eta[i])<2.5: n = n + 1
     return n
 
 def varHiggsOneJets_jes(jet,Hmass,Heta,Hphi,Hpt):
