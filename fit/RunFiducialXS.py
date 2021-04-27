@@ -92,7 +92,7 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
     if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
     if (('jet' in obsName) | (obsName == 'pTj1')): JES = True
     else: JES = False
-    JES = False
+    # JES = False
     os.chdir('../datacard/datacard_'+years[0])
     for year in years:
         os.chdir('../datacard_'+year)
@@ -316,7 +316,7 @@ def runFiducialXS():
                 if obsName=='mass4l': max_range = '5.0'
                 else: max_range = '2.5'
                 ## The inclusive xsec for 2j phase space is about 2.49 fb, hence enlarge fit range
-                if ('jj' in obsName) and (obsBin == 0): max_range = '5.0' 
+                if ('jj' in obsName) and (obsBin == 0): max_range = '5.0'
                 if ('njet' in obsName) and ('pTj' in obsName) and (obsBin == 0): max_range = '5.0'
                 cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0'
                 if(not opt.UNBLIND):

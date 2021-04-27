@@ -288,6 +288,9 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     elif (obsName=="Phi1"):
         label = "|#Phi_{1}|"
         unit = ""
+    elif (obsName=="D0m"):
+	label = "D0m"
+	unit = ""
                                                                                                         
 
     if (obsName.startswith("njets")):

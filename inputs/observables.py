@@ -150,5 +150,8 @@ observables = {'rapidity4l':
     {'obs_reco': 'njets_pt30_eta2p5',
     'obs_reco_2nd': 'absdphijj',
     'obs_gen': 'GENnjets_pt30_eta2p5',
-    'obs_gen_2nd': 'GENabsdphijj'}
+    'obs_gen_2nd': 'GENabsdphijj'},
+'D0m':
+    {'obs_reco': 'D0m',
+    'obs_gen': 'GEN_D0m'}
 }

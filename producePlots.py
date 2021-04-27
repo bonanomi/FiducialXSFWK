@@ -61,7 +61,7 @@ sys.path.append('./LHScans')
 
 def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
-    _temp = __import__('inputs_sig_'+obsName+'_2017', globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_2016', globals(), locals(), ['acc'], -1)
     acc = _temp.acc
     # eff = _temp.eff
     # outinratio = _temp.outinratio
@@ -803,7 +803,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif (obsName=="pTj1jet_pt30_eta2p5"): offset=30.0
         elif (obsName=="pTj1"): offset=30.0
         elif (obsName=="njets_pt30_eta2p5"): offset=999.0
-        else: offset = 0.0
+        else: offset = 20.0
         a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(len(obs_bins)-1)])
         v_observable  = TVectorD(len(a_observable),a_observable)
         a_dobservable = array('d',[0.5*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
@@ -1378,13 +1378,15 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         if (obsName=="massZ2"): dummy.SetMaximum(500.0*max(max(a_data),(max(a_ggH_powheg)))) #AT
         if (obsName=="massZ1"): dummy.SetMaximum(500.0*max(max(a_data),(max(a_ggH_powheg)))) #AT
         if doubleDiff: dummy.SetMaximum(300*max(max(a_data),(max(a_ggH_powheg))))
-        else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
+        if (obsName=="D0m"): dummy.SetMaximum(1500*max(max(a_data),(max(a_ggH_powheg))))
+	else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
     else:
         if (obsName=="mass4l") or doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
         if doubleDiff: dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
         elif (obsName=="massZ2"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="massZ1"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
-        else: dummy.SetMaximum(1.5*(max(max(a_ggH_powheg),(max(a_data)+max(a_data_hi)))))
+        elif (obsName=="D0m"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
+	else: dummy.SetMaximum(1.5*(max(max(a_ggH_powheg),(max(a_data)+max(a_data_hi)))))
     if (opt.SETLOG):
         dummy.SetMinimum(0.0601*max(min(a_data),(min(a_ggH_powheg))))
         if (obsName.startswith("pTj1")): dummy.SetMinimum(0.0801*max(min(a_data),(min(a_ggH_powheg))))
@@ -1441,8 +1443,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if (obsName.startswith('njets')):
         dummy.GetYaxis().SetTitle("#sigma_{fid} (fb)")
 
-    #dummy.GetYaxis().SetTitleOffset(1.5)
-    dummy.GetYaxis().SetTitleOffset(1.8)
+    dummy.GetYaxis().SetTitleOffset(1.4)
+    #dummy.GetYaxis().SetTitleOffset(1.8)
     dummy.Draw("hist")
 
     h_XH.SetFillColor(kGreen-8)
@@ -1458,10 +1460,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     else: legend . AddEntry(g_data , "Toy Data (stat. #oplus sys. unc.)", "ep")
     legend . AddEntry(g_systematics,"Systematic uncertainty","l")
     # legend . AddEntry(g_modeldep,"Model dependence","f")
-    legend . AddEntry(g_ggH_minloHJ , "gg#rightarrowH (NNLOPS) + XH", "lf")
-    legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG) + XH", "lf")
+    if (obsName!="D0m"): legend . AddEntry(g_ggH_minloHJ , "gg#rightarrowH (NNLOPS + JHUGen) + XH", "lf")
+    legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG + JHUGen) + XH", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
-    legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG)", "f")
+    legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen)", "f")
     legend . AddEntry(dummy, "(LHC HXSWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
 
     legend.SetShadowColor(0);
@@ -1471,12 +1473,12 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
 
     h_ggH_powheg.Draw("histsame")
-    h_ggH_minloHJ.Draw("histsame")
+    if (obsName!="D0m"): h_ggH_minloHJ.Draw("histsame")
     g_ggH_powheg.Draw("5same")
     g_ggH_powhegBorder.Draw("5same")
     #g_ggH_powhege0.Draw("epsame")
-    g_ggH_minloHJ.Draw("5same")
-    g_ggH_minloHJBorder.Draw("5same")
+    if (obsName!="D0m"): g_ggH_minloHJ.Draw("5same")
+    if (obsName!="D0m"): g_ggH_minloHJBorder.Draw("5same")
     #g_ggH_minloHJe0.Draw("epsame")
 
     #g_XH.Draw("2same")
@@ -1630,23 +1632,24 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         dummy2.GetYaxis().SetTitleOffset(1.5)
         dummy2.GetYaxis().SetTitleSize(0.03)
         dummy2.GetYaxis().SetTitleOffset(2.0)
-        dummy2.GetYaxis().SetTitle('Ratio to NNLOPS')
+        if (obsName=="D0m"): dummy2.GetYaxis().SetTitle('Ratio to AC')
+        else: dummy2.GetYaxis().SetTitle('Ratio to NNLOPS')
 
 
-        h_ratio_powheg.Draw("histsame")
-        h_ratio_minloHJ.Draw("histsame")
+        if (obsName!="D0m"): h_ratio_powheg.Draw("histsame")
+        if (obsName!="D0m"): h_ratio_minloHJ.Draw("histsame")
 
-        g_ratio_minloHJ.Draw("5same")
-        g_ratio_minloHJBorder.Draw("5same")
+        if (obsName!="D0m"): g_ratio_minloHJ.Draw("5same")
+        if (obsName!="D0m"): g_ratio_minloHJBorder.Draw("5same")
         #g_ratio_minloHJe0.Draw("epsame")
 
-        g_ratio_powheg.Draw("5same")
-        g_ratio_powhegBorder.Draw("5same")
+        if (obsName!="D0m"): g_ratio_powheg.Draw("5same")
+        if (obsName!="D0m"): g_ratio_powhegBorder.Draw("5same")
         #g_ratio_powhege0.Draw("epsame")
 
-        g_ratio_data.Draw("psameZ0")
-        g_ratio_sys.Draw("psameZ0")
-        g_ratio_datae0.Draw("psame")
+        if (obsName!="D0m"): g_ratio_data.Draw("psameZ0")
+        if (obsName!="D0m"): g_ratio_sys.Draw("psameZ0")
+        if (obsName!="D0m"): g_ratio_datae0.Draw("psame")
 
         dummy2.Draw("axissame")
 

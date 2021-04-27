@@ -1,5 +1,7 @@
 import os,sys
 
+
+
 def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound):
     # Name of the bin (aFINALSTATE_ recobinX)
     if(channel == '4mu'): channelNumber = 1
@@ -15,12 +17,14 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
     expected_yield = _temp.expected_yield
     if jes:
-        _temp = __import__('JESNP_'+year+'_'+obsName, globals(), locals(), ['JESNP'], -1)
-        jesnp = _temp.JESNP 
-        print(jesnp)
+        jesNames = ['Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
+        jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
+        _temp = __import__('JESNP_'+obsName, globals(), locals(), ['JESNP'], -1)
+        jesnp = _temp.JESNP
+        # print(jesnp)
     sys.path.remove('../inputs')
 
-    #Hard coding values for bkgs
+    #Hard coded values for bkgs
     # bkg_qqzz = {}
     # bkg_qqzz['2016_2e2mu'] = 26.079487245654125
     # bkg_qqzz['2016_4e'] = 9.416905347804663
@@ -99,7 +103,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # -------------------------------------------------------------------------------------------------
 
     file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
-    
+
     file.write('imax 1 \n')
     file.write('jmax * \n')
     file.write('kmax * \n')
@@ -204,11 +208,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # JES
     if jes == True:
-        file.write('CMS_scale_j_'+year+' lnN ')
-        for i in range(nBins+4): # All except ZX
-            file.write(jesnp['recobin'+str(obsBin)]+' ')
-        file.write('-\n') # ZX
-        #file.write('JES param 0.0 1.0\n')
+        for index in range(len(jesNames)):
+            file.write('CMS_scale_j_'+jesNames_datacard[index]+' lnN ')
+            for i in range(nBins+2): # All except ZX
+                file.write(jesnp[int(year),channel,'recobin_'+str(obsBin),jesNames[index]]+' ')
+            file.write('- - -\n') # ZX
+            #file.write('JES param 0.0 1.0\n')
 
     file.close()
 

@@ -191,6 +191,7 @@ if(obsName == 'phistar'): label = '#Phi^{#star}'
 if(obsName == 'phi'): label = '#Phi'
 if(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
 if(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
+if(obsName == 'D0m'): label = 'D_{0m}'
 if(obsName == 'massZ1 vs massZ2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]

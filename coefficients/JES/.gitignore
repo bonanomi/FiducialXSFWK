@@ -1,0 +1,3 @@
+*.pyc
+plots
+__init__.py

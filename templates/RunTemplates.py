@@ -11,9 +11,10 @@ import math
 import ROOT
 import json
 from tdrStyle import *
+import random #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not have discriminantsa in data yet, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
 
 sys.path.append('../inputs/')
-from observables import observables
+# from observables import observables
 
 print 'Welcome in RunTemplates!'
 
@@ -68,7 +69,7 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = eos_path + 'MC_samples/%i' %year
+        fname = eos_path + 'MC_samples/%i_MELA' %year
         # if year == 2016:
         #     fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
@@ -94,7 +95,7 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = eos_path + 'MC_samples/%i' %year
+        fname = eos_path + 'MC_samples/%i_MELA' %year
         # if year == 2016:
         #     fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
@@ -158,7 +159,8 @@ def dataframes(year):
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
                  'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                  'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
-                 'njets_pt30_eta4p7', 'pTj1_eta4p7']
+                 'njets_pt30_eta4p7', 'pTj1_eta4p7',
+                 'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
@@ -326,7 +328,7 @@ def smoothAndNormaliseTemplate(h1d, norm):
 def normaliseHist(h1d, norm):
     if (h1d.Integral() > 0): #return -1
 	h1d.Scale(norm/h1d.Integral())
-    else: 
+    else:
         return -1
 
 def fillEmptyBinsHist(h1d, floor):
@@ -371,7 +373,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
 
                     df = df_irr[year][bkg][sel].copy()
                     len_bin = df['weight'].sum() # Number of bkg events in bin i
-                    if(len_tot <= 0): 
+                    if(len_tot <= 0):
                         fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = 0.0
                     else:
                         fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
@@ -385,7 +387,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     w = np.asarray(w).astype('float')
                     # ------
 
-                    if(obs_name == 'rapidity4l'):
+                    if((obs_name == 'rapidity4l') | (obs_name == 'D0m')):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -396,7 +398,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
 
-                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
+                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                     elif doubleDiff:
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
@@ -452,7 +454,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -460,7 +462,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name)):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                 elif doubleDiff:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
@@ -575,7 +577,7 @@ if doubleDiff:
     obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
     obs_name = obs_name + '_' + obs_name_2nd
 
-print 'Following observables extracted from dictionary: RECO = ',obs_reco 
+print 'Following observables extracted from dictionary: RECO = ',obs_reco
 if doubleDiff:
     print 'It is a double-differential measurement: RECO_2nd = ',obs_reco_2nd
 
@@ -597,6 +599,18 @@ for year in years:
     dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     dfZX[year] = add_rapidity(dfZX[year])
+
+    #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+    dfZX[year]['Dcp'] = np.random.choice(d_bkg[year]['qqzz']['Dcp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['D0m'] = np.random.choice(d_bkg[year]['qqzz']['D0m'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['D0hp'] = np.random.choice(d_bkg[year]['qqzz']['D0hp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['Dint'] = np.random.choice(d_bkg[year]['qqzz']['Dint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['DL1'] = np.random.choice(d_bkg[year]['qqzz']['DL1'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['DL1int'] = np.random.choice(d_bkg[year]['qqzz']['DL1int'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['DL1Zg'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zg'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    dfZX[year]['DL1Zgint'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zgint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+
     print(year,'done')
 
 yield_bkg = {}

@@ -101,7 +101,7 @@ def prepareTrees(year):
     d_sig = {}
     d_sig_failed = {}
     for signal in signals_original:
-        fname = eos_path_sig + '%i' %year
+        fname = eos_path_sig + '%i_MELA' %year
         fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
@@ -196,7 +196,7 @@ def add_cuth4l_reco(Hindex,genIndex,momMomId,momId):
 def generators(year):
     gen_sig = {}
     for signal in signals_original:
-        fname = eos_path_sig + '%i' %year
+        fname = eos_path_sig + '%i_MELA' %year
         fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")

@@ -84,7 +84,7 @@ def prepareTrees(year):
     d_sig_failed = {}
     for signal in signals_original:
         if(opt.AC==False):
-            fname = eos_path_sig + '%i' %year
+            fname = eos_path_sig + '%i_MELA' %year
         else:
             fname = eos_path_sig + 'AC%i' %year
         fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
@@ -182,7 +182,7 @@ def generators(year):
     gen_sig = {}
     for signal in signals_original:
         if(opt.AC==False):
-            fname = eos_path_sig + '%i' %year
+            fname = eos_path_sig + '%i_MELA' %year
         else:
             fname = eos_path_sig + 'AC%i' %year
         fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'

@@ -2,9 +2,12 @@ import numpy
 from tqdm import tqdm
 import optparse, os, sys
 import json
+import numpy      
 import ROOT
-from ROOT import *
-from ROOT import TFile, TH1, TH1F, TCanvas, gSystem, TRatioPlot, TPad, TStyle, TChain, gStyle
+# from ROOT import *
+# from ROOT import TFile, TH1, TH1F, TCanvas, gSystem, TRatioPlot, TPad, TStyle, TChain, gStyle
+from binning import binning
+from createdf_jes import skim_df
 
 ROOT.gROOT.SetBatch()
 ROOT.gStyle.SetOptStat(0)
@@ -14,6 +17,7 @@ sys.path.append('../inputs/')
 from observables import observables
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
+sys.path.remove('../inputs/')
 
 def parseOptions():
 
@@ -42,7 +46,12 @@ def parseOptions():
 global opt, args
 parseOptions()
 
-def computeJES(obsname, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_out):
+def computeJES(obsname, obs_bins, year, fState, m4l_low, m4l_high, doubleDiff, obsname_out):
+
+	sel_m4l = (d_sig[year].ZZMass > m4l_low) and (d_sig[year].ZZMass < m4l_high)
+
+	
+
 
     edges = numpy.asarray(obs_bins)
     NBINS = int(len(edges) - 1)
@@ -58,6 +67,8 @@ def computeJES(obsname, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_o
         path = indir + year + '/' + pmode + '/' + pmode + '_reducedTree_MC_' + year + '.root'
         ch.Add(path)
 
+
+
     toCut = "1"; toCut_dn = "1"; toCut_up = "1"
     if 'njets' not in obsname:
         toCut = 'njets_pt30_eta2p5>0'
@@ -65,9 +76,9 @@ def computeJES(obsname, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_o
         toCut_up = 'njets_pt30_eta2p5_jesup>0'
 
     ## Otherwise doesn't fill the histos... weird
-    h = TH1F("h", "", NBINS, edges)
-    h_up = TH1F("h_up", "", NBINS, edges)
-    h_dn = TH1F("h_dn", "", NBINS, edges)
+    h = ROOT.TH1F("h", "", NBINS, edges)
+    h_up = ROOT.TH1F("h_up", "", NBINS, edges)
+    h_dn = ROOT.TH1F("h_dn", "", NBINS, edges)
 
     massRange = 'ZZMass>%s && ZZMass<%s' %(m4l_low, m4l_high)
 
@@ -128,8 +139,10 @@ def computeJES(obsname, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_o
     if doubleDiff:
         return jesNP
 
+
+## ---------------------------- Main ----------------------------
 indir = '/eos/user/a/atarabin/MC_samples/'
-pmodes = ['ggH125', 'VBFH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
+# pmodes = ['ggH125', 'VBFH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
 
 obsname = opt.OBSNAME
 obsname_out = obsname
@@ -155,40 +168,54 @@ if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 m4l_low = opt.LOWER_BOUND
 m4l_high = opt.UPPER_BOUND
 
-if not doubleDiff: #It is not a double-differential analysis
-    obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-    obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
-    print 'It is a single-differential measurement, binning', obs_bins
-else: #It is a double-differential analysis
-    # Implementing only the first one as it will be used only for jet-related measurements
-    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1:
-        obs_bins_tmp = opt.OBSBINS.split(" vs ")
-        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
-        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
-        obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
-        obs_bins_2nd = {}
-        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
-            obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
-            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
-        obs_bins = obs_bins_2nd[1]
+obs_bins, doubleDiff = binning(opt.OBSBINS)
+
+
+# if not doubleDiff: #It is not a double-differential analysis
+#     obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+#     obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+#     print 'It is a single-differential measurement, binning', obs_bins
+# else: #It is a double-differential analysis
+#     # Implementing only the first one as it will be used only for jet-related measurements
+#     if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1:
+#         obs_bins_tmp = opt.OBSBINS.split(" vs ")
+#         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+#         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+#         obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
+#         obs_bins_2nd = {}
+#         for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
+#             obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
+#             obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+#         obs_bins = obs_bins_2nd[1]
       
-import numpy      
 
-print(obsname, year, m4l_low, m4l_high, obsname_out)
+print obsname, year, m4l_low, m4l_high, obsname_out
 
-if not doubleDiff:
-    for year in years:
-        year = str(year)
-        computeJES(obs_reco, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_out)
-else:
-    for year in years:
-        year = str(year)
-        jesNP0 = computeJES(obs_reco, obs_bins_1st, year, m4l_low, m4l_high, doubleDiff, obs_reco)
-        jesNP1 = computeJES(obs_reco_2nd, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_out)
-        jesNP = {}
-        jesNP['recobin0'] = jesNP0['recobin0']
-        for i in range(len(obs_bins)-1):
-            jesNP['recobin%i' %(i+1)] = jesNP1['recobin%i' %i]
-        with open('../inputs/JESNP_'+year+'_'+obsname_out+'.py', 'w') as f:
-            f.write('obsbins = ' + str(obs_bins) + '\n')
-            f.write('JESNP = ' + str(jesNP) + '\n')
+# Generate dataframes
+d_sig = {}
+for year in years:
+    if doubleDiff: sig = skim_df(year, doubleDiff, obs_reco, obs_reco_2nd)
+    else: sig = skim_df(year, doubleDiff, obs_reco)
+    d_sig[year] = sig
+	d_sig[year] = pd.concat([d_sig[year]['ggH125'], d_sig[year]['VBFH125'], d_sig[year]['WH125'], d_sig[year]['ZH125'], d_sig[year]['ttH125']])
+
+print(d_sig)
+
+
+# if not doubleDiff:
+#     for year in years:
+#     	for fState in ['2e2mu', '4mu' ,'4e']:
+# 	        # year = str(year)
+# 	        computeJES(obs_reco, obs_bins, year, fState, m4l_low, m4l_high, doubleDiff, obsname_out)
+# else:
+#     for year in years:
+#         year = str(year)
+#         jesNP0 = computeJES(obs_reco, obs_bins_1st, year, m4l_low, m4l_high, doubleDiff, obs_reco)
+#         jesNP1 = computeJES(obs_reco_2nd, obs_bins, year, m4l_low, m4l_high, doubleDiff, obsname_out)
+#         jesNP = {}
+#         jesNP['recobin0'] = jesNP0['recobin0']
+#         for i in range(len(obs_bins)-1):
+#             jesNP['recobin%i' %(i+1)] = jesNP1['recobin%i' %i]
+#         with open('../inputs/JESNP_'+year+'_'+obsname_out+'.py', 'w') as f:
+#             f.write('obsbins = ' + str(obs_bins) + '\n')
+#             f.write('JESNP = ' + str(jesNP) + '\n')
