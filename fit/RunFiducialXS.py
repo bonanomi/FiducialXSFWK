@@ -82,7 +82,7 @@ def processCmd(cmd, quiet = 0):
 
 
 ### Produce datacards for given obs and bin, for all final states
-def produceDatacards(obsName, observableBins, ModelName, physicalmodel, processes):
+def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
     _fit_dir = os.getcwd()
     print '\n'
     print '[Producing workspace/datacards for obsName '+obsName+', bins '+str(observableBins)+']'
@@ -98,22 +98,15 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel, processe
         for fState in fStates:
             if (not obsName.startswith("mass4l")):
                 for obsBin in range(nBins):
-                    for process in processes:
-                        ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff, process)
-			os.chdir('../datacard/datacard_'+year)
+                    ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff)
+                    os.chdir('../datacard/datacard_'+year)
                     os.chdir(_fit_dir)
-                    createDatacard(obsName, fState, nBins, obsBin, observableBins, physicalmodel, year, ndata, JES, processes)
+                    createDatacard(obsName, fState, nBins, obsBin, observableBins, physicalmodel, year, ndata, JES, 105.0, 140.0)
                     os.chdir('../datacard/datacard_'+year)
             else:
                 ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff, processes)
                 createDatacard(obsName, fState, nBins, 0, observableBins, physicalmodel, year, ndata, JES, processes)
                 os.chdir('../datacard/datacard_'+year)
-
-                # if obsName=='mass4l': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusive_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
-                # if obsName=='mass4lREFIT': os.system("cp xs_125.0_1bin/hzz4l_"+fState+"S_13TeV_xs_inclusiveREFIT_bin0.txt xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
-                # os.system("sed -i 's~observation [0-9]*~observation "+str(ndata)+"~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
-                # os.system("sed -i 's~_xs.Databin0~_xs_"+ModelName+"_"+obsName+"_"+PhysicalModel+".Databin0~g' xs_125.0/hzz4l_"+fState+"S_13TeV_xs_"+obsName+"_bin0_"+PhysicalModel+".txt")
-
 
 def runFiducialXS():
     # variable for double-differential measurements and obsName
@@ -134,10 +127,8 @@ def runFiducialXS():
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Theory xsec and BR at MH = '+_th_MH
     print 'Current directory: python'
-    processes = ['ggH', 'VBFH', 'ttH', 'WH', 'ZH']
 
     _fit_dir = os.getcwd()
-    # for process in processes:
     os.chdir(_fit_dir)
     ## addConstrainedModel
     years_bis = years
@@ -165,9 +156,9 @@ def runFiducialXS():
 
     DataModelName = 'SM_125'
     if obsName == 'mass4l': PhysicalModels = ['v2','v3']
-    else: PhysicalModels = ['kLambda'] #['kfwk'] #['v3']
+    else: PhysicalModels = ['kLambda']
     for physicalModel in PhysicalModels:    
-        produceDatacards(obsName, observableBins, DataModelName, physicalModel, processes)
+        produceDatacards(obsName, observableBins, DataModelName, physicalModel)
 
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
