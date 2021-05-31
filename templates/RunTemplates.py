@@ -387,7 +387,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     w = np.asarray(w).astype('float')
                     # ------
 
-                    if((obs_name == 'rapidity4l') | (obs_name == 'D0m')):
+                    if((obs_name == 'rapidity4l') | acFlag):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -398,7 +398,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
 
-                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
+                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                     elif doubleDiff:
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
@@ -454,7 +454,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -462,7 +462,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                 elif doubleDiff:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
@@ -563,6 +563,8 @@ else: #It is a double-differential analysis
     print obs_bins
 
 obs_name = opt.OBSNAME
+if obs_name == 'D0m' and obs_name == 'D0hp' and obs_name == 'Dcp' and obs_name == 'Dint': acFlag = True
+else: acFlag = False
 
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables

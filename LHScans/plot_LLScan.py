@@ -176,101 +176,103 @@ obsName = opt.OBSNAME
 
 doubleDiff = False
 if(obsName == 'mass4l'): label = 'm_{4l}'
-if(obsName == 'rapidity4l'): label = '|y_{H}|'
-if(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
-if(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
-if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
-if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
-if(obsName == 'pTj1'): label = 'p_{T}^{(j1, 2.5)} (GeV)'
-if(obsName == 'pTj1_eta4p7'): label = 'p_{T}^{(j1, 4.7)} (GeV)'
-if(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
-if(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
-if(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
-if(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
-if(obsName == 'phistar'): label = '#Phi^{#star}'
-if(obsName == 'phi'): label = '#Phi'
-if(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
-if(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
-if(obsName == 'D0m'): label = 'D_{0m}'
-if(obsName == 'massZ1 vs massZ2'):
+elif(obsName == 'rapidity4l'): label = '|y_{H}|'
+elif(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
+elif(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
+elif(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
+elif(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
+elif(obsName == 'pTj1'): label = 'p_{T}^{(j1, 2.5)} (GeV)'
+elif(obsName == 'pTj1_eta4p7'): label = 'p_{T}^{(j1, 4.7)} (GeV)'
+elif(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
+elif(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
+elif(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
+elif(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
+elif(obsName == 'phistar'): label = '#Phi^{#star}'
+elif(obsName == 'phi'): label = '#Phi'
+elif(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
+elif(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
+elif(obsName == 'D0m'): label = 'D_{0m}'
+elif(obsName == 'Dcp'): label = 'D_{cp}'
+elif(obsName == 'D0hp'): label = 'D_{0h^{+}}'
+elif(obsName == 'massZ1 vs massZ2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'm_{Z1} (GeV)'
     label_2nd = 'm_{Z2} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pTHj'):
+elif(obsName == 'njets_pt30_eta2p5 vs pTHj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{Hj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pT4l'):
+elif(obsName == 'njets_pt30_eta2p5 vs pT4l'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{H} (GeV)'
     doubleDiff = True
-if(obsName == 'rapidity4l vs pT4l'):
+elif(obsName == 'rapidity4l vs pT4l'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = '|y_{H}|'
     label_2nd = 'p_{T}^{H} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs mjj'):
+elif(obsName == 'njets_pt30_eta2p5 vs mjj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'm_{jj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs mHjj'):
+elif(obsName == 'njets_pt30_eta2p5 vs mHjj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'm_{Hjj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs mHj'):
+elif(obsName == 'njets_pt30_eta2p5 vs mHj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'm_{Hj} (GeV)'
     doubleDiff = True
-if(obsName == 'pTj1 vs pTj2'):
+elif(obsName == 'pTj1 vs pTj2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'p_{T}^{j,1} (GeV)'
     label_2nd = 'p_{T}^{j,2} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs TCjmax'):
+elif(obsName == 'njets_pt30_eta2p5 vs TCjmax'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'T_{Cj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs TBjmax'):
+elif(obsName == 'njets_pt30_eta2p5 vs TBjmax'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'T_{Bj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pTj2'):
+elif(obsName == 'njets_pt30_eta2p5 vs pTj2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{j,2} (GeV)'
     doubleDiff = True
-if(obsName == 'pT4l vs pTj1'):
+elif(obsName == 'pT4l vs pTj1'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'p_{T}^{H} (GeV)'
     label_2nd = 'p_{T}^{j,1} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pTj1'):
+elif(obsName == 'njets_pt30_eta2p5 vs pTj1'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet} (2.5)'
     label_2nd = 'p_{T}^{j,1} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta4p7 vs pTj1_eta4p7'):
+elif(obsName == 'njets_pt30_eta4p7 vs pTj1_eta4p7'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet} (4.7)'

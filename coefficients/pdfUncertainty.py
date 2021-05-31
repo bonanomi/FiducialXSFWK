@@ -27,6 +27,7 @@ def parseOptions():
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
+    parser.add_option('',   '--nnlops', action='store_true', dest='NNLOPS', default=False, help='Calculate uncert for ggH_NNLOPS sample')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -44,56 +45,31 @@ parseOptions()
 # Weights for histogram
 def weight(df, fail, xsec, gen, lumi, additional = None):
     #Coefficient to calculate weights for histograms
-    coeff = (lumi * 1000 * xsec) / gen
+    # coeff = (lumi * 1000 * xsec) / gen
     #Gen
-    weight_gen = df.genHEPMCweight * df.PUWeight
-    weight_histo_gen = weight_gen * coeff
-    #Reco
-    if(fail == False):
-        weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
-        weight_histo_reco = weight_reco * coeff
-    elif(fail == True):
-        weight_reco = 0
-        weight_histo_reco = weight_reco * coeff
-    #Columns in pandas
-    df['weight_gen'] = weight_gen #Powheg
-    df['weight_reco'] = weight_reco #Powheg
-    df['weight_histo_gen'] = weight_histo_gen #Powheg
-    df['weight_histo_reco'] = weight_histo_reco #Powheg
+    weight_gen = df.genHEPMCweight # * df.PUWeight //Not sure if PUWeight have to be included
     #Specific for pdfUncertainty
-    df['weight_gen_NNLO_0'] = weight_gen * df.LHEweight_QCDscale_muR1_muF1
-    df['weight_gen_NNLO_1'] = weight_gen * df.LHEweight_QCDscale_muR1_muF2
-    df['weight_gen_NNLO_2'] = weight_gen * df.LHEweight_QCDscale_muR1_muF0p5
-    df['weight_gen_NNLO_3'] = weight_gen * df.LHEweight_QCDscale_muR2_muF1
-    df['weight_gen_NNLO_4'] = weight_gen * df.LHEweight_QCDscale_muR2_muF2
-    df['weight_gen_NNLO_5'] = weight_gen * df.LHEweight_QCDscale_muR2_muF0p5
-    df['weight_gen_NNLO_6'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF1
-    df['weight_gen_NNLO_7'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF2
-    df['weight_gen_NNLO_8'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF0p5
-    df['weight_gen_PDFup'] = weight_gen * df.LHEweight_PDFVariation_Up
-    df['weight_gen_PDFdn'] = weight_gen * df.LHEweight_PDFVariation_Dn
-    if additional == 'ggH':
-        weight_gen_NNLOPS = weight_gen * df.ggH_NNLOPS_weight
-        weight_reco_NNLOPS = weight_reco * df.ggH_NNLOPS_weight
-        weight_histo_gen_NNLOPS = weight_histo_gen * df.ggH_NNLOPS_weight
-        weight_histo_reco_NNLOPS = weight_histo_reco * df.ggH_NNLOPS_weight
-        df['weight_gen_NNLOPS'] = weight_gen_NNLOPS #NNLOPS (only ggH)
-        df['weight_reco_NNLOPS'] = weight_reco_NNLOPS #NNLOPS (only ggH)
-        df['weight_histo_gen_NNLOPS'] = weight_histo_gen_NNLOPS #NNLOPS (only ggH)
-        df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
-        #Specific for pdfUncertainty
-        #In case of NNLOPS I should use always nnloWeights[0], for coding purposes I set all weight_gen_NNLOPS_NNLO_* equal to weight_gen_NNLOPS_NNLO_0
-        df['weight_gen_NNLOPS_NNLO_0'] = weight_gen_NNLOPS * df.LHEweight_QCDscale_muR1_muF1
-        df['weight_gen_NNLOPS_NNLO_1'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_2'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_3'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_4'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_5'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_6'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_7'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_NNLO_8'] = df['weight_gen_NNLOPS_NNLO_0']
-        df['weight_gen_NNLOPS_PDFup'] = weight_gen_NNLOPS * df.LHEweight_PDFVariation_Up
-        df['weight_gen_NNLOPS_PDFdn'] = weight_gen_NNLOPS * df.LHEweight_PDFVariation_Dn
+    df['qcdWeight_0'] = weight_gen * df.LHEweight_QCDscale_muR1_muF1
+    df['qcdWeight_1'] = weight_gen * df.LHEweight_QCDscale_muR1_muF2
+    df['qcdWeight_2'] = weight_gen * df.LHEweight_QCDscale_muR1_muF0p5
+    df['qcdWeight_3'] = weight_gen * df.LHEweight_QCDscale_muR2_muF1
+    df['qcdWeight_4'] = weight_gen * df.LHEweight_QCDscale_muR2_muF2
+    df['qcdWeight_5'] = weight_gen * df.LHEweight_QCDscale_muR2_muF0p5
+    df['qcdWeight_6'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF1
+    df['qcdWeight_7'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF2
+    df['qcdWeight_8'] = weight_gen * df.LHEweight_QCDscale_muR0p5_muF0p5
+    df['PDFupWeight'] = (weight_gen * df.LHEweight_QCDscale_muR1_muF1) * df.LHEweight_PDFVariation_Up / abs(weight_gen * df.LHEweight_QCDscale_muR1_muF1) # qcdWeights[0]*pdfENVup/abs(qcdWeights[0])
+    df['PDFdnWeight'] = (weight_gen * df.LHEweight_QCDscale_muR1_muF1) * df.LHEweight_PDFVariation_Dn / abs(weight_gen * df.LHEweight_QCDscale_muR1_muF1) # qcdWeights[0]*pdfENVdn/abs(qcdWeights[0])
+    if opt.NNLOPS:
+        #In case of NNLOPS I should always use nnloWeights[0], for coding purposes I set all weight_gen_NNLOPS_NNLO_* equal to weight_gen_NNLOPS_NNLO_0
+        for i in range(0,27):
+            df['nnlopsWeight_'+str(i)] = [x[i] for x in df['nnlopsWeight']]
+        ref = df['nnlopsWeight_0'] * weight_gen
+        for i in range(0,27):
+            df['nnlopsWeight_'+str(i)] = df['nnlopsWeight_'+str(i)] * weight_gen / ref
+        # In case of NNLOPS re-write the PDF weights
+        df['PDFupWeight'] = df['nnlopsWeight_0'] * df.LHEweight_PDFVariation_Up / abs(weight_gen * df.LHEweight_QCDscale_muR1_muF1) # nnloWeights[0]*pdfENVup/abs(qcdWeights[0])
+        df['PDFdnWeight'] = df['nnlopsWeight_0'] * df.LHEweight_PDFVariation_Dn / abs(weight_gen * df.LHEweight_QCDscale_muR1_muF1) # nnloWeights[0]*pdfENVdn/abs(qcdWeights[0])
     return df
 
 # Uproot to generate pandas
@@ -101,8 +77,11 @@ def prepareTrees(year):
     d_sig = {}
     d_sig_failed = {}
     for signal in signals_original:
+        # if opt.AC_HYP: fname = eos_path_sig + 'AC%i_MELA' %year
+        # else: fname = eos_path_sig + '%i_MELA' %year
         fname = eos_path_sig + '%i_MELA' %year
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if not opt.NNLOPS: fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        else: fname += '/'+signal+'_NNLOPS/'+signal+'_NNLOPS_reducedTree_MC_'+str(year)+'.root'
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
 
@@ -196,8 +175,11 @@ def add_cuth4l_reco(Hindex,genIndex,momMomId,momId):
 def generators(year):
     gen_sig = {}
     for signal in signals_original:
+        # if opt.AC_HYP: fname = eos_path_sig + 'AC%i_MELA' %year
+        # else: fname = eos_path_sig + '%i_MELA' %year
         fname = eos_path_sig + '%i_MELA' %year
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if not opt.NNLOPS: fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        else: fname += '/'+signal+'_NNLOPS/'+signal+'_NNLOPS_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
         gen_sig[signal] = hCounters.GetBinContent(40)
@@ -211,9 +193,10 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
              'LHEweight_QCDscale_muR2_muF1','LHEweight_QCDscale_muR2_muF2','LHEweight_QCDscale_muR2_muF0p5',
              'LHEweight_QCDscale_muR0p5_muF1','LHEweight_QCDscale_muR0p5_muF2','LHEweight_QCDscale_muR0p5_muF0p5',
              'LHEweight_PDFVariation_Up', 'LHEweight_PDFVariation_Dn']
+    if opt.NNLOPS: b_sig.append('nnlopsWeight')
     if (obs_gen != 'GENmass4l'): b_sig.append(obs_gen)
     if (obs_gen_2nd!='None'): b_sig.append(obs_gen_2nd)
-    if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
+    if signal == 'ggH125' and not opt.NNLOPS: b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail:
         b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'lep_genindex', 'lep_Hindex', 'overallEventWeight',
                       'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
@@ -253,7 +236,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df = weight(df, fail, xsec, gen, lumi)
     else:
         df = weight(df, fail, xsec, gen, lumi, 'ggH')
-        df = df.drop(columns=['ggH_NNLOPS_weight'])
+        # df = df.drop(columns=['ggH_NNLOPS_weight'])
 
     return df
 
@@ -342,6 +325,7 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
             cutobs_gen = abs(datafr[obs_gen]) >= obs_gen_low
         else:
             cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+            if (obs_name=='Dcp'): cutobs_gen = (datafr[obs_gen] >= obs_gen_low) & (datafr[obs_gen] < obs_gen_high)
             if doubleDiff:
                 cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
         if channel != '4l':
@@ -359,44 +343,54 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
         notPassedFiducialSelection = datafr['passedFiducialSelection_bbf'] == False
 
         coefficients = {}
-        coefficients['fs'] = datafr[cutchan_gen_out]['weight_gen'+nnlops+'_NNLO_0'].sum()
-        for i in range(0,9):
-            if i==5 or i==7: continue
-            coefficients['fs'+str(i)] = datafr[cutchan_gen_out]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
-            # coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
-            coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen_NNLO_'+str(i)].sum()
-            coefficients['fid'+str(i)] = coefficients['fid'+str(i)] * (1/coefficients['fs']) #This stands for "Scale" in the original code
-            # coefficients['fidraw'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
-            coefficients['fidraw'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen_NNLO_'+str(i)].sum()
-            coefficients['fidraw'+str(i)] = coefficients['fidraw'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
-            coefficients['fs'+str(i)] = coefficients['fs'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
+        if not opt.NNLOPS: coefficients['fs'] = datafr[cutchan_gen_out]['qcdWeight_0'].sum()
+        else: coefficients['fs'] = datafr[cutchan_gen_out]['nnlopsWeight_0'].sum()
+        if type=='std':
+            for i in range(0,9):
+                maxWeight = 9
+                coefficients['fs'+str(i)] = datafr[cutchan_gen_out]['qcdWeight_'+str(i)].sum()
+                # coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
+                coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['qcdWeight_'+str(i)].sum()
+                coefficients['fid'+str(i)] = coefficients['fid'+str(i)] * (1/coefficients['fs']) #This stands for "Scale" in the original code
+                # coefficients['fidraw'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_NNLO_'+str(i)].sum()
+                # coefficients['fidraw'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen_NNLO_'+str(i)].sum()
+                # coefficients['fidraw'+str(i)] = coefficients['fidraw'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
+                coefficients['fs'+str(i)] = coefficients['fs'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
+        else:
+            for i in range(0,27):
+                maxWeight = 27
+                if (i==5 or i==7 or i==11 or i==14 or i==15 or i==16 or i==17 or i==19 or i==21 or i==22 or i==23 or i==25): continue
+                coefficients['fs'+str(i)] = datafr[cutchan_gen_out]['nnlopsWeight_'+str(i)].sum()
+                coefficients['fid'+str(i)] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['nnlopsWeight_'+str(i)].sum()
+                coefficients['fid'+str(i)] = coefficients['fid'+str(i)] * (1/coefficients['fs']) #This stands for "Scale" in the original code
+                coefficients['fs'+str(i)] = coefficients['fs'+str(i)] * (1/coefficients['fs'+str(i)]) #This stands for "Scale" in the original code
 
-        coefficients['fidPDF_up'] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_PDFup'].sum()
+        coefficients['fidPDF_up'] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['PDFupWeight'].sum()
         coefficients['fidPDF_up'] = coefficients['fidPDF_up'] * (1/coefficients['fs']) #This stands for "Scale" in the original code
-        coefficients['fidPDF_dn'] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['weight_gen'+nnlops+'_PDFdn'].sum()
+        coefficients['fidPDF_dn'] = datafr[passedFiducialSelection & cutm4l_gen & cutobs_gen & cutchan_gen & cuth4l_gen]['PDFdnWeight'].sum()
         coefficients['fidPDF_dn'] = coefficients['fidPDF_dn'] * (1/coefficients['fs']) #This stands for "Scale" in the original code
         fsintegral = coefficients['fs']
         coefficients['fs'] = coefficients['fs'] * (1/coefficients['fs'])
 
         if coefficients['fs']>0:
             if verbose: print coefficients['fs'],coefficients['fid0']
-            acceptance[processBin] = coefficients['fid0']/coefficients['fs']
+            # acceptance[processBin] = coefficients['fid0']/coefficients['fs']
             qcderrup=1.0; qcderrdn=1.0;
-            accerrup=1.0; accerrdn=1.0;
+            # accerrup=1.0; accerrdn=1.0;
             if verbose: print processBin,coefficients['fid0']
-            for i in range(0,9):
-                if i==5 or i==7: continue
-
+            for i in range(0,maxWeight):
+                if type=='NNLOPS' and (i==5 or i==7 or i==11 or i==14 or i==15 or i==16 or i==17 or i==19 or i==21 or i==22 or i==23 or i==25): continue
                 ratio = coefficients['fid'+str(i)]/coefficients['fid0']
+                # print(channel, genbin, i, ratio, coefficients['fid'+str(i)], coefficients['fid0'])
                 if verbose: print i, 'ratio', ratio
                 if ratio>qcderrup: qcderrup = coefficients['fid'+str(i)]/coefficients['fid0']
                 if ratio<qcderrdn: qcderrdn = coefficients['fid'+str(i)]/coefficients['fid0']
-
-                acci = coefficients['fidraw'+str(i)]/coefficients['fs'+str(i)]
-                if verbose: print i, 'acc', acci
-                if verbose: print coefficients['fidraw'+str(i)], coefficients['fs'+str(i)]
-                if acci/acceptance[processBin]>accerrup: accerrup=acci/acceptance[processBin]
-                if acci/acceptance[processBin]<accerrdn: accerrdn=acci/acceptance[processBin]
+            # print('')
+                # acci = coefficients['fidraw'+str(i)]/coefficients['fs'+str(i)]
+                # if verbose: print i, 'acc', acci
+                # if verbose: print coefficients['fidraw'+str(i)], coefficients['fs'+str(i)]
+                # if acci/acceptance[processBin]>accerrup: accerrup=acci/acceptance[processBin]
+                # if acci/acceptance[processBin]<accerrdn: accerrdn=acci/acceptance[processBin]
             qcdUncert[processBin]={'uncerDn':abs(qcderrdn-1.0),'uncerUp':abs(qcderrup-1.0)}
             pdferr_up = coefficients['fidPDF_up']/coefficients['fid0']
             pdferr_dn = coefficients['fidPDF_dn']/coefficients['fid0']
@@ -407,6 +401,8 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
 # -----------------------------------------------------------------------------------------
 # ------------------------------- MAIN ----------------------------------------------------
 # -----------------------------------------------------------------------------------------
+# if opt.AC_HYP: signals_original = signals = ['ggH'+opt.AC_HYP+'_M125']
+# else: signals_original = signals = ['ggH125']
 signals_original = signals = ['ggH125']
 eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
 key = 'candTree'
@@ -491,23 +487,26 @@ lenObsBins = len(obs_bins)
 if doubleDiff: lenObsBins = lenObsBins+1
 for chan in chans:
     for genbin in range(lenObsBins-1):
-        getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'std', year)
-        getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'NNLOPS', year)
+        if not opt.NNLOPS: getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'std', year)
+        else: getPdfUncert(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin, obs_name, 'NNLOPS', year)
 if (obs_reco.startswith("njets")) and not doubleDiff:
     for chan in chans:
         for genbin in range(lenObsBins-2): # last bin is >=3
             for signal in signals:
-                processBin = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin)
-                processBinPlus1 = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin+1)
+                if not opt.NNLOPS:
+                    processBin = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin)
+                    processBinPlus1 = signal+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin+1)
+                else:
+                    processBin = signal+'_NNLOPS_'+chan+'_'+obs_name+'_genbin'+str(genbin)
+                    processBinPlus1 = signal+'_NNLOPS_'+chan+'_'+obs_name+'_genbin'+str(genbin+1)
                 acceptance[processBin] = acceptance[processBin]-acceptance[processBinPlus1]
                 qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
                 qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
-
-                processBin = signal+'_NNLOPS_'+chan+'_'+obs_name+'_genbin'+str(genbin)
-                processBinPlus1 = signal+'_NNLOPS_'+chan+'_'+obs_name+'_genbin'+str(genbin+1)
-                acceptance[processBin] = acceptance[processBin]-acceptance[processBinPlus1]
-                qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
-                qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
+                # acceptance[processBin] = acceptance[processBin]-acceptance[processBinPlus1]
+                # qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
+                # qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
+if opt.NNLOPS: obs_name = obs_name+'_NNLOPS'
+# elif opt.AC_HYP: obs_name = obs_name+'_'+opt.AC_HYP
 with open('../inputs/accUnc_'+obs_name+'.py', 'w') as f:
     f.write('acc = '+str(acceptance)+';\n')
     f.write('qcdUncert = '+str(qcdUncert)+' \n')

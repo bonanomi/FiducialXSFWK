@@ -128,7 +128,7 @@ def matrix(obs_bins, obs_name, label):
                 plt.ylim(0,bin_max)
                 if not doubleDiff: _fontsize = 14
                 elif doubleDiff: _fontsize = 13
-                if obs_name != 'rapidity4l' and not doubleDiff:
+                if obs_name != 'rapidity4l' and obs_name != 'D0m' and obs_name != 'Dcp' and not doubleDiff:
                     plt.xlabel(label+' (fid) [GeV]', fontsize=_fontsize)
                     plt.ylabel(label+' (reco) [GeV]', fontsize=_fontsize)
                 else:
@@ -172,8 +172,8 @@ def nonFid(obs_bins, obs_name, label):
         obs_bins_label_x = [i for i in range(len(obs_bins))]
         obs_bins_label_x_medium = [i+0.5 for i in range(len(obs_bins)-1)]
         # bin_max = len(obs_bins)-1
-    obs_bins_label_y = [0,1,2,3,4,5] # Number of row and columns
-    obs_bins_label_y_medium = [0.5,1.5,2.5,3.5,4.5] # Medium point of each row and column
+    obs_bins_label_y = [0,1,2,3,4,5,6] # Number of row and columns
+    obs_bins_label_y_medium = [0.5,1.5,2.5,3.5,4.5,5.5] # Medium point of each row and column
     bin_max = len(obs_bins)-1
 
 
@@ -219,14 +219,14 @@ def nonFid(obs_bins, obs_name, label):
                 tick.tick1line.set_markersize(0)
             if not doubleDiff: plt.setp(plt.gca().get_xticklabels(), ha="right",rotation = 25, rotation_mode="anchor") # Rotate xticks
             elif doubleDiff: plt.setp(plt.gca().get_xticklabels(), ha="right",rotation = 40, rotation_mode="anchor") # Rotate xticks
-            plt.yticks(obs_bins_label_y_medium, ['ggH', 'VBF', 'WH', 'ZH', 'ttH'])
+            plt.yticks(obs_bins_label_y_medium, ['ggH', 'VBF', 'WH', 'ZH', 'ttH', 'SM_125'])
             for tick in plt.gca().get_yaxis().get_major_ticks(): # Remove central tick
                 tick.tick1line.set_markersize(0)
             plt.xlim(0,bin_max)
-            plt.ylim(0,5)
+            plt.ylim(0,6)
             if not doubleDiff: _fontsize = 14
             elif doubleDiff: _fontsize = 13
-            if obs_name != 'rapidity4l' and not doubleDiff:
+            if obs_name != 'rapidity4l' and obs_name != 'D0m' and obs_name != 'Dcp' and not doubleDiff:
                 plt.xlabel(label+' (fid) [GeV]', fontsize=_fontsize)
             else:
                 plt.xlabel(label+' (fid)', fontsize=_fontsize)
@@ -285,6 +285,14 @@ elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
 elif(obs_name == 'massZ1 vs massZ2'):
     obs_name = 'massZ1_massZ2' #Change name of obs_name
     label = 'm$_{Z1}$(GeV)/m$_{Z2}$(GeV)'
+elif(obs_name == 'D0m'):
+    label = 'D0m'
+elif(obs_name == 'Dcp'):
+    label = 'Dcp'
+elif(obs_name == 'D0hp'):
+    label = 'D0hp'
+elif(obs_name == 'pTj1'):
+    label = 'p$_T^{j1}$ (GeV)'
 
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins']) # Open file to retrieve the binning
 obs_bins = _temp.observableBins
@@ -292,6 +300,7 @@ obs_bins = _temp.observableBins
 doubleDiff = False
 if type(obs_bins) is dict: doubleDiff = True # If binning is a dictionary it is a double differential analysis
 
+signals.append('SM_125')
 matrix(obs_bins, obs_name, label)
 nonFid(obs_bins, obs_name, label)
 sys.path.remove('../inputs/')

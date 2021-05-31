@@ -132,6 +132,12 @@ def impactPlots():
             cmd_BR += 'K1Bin'+str(obsBin)+'='+str(K1)+',K2Bin'+str(obsBin)+'='+str(K2)+','
         print(cmd_BR)
 
+        cmd_sigma = ''
+        for obsBin in range(nBins-1):
+            cmd_sigma += 'SigmaBin'+str(obsBin)+','
+        cmd_sigma = cmd_sigma[:-1]
+        print(cmd_sigma)
+
     if (obsName == 'mass4l'): max_sigma = '5'
     else: max_sigma = '2.5'
 
@@ -145,7 +151,9 @@ def impactPlots():
         cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
     if (not opt.UNBLIND):
         cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR[:-1] + ',' + cmd_XSEC
+    print '---------------------------'
     print cmd, '\n'
+    print '---------------------------'
     output = processCmd(cmd)
 
     ### Second step (Files from asimov and data have the same name)
@@ -158,9 +166,35 @@ def impactPlots():
         cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
     if (not opt.UNBLIND):
         cmd = cmd + ' -t -1 --setParameters MH=125.38,' + cmd_BR[:-1] + ',' + cmd_XSEC
+    print '---------------------------'
     print cmd, '\n'
+    print '---------------------------'
     output = processCmd(cmd)
 
+    ### Third step
+    if opt.PHYSICSMODEL=='v3':
+        for obsBin in range(nBins-1):
+            cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 -t -1 --setParameters MH=125.38,'+cmd_BR[:-1]+','+cmd_XSEC+' --redefineSignalPOIs '+cmd_sigma
+            cmd += ' -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+            if (not opt.UNBLIND):
+                cmd = cmd + 'asimov.json'
+            elif (opt.UNBLIND):
+                cmd = cmd + 'data.json'
+            print '---------------------------'
+            print cmd, '\n'
+            print '---------------------------'
+            output = processCmd(cmd)
+            # plot
+            cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
+            elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
+            print '---------------------------'
+            print cmd, '\n'
+            print '---------------------------'
+            output = processCmd(cmd)
+
+
+'''
     if opt.PHYSICSMODEL=='v3':
         for obsBin in range(nBins-1):
             ### Third step
@@ -172,13 +206,17 @@ def impactPlots():
                 cmd = cmd + 'asimov.json'
             elif (opt.UNBLIND):
                 cmd = cmd + 'data.json'
+            print '---------------------------'
             print cmd, '\n'
+            print '---------------------------'
             output = processCmd(cmd)
             # plot
             cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
             if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
             elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
+            print '---------------------------'
             print cmd, '\n'
+            print '---------------------------'
             output = processCmd(cmd)
     else: # mass4l_v2
         for channel in ['4e','4mu','2e2mu']:
@@ -194,14 +232,20 @@ def impactPlots():
                 cmd = cmd + 'asimov.json -t -1 --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
             elif (opt.UNBLIND):
                 cmd = cmd + 'data.json'
+            print '---------------------------'
             print cmd, '\n'
+            print '---------------------------'
             output = processCmd(cmd)
             # plot
             cmd = 'plotImpacts.py -i impacts_v2_'+obsName+'_r'+channel+'Bin0_'
             if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v2_'+obsName+'_r'+channel+'Bin0_asimov --POI r'+channel+'Bin0'
             elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v2_'+obsName+'_r'+channel+'Bin0_data --POI r'+channel+'Bin0'
+            print '---------------------------'
             print cmd, '\n'
+            print '---------------------------'
             output = processCmd(cmd)
+'''
+
 
 # ----------------- Main -----------------
 impactPlots()

@@ -17,10 +17,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
     expected_yield = _temp.expected_yield
     if jes:
+        sys.path.append('../coefficients/JES')
         jesNames = ['Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
         jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
-        _temp = __import__('JESNP_'+obsName, globals(), locals(), ['JESNP'], -1)
+        _temp = __import__('JESNP_'+obsName+'_'+str(year), globals(), locals(), ['JESNP'], -1)
         jesnp = _temp.JESNP
+        sys.path.remove('../coefficients/JES')
         # print(jesnp)
     sys.path.remove('../inputs')
 
@@ -208,11 +210,15 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # JES
     if jes == True:
-        for index in range(len(jesNames)):
-            file.write('CMS_scale_j_'+jesNames_datacard[index]+' lnN ')
-            for i in range(nBins+2): # All except ZX
-                file.write(jesnp[int(year),channel,'recobin_'+str(obsBin),jesNames[index]]+' ')
-            file.write('- - -\n') # ZX
+        for index,jesName in enumerate(jesNames_datacard):
+            file.write('CMS_scale_j_'+jesName+' lnN ')
+            for i in range(nBins): # Signals
+                file.write(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+            file.write('-\n') # ZX
             #file.write('JES param 0.0 1.0\n')
 
     file.close()
