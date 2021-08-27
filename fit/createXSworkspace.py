@@ -422,7 +422,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high))+".root"
         template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high))+".root"
         template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high))+".root"
-    elif obsName=='Dcp':
+    elif obsName=='Dcp' or obsName=='Dint':
         template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
         template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
         template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
@@ -436,7 +436,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
 
     qqzzTempFile = ROOT.TFile(template_qqzzName,"READ")
-    if obsName=='Dcp': qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
+    if obsName=='Dcp' or obsName=='Dint': qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
     elif doubleDiff: qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print qqzzTempFile
@@ -444,13 +444,13 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     print 'qqZZ bins',qqzzTemplate.GetNbinsX(),qqzzTemplate.GetBinLowEdge(1),qqzzTemplate.GetBinLowEdge(qqzzTemplate.GetNbinsX()+1)
 
     ggzzTempFile = ROOT.TFile(template_ggzzName,"READ")
-    if obsName=='Dcp': ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
+    if obsName=='Dcp' or obsName=='Dint': ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
     elif doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print 'ggZZ bins',ggzzTemplate.GetNbinsX(),ggzzTemplate.GetBinLowEdge(1),ggzzTemplate.GetBinLowEdge(ggzzTemplate.GetNbinsX()+1)
 
     zjetsTempFile = ROOT.TFile(template_zjetsName,"READ")
-    if obsName=='Dcp': zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
+    if obsName=='Dcp' or obsName=='Dint': zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
     elif doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print 'zjets bins',zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1)

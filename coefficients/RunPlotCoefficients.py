@@ -291,6 +291,10 @@ elif(obs_name == 'Dcp'):
     label = 'Dcp'
 elif(obs_name == 'D0hp'):
     label = 'D0hp'
+elif(obs_name == 'Dint'):
+    label = 'Dint'
+elif(obs_name == 'DL1'):
+    label = 'DL1'
 elif(obs_name == 'pTj1'):
     label = 'p$_T^{j1}$ (GeV)'
 

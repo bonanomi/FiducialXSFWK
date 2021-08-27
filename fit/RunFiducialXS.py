@@ -132,7 +132,7 @@ def runFiducialXS():
     print 'Theory xsec and BR at MH = '+_th_MH
     print 'Current directory: python'
 
-    _fit_dir = os.getcwd()
+    # _fit_dir = os.getcwd()
 
     ## addConstrainedModel
     years_bis = years
@@ -144,6 +144,7 @@ def runFiducialXS():
             if doubleDiff: cmd += ' --doubleDiff'
             print cmd
             output = processCmd(cmd)
+            cmds.append(cmd)
             print output
             print 'addConstrainedModel DONE'
         elif os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
@@ -181,6 +182,7 @@ def runFiducialXS():
                     cmd = cmd + '> hzz4l_'+fState+'S_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
                     print cmd, '\n'
                     processCmd(cmd,1)
+                    cmds.append(cmd)
                 else:
                     print 'There is a problem during the combination over bins'
 
@@ -188,6 +190,7 @@ def runFiducialXS():
             cmd = 'combineCards.py hzz4l_4muS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_4eS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_2e2muS_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
+            cmds.append(cmd)
 
             os.chdir(_fit_dir)
 
@@ -199,22 +202,27 @@ def runFiducialXS():
             cmd = 'combineCards.py datacard_2016/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2017/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2018/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
+            cmds.append(cmd)
             cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 norm_fakeH pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig_2017 CMS_zz4l_sigma_e_sig_2016 CMS_zz4l_sigma_m_sig_2018 CMS_zz4l_sigma_m_sig_2017 CMS_zz4l_sigma_m_sig_2016 CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_mean_e_sig_2016 CMS_zz4l_mean_e_sig_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_mean_m_sig_2018 CMS_zz4l_mean_m_sig_2016 CMS_zz4l_mean_m_sig_2017 CMS_zz4l_sigma_e_sig_2018 CMS_zz4l_mean_e_sig_2018'
             if obsName == 'pTj1': cmd += ' CMS_scale_j_Abs CMS_scale_j_Abs_2016 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2016 CMS_scale_j_EC2 CMS_scale_j_EC2_2016 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2016 CMS_scale_j_RelBal CMS_scale_j_RelSample_2016 CMS_scale_j_Abs CMS_scale_j_Abs_2017 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2017 CMS_scale_j_EC2 CMS_scale_j_EC2_2017 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2017 CMS_scale_j_RelBal CMS_scale_j_RelSample_2017 CMS_scale_j_Abs CMS_scale_j_Abs_2018 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2018 CMS_scale_j_EC2 CMS_scale_j_EC2_2018 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2018 CMS_scale_j_RelBal CMS_scale_j_RelSample_2018'
             cmd += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
+            cmds.append(cmd)
         else:
             cmd = 'cp datacard_'+str(opt.YEAR)+'/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
+            cmds.append(cmd)
             cmd = "sed -i 's|hzz4l|datacard_"+str(opt.YEAR)+"/hzz4l|g' hzz4l_all_13TeV_xs_"+obsName+"_bin_"+physicalModel+".txt" # Specify the right pattern to datacards (Before it was not necessary because there was a further combination)
             print cmd, '\n'
             processCmd(cmd,1)
+            cmds.append(cmd)
             cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_'+str(opt.YEAR)+' norm_fakeH pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_m_sig_'+str(opt.YEAR)+' CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig_'+str(opt.YEAR)+' CMS_zz4l_mean_m_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)
             if obsName == 'pTj1': cmd += ' CMS_scale_j_Abs CMS_scale_j_Abs_'+str(opt.YEAR)+' CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_'+str(opt.YEAR)+' CMS_scale_j_EC2 CMS_scale_j_EC2_'+str(opt.YEAR)+' CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_'+str(opt.YEAR)+' CMS_scale_j_RelBal CMS_scale_j_RelSample_'+str(opt.YEAR)
             cmd += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             processCmd(cmd,1)
+            cmds.append(cmd)
             print cmd, '\n'
 
         # text-to-workspace
@@ -222,16 +230,19 @@ def runFiducialXS():
             cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducialV3 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
+            cmds.append(cmd)
         elif (physicalModel=="v2"):
             cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
+            cmds.append(cmd)
 
 
         # The workspace got from text2workspace changes name from hzz4l_ to SM_125 and it is transferred to the combine_files directory
         cmd = 'cp hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root ../combine_files/'+DataModelName+'_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
         print cmd, '\n'
         processCmd(cmd,1)
+        cmds.append(cmd)
 
     	# From datacard directory to combine_files, to store fit results
         os.chdir('../combine_files/')
@@ -250,6 +261,7 @@ def runFiducialXS():
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
                 print cmd, '\n'
                 output = processCmd(cmd)
+                cmds.append(cmd)
                 # Stat-only
                 cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0_NoSys'
                 if(not opt.UNBLIND): cmd = cmd + '_exp'
@@ -261,6 +273,7 @@ def runFiducialXS():
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
                 print cmd+'\n'
                 output = processCmd(cmd)
+                cmds.append(cmd)
         elif physicalModel == 'v3':
             XH = []
             tmp_xs = {}
@@ -331,6 +344,7 @@ def runFiducialXS():
                     cmd = cmd+' --setParameters '+cmd_BR
                 print cmd, '\n'
                 output = processCmd(cmd)
+                cmds.append(cmd)
             # Stat-only
             XH = []
             for obsBin in range(nBins):
@@ -358,8 +372,18 @@ def runFiducialXS():
                     cmd = cmd+' --setParameters '+cmd_BR
                 print cmd+'\n'
                 output = processCmd(cmd)
+                cmds.append(cmd)
 
 # ----------------- Main -----------------
+_fit_dir = os.getcwd()
+cmds = [] #List of all cmds
 runFiducialXS()
+os.chdir(_fit_dir)
+if (os.path.exists('commands_'+opt.OBSNAME+'.py')):
+    os.system('rm commands_'+opt.OBSNAME+'.py')
+with open('commands_'+opt.OBSNAME+'.py', 'w') as f:
+    for i in cmds:
+        f.write(str(i)+' \n')
+        f.write('\n')
 print "all modules successfully compiled"
 sys.path.remove('../inputs/')

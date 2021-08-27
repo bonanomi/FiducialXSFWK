@@ -36,6 +36,9 @@ def parseOptions():
     # The following two options are used together to calculate the acceptance in AC scenario to plot AC predictions on fiducial plot
     parser.add_option('',   '--AC_onlyAcc', action='store_true', dest='AC_ONLYACC', default=False, help='Flag in case we are interested in only the acceptance')
     parser.add_option('',   '--AC_hypothesis', dest='AC_HYP',  type='string',default='',   help='Name of the AC hypothesis, e.g. 0M, 0PM')
+    # The following option are used in case of interpolation to calculate acceptance at 125.38 GeV
+    parser.add_option('',   '--interpolation', action='store_true', dest='INTER', default=False, help='Calculate acceptances at 124 and 126 GeV')
+    parser.add_option('',   '--hypothesis', dest='HYP',  type='string',default='', help='specify mass value: 4(124) or 6(126)')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -239,7 +242,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df['cuth4l_reco'] = [add_cuth4l_reco(row[0],row[1],row[2],row[3]) for row in df[['lep_Hindex','lep_genindex','GENlep_MomMomId','GENlep_MomId']].values]
     elif fail:
         df['cuth4l_reco'] = False
-    if signal != 'ggH125':
+    if not 'ggH125' in signal:
         df = weight(df, fail, xsec, gen, lumi)
     else:
         df = weight(df, fail, xsec, gen, lumi, 'ggH')
@@ -283,18 +286,18 @@ def skim_df(year, doubleDiff):
     d_skim_sig_failed = {}
     frames = []
     for signal in signals_original:
-        if (signal == 'WplusH125') or (signal == 'WminusH125'):
+        if ('WplusH12' in signal) or ('WminusH12' in signal):
             frames.append(d_df_sig[signal])
         else:
             d_skim_sig[signal] = d_df_sig[signal]
-    if frames: d_skim_sig['WH125'] = pd.concat(frames)
+    if frames: d_skim_sig['WH12'+signal[len(signal)-1]] = pd.concat(frames)
     frames = []
     for signal in signals_original:
-        if (signal == 'WplusH125') or (signal == 'WminusH125'):
+        if ('WplusH12' in signal) or ('WminusH12' in signal):
             frames.append(d_df_sig_failed[signal])
         else:
             d_skim_sig_failed[signal] = d_df_sig_failed[signal]
-    if frames: d_skim_sig_failed['WH125'] = pd.concat(frames)
+    if frames: d_skim_sig_failed['WH12'+signal[len(signal)-1]] = pd.concat(frames)
     print '%i SKIMMED df CREATED' %year
     return d_skim_sig, d_skim_sig_failed
 
@@ -407,7 +410,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             err_acceptance[processBin] = -1.0
 
 
-        if type=='fullNNLOPS' or type=='ACggH': continue # In case of fullNNLOPS we are interested in acceptance only
+        if type=='fullNNLOPS' or type=='ACggH' or opt.INTER: continue # In case of fullNNLOPS we are interested in acceptance only
 
         # --------------- EffRecoToFid ---------------
         eff_num = datafr[cutm4l_reco & cutobs_reco & passedFullSelection & cuth4l_reco &
@@ -498,7 +501,8 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
     nBins = len(obs_bins)
     if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
     if(opt.AC==True): add_ac = 'AC_'
-    elif(opt.AC_ONLYACC==True): add_ac = 'ACggH_'
+    elif(opt.AC_ONLYACC==True): add_ac = 'ACggH_'+opt.AC_HYP+'_'
+    elif opt.INTER: add_ac = '12'+opt.HYP+'_'
     else: add_ac = ''
     if type=='std':
         for year in years:
@@ -566,15 +570,21 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
 # -----------------------------------------------------------------------------------------
 # ------------------------------- MAIN ----------------------------------------------------
 # -----------------------------------------------------------------------------------------
-signals_original = ['VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
-signals = ['ggH125', 'VBFH125', 'WH125', 'ZH125', 'ttH125']
 if(opt.AC or opt.AC_ONLYACC):
-	if opt.AC_ONLYACC: signals_AC_bare = ['ggH','VBFH', 'WH', 'ZH'] #Currently we use only ggH (reweighted to the sum of all production modes) to plot AC predictions
+	if opt.AC_ONLYACC: signals_AC_bare = ['ggH'] #Currently we use only ggH (reweighted to the sum of all production modes) to plot AC predictions
 	else: signals_AC_bare = ['VBF', 'WH', 'ggH', 'ZH', 'ttH']
 	signals_AC = [root+opt.AC_HYP+'_M125' for root in signals_AC_bare]
 	print 'AC samples', signals_AC
 	signals_original = signals_AC
 	signals = signals_AC
+elif opt.INTER:
+    signals_original = ['VBFH12', 'ggH12', 'WminusH12', 'WplusH12', 'ZH12']
+    signals = ['ggH12', 'VBFH12', 'WH12', 'ZH12']
+    signals_original = [root+opt.HYP for root in signals_original]
+    signals = [root+opt.HYP for root in signals]
+else:
+    signals_original = ['VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
+    signals = ['ggH125', 'VBFH125', 'WH125', 'ZH125', 'ttH125']
 eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
 key = 'candTree'
 key_failed = 'candTree_failed'

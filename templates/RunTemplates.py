@@ -563,8 +563,9 @@ else: #It is a double-differential analysis
     print obs_bins
 
 obs_name = opt.OBSNAME
-if obs_name == 'D0m' and obs_name == 'D0hp' and obs_name == 'Dcp' and obs_name == 'Dint': acFlag = True
+if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == 'Dint' or obs_name == 'DL1': acFlag = True
 else: acFlag = False
+print acFlag
 
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
@@ -593,7 +594,8 @@ for year in years:
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7', 'pTj1_eta4p7']
+               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7', 'pTj1_eta4p7',
+               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
@@ -602,16 +604,16 @@ for year in years:
     #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     dfZX[year] = add_rapidity(dfZX[year])
 
-    #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
-    dfZX[year]['Dcp'] = np.random.choice(d_bkg[year]['qqzz']['Dcp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['D0m'] = np.random.choice(d_bkg[year]['qqzz']['D0m'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['D0hp'] = np.random.choice(d_bkg[year]['qqzz']['D0hp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['Dint'] = np.random.choice(d_bkg[year]['qqzz']['Dint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1'] = np.random.choice(d_bkg[year]['qqzz']['DL1'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1int'] = np.random.choice(d_bkg[year]['qqzz']['DL1int'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1Zg'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zg'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1Zgint'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zgint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+    # #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+    # dfZX[year]['Dcp'] = np.random.choice(d_bkg[year]['qqzz']['Dcp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['D0m'] = np.random.choice(d_bkg[year]['qqzz']['D0m'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['D0hp'] = np.random.choice(d_bkg[year]['qqzz']['D0hp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['Dint'] = np.random.choice(d_bkg[year]['qqzz']['Dint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1'] = np.random.choice(d_bkg[year]['qqzz']['DL1'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1int'] = np.random.choice(d_bkg[year]['qqzz']['DL1int'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1Zg'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zg'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1Zgint'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zgint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
 
     print(year,'done')
 

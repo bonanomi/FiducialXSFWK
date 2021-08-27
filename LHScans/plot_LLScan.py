@@ -194,6 +194,8 @@ elif(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
 elif(obsName == 'D0m'): label = 'D_{0m}'
 elif(obsName == 'Dcp'): label = 'D_{cp}'
 elif(obsName == 'D0hp'): label = 'D_{0h^{+}}'
+elif(obsName == 'Dint'): label = 'D_{int}'
+elif(obsName == 'DL1'): label = 'D_{#Lambda1}'
 elif(obsName == 'massZ1 vs massZ2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
