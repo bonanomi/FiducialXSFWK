@@ -2,7 +2,7 @@ import os,sys
 
 
 
-def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound):
+def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound, yearSetting):
     # Name of the bin (aFINALSTATE_ recobinX)
     if(channel == '4mu'): channelNumber = 1
     if(channel == '4e'): channelNumber = 2
@@ -61,42 +61,49 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # bkg_zx['2018_4mu'] = 17.05146905705311
 
     # lumi
-    lumi = {}
-    lumi['2016'] = '1.026'
-    lumi['2017'] = '1.023'
-    lumi['2018'] = '1.025'
+    if yearSetting == 'Full':
+        lumi = {}
+        lumi['2016'] = '1.01'
+        lumi['2017'] = '1.02'
+        lumi['2018'] = '1.015'
+        lumi_corr_16_17_18 = {}
+        lumi_corr_16_17_18['2016'] = '1.006'
+        lumi_corr_16_17_18['2017'] = '1.009'
+        lumi_corr_16_17_18['2018'] = '1.02'
+        lumi_corr_17_18 = {}
+        lumi_corr_17_18['2017'] = '1.006'
+        lumi_corr_17_18['2018'] = '1.002'
+    else:
+        lumi = {}
+        lumi['2016'] = '1.026'
+        lumi['2017'] = '1.025'
+        lumi['2018'] = '1.023'
 
     # Lepton efficiency
     eff_mu = {}
-    eff_mu['2016_2e2mu'] = '1.025'
-    eff_mu['2016_4e'] = '-'
-    eff_mu['2016_4mu'] = '0.953/1.046'
-    eff_mu['2017_2e2mu'] = '0.985/1.008'
-    eff_mu['2017_4e'] = '-'
-    eff_mu['2017_4mu'] = '0.98/1.011'
-    eff_mu['2018_2e2mu'] = '0.988/1.01'
-    eff_mu['2018_4e'] = '-'
-    eff_mu['2018_4mu'] = '0.976/1.018'
+    eff_mu['2016_2e2mu'] = '0.983/1.012'#'1.025'
+    eff_mu['2016_4mu'] = '0.977/1.016' #'0.953/1.046'
+    eff_mu['2017_2e2mu'] = '0.985/1.008'#'0.985/1.008'
+    eff_mu['2017_4mu'] = '0.98/1.011'#'0.98/1.011'
+    eff_mu['2018_2e2mu'] = '0.986/1.007'#'0.988/1.01'
+    eff_mu['2018_4mu'] = '0.981/1.01'#'0.976/1.018'
 
     eff_e = {}
-    eff_e['2016_2e2mu'] = '0.96/1.039'
-    eff_e['2016_4e'] = '0.914/1.082'
-    eff_e['2016_4mu'] = '-'
-    eff_e['2017_2e2mu'] = '0.915/1.082'
-    eff_e['2017_4e'] = '0.867/1.121'
-    eff_e['2017_4mu'] = '-'
-    eff_e['2018_2e2mu'] = '0.928/1.074'
-    eff_e['2018_4e'] = '0.850/1.161'
-    eff_e['2018_4mu'] = '-'
+    eff_e['2016_2e2mu'] = '0.893/1.105'#'0.96/1.039'
+    eff_e['2016_4e'] = '0.835/1.155'#'0.914/1.082'
+    eff_e['2017_2e2mu'] = '0.915/1.082'#'0.915/1.082'
+    eff_e['2017_4e'] = '0.867/1.121'#'0.867/1.121'
+    eff_e['2018_2e2mu'] = '0.923/1.074'#'0.928/1.074'
+    eff_e['2018_4e'] = '0.877/1.11'#'0.850/1.161'
 
     # ZX
     ZX = {}
     ZX['2016_2e2mu'] = '0.65673/1.35484'
     ZX['2016_4e'] = '0.60745/1.42863'
     ZX['2016_4mu'] = '0.69481/1.30542'
-    ZX['2017_2e2mu'] = '0.868/1.152' #'0.67262/1.33282'
-    ZX['2017_4e'] = '0.868/1.152' #'0.63816/1.37505'
-    ZX['2017_4mu'] = '0.868/1.152' #'0.69350/1.30685'
+    ZX['2017_2e2mu'] = '0.67262/1.33282'
+    ZX['2017_4e'] = '0.63816/1.37505'
+    ZX['2017_4mu'] = '0.69350/1.30685'
     ZX['2018_2e2mu'] = '0.67618/1.32828'
     ZX['2018_4e'] = '0.64540/1.36539'
     ZX['2018_4mu'] = '0.69559/1.30459'
@@ -148,21 +155,41 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write('- ')
     file.write('10.0 - - -    # [/10,*10]\n')
 
-    # lumi
-    file.write('lumi_13TeV_'+year+' lnN ')
-    for i in range(nBins+4): # All except ZX
-        file.write(lumi[year]+' ')
-    file.write('-\n') # ZX
+    if yearSetting == 'Full':
+        # lumi_uncorrelated
+        file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write(lumi[year]+' ')
+        file.write('-\n') # ZX
+        # lumi_correlated_16_17_18
+        file.write('lumi_13TeV_correlated_16_17_18 lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write(lumi_corr_16_17_18[year]+' ')
+        file.write('-\n') # ZX
+        # lumi_correlated_17_18
+        if year == '2017' or year == '2018':
+            file.write('lumi_13TeV_correlated_17_18 lnN ')
+            for i in range(nBins+4): # All except ZX
+                file.write(lumi_corr_17_18[year]+' ')
+            file.write('-\n') # ZX
+    else:
+        # lumi
+        file.write('lumi_13TeV_'+year+' lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write(lumi[year]+' ')
+        file.write('-\n') # ZX
 
     # Lepton efficiency
-    file.write('CMS_eff_m lnN ')
-    for i in range(nBins+4): # All except ZX
-        file.write(eff_mu[year+'_'+channel]+' ')
-    file.write('-\n') # ZX
-    file.write('CMS_eff_e lnN ')
-    for i in range(nBins+4): # All except ZX
-        file.write(eff_e[year+'_'+channel]+' ')
-    file.write('-\n') # ZX
+    if channel == '4mu' or channel == '2e2mu':
+        file.write('CMS_eff_m lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write(eff_mu[year+'_'+channel]+' ')
+        file.write('-\n') # ZX
+    if channel == '4e' or channel == '2e2mu':
+        file.write('CMS_eff_e lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write(eff_e[year+'_'+channel]+' ')
+        file.write('-\n') # ZX
 
     # ZX
     file.write('CMS_hzz'+channel+'_Zjets_'+year+' lnN ')
@@ -202,11 +229,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write('- ')
     file.write('1.1 -\n')
 
-    # ZX
-    file.write('CMS_zjets_bkgdcompo_'+str(year)+' lnN ')
-    for i in range(nBins+4): # All except ZX
-        file.write('- ')
-    file.write('1.32\n')
+    # # ZX
+    # file.write('CMS_zjets_bkgdcompo_'+str(year)+' lnN ')
+    # for i in range(nBins+4): # All except ZX
+    #     file.write('- ')
+    # file.write('1.32\n')
 
     # JES
     if jes == True:

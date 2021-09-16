@@ -866,7 +866,7 @@ void skim_MC_tree_v2 (TString prod_mode = "VBFH125", TString year = "2018"){
   if(prod_mode=="ZZTo4lext") process = "qqZZ";
   else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" || prod_mode=="ggTo2e2tau_Contin_MCFM701" || prod_mode=="ggTo2mu2tau_Contin_MCFM701" || prod_mode=="ggTo4e_Contin_MCFM701" ||
           prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
-  else if(prod_mode.Contains("H125")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
+  else if(prod_mode.Contains("H12")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
   else process = "AC";
   if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 

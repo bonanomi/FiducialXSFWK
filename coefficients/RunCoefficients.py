@@ -28,7 +28,7 @@ def parseOptions():
     # input options
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
-    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string', default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
     parser.add_option('',   '--AC', action='store_true', dest='AC', default=False, help='AC samples')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
@@ -92,8 +92,11 @@ def prepareTrees(year):
         if(opt.AC==True or opt.AC_ONLYACC==True):
             fname = eos_path_sig + 'AC%i_MELA' %year
         else:
-        	fname = eos_path_sig + '%i_MELA' %year
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            fname = eos_path_sig + '%i_MELA' %year
+        if signal == 'VBFH125' and year == 2017:
+            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+        else:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
@@ -192,7 +195,10 @@ def generators(year):
             fname = eos_path_sig + 'AC%i_MELA' %year
         else:
             fname = eos_path_sig + '%i_MELA' %year
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if signal == 'VBFH125' and year == 2017:
+            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+        else:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")

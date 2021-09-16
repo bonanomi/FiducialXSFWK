@@ -2151,15 +2151,19 @@ print(obs_bins)
 
 if obs_name == 'D0m':
     acFlag = True
+    acFlagBis = False
     acSample = '0M'
 elif obs_name == 'Dcp':
     acFlag = True
+    acFlagBis = False
     acSample = '0Mf05ph0'
 elif obs_name == 'D0hp':
     acFlag = True
+    acFlagBis = False
     acSample = '0PH'
 elif obs_name == 'Dint':
     acFlag = True
+    acFlagBis = False
     acSample = '0PHf05ph0'
 elif obs_name == 'DL1':
     acFlag = True
