@@ -866,7 +866,7 @@ void skim_MC_tree_v2 (TString prod_mode = "VBFH125", TString year = "2018"){
   if(prod_mode=="ZZTo4lext") process = "qqZZ";
   else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" || prod_mode=="ggTo2e2tau_Contin_MCFM701" || prod_mode=="ggTo2mu2tau_Contin_MCFM701" || prod_mode=="ggTo4e_Contin_MCFM701" ||
           prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
-  else if(prod_mode.Contains("H125")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
+  else if(prod_mode.Contains("H12")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
   else process = "AC";
   if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 
@@ -876,7 +876,7 @@ void skim_MC_tree_v2 (TString prod_mode = "VBFH125", TString year = "2018"){
 
   if(process=="AC"){
     input_dir = "/eos/user/a/atarabin/MC_samples";
-    full_path = Form("%s/AC%s/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
+    full_path = Form("%s/AC%s_MELA/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
     cout << full_path << endl;
   }
   else{
@@ -1122,7 +1122,7 @@ void skim_MC_tree_v2 (TString prod_mode = "VBFH125", TString year = "2018"){
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
   TString new_full_path;
   if(process!="AC") new_full_path = Form("%s/%s_MELA/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
-  else new_full_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  else new_full_path = Form("%s/AC%s_MELA/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
   cout << new_full_path << endl;
   TFile *newfile = new TFile(new_full_path.Data(),"RECREATE");
   TTree *newtree = (TTree*) oldtree->CloneTree(0);
@@ -1152,7 +1152,7 @@ void skim_MC_tree_v2 (TString prod_mode = "VBFH125", TString year = "2018"){
     TString merged_name = Form("%s_mergedTree_MC_%s.root", prod_mode.Data(), year.Data());
     TString merged_path;
     if(process!="AC") merged_path = Form("%s/%s_MELA/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
-    else merged_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
+    else merged_path = Form("%s/AC%s_MELA/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),merged_name.Data());
     cout << merged_path << endl;
 
     TFile* mergedTTree = new TFile(merged_path.Data(), "RECREATE");

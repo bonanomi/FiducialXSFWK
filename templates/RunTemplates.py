@@ -29,7 +29,7 @@ def parseOptions():
     # input options
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
-    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105,   help='Lower bound for m4l')
     parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140,   help='Upper bound for m4l')
     # store options and arguments as global variables
@@ -387,7 +387,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     w = np.asarray(w).astype('float')
                     # ------
 
-                    if((obs_name == 'rapidity4l') | (obs_name == 'D0m')):
+                    if((obs_name == 'rapidity4l') | acFlag):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -398,7 +398,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
 
-                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
+                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                     elif doubleDiff:
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
@@ -454,7 +454,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -462,7 +462,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | (obs_name == 'D0m')):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                 elif doubleDiff:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
@@ -563,6 +563,9 @@ else: #It is a double-differential analysis
     print obs_bins
 
 obs_name = opt.OBSNAME
+if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == 'Dint' or obs_name == 'DL1': acFlag = True
+else: acFlag = False
+print acFlag
 
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
@@ -591,7 +594,8 @@ for year in years:
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7', 'pTj1_eta4p7']
+               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7', 'pTj1_eta4p7',
+               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
@@ -600,16 +604,16 @@ for year in years:
     #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     dfZX[year] = add_rapidity(dfZX[year])
 
-    #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
-    dfZX[year]['Dcp'] = np.random.choice(d_bkg[year]['qqzz']['Dcp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['D0m'] = np.random.choice(d_bkg[year]['qqzz']['D0m'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['D0hp'] = np.random.choice(d_bkg[year]['qqzz']['D0hp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['Dint'] = np.random.choice(d_bkg[year]['qqzz']['Dint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1'] = np.random.choice(d_bkg[year]['qqzz']['DL1'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1int'] = np.random.choice(d_bkg[year]['qqzz']['DL1int'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1Zg'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zg'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    dfZX[year]['DL1Zgint'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zgint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+    # #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+    # dfZX[year]['Dcp'] = np.random.choice(d_bkg[year]['qqzz']['Dcp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['D0m'] = np.random.choice(d_bkg[year]['qqzz']['D0m'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['D0hp'] = np.random.choice(d_bkg[year]['qqzz']['D0hp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['Dint'] = np.random.choice(d_bkg[year]['qqzz']['Dint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1'] = np.random.choice(d_bkg[year]['qqzz']['DL1'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1int'] = np.random.choice(d_bkg[year]['qqzz']['DL1int'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1Zg'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zg'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # dfZX[year]['DL1Zgint'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zgint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
+    # #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
 
     print(year,'done')
 

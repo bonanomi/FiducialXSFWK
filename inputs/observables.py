@@ -153,5 +153,20 @@ observables = {'rapidity4l':
     'obs_gen_2nd': 'GENabsdphijj'},
 'D0m':
     {'obs_reco': 'D0m',
-    'obs_gen': 'GEN_D0m'}
+    'obs_gen': 'GEN_D0m'},
+'Dcp':
+    {'obs_reco': 'Dcp',
+    'obs_gen': 'GEN_Dcp'},
+'D0hp':
+    {'obs_reco': 'D0hp',
+    'obs_gen': 'GEN_D0hp'},
+'Dcp':
+    {'obs_reco': 'Dcp',
+    'obs_gen': 'GEN_Dcp'},
+'Dint':
+    {'obs_reco': 'Dint',
+    'obs_gen': 'GEN_Dint'},
+'DL1':
+    {'obs_reco': 'DL1',
+    'obs_gen': 'GEN_DL1'}
 }

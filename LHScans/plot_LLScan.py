@@ -27,6 +27,7 @@ def parseOptions():
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
+    parser.add_option('',   '--v4', action='store_true', dest='V4', default=False, help='Print NLL scans for v4 physics model')
 
     # store options and arguments as global variables
     global opt, args
@@ -159,6 +160,9 @@ resultsXS_asimov = {}
 if opt.OBSNAME=='mass4l':
     resultsXS_data_v2 = {}
     resultsXS_asimov_v2 = {}
+if opt.V4:
+    resultsXS_data_v4 = {}
+    resultsXS_asimov_v4 = {}
 
 year = opt.YEAR
 
@@ -173,104 +177,109 @@ else:
 
 _poi    = 'SigmaBin'
 obsName = opt.OBSNAME
+v4_flag = opt.V4
 
 doubleDiff = False
 if(obsName == 'mass4l'): label = 'm_{4l}'
-if(obsName == 'rapidity4l'): label = '|y_{H}|'
-if(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
-if(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
-if(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
-if(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
-if(obsName == 'pTj1'): label = 'p_{T}^{(j1, 2.5)} (GeV)'
-if(obsName == 'pTj1_eta4p7'): label = 'p_{T}^{(j1, 4.7)} (GeV)'
-if(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
-if(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
-if(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
-if(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
-if(obsName == 'phistar'): label = '#Phi^{#star}'
-if(obsName == 'phi'): label = '#Phi'
-if(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
-if(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
-if(obsName == 'D0m'): label = 'D_{0m}'
-if(obsName == 'massZ1 vs massZ2'):
+elif(obsName == 'rapidity4l'): label = '|y_{H}|'
+elif(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
+elif(obsName == 'massZ1'): label = 'm_{Z1} (GeV)'
+elif(obsName == 'massZ2'): label = 'm_{Z2} (GeV)'
+elif(obsName == 'njets_pt30_eta2p5'): label = 'nJets, pT>30 GeV, |#eta|<2.5'
+elif(obsName == 'pTj1'): label = 'p_{T}^{(j1, 2.5)} (GeV)'
+elif(obsName == 'pTj1_eta4p7'): label = 'p_{T}^{(j1, 4.7)} (GeV)'
+elif(obsName == 'mass4l'): label = 'm_{4\ell} (GeV)'
+elif(obsName == 'costhetastar'): label = 'cos(#theta^{*})'
+elif(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
+elif(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
+elif(obsName == 'phistar'): label = '#Phi^{#star}'
+elif(obsName == 'phi'): label = '#Phi'
+elif(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
+elif(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
+elif(obsName == 'D0m'): label = 'D_{0m}'
+elif(obsName == 'Dcp'): label = 'D_{cp}'
+elif(obsName == 'D0hp'): label = 'D_{0h^{+}}'
+elif(obsName == 'Dint'): label = 'D_{int}'
+elif(obsName == 'DL1'): label = 'D_{#Lambda1}'
+elif(obsName == 'massZ1 vs massZ2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'm_{Z1} (GeV)'
     label_2nd = 'm_{Z2} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pTHj'):
+elif(obsName == 'njets_pt30_eta2p5 vs pTHj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{Hj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pT4l'):
+elif(obsName == 'njets_pt30_eta2p5 vs pT4l'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{H} (GeV)'
     doubleDiff = True
-if(obsName == 'rapidity4l vs pT4l'):
+elif(obsName == 'rapidity4l vs pT4l'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = '|y_{H}|'
     label_2nd = 'p_{T}^{H} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs mjj'):
+elif(obsName == 'njets_pt30_eta2p5 vs mjj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'm_{jj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs mHjj'):
+elif(obsName == 'njets_pt30_eta2p5 vs mHjj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'm_{Hjj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs mHj'):
+elif(obsName == 'njets_pt30_eta2p5 vs mHj'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'm_{Hj} (GeV)'
     doubleDiff = True
-if(obsName == 'pTj1 vs pTj2'):
+elif(obsName == 'pTj1 vs pTj2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'p_{T}^{j,1} (GeV)'
     label_2nd = 'p_{T}^{j,2} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs TCjmax'):
+elif(obsName == 'njets_pt30_eta2p5 vs TCjmax'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'T_{Cj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs TBjmax'):
+elif(obsName == 'njets_pt30_eta2p5 vs TBjmax'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'T_{Bj} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pTj2'):
+elif(obsName == 'njets_pt30_eta2p5 vs pTj2'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet}'
     label_2nd = 'p_{T}^{j,2} (GeV)'
     doubleDiff = True
-if(obsName == 'pT4l vs pTj1'):
+elif(obsName == 'pT4l vs pTj1'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'p_{T}^{H} (GeV)'
     label_2nd = 'p_{T}^{j,1} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta2p5 vs pTj1'):
+elif(obsName == 'njets_pt30_eta2p5 vs pTj1'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet} (2.5)'
     label_2nd = 'p_{T}^{j,1} (GeV)'
     doubleDiff = True
-if(obsName == 'njets_pt30_eta4p7 vs pTj1_eta4p7'):
+elif(obsName == 'njets_pt30_eta4p7 vs pTj1_eta4p7'):
     obsName_tmp = obsName.split(' vs ')
     obsName = obsName_tmp[0]+"_"+obsName_tmp[1]
     label = 'N_{jet} (4.7)'
@@ -285,6 +294,8 @@ sys.path.remove('../inputs')
 nBins = len(obs_bins)
 if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 if obsName=='mass4l': nBins = nBins + 3 #in case of mass4l len(obs_bins)=1, we need to add +3 for cross section in the three different final states
+if v4_flag: nBins = (len(obs_bins)-1)*2
+
 
 for i in range(nBins):
     _bin = i
@@ -297,6 +308,13 @@ for i in range(nBins):
             _obs_bin = 'r4muBin0'
         if _bin == 3:
             _obs_bin = 'r4eBin0'
+
+    if v4_flag:
+        if (_bin % 2) == 0:
+            _obs_bin = 'r2e2muBin'+str(i/2)
+        else:
+            _obs_bin = 'r4lBin'+str((i-1)/2)
+    print _obs_bin
 
     graphs = []
     grapherrs = []
@@ -314,43 +332,70 @@ for i in range(nBins):
         for entry in tree :
             if((2*entry.deltaNLL<5)):
                 if _bin == 0:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin0,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin0,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin0,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 1:
                     if obsName == 'mass4l':
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin0,2.0*entry.deltaNLL)
+                    elif v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin0,2.0*entry.deltaNLL)
                     else:
                         graphs[ifile].SetPoint(ipoint,entry.SigmaBin1,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 2:
                     if obsName == 'mass4l':
                         graphs[ifile].SetPoint(ipoint,entry.r4muBin0,2.0*entry.deltaNLL)
+                    elif v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin1,2.0*entry.deltaNLL)
                     else:
                         graphs[ifile].SetPoint(ipoint,entry.SigmaBin2,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 3:
                     if obsName == 'mass4l':
                         graphs[ifile].SetPoint(ipoint,entry.r4eBin0,2.0*entry.deltaNLL)
+                    elif v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin1,2.0*entry.deltaNLL)
                     else:
                         graphs[ifile].SetPoint(ipoint,entry.SigmaBin3,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 4:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin4,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin2,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin4,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 5:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin5,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin2,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin5,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 6:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin6,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin3,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin6,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 7:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin7,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin3,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin7,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 8:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin8,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin4,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin8,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 9:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin9,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin4,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin9,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 10:
                     graphs[ifile].SetPoint(ipoint,entry.SigmaBin10,2.0*entry.deltaNLL)
@@ -387,7 +432,19 @@ for i in range(nBins):
     maxY = 8.
 
     graphs[0].Draw("AC")
-    xtitle = "#sigma_{bin " + str(_bin) + "}"
+    if v4_flag:
+        if _bin == 0: xtitle = "#sigma_{bin 2e2mu 0}"
+        if _bin == 1: xtitle = "#sigma_{bin 4l 0}"
+        if _bin == 2: xtitle = "#sigma_{bin 2e2mu 1}"
+        if _bin == 3: xtitle = "#sigma_{bin 4l 1}"
+        if _bin == 4: xtitle = "#sigma_{bin 2e2mu 2}"
+        if _bin == 5: xtitle = "#sigma_{bin 4l 2}"
+        if _bin == 6: xtitle = "#sigma_{bin 2e2mu 3}"
+        if _bin == 7: xtitle = "#sigma_{bin 4l 3}"
+        if _bin == 8: xtitle = "#sigma_{bin 2e2mu 4}"
+        if _bin == 9: xtitle = "#sigma_{bin 4l 4}"
+    else:
+        xtitle = "#sigma_{bin " + str(_bin) + "}"
     graphs[0].GetXaxis().SetTitle(xtitle)
     graphs[0].GetYaxis().SetTitle("-2#Delta ln L")
     graphs[0].GetYaxis().SetTitleOffset(0.9)
@@ -468,7 +525,19 @@ for i in range(nBins):
         Text3 = TPaveText(0.18, 0.81,0.4,0.9,'brNDC')
     else:
     	Text3 = TPaveText(0.18, 0.76,0.4,0.84,'bfNDC')
-    exp_fit = 'Exp. #sigma_{bin, %d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+    if v4_flag:
+        if _bin == 0: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 1: exp_fit = 'Exp. #sigma_{bin, 4l, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 2: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 1} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 3: exp_fit = 'Exp. #sigma_{bin, 4l, 1} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 4: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 2} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 5: exp_fit = 'Exp. #sigma_{bin, 4l, 2} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 6: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 7: exp_fit = 'Exp. #sigma_{bin, 4l, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 8: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 9: exp_fit = 'Exp. #sigma_{bin, 4l, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+    else:
+        exp_fit = 'Exp. #sigma_{bin, %d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     Text3.SetTextAlign(12);
     Text3.SetTextSize(0.036)
     Text3.AddText(exp_fit)
@@ -522,6 +591,17 @@ for i in range(nBins):
         elif doubleDiff:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin][0])+' < '+label+' < '+str(obs_bins[_bin][1]))
             latex2.DrawLatex(0.55,0.60, str(obs_bins[_bin][2])+' < '+label_2nd+' < '+str(obs_bins[_bin][3]))
+        elif v4_flag:
+            if _bin == 0: latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
+            if _bin == 1: latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
+            if _bin == 2: latex2.DrawLatex(0.55,0.65, str(obs_bins[1])+' < '+label+' < '+str(obs_bins[2]))
+            if _bin == 3: latex2.DrawLatex(0.55,0.65, str(obs_bins[1])+' < '+label+' < '+str(obs_bins[2]))
+            if _bin == 4: latex2.DrawLatex(0.55,0.65, str(obs_bins[2])+' < '+label+' < '+str(obs_bins[3]))
+            if _bin == 5: latex2.DrawLatex(0.55,0.65, str(obs_bins[2])+' < '+label+' < '+str(obs_bins[3]))
+            if _bin == 6: latex2.DrawLatex(0.55,0.65, str(obs_bins[3])+' < '+label+' < '+str(obs_bins[4]))
+            if _bin == 7: latex2.DrawLatex(0.55,0.65, str(obs_bins[3])+' < '+label+' < '+str(obs_bins[4]))
+            if _bin == 8: latex2.DrawLatex(0.55,0.65, str(obs_bins[4])+' < '+label+' < '+str(obs_bins[5]))
+            if _bin == 9: latex2.DrawLatex(0.55,0.65, str(obs_bins[4])+' < '+label+' < '+str(obs_bins[5]))
         else:
             latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
     else:
@@ -555,10 +635,7 @@ for i in range(nBins):
                 resultsXS_data_v2['SM_125_'+obsName+'_4e_genbin0'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
                 resultsXS_data_v2['SM_125_'+obsName+'_4e_genbin0_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
 
-    if obsName!='mass4l':
-        resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
-        resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
-    else:
+    if obsName=='mass4l':
         if _bin==0:
             resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
             resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
@@ -571,16 +648,54 @@ for i in range(nBins):
         elif _bin==3:
             resultsXS_asimov_v2['SM_125_'+obsName+'_4e_genbin0'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
             resultsXS_asimov_v2['SM_125_'+obsName+'_4e_genbin0_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+    elif v4_flag:
+        if _bin==0:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin0'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin0_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==1:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin0'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin0_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==2:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin1'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin1_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==3:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin1'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin1_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==4:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin2'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin2_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==5:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin2'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin2_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==6:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin3'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin3_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==7:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin3'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin3_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==8:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin4'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin4_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==9:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin4'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin4_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+    else:
+        resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+        resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
 
     c.Update()
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+poi+".pdf")
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+poi+".png")
 
-with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
-    f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
-if obsName=='mass4l':
-    with open('resultsXS_LHScan_expected_'+obsName+'_v2.py', 'w') as f:
-        f.write('resultsXS = '+str(resultsXS_asimov_v2)+' \n')
+if v4_flag:
+    with open('resultsXS_LHScan_expected_'+obsName+'_v4.py', 'w') as f:
+        f.write('resultsXS = '+str(resultsXS_asimov_v4)+' \n')
+else:
+    with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
+        f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
+    if obsName=='mass4l':
+        with open('resultsXS_LHScan_expected_'+obsName+'_v2.py', 'w') as f:
+            f.write('resultsXS = '+str(resultsXS_asimov_v2)+' \n')
 
 if(opt.UNBLIND):
     with open('resultsXS_LHScan_observed_'+obsName+'_v3.py', 'w') as f:
