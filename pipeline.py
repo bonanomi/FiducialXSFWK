@@ -91,8 +91,8 @@ def pipeline():
         os.chdir('../fit')
 
     if fitOnly: os.chdir('./fit')
-    cmd = 'python RunFiducialXS.py --obsName "'+obsName+'" --obsBins "'+obsBins+'" --year "'+year+'"' 
-    output = processCmd(cmd) 
+    cmd = 'python RunFiducialXS.py --obsName "'+obsName+'" --obsBins "'+obsBins+'" --year "'+year+'"'
+    output = processCmd(cmd)
     print output
 
     if unblind:
@@ -111,5 +111,14 @@ def pipeline():
         output = processCmd(cmd)
         print output
 
-pipeline()
+    processCmd('roo')
+    cmd = 'python RunPlotCoefficients.py --obsName "'+obsName+'" --obsBins "'+obsBins+'" --year "'+year+'"'
+    output = processCmd(cmd)
+    print output
 
+    cmd = 'copy_to_www.sh '+obsName
+    output = processCmd(cmd)
+    print output
+
+
+pipeline()

@@ -15,6 +15,7 @@ import ROOT
 from binning import binning
 from createdf_jes import skim_df
 from tabulate import tabulate
+from zx import zx
 
 print 'Welcome in RunJES!'
 
@@ -185,7 +186,45 @@ def getJes(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, gen
     datafr = d_sig[year]
     datafr_qqzz = d_bkg[year]['qqzz']
     datafr_ggzz = d_bkg[year]['ggzz']
+    datafr_zx = d_ZX[year]
 
+    # ------------- ZX computation (at this stage it is done only the inclusive JES) -------------
+    if doubleDiff:
+        processBin = '_'+channel+'_'+obs_reco+'_'+obs_reco_2nd+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+    else:
+        processBin = '_'+channel+'_'+obs_reco+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+
+    cutobs_reco_zx = (abs(datafr_zx[obs_reco]) >= obs_reco_low) & (abs(datafr_zx[obs_reco]) < obs_reco_high)
+    cutobs_reco_jesup_zx = (abs(datafr_zx[obs_reco+'_jesup']) >= obs_reco_low) & (abs(datafr_zx[obs_reco+'_jesup']) < obs_reco_high)
+    cutobs_reco_jesdn_zx = (abs(datafr_zx[obs_reco+'_jesdn']) >= obs_reco_low) & (abs(datafr_zx[obs_reco+'_jesdn']) < obs_reco_high)
+    cutchan_reco_zx = (datafr_zx['FinState_reco'] == channel)
+    if channel != '4l':
+        cutm4l_reco_zx = (datafr_zx['ZZMass'] > m4l_low) & (datafr_zx['ZZMass'] < m4l_high) & (datafr_zx['FinState_reco'] == channel)
+    else:
+        cutm4l_reco_zx = (datafr_zx['ZZMass'] > m4l_low) & (datafr_zx['ZZMass'] < m4l_high)
+    if doubleDiff:
+        cutobs_reco_zx &= (abs(datafr_zx[obs_reco_2nd]) >= obs_reco_2nd_low) & (abs(datafr_zx[obs_reco_2nd]) < obs_reco_2nd_high)
+        cutobs_reco_jesup_zx &= (abs(datafr_zx[obs_reco_2nd+'_jesup']) >= obs_reco_2nd_low) & (abs(datafr_zx[obs_reco_2nd+'_jesup']) < obs_reco_2nd_high)
+        cutobs_reco_jesdn_zx &= (abs(datafr_zx[obs_reco_2nd+'_jesdn']) >= obs_reco_2nd_low) & (abs(datafr_zx[obs_reco_2nd+'_jesdn']) < obs_reco_2nd_high)
+
+    evts['ZX'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_zx & cutchan_reco_zx]['yield_SR'].sum()
+    evts['ZX_jesup'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_jesup_zx & cutchan_reco_zx]['yield_SR'].sum()
+    evts['ZX_jesdn'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_jesdn_zx & cutchan_reco_zx]['yield_SR'].sum()
+
+    if evts['ZX'+processBin] == 0:
+        ratio['ZX'+processBin] = '-'
+    else:
+        dn_ratio = round(evts['ZX_jesdn'+processBin]/evts['ZX'+processBin],3)
+        # if dn_ratio == 1.000: dn_ratio = '-'
+        up_ratio = round(evts['ZX_jesup'+processBin]/evts['ZX'+processBin],3)
+        # if up_ratio == 1.000: up_ratio = '-'
+        ratio['ZX'+processBin] = str(dn_ratio)+'/'+str(up_ratio)
+
+        if up_ratio==dn_ratio and up_ratio==1.000: ratio['ZX'+processBin] = '-'
+        elif up_ratio == dn_ratio: ratio['ZX'+processBin] = str(dn_ratio)
+        else: ratio['ZX'+processBin] = str(dn_ratio)+'/'+str(up_ratio)
+
+    # ------------- signal, qqZZ, and ggZZ computation -------------
     for i in jesNames:
         if doubleDiff:
             processBin = '_'+i+'_'+channel+'_'+obs_reco+'_'+obs_reco_2nd+'_genbin'+str(genbin)+'_recobin'+str(recobin)
@@ -207,6 +246,10 @@ def getJes(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, gen
             cutobs_reco &= (abs(datafr[obs_reco_2nd]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd]) < obs_reco_2nd_high)
             cutobs_reco_jesup &= (abs(datafr[obs_reco_2nd+'_jesup_'+i]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd+'_jesup_'+i]) < obs_reco_2nd_high)
             cutobs_reco_jesdn &= (abs(datafr[obs_reco_2nd+'_jesdn_'+i]) >= obs_reco_2nd_low) & (abs(datafr[obs_reco_2nd+'_jesdn_'+i]) < obs_reco_2nd_high)
+            cutobs_reco_jesup_qqzz &= (abs(datafr_qqzz[obs_reco_2nd+'_jesup_'+i]) >= obs_reco_low) & (abs(datafr_qqzz[obs_reco_2nd+'_jesup_'+i]) < obs_reco_high)
+            cutobs_reco_jesdn_qqzz &= (abs(datafr_qqzz[obs_reco_2nd+'_jesdn_'+i]) >= obs_reco_low) & (abs(datafr_qqzz[obs_reco_2nd+'_jesdn_'+i]) < obs_reco_high)
+            cutobs_reco_jesup_ggzz &= (abs(datafr_ggzz[obs_reco_2nd+'_jesup_'+i]) >= obs_reco_low) & (abs(datafr_ggzz[obs_reco_2nd+'_jesup_'+i]) < obs_reco_high)
+            cutobs_reco_jesdn_ggzz &= (abs(datafr_ggzz[obs_reco_2nd+'_jesdn_'+i]) >= obs_reco_low) & (abs(datafr_ggzz[obs_reco_2nd+'_jesdn_'+i]) < obs_reco_high)
             cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
 
         cutobs_gen_otherfid = ((abs(datafr[obs_gen]) >= obs_gen_lowest) & (abs(datafr[obs_gen]) < obs_gen_low)) | ((abs(datafr[obs_gen]) >= obs_gen_high) & (abs(datafr[obs_gen]) <= obs_gen_highest))
@@ -353,6 +396,15 @@ def doGetJes(obs_reco, obs_gen, obs_name, obs_bins, obs_reco_2nd = 'None', obs_g
                 for genbin in range(nBins):
                     getJes(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, genbin, obs_name, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
 
+        with open('JESNP_'+obsname_out+'_'+str(year)+'.py', 'w') as f:
+                f.write('obsbins = ' + str(obs_bins) + '\n')
+                f.write('JESNP = ' + str(ratio) + '\n')
+
+        with open('JESNP_evts_'+obsname_out+'_'+str(year)+'.py', 'w') as f:
+                f.write('obsbins = ' + str(obs_bins) + '\n')
+                f.write('evts = ' + str(evts) + '\n')
+
+
 ## ---------------------------- Main ----------------------------
 sys.path.append('../../inputs/')
 from observables import observables
@@ -401,19 +453,15 @@ for year in years:
     d_sig[year] = pd.concat([d_sig[year]['ggH125'], d_sig[year]['VBFH125'], d_sig[year]['WH125'], d_sig[year]['ZH125'], d_sig[year]['ttH125']])
     d_bkg[year] = bkg
 
+d_ZX = {}
+d_ZX = zx()
+
 
 ratio = {} # Dict with ratio of jesup and jesdown variations wrt nominal value
 evts = {} # Dict with number of events for each process
 if not doubleDiff: doGetJes(obs_reco, obs_gen, obsname, obs_bins)
 else: doGetJes(obs_reco, obs_gen, obsname, obs_bins, obs_reco_2nd, obsname_2nd)
 
-with open('JESNP_'+obsname_out+'_'+str(year)+'.py', 'w') as f:
-        f.write('obsbins = ' + str(obs_bins) + '\n')
-        f.write('JESNP = ' + str(ratio) + '\n')
-
-with open('JESNP_evts_'+obsname_out+'_'+str(year)+'.py', 'w') as f:
-        f.write('obsbins = ' + str(obs_bins) + '\n')
-        f.write('evts = ' + str(evts) + '\n')
 
 '''
 # Check if the folder for tables exist

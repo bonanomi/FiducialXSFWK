@@ -47,7 +47,10 @@ def prepareTrees(year):
         fname = eos_path_sig + '%i_MELA' %year
         # else:
 	        # fname = eos_path_sig + 'AC%i' %year
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if (year == 2017) & (signal == 'VBFH125'):
+            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+        else:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         d_sig[signal] = uproot.open(fname)[key]
 
     for bkg in bkgs:
@@ -55,8 +58,9 @@ def prepareTrees(year):
 #         if year == 2016:
 #             fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
-        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
+            fname += '/'+bkg+'1/'+bkg+'1_reducedTree_MC_'+str(year)+'.root'
+        else:
+            fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         d_bkg[bkg] = uproot.open(fname)[key]
 
     return d_sig, d_bkg
@@ -70,8 +74,6 @@ def xsecs(year):
     for signal in signals_original:
         xsec_sig[signal] = d_sig[signal].pandas.df('xsec').xsec[0]
     for bkg in bkgs:
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
         xsec_bkg[bkg] = d_bkg[bkg].pandas.df('xsec').xsec[0]
     return xsec_sig, xsec_bkg
 
@@ -158,7 +160,10 @@ def generators(year):
         fname = eos_path_sig + '%i_MELA' %year
         # else:
 	        # fname = eos_path_sig + 'AC%i' %year
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if (year == 2017) & (signal == 'VBFH125'):
+            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+        else:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
         gen_sig[signal] = hCounters.GetBinContent(40)
@@ -168,8 +173,9 @@ def generators(year):
 #         if year == 2016:
 #             fname += '_CorrectBTag'
         if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
-        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
+            fname += '/'+bkg+'1/'+bkg+'1_reducedTree_MC_'+str(year)+'.root'
+        else:
+            fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
         gen_bkg[bkg] = hCounters.GetBinContent(40)
@@ -354,9 +360,7 @@ def skim_df(year, doubleDiff, obs_reco, obs_reco_2nd = ''):
 
     frames = []
     for bkg in bkgs:
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
-        if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
+        if (bkg == 'ZZTo4lext'):
             d_skim_bkg['qqzz'] = d_df_bkg[bkg]
         else:
             frames.append(d_df_bkg[bkg])

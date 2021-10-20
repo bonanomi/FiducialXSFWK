@@ -2170,7 +2170,9 @@ elif obs_name == 'DL1':
     acFlagBis = True
     acSample = '0L1'
     acSampleBis = '0L1f05ph0'
-else: acFlag = False
+else:
+    acFlag = False
+    acFlagBis = False
 
 if not doubleDiff:
     if float(obs_bins[len(obs_bins)-1])>300.0:
