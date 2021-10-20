@@ -247,6 +247,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
             file.write('-\n') # ZX
             #file.write('JES param 0.0 1.0\n')
+        file.write('CMS_scale_j_ZX lnN ')
+        for i in range(nBins+4): # All except ZX
+            file.write('- ')
+        file.write(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+'\n')
+
 
     file.close()
 

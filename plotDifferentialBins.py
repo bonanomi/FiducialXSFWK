@@ -6,21 +6,21 @@ from decimal import *
 grootargs = []
 def callback_rootargs(option, opt, value, parser):
     grootargs.append(opt)
-    
+
 ### Define function for parsing options
 def parseOptions():
-        
+
     global opt, args, runAllSteps
-    
+
     usage = ('usage: %prog [options]\n'
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
-    
+
     # input options
     parser.add_option('-d', '--dir',    dest='SOURCEDIR',  type='string',default='./combine_files/', help='run from the SOURCEDIR as working area, skip if SOURCEDIR is an empty string')
     parser.add_option('',   '--asimovModel',dest='ASIMOV',type='string',default='SM_125', help='Name of the asimov data mode')
     parser.add_option('',   '--asimovMass',dest='ASIMOVMASS',type='string',default='125.0', help='Asimov Mass')
-    parser.add_option('',   '--unfoldModel',dest='UNFOLD',type='string',default='SM_125', help='Name of the unfolding model') 
+    parser.add_option('',   '--unfoldModel',dest='UNFOLD',type='string',default='SM_125', help='Name of the unfolding model')
     parser.add_option('',   '--obsName',dest='OBSNAME',    type='string',default='',   help='Name of the observalbe, supported: "inclusive", "pT", "eta", "Njets"')
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='Use results from fixed fraction fit, default is False')
@@ -30,16 +30,16 @@ def parseOptions():
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
-    
+
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
-        
+
 # parse the arguments and options
 global opt, args, runAllSteps
 parseOptions()
 sys.argv = grootargs
-            
+
 from ROOT import *
 from tdrStyle import *
 setTDRStyle()
@@ -59,7 +59,7 @@ observableBins.pop(0)
 print float(observableBins[len(observableBins)-1])
 if float(observableBins[len(observableBins)-1])>200.0:
     observableBins[len(observableBins)-1]='200.0'
-    
+
 def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, observableBins):
 
     sourcedir = opt.SOURCEDIR
@@ -78,14 +78,14 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     nBins = len(observableBins)-1
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"} # 4l is dummy, won't be used
 
-    # Load some libraries                                 
+    # Load some libraries
     ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
     ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so") #Print 0 in case of succesfull loading
     ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include")
     ROOT.gSystem.AddIncludePath("-Iinclude/")
-    
+
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
-    
+
     if(not opt.UNBLIND):
         theorymass = theorymass + '.123456'
     fname = 'higgsCombine_'+obsName+'_SigmaBin0.MultiDimFit.mH'+theorymass+'.root'
@@ -107,7 +107,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     out_trueH_asimov = {}
     qqzz_asimov = {}
     n_trueH_asimov = {}
-    for recobin in range(nBins):    
+    for recobin in range(nBins):
         n_trueH_asimov["4lrecobin"+str(recobin)] = 0.0
     n_trueH_otherfid_asimov = {}
     for recobin in range(nBins):
@@ -119,24 +119,24 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     for recobin in range(nBins):
         n_ggzz_asimov["4lrecobin"+str(recobin)] = 0.0
     n_fakeH_asimov = {}
-    for recobin in range(nBins):    
+    for recobin in range(nBins):
         n_fakeH_asimov["4lrecobin"+str(recobin)] = 0.0
     n_out_trueH_asimov = {}
-    for recobin in range(nBins):    
+    for recobin in range(nBins):
         n_out_trueH_asimov["4lrecobin"+str(recobin)] = 0.0
     n_qqzz_asimov = {}
-    for recobin in range(nBins):    
+    for recobin in range(nBins):
         n_qqzz_asimov["4lrecobin"+str(recobin)] = 0.0
     n_zz_asimov = {}
-    for recobin in range(nBins):    
+    for recobin in range(nBins):
         n_zz_asimov["4lrecobin"+str(recobin)] = 0.0
-    
-                                                                        
-    fStates = ['4mu','4e','2e2mu']    
+
+
+    fStates = ['4mu','4e','2e2mu']
     for fState in fStates:
         for recobin in range(nBins):
             for bin in range(nBins):
-                trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_ch"+str(recobin+1)+"_proc_trueH"+fState+"Bin"+str(bin))            
+                trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_ch"+str(recobin+1)+"_proc_trueH"+fState+"Bin"+str(bin))
             zjets_asimov[fState+"recobin"+str(recobin)] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_ch"+str(recobin+1)+"_proc_bkg_zjets")
             ggzz_asimov[fState+"recobin"+str(recobin)] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_ch"+str(recobin+1)+"_proc_bkg_ggzz")
             fakeH_asimov[fState+"recobin"+str(recobin)] = w_asimov.function("n_exp_final_binch"+channel[fState]+"_ch"+str(recobin+1)+"_proc_fakeH")
@@ -145,19 +145,19 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
             n_trueH_otherfid_asimov[fState+"recobin"+str(recobin)] = 0.0
             for bin in range(nBins):
 #		print "bin is==", bin
-#		print "recobin===", recobin	
-                if (bin==recobin): 
+#		print "recobin===", recobin
+                if (bin==recobin):
 		    n_trueH_asimov[fState+"recobin"+str(recobin)] = trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)].getVal()
-#		    print "trueH_asimov value is(if condition) ==", trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)].getVal()	
-                else: 
+#		    print "trueH_asimov value is(if condition) ==", trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)].getVal()
+                else:
 		    n_trueH_otherfid_asimov[fState+"recobin"+str(recobin)] += trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)].getVal()
-# 		    print "trueH_asimov value is (else condition) ==", trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)].getVal()	
+# 		    print "trueH_asimov value is (else condition) ==", trueH_asimov[fState+"Bin"+str(bin)+"recobin"+str(recobin)].getVal()
             n_zjets_asimov[fState+"recobin"+str(recobin)] = zjets_asimov[fState+"recobin"+str(recobin)].getVal()
-            n_ggzz_asimov[fState+"recobin"+str(recobin)] = ggzz_asimov[fState+"recobin"+str(recobin)].getVal() 
+            n_ggzz_asimov[fState+"recobin"+str(recobin)] = ggzz_asimov[fState+"recobin"+str(recobin)].getVal()
             n_fakeH_asimov[fState+"recobin"+str(recobin)] = fakeH_asimov[fState+"recobin"+str(recobin)].getVal()
             n_out_trueH_asimov[fState+"recobin"+str(recobin)] = out_trueH_asimov[fState+"recobin"+str(recobin)].getVal()
             n_qqzz_asimov[fState+"recobin"+str(recobin)] = qqzz_asimov[fState+"recobin"+str(recobin)].getVal()
-            n_zz_asimov[fState+"recobin"+str(recobin)] = n_ggzz_asimov[fState+"recobin"+str(recobin)]+n_qqzz_asimov[fState+"recobin"+str(recobin)]        
+            n_zz_asimov[fState+"recobin"+str(recobin)] = n_ggzz_asimov[fState+"recobin"+str(recobin)]+n_qqzz_asimov[fState+"recobin"+str(recobin)]
             n_trueH_asimov["4lrecobin"+str(recobin)] += n_trueH_asimov[fState+"recobin"+str(recobin)]
             n_trueH_otherfid_asimov["4lrecobin"+str(recobin)] += n_trueH_otherfid_asimov[fState+"recobin"+str(recobin)]
             n_zjets_asimov["4lrecobin"+str(recobin)] += zjets_asimov[fState+"recobin"+str(recobin)].getVal()
@@ -165,9 +165,9 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
             n_fakeH_asimov["4lrecobin"+str(recobin)] += fakeH_asimov[fState+"recobin"+str(recobin)].getVal()
             n_out_trueH_asimov["4lrecobin"+str(recobin)] += out_trueH_asimov[fState+"recobin"+str(recobin)].getVal()
             n_qqzz_asimov["4lrecobin"+str(recobin)] += qqzz_asimov[fState+"recobin"+str(recobin)].getVal()
-            n_zz_asimov["4lrecobin"+str(recobin)] += n_ggzz_asimov[fState+"recobin"+str(recobin)]+n_qqzz_asimov[fState+"recobin"+str(recobin)]                                                                
+            n_zz_asimov["4lrecobin"+str(recobin)] += n_ggzz_asimov[fState+"recobin"+str(recobin)]+n_qqzz_asimov[fState+"recobin"+str(recobin)]
 
-    
+
     CMS_channel = w.cat("CMS_channel")
     mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(1))
 
@@ -180,11 +180,11 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
             datacut = datacut.rstrip(" || ")
             databin[str(recobin)] = data.reduce(RooFit.Cut(datacut))
             #databin[str(recobin)].Print("v")
-            
+
     else:
         for recobin in range(nBins):
             sbin = "ch"+channel[fstate]+"_ch"+str(recobin+1)
-            databin[str(recobin)] = data.reduce(RooFit.Cut("CMS_channel==CMS_channel::"+sbin)) 
+            databin[str(recobin)] = data.reduce(RooFit.Cut("CMS_channel==CMS_channel::"+sbin))
             #databin[str(recobin)].Print("v")
 
 
@@ -201,7 +201,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
         h_zx = TH1D("h_zx","h_zx",nBins,array('d',[float(observableBins[i]) for i in range(nBins+1)]))
     for recobin in range(nBins):
         print fstate,"recobin",recobin
-        print 'H:',n_trueH_asimov[fstate+"recobin"+str(recobin)]+n_trueH_otherfid_asimov[fstate+"recobin"+str(recobin)]+n_out_trueH_asimov[fstate+"recobin"+str(recobin)]+n_fakeH_asimov[fstate+"recobin"+str(recobin)] 
+        print 'H:',n_trueH_asimov[fstate+"recobin"+str(recobin)]+n_trueH_otherfid_asimov[fstate+"recobin"+str(recobin)]+n_out_trueH_asimov[fstate+"recobin"+str(recobin)]+n_fakeH_asimov[fstate+"recobin"+str(recobin)]
         h_sig.SetBinContent(recobin+1,n_trueH_asimov[fstate+"recobin"+str(recobin)]+n_trueH_otherfid_asimov[fstate+"recobin"+str(recobin)]+n_out_trueH_asimov[fstate+"recobin"+str(recobin)]+n_fakeH_asimov[fstate+"recobin"+str(recobin)])
         print 'ZZ:',n_zz_asimov[fstate+"recobin"+str(recobin)]
         h_zz.SetBinContent(recobin+1,n_zz_asimov[fstate+"recobin"+str(recobin)])
@@ -221,8 +221,8 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     h_zx.SetLineColor(kGreen+4)
     h_zx.SetFillColor(kGreen-5)
     h_zx.SetLineWidth(2)
-    
-    h_data.SetBinErrorOption(ROOT.TH1.kPoisson)    
+
+    h_data.SetBinErrorOption(ROOT.TH1.kPoisson)
     h_data.SetMarkerStyle(20)
     h_data.SetMarkerSize(1.2)
 
@@ -230,7 +230,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     h_stack.Add(h_zx)
     h_stack.Add(h_zz)
     h_stack.Add(h_sig)
-    
+
     gStyle.SetOptStat(0)
 
     c = TCanvas("c","c",1000,800)
@@ -291,25 +291,25 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     elif (obsName=="D0m"):
 	label = "D0m"
 	unit = ""
-                                                                                                        
+
 
     if (obsName.startswith("njets")):
         dummy = TH1D("","",nBins,0,nBins)
-    else:   
+    else:
         dummy = TH1D("","",nBins,float(observableBins[0]),float(observableBins[nBins]))
     dummy.SetBinContent(1,1)
     dummy.SetFillColor(0)
     dummy.SetLineColor(0)
     dummy.SetLineWidth(0)
     dummy.SetMarkerSize(0)
-    dummy.SetMarkerColor(0) 
+    dummy.SetMarkerColor(0)
     dummy.GetYaxis().SetTitle("Events")
     if (obsName.startswith('njets')):
-        dummy.GetXaxis().SetTitle(label)        
-        dummy.GetXaxis().SetBinLabel(1,'0')        
-        dummy.GetXaxis().SetBinLabel(2,'1')        
-        dummy.GetXaxis().SetBinLabel(3,'2')        
-        dummy.GetXaxis().SetBinLabel(4,'#geq 3')        
+        dummy.GetXaxis().SetTitle(label)
+        dummy.GetXaxis().SetBinLabel(1,'0')
+        dummy.GetXaxis().SetBinLabel(2,'1')
+        dummy.GetXaxis().SetBinLabel(3,'2')
+        dummy.GetXaxis().SetBinLabel(4,'#geq 3')
     elif (unit == ""):
         dummy.GetXaxis().SetTitle(label)
     else:
@@ -322,7 +322,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     h_stack.Draw("histsame")
     h_data.Draw("ex0same")
     ROOT.gPad.RedrawAxis()
-    
+
     latex2 = TLatex()
     latex2.SetNDC()
     latex2.SetTextSize(0.5*c.GetTopMargin())
@@ -348,7 +348,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
     legend.AddEntry(h_sig,"m(H) = "+opt.ASIMOVMASS+" GeV","f")
     legend.AddEntry(h_zz,"ZZ background","f")
     legend.AddEntry(h_zx,"Z+X background","f")
-    
+
     legend.SetShadowColor(0);
     legend.SetFillColor(0);
     legend.SetLineColor(0);
@@ -356,7 +356,7 @@ def plotDifferentialBins(asimovDataModel, asimovPhysicalModel, obsName, fstate, 
 
     checkDir("plots")
     checkDir("plots/"+obsName)
-                                                                                                            
+
     if (not opt.UNBLIND):
         checkDir("plots/"+obsName+"/asimov")
         c.SaveAs("plots/"+obsName+"/asimov/asimovdata_"+asimovDataModel+"_"+year+"_"+obsName+'_'+fstate+".pdf")

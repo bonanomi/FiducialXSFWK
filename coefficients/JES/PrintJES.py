@@ -115,8 +115,17 @@ for fState in ['2e2mu', '4e', '4mu']:
                           evts['ggzz_jesup_'+jesName+'_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)],
                           evts['ggzz_jesdn_'+jesName+'_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)],
                           JESNP['ggzz_'+jesName+'_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)]])
-            table.append(['INCLUSIVE', nominal_incl, up_incl, dn_incl, str(round(dn_incl/nominal_incl,3))+'/'+str(round(up_incl/nominal_incl,3))])
-            table.append([])
+
+        nominal_incl += evts['ZX_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)]
+        up_incl += evts['ZX_jesup_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)]
+        dn_incl += evts['ZX_jesdn_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)]
+        table.append(['ZX_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin),
+                      evts['ZX_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)],
+                      evts['ZX_jesup_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)],
+                      evts['ZX_jesdn_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)],
+                      JESNP['ZX_'+fState+'_'+obsname_out+'_genbin'+str(recobin)+'_recobin'+str(recobin)]])
+        table.append(['INCLUSIVE', nominal_incl, up_incl, dn_incl, str(round(dn_incl/nominal_incl,3))+'/'+str(round(up_incl/nominal_incl,3))])
+        table.append([])
 
         tables[jesName,fState] = tabulate(table, headers=['bin', 'nominal', 'jes_up', 'jes_dn', 'ratio(dn/up)'], numalign="right", tablefmt="github")
 

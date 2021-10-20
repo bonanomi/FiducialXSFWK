@@ -1,7 +1,7 @@
 for year in 2016
 do
-    for process in ggH125 VBFH125 WplusH125 WminusH125 ZH125 ttH125 ZZTo4lext ggTo2e2mu_Contin_MCFM701 ggTo2e2tau_Contin_MCFM701 ggTo2mu2tau_Contin_MCFM701 ggTo4e_Contin_MCFM701 ggTo4mu_Contin_MCFM701 ggTo4tau_Contin_MCFM701
-    do
+    for process in VBFH124 WplusH124 WminusH124 ZH124 ttH124 ggH126 VBFH126 WplusH126 WminusH126 ZH126 ttH126
+      do
         root -q -b skim_MC_tree_v2.C"(\"$process\",\"$year\")"
     done
 done

@@ -297,6 +297,8 @@ elif(obs_name == 'DL1'):
     label = 'DL1'
 elif(obs_name == 'pTj1'):
     label = 'p$_T^{j1}$ (GeV)'
+elif(obs_name == 'pTHj'):
+    label = 'p$_T^{Hj}$ (GeV)'
 
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins']) # Open file to retrieve the binning
 obs_bins = _temp.observableBins
