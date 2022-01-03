@@ -29,9 +29,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -299,6 +299,8 @@ elif(obs_name == 'pTj1'):
     label = 'p$_T^{j1}$ (GeV)'
 elif(obs_name == 'pTHj'):
     label = 'p$_T^{Hj}$ (GeV)'
+elif(obs_name == 'mass4l'):
+    label = 'm$_4/ell$ (GeV)'
 
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins']) # Open file to retrieve the binning
 obs_bins = _temp.observableBins

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
-import uproot
+import uproot3 as uproot
 from math import sqrt, log
 import sys,os
 import optparse

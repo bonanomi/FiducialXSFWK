@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import os, sys
 import numpy as np
 import pandas as pd
-import uproot
+import uproot3 as uproot
 from math import sqrt, log
 import itertools
 import optparse
 import math
 import ROOT
 import json
-from tdrStyle import *
+# from tdrStyle import *
 import random #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not have discriminantsa in data yet, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
 
 sys.path.append('../inputs/')
