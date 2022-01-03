@@ -337,6 +337,7 @@ def fillEmptyBinsHist(h1d, floor):
 
 def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
     for year in years:
+        checkDir(str(year))
         checkDir(str(year)+"/"+var_string)
         fractionBkg = {}
         nBins = len(obs_bins)
