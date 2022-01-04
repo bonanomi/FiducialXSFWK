@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## ----- Setting pre-compiled CMSSW version with combine ----- ##
-cp /home/llr/cms/tarabini/CMSSW_10_2_13_withCombine.tgz .
+cp ../CMSSW_10_2_13_withCombine.tgz .
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 tar -xf CMSSW_10_2_13_withCombine.tgz
 rm CMSSW_10_2_13_withCombine.tgz
