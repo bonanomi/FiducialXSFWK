@@ -8,6 +8,8 @@ fi
 
 path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation"
 
+/opt/exp_soft/cms/t3/eos-login -init -username atarabin
+
 cd coefficients
 source /opt/exp_soft/llr/root/vv6.20.06-el7-gcc9-py37/etc/init.sh
 python RunPlotCoefficients.py --obsName "$1" --year 'Full'
