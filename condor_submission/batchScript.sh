@@ -30,10 +30,13 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/h
 cd coefficients
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunCoefficients.py .
 python RunCoefficients.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
+DISCRIMINANTS
+DISCRIMINANTSbis
 
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncertainty.py .
 python pdfUncertainty.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
 # python pdfUncertainty.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' --nnlops
+sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py >  accUnc_OBS_NNLOPS.py #FIXME: This is temporary!
 
 cd ../templates
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/RunTemplates.py .
@@ -62,7 +65,6 @@ python plot_LLScan.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' UNBLIND
 cd ..
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/accUnc_OBS_NNLOPS.py .
 python producePlots.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
 
 ## ----- Moving all outputs ----- ##
