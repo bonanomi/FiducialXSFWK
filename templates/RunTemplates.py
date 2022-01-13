@@ -319,7 +319,7 @@ def doZX(year):
 # ------------------------------- FUNCTIONS FOR TEMPLATES ----------------------------------------------------
 def smoothAndNormaliseTemplate(h1d, norm):
     #smooth
-    h1d.Smooth()#10000)
+    h1d.Smooth(1000)#10000)
     #norm + floor + norm
     #normaliseHist(h1d, norm)
     fillEmptyBinsHist(h1d,.01/(h1d.GetNbinsX()))

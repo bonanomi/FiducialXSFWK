@@ -48,10 +48,15 @@ mv coefficients/matrix_nonfid/2016/nonFid_2016_$1_* $path/$1/.
 mv coefficients/matrix_nonfid/2017/nonFid_2017_$1_* $path/$1/.
 mv coefficients/matrix_nonfid/2018/nonFid_2018_$1_* $path/$1/.
 
+# Move datacards
 mv datacard/datacard_2016/hzz4l_*_13TeV_xs_$1_bin*_v* $path/$1/datacard_2016/.
 mv datacard/datacard_2017/hzz4l_*_13TeV_xs_$1_bin*_v* $path/$1/datacard_2017/.
 mv datacard/datacard_2018/hzz4l_*_13TeV_xs_$1_bin*_v* $path/$1/datacard_2018/.
 mv datacard/hzz4l_*_13TeV_xs_$1_bin*_v* $path/$1/.
+# Move ws
+mv datacard/datacard_2016/hzz4l_*_13TeV_xs_SM_125_$1_* $path/$1/datacard_2016/.
+mv datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_$1_* $path/$1/datacard_2017/.
+mv datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_$1_* $path/$1/datacard_2018/.
 
 mv plots/$1/asimov/$1_unfoldwith* $path/$1/.
 mv impacts/impacts_*_$1_*_asimov* $path/$1/.

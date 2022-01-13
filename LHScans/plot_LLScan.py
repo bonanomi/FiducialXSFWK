@@ -399,16 +399,76 @@ for i in range(nBins):
                         graphs[ifile].SetPoint(ipoint,entry.SigmaBin9,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 10:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin10,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin5,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin10,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 11:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin11,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin5,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin11,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 12:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin12,2.0*entry.deltaNLL)
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin6,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin12,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
-                else:
-                    graphs[ifile].SetPoint(ipoint,entry.SigmaBin13,2.0*entry.deltaNLL)
+                elif  _bin == 13:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin6,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin12,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 14:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin7,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin13,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 15:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin7,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin14,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 16:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin8,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin15,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 17:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin8,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin16,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 18:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin9,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin17,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 19:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin9,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin17,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 20:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r2e2muBin10,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin18,2.0*entry.deltaNLL)
+                    ipoint = ipoint+1
+                elif  _bin == 21:
+                    if v4_flag:
+                        graphs[ifile].SetPoint(ipoint,entry.r4lBin10,2.0*entry.deltaNLL)
+                    else:
+                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin18,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
 
     c=TCanvas("c", "c", 1000, 800)
@@ -680,6 +740,36 @@ for i in range(nBins):
         elif _bin==9:
             resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin4'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
             resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin4_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==10:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin5'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin5_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==11:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin5'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin5_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==12:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin6'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin6_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==13:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin6'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin6_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==14:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin7'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin7_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==15:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin7'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin7_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==16:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin8'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin8_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==17:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin8'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin8_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==18:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin9'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_2e2mu_genbin5_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
+        elif _bin==19:
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin9'] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
+            resultsXS_asimov_v4['SM_125_'+obsName+'_4l_genbin5_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
     else:
         resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(exp_nom[2]), "uncerUp": exp_nom[1], "central": exp_nom[0]}
         resultsXS_asimov['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(exp_nom_stat[2]), "uncerUp": exp_nom_stat[1], "central": exp_nom[0]}
