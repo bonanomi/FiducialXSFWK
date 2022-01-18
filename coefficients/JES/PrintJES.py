@@ -26,9 +26,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -49,7 +49,7 @@ if ' vs ' in obsname:
 year = opt.YEAR
 
 print (obsname, year, obsname_out)
-obs_bins, doubleDiff = binning(opt.OBSBINS)
+obs_bins, doubleDiff = binning(opt.OBSNAME)
 
 _temp = __import__('JESNP_evts_'+obsname_out+'_'+str(year), globals(), locals(), ['evts'])
 evts = _temp.evts
@@ -129,5 +129,5 @@ for fState in ['2e2mu', '4e', '4mu']:
 
         tables[jesName,fState] = tabulate(table, headers=['bin', 'nominal', 'jes_up', 'jes_dn', 'ratio(dn/up)'], numalign="right", tablefmt="github")
 
-        with open('tables/JESNP_table_'+obsname_out+'_'+str(year)+'_'+jesName+'_'+fState+'.py', 'w') as f:
+        with open('tables/'+obsname_out+'/JESNP_table_'+obsname_out+'_'+str(year)+'_'+jesName+'_'+fState+'.py', 'w') as f:
             f.write(tables[jesName,fState])

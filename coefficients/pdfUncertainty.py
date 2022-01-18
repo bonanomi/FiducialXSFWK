@@ -28,6 +28,8 @@ def parseOptions():
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
     parser.add_option('',   '--nnlops', action='store_true', dest='NNLOPS', default=False, help='Calculate uncert for ggH_NNLOPS sample')
+    parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -426,10 +428,10 @@ if doubleDiff:
 else:
     obs_name = opt.OBSNAME
 
-sys.path.append('../inputs/')
+# sys.path.append('../inputs/')
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
-sys.path.remove('../inputs/')
+# sys.path.remove('../inputs/')
 
 if doubleDiff:
     obs_reco = observables[obs_name_2d]['obs_reco']
@@ -478,8 +480,8 @@ else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (
 
 
 chans = ['4e', '4mu', '2e2mu', '4l']
-m4l_low = 105.0
-m4l_high = 140.0
+m4l_low = opt.LOWER_BOUND
+m4l_high = opt.UPPER_BOUND
 acceptance = {}
 qcdUncert = {}
 pdfUncert = {}

@@ -282,7 +282,7 @@ elif (obs_name == "njets_pt30_eta2p5"):
 elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
     obs_name = 'njets_pt30_eta2p5_pT4l' #Change name of obs_name
     label = 'N$_{jet}$/p$_T^H$(GeV)'
-elif(obs_name == 'massZ1 vs massZ2'):
+elif(obs_name == 'massZ1_massZ2'):
     obs_name = 'massZ1_massZ2' #Change name of obs_name
     label = 'm$_{Z1}$(GeV)/m$_{Z2}$(GeV)'
 elif(obs_name == 'D0m'):
@@ -300,6 +300,8 @@ elif(obs_name == 'pTj1'):
 elif(obs_name == 'pTHj'):
     label = 'p$_T^{Hj}$ (GeV)'
 elif(obs_name == 'mass4l'):
+    label = 'm$_4/ell$ (GeV)'
+elif(obs_name == 'mass4l_zzfloating'):
     label = 'm$_4/ell$ (GeV)'
 
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins']) # Open file to retrieve the binning

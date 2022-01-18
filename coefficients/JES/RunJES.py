@@ -41,9 +41,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -440,7 +440,7 @@ m4l_high = opt.UPPER_BOUND
 
 print (obsname, years, m4l_low, m4l_high, obsname_out)
 
-obs_bins, doubleDiff = binning(opt.OBSBINS)
+obs_bins, doubleDiff = binning(opt.OBSNAME)
 
 
 # Generate dataframes

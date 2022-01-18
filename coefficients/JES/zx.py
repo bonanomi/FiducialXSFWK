@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-# import uproot3 as uproot
-import uproot
+import uproot3 as uproot
 from math import sqrt, log
 import ROOT
 # from config import *
@@ -231,6 +230,10 @@ def doZX(year, g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE):
     dfZX['mHj_jesdn'] = [(H+j1).M() for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
     dfZX['mHjj_jesup'] = [(row[0]+row[1]+row[2]).M() for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
     dfZX['mHjj_jesdn'] = [(row[0]+row[1]+row[2]).M() for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
+
+    dfZX['ZZPt_jesup'] = dfZX['ZZPt']
+    dfZX['ZZPt_jesdn'] = dfZX['ZZPt']
+
     return dfZX
 
 #------------------------- Main -------------------------

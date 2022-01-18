@@ -5,6 +5,45 @@ import ROOT
 import os,sys,subprocess
 from math import trunc
 
+# Considering or not decimals in bin boundaries
+decimal = {
+'mass4l': False,
+'mass4l_zzfloating': False,
+'njets_pt30_eta4p7': False,
+'pT4l': False,
+'rapidity4l': True,
+'costhetaZ1': True,
+'costhetaZ2': True,
+'phi': True,
+'phistar': True,
+'costhetastar': True,
+'massZ1': False,
+'massZ2': False,
+'pTj1': False,
+'pTHj': False,
+'mHj': False,
+'pTj2': False,
+'mjj': False,
+'absdetajj': True,
+'dphijj': True,
+'pTHjj': False,
+'TCjmax': False,
+'TBjmax': False,
+'D0m': True,
+'Dcp': True,
+'D0hp': True,
+'Dint': True,
+'DL1': True,
+'DL1Zg': True,
+'rapidity4l vs pT4l': True,
+'njets_pt30_eta4p7 vs pT4l': False,
+'pTj1 vs pTj2': False,
+'pT4l vs pTHj': False,
+'massZ1 vs massZ2': False,
+'TCjmax vs pT4l': False
+}
+
+
 sys.path.append('../../inputs/')
 sys.path.append('../../templates/')
 
@@ -445,7 +484,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high))+".root"
         template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high))+".root"
         template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high))+".root"
-    elif obsName=='Dcp' or obsName=='Dint' or obsName=='D0m' or obsName=='rapidity4l':
+    elif decimal[obsName]:
         template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
         template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
         template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
@@ -459,7 +498,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
 
     qqzzTempFile = ROOT.TFile(template_qqzzName,"READ")
-    if obsName=='Dcp' or obsName=='Dint' or obsName=='D0m' or obsName=='rapidity4l': qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
+    if decimal[obsName]: qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
     elif doubleDiff: qqzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print qqzzTempFile
@@ -467,13 +506,13 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     print 'qqZZ bins',qqzzTemplate.GetNbinsX(),qqzzTemplate.GetBinLowEdge(1),qqzzTemplate.GetBinLowEdge(qqzzTemplate.GetNbinsX()+1)
 
     ggzzTempFile = ROOT.TFile(template_ggzzName,"READ")
-    if obsName=='Dcp' or obsName=='Dint' or obsName=='D0m' or obsName=="rapidity4l": ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
+    if decimal[obsName]: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
     elif doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print 'ggZZ bins',ggzzTemplate.GetNbinsX(),ggzzTemplate.GetBinLowEdge(1),ggzzTemplate.GetBinLowEdge(ggzzTemplate.GetNbinsX()+1)
 
     zjetsTempFile = ROOT.TFile(template_zjetsName,"READ")
-    if obsName=='Dcp' or obsName=='Dint' or obsName=='D0m' or obsName=="rapidity4l": zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
+    if decimal[obsName]: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
     elif doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print 'zjets bins',zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1)

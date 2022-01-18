@@ -23,13 +23,16 @@ mkdir templates
 mkdir templates/plots templates/plots/2016 templates/plots/2017 templates/plots/2018
 mkdir templates/plots/2016/OBS templates/plots/2017/OBS templates/plots/2018/OBS
 mkdir impacts
+mkdir helperstuff
 
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/observables.py inputs/.
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/helperstuff/binning.py helperstuff/.
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/helperstuff/observables.py helperstuff/.
+
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/higgs_xsbr_13TeV.py inputs/.
 
 cd coefficients
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunCoefficients.py .
-python RunCoefficients.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
+python RunCoefficients.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' ZZFLOATING
 FIRST
 SECOND
 
@@ -40,28 +43,31 @@ if [ $jes == true ];then
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/RunJES.py .
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/PrintJES.py .
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/zx.py .
-  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/binning.py .
-  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/createdf_jes.py .
-  python RunJES.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
-  python PrintJES.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
+  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/JESNP*_OBS_* .
+  # python RunJES.py --obsName 'VAR' --obsBins 'BIN' --year 'Full'
+  python PrintJES.py --obsName 'VAR' --obsBins 'BIN' --year '2016'
+  python PrintJES.py --obsName 'VAR' --obsBins 'BIN' --year '2017'
+  python PrintJES.py --obsName 'VAR' --obsBins 'BIN' --year '2018'
   cd ..
 fi
 
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncertainty.py .
-python pdfUncertainty.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
-# python pdfUncertainty.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' --nnlops
+python pdfUncertainty.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' ZZFLOATING
+# python pdfUncertainty.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' --nnlops
 cd ../inputs
 sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py > accUnc_OBS_NNLOPS.py #FIXME: This is temporary!
 
 cd ../templates
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/RunTemplates.py .
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/plot_templates.cpp .
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/setTDRStyle.C .
-python RunTemplates.py --obsName 'OBS' --obsBins 'BIN' --year 'Full'
-c++ -o  plot_templates plot_templates.cpp `root-config --cflags --glibs`
-IN="BIN"
-boundaries=$(echo $IN | tr "|" "\n")
-./plot_templates OBS $boundaries
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/plot_templates.py .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/tdrStyle.py .
+python RunTemplates.py --obsName 'VAR' --obsBins 'BIN' --year 'Full'
+# c++ -o  plot_templates plot_templates.cpp `root-config --cflags --glibs`
+# IN="BIN"
+# boundaries=$(echo $IN | tr "|" "\n")
+# ./plot_templates OBS $boundaries
+python plot_templates.py --obsName 'VAR' --year 'Full'
+
 
 cd ../fit
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/RunFiducialXS.py .
@@ -69,19 +75,19 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/crea
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/createXSworkspace.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/addConstrainedModel.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/impacts.py .
-python RunFiducialXS.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' UNBLIND
-python impacts.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' UNBLIND
+python RunFiducialXS.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
+python impacts.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
 
 cd ../LHScans
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plot_LLScan.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plotting.py .
-python plot_LLScan.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' UNBLIND
+python plot_LLScan.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
 FOURTH UNBLIND
 
 cd ..
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
-python producePlots.py --obsName 'OBS' --obsBins 'BIN' --year 'Full' UNBLIND
+python producePlots.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
 THIRD UNBLIND
 
 ## ----- Moving all outputs ----- ##
@@ -129,14 +135,14 @@ if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tem
 else
   mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2017/OBS
 fi
-mv templates/2017/OBS /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2017/OBS/.
+mv templates/2017/OBS/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2017/OBS/.
 if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2018/OBS ]; then
   rm -rf /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2018/OBS
   mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2018/OBS
 else
   mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2018/OBS
 fi
-mv templates/2018/OBS /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2018/OBS/.
+mv templates/2018/OBS/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/2018/OBS/.
 
 # Outputs from plot_templates
 if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/plots/2016/OBS ]; then

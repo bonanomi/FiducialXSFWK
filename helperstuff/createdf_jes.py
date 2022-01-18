@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import uproot
+import uproot3 as uproot
 from math import sqrt, log
 import sys,os
 import optparse
@@ -245,6 +245,9 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
              'pTj1', 'Mj1', 'ETAj1', 'PHIj1',
              'pTj2', 'Mj2', 'ETAj2', 'PHIj2']
 
+    if obs_reco == 'ZZPt' or obs_reco_2nd == 'ZZPt':
+        b_sig.remove('ZZPt')
+
     if not isBkg: b_sig += ['passedFiducialSelection_bbf','GENmass4l', 'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex', 'GENZ_DaughtersId',
                              'GENZ_MomId', 'lep_Hindex', 'lep_genindex', 'GENpTj1', 'GENpTj2']
     if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
@@ -301,6 +304,9 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
         if obs_reco == 'mHjj' or obs_reco_2nd == 'mHjj':
             df['mHjj_jesup_'+i] = [(row[0]+row[1]+row[2]).M() for row in df[['Higgs','j1_jesup_'+i,'j2_jesup_'+i]].values]
             df['mHjj_jesdn_'+i] = [(row[0]+row[1]+row[2]).M() for row in df[['Higgs','j1_jesdn_'+i,'j2_jesdn_'+i]].values]
+        if obs_reco == 'ZZPt' or obs_reco_2nd == 'ZZPt':
+            df['ZZPt_jesup_'+i] = df['ZZPt']
+            df['ZZPt_jesdn_'+i] = df['ZZPt']
 
     if signal != 'ggH125':
         df = weight(df, xsec, gen, lumi)
