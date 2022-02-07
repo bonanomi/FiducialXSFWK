@@ -1684,46 +1684,13 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     g_data_allunc.SetMarkerStyle(20)
     g_data_allunc.SetMarkerSize(1.2)
 
-    if (obsName=="pT4l"):
-        label="p_{T}(H)"
-        unit="GeV"
-    elif (obsName=="massZ2"):
+
+    if (obsName=="massZ2"):
         label = "m(Z_{2})"
-        label_2e2mu = "m(Z_{2})(2e2#mu)"
-        label_4l = "m(Z_{2})(4e+4#mu)"
         unit = "GeV"
     elif (obsName=="massZ1"):
         label = "m(Z_{1})"
-        label_2e2mu = "m(Z_{1})(2e2#mu)"
-        label_4l = "m(Z_{1})(4e+4#mu)"
         unit = "GeV"
-    elif (obsName=="nJets" or obsName=="njets_pt30_eta4p7"):
-        label = "N(jets)"
-        unit = ""
-    elif (obsName=="njets_pt30_eta2p5"):
-        label = "N(jets)"
-        unit = ""
-    elif (obsName=="pTj1"):
-        label = "p_{T}(jet)"
-        unit = "GeV"
-    elif (obsName=="pTj1jet_pt30_eta2p5"):
-        label = "p_{T}(jet)"
-        unit = "GeV"
-    elif (obsName=="absrapidity_leadingjet_pt30_eta4p7"):
-        label = "|y(jet)|"
-        unit = ""
-    elif (obsName=="absrapidity_leadingjet_pt30_eta2p5"):
-        label = "|y(jet)| |#eta|<2.5"
-        unit = ""
-    elif (obsName=="absdeltarapidity_hleadingjet_pt30_eta4p7"):
-        label = "|y(H)-y(jet)|"
-        unit = ""
-    elif (obsName=="absdeltarapidity_hleadingjet_pt30_eta2p5"):
-        label = "|y(H)-y(jet)| |#eta|<2.5"
-        unit = ""
-    elif (obsName=="rapidity4l"):
-        label = "|y(H)|"
-        unit = ""
     elif (obsName=="costhetastar"):
         label = "|cos#theta*|"
         unit = ""
@@ -1739,18 +1706,8 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     elif (obsName=="phistar"):
         label = "|#Phi_{1}|"
         unit = ""
-    elif (obsName=="mass4l"):
-        label = "inclusive"
-        unit = ""
-    elif obsName=='massZ1_massZ2':
-        label = "m(Z_{1})"
-        unit = "GeV"
-        label_2nd = "m(Z_{2})"
-        unit_2nd = "GeV"
     elif obsName=="D0m":
         label = "D_{0-}^{dec}"
-        label_2e2mu = "D_{0-,}^{dec}(2e2#mu)"
-        label_4l = "D_{0-}^{dec}(4e+4#mu)"
         unit = ""
     elif obsName=="D0hp":
         label = "D_{0h+}^{dec}"
@@ -1767,6 +1724,9 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     else:
         label = obsName
         unit = ""
+
+    label_2e2mu = label+'(2e2#mu)'
+    label_4l = label+'(4e+4#mu)'
 
     c = TCanvas("c",obsName, 1400, 1400)
     if(opt.SETLOG): c.SetLogy()
