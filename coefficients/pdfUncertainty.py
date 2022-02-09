@@ -12,6 +12,8 @@ import math
 import ROOT
 import json
 
+from paths import path
+
 print 'Welcome in pdfUncertainty!'
 
 def parseOptions():
@@ -324,12 +326,12 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
         # Selections
         cutm4l_gen = (datafr['GENmass4l'] > m4l_low) & (datafr['GENmass4l'] < m4l_high)
         if obs_reco.startswith('njets') and not doubleDiff:
-            cutobs_gen = abs(datafr[obs_gen]) >= obs_gen_low
+            cutobs_gen = datafr[obs_gen] >= obs_gen_low
         else:
-            cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+            cutobs_gen = (datafr[obs_gen] >= obs_gen_low) & (datafr[obs_gen] < obs_gen_high)
             if (obs_name=='Dcp'): cutobs_gen = (datafr[obs_gen] >= obs_gen_low) & (datafr[obs_gen] < obs_gen_high)
             if doubleDiff:
-                cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
+                cutobs_gen &= (datafr[obs_gen_2nd] >= obs_gen_2nd_low) & (datafr[obs_gen_2nd] < obs_gen_2nd_high)
         if channel != '4l':
             cutm4l_reco = (datafr['ZZMass'] > m4l_low) & (datafr['ZZMass'] < m4l_high) & (datafr['FinState_reco'] == channel)
             cutchan_gen = datafr['FinState_gen'] == channel
@@ -406,7 +408,7 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
 # if opt.AC_HYP: signals_original = signals = ['ggH'+opt.AC_HYP+'_M125']
 # else: signals_original = signals = ['ggH125']
 signals_original = signals = ['ggH125']
-eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
+eos_path_sig = path['eos_path_sig']
 key = 'candTree'
 key_failed = 'candTree_failed'
 verbose = False

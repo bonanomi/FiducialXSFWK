@@ -23,13 +23,18 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     _temp = __import__('inputs_bkg_'+obsName+'_'+year, globals(), locals(), ['fractionsBackground'], -1)
     fractionsBackground = _temp.fractionsBackground
     if jes:
+        # sys.path.append('../coefficients/JES')
+        # jesNames = ['Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
+        # jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
+        # _temp = __import__('JESNP_'+obsName+'_'+str(year), globals(), locals(), ['JESNP'], -1)
+        # jesnp = _temp.JESNP
+        # sys.path.remove('../coefficients/JES')
         sys.path.append('../coefficients/JES')
         jesNames = ['Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
         jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
-        _temp = __import__('JESNP_'+obsName+'_'+str(year), globals(), locals(), ['JESNP'], -1)
+        _temp = __import__('JESNP_'+obsName, globals(), locals(), ['JESNP'], -1)
         jesnp = _temp.JESNP
         sys.path.remove('../coefficients/JES')
-        # print(jesnp)
     sys.path.remove('../inputs')
 
     #Hard coded values for bkgs
@@ -277,18 +282,24 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if jes == True:
         for index,jesName in enumerate(jesNames_datacard):
             file.write('CMS_scale_j_'+jesName+' lnN ')
-            for i in range(nBins): # Signals
-                file.write(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+
+            # for i in range(nBins): # Signals
+            #     file.write(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)])+' ')
+            # file.write(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+            # file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+
+            for i in range(nBins+2): # Signal + out + fake
+                file.write(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+
+            # Bkgs
+            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
             file.write('-\n') # ZX
             #file.write('JES param 0.0 1.0\n')
         file.write('CMS_scale_j_ZX lnN ')
         for i in range(nBins+4): # All except ZX
             file.write('- ')
-        file.write(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+'\n')
+        file.write(str(jesnp['ZX_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+'\n')
 
 
     file.close()

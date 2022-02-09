@@ -1162,8 +1162,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ggH_powhegBorder.SetLineColor(ROOT.kAzure+2)
         g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
-        h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",5, 0, 5)
-        for i in range(5):
+        h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",4, 0, 4)
+        for i in range(4):
             h_ggH_powheg.SetBinContent(i+1,v_ggH_powheg[i])
     else:
         g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
@@ -1468,8 +1468,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_powhegBorder.SetLineColor(ROOT.kAzure+2)
         g_ratio_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
-        h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",5, 0, 5)
-        for i in range(5):
+        h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",4, 0, 4)
+        for i in range(4):
             h_ratio_powheg.SetBinContent(i+1,v_ratio_powheg[i])
     else:
         g_ratio_powheg = TGraphAsymmErrors(v_observable_1,v_ratio_powheg,v_dobservable_1,v_dobservable_1,v_ratio_powheg_lo,v_ratio_powheg_hi)
@@ -1550,8 +1550,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_minloHJBorder.SetLineColor(ROOT.kOrange+2)
         g_ratio_minloHJBorder.SetMarkerColor(ROOT.kOrange+2)
 
-        h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",5, 0, 5)
-        for i in range(5):
+        h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",4, 0, 4)
+        for i in range(4):
             h_ratio_minloHJ.SetBinContent(i+1,v_ratio_minloHJ[i])
     elif acFlag: # We keep the same names as in the last else (just to reduce entropy with if statements)
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)

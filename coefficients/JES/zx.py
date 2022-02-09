@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import uproot3 as uproot
 from math import sqrt, log
+import math
 import ROOT
 # from config import *
 
@@ -9,10 +10,10 @@ years = [2016, 2017, 2018]
 eos_path = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/' #it is used for FR
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt', 'ZZEta',
                'helcosthetaZ1','helcosthetaZ2', 'helphi', 'costhetastar', 'phistarZ1', 'ZZPhi',
-               'pTj1', 'pTj2',
+               'pTj1', 'pTj2', 'absdetajj',
                'JetPt_JESUp','JetPt_JESDown','JetEta','JetPhi','JetMass',
                'pTHj', 'pTHjj', 'mHj', 'mHjj', 'detajj', 'dphijj', 'mjj', 'njets_pt30_eta2p5', 'ZZy',
-               'D0m', 'Dcp', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
+               'D0m', 'Dcp', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint', 'TCjmax', 'TBjmax']
 
 def add_leadjet(pt,eta,phi,mass):
 	_pTj1 = 0.0
@@ -25,7 +26,7 @@ def add_leadjet(pt,eta,phi,mass):
 		_j.SetPtEtaPhiM(0,0,0,0)
 	else:
 	    for i in range(len(pt)):
-	        if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1):
+	        if (pt[i]>30 and abs(eta[i])<4.7 and pt[i] > _pTj1):
 	        	_pTj1 = pt[i]
 	        	index = i
 	    _j.SetPtEtaPhiM(_pTj1,eta[index],phi[index],mass[index])
@@ -39,7 +40,7 @@ def add_subleadjet(pt,eta,phi,mass,leadJet):
     _phij2 = 0.0
     _j = ROOT.TLorentzVector()
     for i in range(len(pt)):
-        if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj2 and leadJet.Pt()-pt[i] > 0.00001):
+        if (pt[i]>30 and abs(eta[i])<4.7 and pt[i] > _pTj2 and leadJet.Pt()-pt[i] > 0.00001):
             _pTj2 = pt[i]
             _mj2 = mass[i]
             _etaj2 = eta[i]
@@ -60,6 +61,24 @@ def FindFinalState_reco(flav):
     if flav == 0: return '4e'
     elif flav == 1: return '4mu'
     else: return '2e2mu'
+
+def tc(pt,eta,phi,mass,H):
+    _TCjmax = 0
+    for i in range(len(pt)):
+        theJet = ROOT.TLorentzVector()
+        theJet.SetPtEtaPhiM(pt[i],eta[i],phi[i],mass[i]);
+        _TCj = sqrt(theJet.Pt()**2 + theJet.M()**2)/(2*math.cosh(theJet.Rapidity() - H.Rapidity()))
+        if _TCj > _TCjmax: _TCjmax = _TCj
+    return _TCjmax
+
+def tb(pt,eta,phi,mass,H):
+    _TBjmax = 0
+    for i in range(len(pt)):
+        theJet = ROOT.TLorentzVector()
+        theJet.SetPtEtaPhiM(pt[i],eta[i],phi[i],mass[i]);
+        _TBj = sqrt(theJet.Pt()**2 + theJet.M()**2)*math.exp(-1*(theJet.Rapidity() - H.Rapidity()));
+        if _TBj > _TBjmax: _TBjmax = _TBj
+    return _TBjmax
 
 def GetFakeRate(lep_Pt, lep_eta, lep_ID, g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE):
 
@@ -168,7 +187,7 @@ def ratio(year):
 def count_jets(pt,eta,phi,mass):
     n = 0
     for i in range(len(pt)):
-        if pt[i]>30 and abs(eta[i])<2.5: n = n + 1
+        if pt[i]>30 and abs(eta[i])<4.7: n = n + 1
     return n
 
 def tetra_Higgs(mass,eta,phi,pt):
@@ -220,16 +239,22 @@ def doZX(year, g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE):
     dfZX['pTj2_jesdn'] = [x.Pt() for x in dfZX['j2_jesdn']]
     dfZX['njets_pt30_eta2p5_jesup'] = [count_jets(row[0],row[1],row[2],row[3]) for row in dfZX[['JetPt_JESUp','JetEta','JetPhi','JetMass']].values]
     dfZX['njets_pt30_eta2p5_jesdn'] = [count_jets(row[0],row[1],row[2],row[3]) for row in dfZX[['JetPt_JESDown','JetEta','JetPhi','JetMass']].values]
-    dfZX['mjj_jesup'] = [(j1+j2).M() for j1,j2 in zip(dfZX['j1_jesup'],dfZX['j2_jesup'])]
-    dfZX['mjj_jesdn'] = [(j1+j2).M() for j1,j2 in zip(dfZX['j1_jesdn'],dfZX['j2_jesdn'])]
-    dfZX['pTHj_jesup'] = [(H+j1).Pt() for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesup'])]
-    dfZX['pTHj_jesdn'] = [(H+j1).Pt() for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
-    dfZX['pTHjj_jesup'] = [(row[0]+row[1]+row[2]).Pt() for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
-    dfZX['pTHjj_jesdn'] = [(row[0]+row[1]+row[2]).Pt() for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
-    dfZX['mHj_jesup'] = [(H+j1).M() for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesup'])]
-    dfZX['mHj_jesdn'] = [(H+j1).M() for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
-    dfZX['mHjj_jesup'] = [(row[0]+row[1]+row[2]).M() for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
-    dfZX['mHjj_jesdn'] = [(row[0]+row[1]+row[2]).M() for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
+    dfZX['mjj_jesup'] = [(j1+j2).M() if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesup'],dfZX['j2_jesup'])]
+    dfZX['mjj_jesdn'] = [(j1+j2).M() if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesdn'],dfZX['j2_jesdn'])]
+    dfZX['pTHj_jesup'] = [(H+j1).Pt() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesup'])]
+    dfZX['pTHj_jesdn'] = [(H+j1).Pt() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
+    dfZX['pTHjj_jesup'] = [(row[0]+row[1]+row[2]).Pt() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
+    dfZX['pTHjj_jesdn'] = [(row[0]+row[1]+row[2]).Pt() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
+    dfZX['mHj_jesup'] = [(H+j1).M() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesup'])]
+    dfZX['mHj_jesdn'] = [(H+j1).M() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
+    dfZX['mHjj_jesup'] = [(row[0]+row[1]+row[2]).M() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
+    dfZX['mHjj_jesdn'] = [(row[0]+row[1]+row[2]).M() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
+    dfZX['TCjmax_jesup'] = [tc(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESUp','JetEta','JetPhi','JetMass','Higgs']].values]
+    dfZX['TCjmax_jesdn'] = [tc(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESDown','JetEta','JetPhi','JetMass','Higgs']].values]
+    dfZX['TBjmax_jesup'] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESUp','JetEta','JetPhi','JetMass','Higgs']].values]
+    dfZX['TBjmax_jesdn'] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESDown','JetEta','JetPhi','JetMass','Higgs']].values]
+    dfZX['absdetajj_jesup'] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesup'],dfZX['j2_jesup'])]
+    dfZX['absdetajj_jesdn'] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesdn'],dfZX['j2_jesdn'])]
 
     dfZX['ZZPt_jesup'] = dfZX['ZZPt']
     dfZX['ZZPt_jesdn'] = dfZX['ZZPt']

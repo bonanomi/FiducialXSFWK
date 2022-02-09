@@ -24,18 +24,24 @@ def weight(df, xsec, gen, lumi, additional = None):
     coeff = (lumi * 1000 * xsec) / gen
     #Reco
     weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
+    if additional == 'ggH':
+        weight_reco *= df.ggH_NNLOPS_weight
+    elif additional == 'qqzz':
+        weight_reco *= df.KFactor_EW_qqZZ*df.KFactor_QCD_qqZZ_M
+    elif additional == 'ggzz':
+        weight_reco *= df.KFactor_QCD_ggZZ_Nominal
     weight_histo_reco = weight_reco * coeff
     #Columns in pandas
     df['weight_reco'] = weight_reco #Powheg
     df['weight_histo_reco'] = weight_histo_reco #Powheg
-    if additional == 'ggH':
-        weight_reco_NNLOPS = weight_reco * df.ggH_NNLOPS_weight
-        weight_histo_reco_NNLOPS = weight_histo_reco * df.ggH_NNLOPS_weight
-        df['weight_reco_NNLOPS'] = weight_reco_NNLOPS #NNLOPS (only ggH)
-        df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
-    else:
-        df['weight_reco_NNLOPS'] = -1
-        df['weight_histo_reco_NNLOPS'] = -1
+    # if additional == 'ggH':
+    #     weight_reco_NNLOPS = weight_reco * df.ggH_NNLOPS_weight
+    #     weight_histo_reco_NNLOPS = weight_histo_reco * df.ggH_NNLOPS_weight
+    #     df['weight_reco_NNLOPS'] = weight_reco_NNLOPS #NNLOPS (only ggH)
+    #     df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
+    # else:
+    #     df['weight_reco_NNLOPS'] = -1
+    #     df['weight_histo_reco_NNLOPS'] = -1
     return df
 
 # Uproot to generate pandas
@@ -70,11 +76,28 @@ def prepareTrees(year):
 def xsecs(year):
     xsec_sig = {}
     xsec_bkg = {}
-    d_sig, d_bkg = prepareTrees(year)
-    for signal in signals_original:
-        xsec_sig[signal] = d_sig[signal].pandas.df('xsec').xsec[0]
-    for bkg in bkgs:
-        xsec_bkg[bkg] = d_bkg[bkg].pandas.df('xsec').xsec[0]
+
+    #Hard-coded values
+    xsec_sig['ggH125'] = 0.0133352
+    xsec_sig['VBFH125'] = 0.0010381
+    xsec_sig['ttH125'] = 0.0003639
+    xsec_sig['WminusH125'] = 0.0001462
+    xsec_sig['WplusH125'] = 0.0002305
+    xsec_sig['ZH125'] = 0.0005321
+
+    xsec_bkg['ZZTo4lext'] = 1.2560000
+    xsec_bkg['ggTo2e2mu_Contin_MCFM701'] = 0.0031914
+    xsec_bkg['ggTo2e2tau_Contin_MCFM701'] = 0.0031914
+    xsec_bkg['ggTo2mu2tau_Contin_MCFM701'] = 0.0031914
+    xsec_bkg['ggTo4e_Contin_MCFM701'] = 0.0015854
+    xsec_bkg['ggTo4mu_Contin_MCFM701'] = 0.0015854
+    xsec_bkg['ggTo4tau_Contin_MCFM701'] = 0.0015854
+
+    # d_sig, d_bkg = prepareTrees(year)
+    # for signal in signals_original:
+    #     xsec_sig[signal] = d_sig[signal].pandas.df('xsec').xsec[0]
+    # for bkg in bkgs:
+    #     xsec_bkg[bkg] = d_bkg[bkg].pandas.df('xsec').xsec[0]
     return xsec_sig, xsec_bkg
 
 
@@ -96,61 +119,6 @@ def add_fin_state_reco(i, j):
     return fin
 
 
-def add_fin_state_gen(lepId, Hindex, number):
-    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
-        return 'other'
-    if (abs(lepId[Hindex[0]])==11) & (abs(lepId[Hindex[2]])==11):
-        fin = '4e'
-    elif (abs(lepId[Hindex[0]])==13) & (abs(lepId[Hindex[2]])==13):
-        fin = '4mu'
-    elif ((abs(lepId[Hindex[0]])==11) & (abs(lepId[Hindex[2]])==13)) | ((abs(lepId[Hindex[0]])==13) & (abs(lepId[Hindex[2]])==11)):
-        fin = '2e2mu'
-    else:
-        fin = 'other'
-    return fin
-
-
-def add_fin_state_gen_out(ZdauId,event):
-    if (abs(ZdauId[0])==11) and (abs(ZdauId[1])==11):
-        fin = '4e'
-    elif (abs(ZdauId[0])==13) and (abs(ZdauId[1])==13):
-        fin = '4mu'
-    elif ((abs(ZdauId[0])==11) and (abs(ZdauId[1])==13)) or ((abs(ZdauId[0])==13) and (abs(ZdauId[1])==11)):
-        fin = '2e2mu'
-    else:
-        fin = 'other'
-    return fin
-
-
-def add_fin_state_gen_out_ZH(ZdauId,momId):
-    if ((abs(ZdauId[0])==11) and (abs(ZdauId[1])==11) and (momId[0]==25) and (momId[1]==25)) or ((abs(ZdauId[0])==11) and (abs(ZdauId[2])==11) and (momId[0]==25) and (momId[2]==25)) or ((abs(ZdauId[1])==11) and (abs(ZdauId[2])==11) and (momId[1]==25) and (momId[2]==25)):
-        fin = '4e'
-    elif ((abs(ZdauId[0])==13) and (abs(ZdauId[1])==13) and (momId[0]==25) and (momId[1]==25)) or ((abs(ZdauId[0])==13) and (abs(ZdauId[2])==13)&(momId[0]==25) and (momId[2]==25)) or ((abs(ZdauId[1])==13) and (abs(ZdauId[2])==13) and (momId[1]==25) and (momId[2]==25)):
-        fin = '4mu'
-    elif (momId[0]==25 and (ZdauId[0]==11 or ZdauId[0]==13) and momId[1]==25 and (ZdauId[1]==11 or ZdauId[1]==13) and (ZdauId[0]!=ZdauId[1])) or (momId[0]==25 and (ZdauId[0]==11 or ZdauId[0]==13) and momId[2]==25 and (ZdauId[2]==11 or ZdauId[2]==13) and (ZdauId[0]!=ZdauId[2])) or (momId[1]==25 and (ZdauId[1]==11 or ZdauId[1]==13) and momId[2]==25 and (ZdauId[2]==11 or ZdauId[2]==13) and (ZdauId[1]!=ZdauId[2])):
-        fin = '2e2mu'
-    else:
-        fin = 'other'
-    return fin
-
-
-def add_cuth4l_gen(momMomId,Hindex):
-    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
-        return False
-    if momMomId[Hindex[0]]==25 and momMomId[Hindex[1]]==25 and momMomId[Hindex[2]]==25 and momMomId[Hindex[3]]==25:
-        return True
-    else:
-        return False
-
-
-def add_cuth4l_reco(Hindex,genIndex,momMomId,momId):
-    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
-        return False
-    if ((genIndex[Hindex[0]]>-0.5)*momMomId[max(0,genIndex[Hindex[0]])]==25) and ((genIndex[Hindex[0]]>-0.5)*momId[max(0,genIndex[Hindex[0]])]==23) and ((genIndex[Hindex[1]]>-0.5)*momMomId[max(0,genIndex[Hindex[1]])]==25) and ((genIndex[Hindex[1]]>-0.5)*momId[max(0,genIndex[Hindex[1]])]==23) and ((genIndex[Hindex[2]]>-0.5)*momMomId[max(0,genIndex[Hindex[2]])]==25) and ((genIndex[Hindex[2]]>-0.5)*momId[max(0,genIndex[Hindex[2]])]==23) and ((genIndex[Hindex[3]]>-0.5)*momMomId[max(0,genIndex[Hindex[3]])]==25) and ((genIndex[Hindex[3]]>-0.5)*momId[max(0,genIndex[Hindex[3]])]==23):
-        return True
-    else:
-        return False
-
 # Get the "number" of MC events to divide the weights
 def generators(year):
     gen_sig = {}
@@ -167,6 +135,7 @@ def generators(year):
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
         gen_sig[signal] = hCounters.GetBinContent(40)
+        input_file.Close()
 
     for bkg in bkgs:
         fname = eos_path_sig + '%i_MELA' %year
@@ -179,6 +148,7 @@ def generators(year):
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
         gen_bkg[bkg] = hCounters.GetBinContent(40)
+        input_file.Close()
 
     return gen_sig, gen_bkg
 
@@ -193,7 +163,7 @@ def add_leadjet(pt,eta,phi,mass):
 		_j.SetPtEtaPhiM(0,0,0,0)
 	else:
 	    for i in range(len(pt)):
-	        if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1):
+	        if (pt[i]>30 and abs(eta[i])<4.7 and pt[i] > _pTj1):
 	        	_pTj1 = pt[i]
 	        	index = i
 	    _j.SetPtEtaPhiM(_pTj1,eta[index],phi[index],mass[index])
@@ -207,7 +177,7 @@ def add_subleadjet(pt,eta,phi,mass,leadJet):
     _phij2 = 0.0
     _j = ROOT.TLorentzVector()
     for i in range(len(pt)):
-        if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj2 and leadJet.Pt()-pt[i] > 0.00001):
+        if (pt[i]>30 and abs(eta[i])<4.7 and pt[i] > _pTj2 and leadJet.Pt()-pt[i] > 0.00001):
             _pTj2 = pt[i]
             _mj2 = mass[i]
             _etaj2 = eta[i]
@@ -219,7 +189,7 @@ def add_subleadjet(pt,eta,phi,mass,leadJet):
 def count_jets(pt,eta,phi,mass):
     n = 0
     for i in range(len(pt)):
-        if pt[i]>30 and abs(eta[i])<2.5: n = n + 1
+        if pt[i]>30 and abs(eta[i])<4.7: n = n + 1
     return n
 
 def varHiggsOneJets_jes(jet,Hmass,Heta,Hphi,Hpt):
@@ -237,6 +207,24 @@ def tetra_Higgs(mass,eta,phi,pt):
     h.SetPtEtaPhiM(pt,eta,phi,mass)
     return h
 
+def tc(pt,eta,phi,mass,H):
+    _TCjmax = 0
+    for i in range(len(pt)):
+        theJet = ROOT.TLorentzVector()
+        theJet.SetPtEtaPhiM(pt[i],eta[i],phi[i],mass[i]);
+        _TCj = sqrt(theJet.Pt()**2 + theJet.M()**2)/(2*math.cosh(theJet.Rapidity() - H.Rapidity()))
+        if _TCj > _TCjmax: _TCjmax = _TCj
+    return _TCjmax
+
+def tb(pt,eta,phi,mass,H):
+    _TBjmax = 0
+    for i in range(len(pt)):
+        theJet = ROOT.TLorentzVector()
+        theJet.SetPtEtaPhiM(pt[i],eta[i],phi[i],mass[i]);
+        _TBj = sqrt(theJet.Pt()**2 + theJet.M()**2)*math.exp(-1*(theJet.Rapidity() - H.Rapidity()));
+        if _TBj > _TBjmax: _TBjmax = _TBj
+    return _TBjmax
+
 
 def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='None'):
     b_sig = ['EventNumber', 'PUWeight', 'genHEPMCweight',
@@ -248,9 +236,13 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
     if obs_reco == 'ZZPt' or obs_reco_2nd == 'ZZPt':
         b_sig.remove('ZZPt')
 
-    if not isBkg: b_sig += ['passedFiducialSelection_bbf','GENmass4l', 'GENlep_id', 'GENlep_MomId', 'GENlep_MomMomId', 'GENlep_Hindex', 'GENZ_DaughtersId',
-                             'GENZ_MomId', 'lep_Hindex', 'lep_genindex', 'GENpTj1', 'GENpTj2']
-    if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
+    if signal == 'ggH125':
+        b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
+    elif signal == 'ZZTo4lext':
+        b_sig.append('KFactor_EW_qqZZ')
+        b_sig.append('KFactor_QCD_qqZZ_M')
+    elif 'gg' in signal:
+        b_sig.append('KFactor_QCD_ggZZ_Nominal')
     for i in jesNames:
         b_sig.extend(['JetPt_JESUp_'+i,'JetPt_JESDown_'+i])
     if obs_reco != 'pTj1' and obs_reco != 'pTj2': b_sig.append(obs_reco)
@@ -260,14 +252,6 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
     df['gen'] = gen
     df['xsec'] = xsec
     df['FinState_reco'] = [add_fin_state_reco(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
-    if not isBkg:
-        df['FinState_gen'] = [add_fin_state_gen(row[0],row[1],row[2]) for row in df[['GENlep_id', 'GENlep_Hindex', 'EventNumber']].values]
-        if signal != 'ZH125':
-            df['FinState_gen_out'] = [add_fin_state_gen_out(i,j) for i,j in zip(df.GENZ_DaughtersId,df.EventNumber)]
-        else:
-            df['FinState_gen_out'] = [add_fin_state_gen_out_ZH(i,j) for i,j in zip(df.GENZ_DaughtersId,df.GENZ_MomId)]
-        df['cuth4l_gen'] = [add_cuth4l_gen(i,j) for i,j in zip(df.GENlep_MomMomId,df.GENlep_Hindex)]
-        df['cuth4l_reco'] = [add_cuth4l_reco(row[0],row[1],row[2],row[3]) for row in df[['lep_Hindex','lep_genindex','GENlep_MomMomId','GENlep_MomId']].values]
     # Leading jets
     for i in jesNames:
         df['j1_jesup_'+i] = [add_leadjet(row[0],row[1],row[2],row[3]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass']].values]
@@ -276,7 +260,6 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
     for i in jesNames:
         df['j2_jesup_'+i] = [add_subleadjet(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass','j1_jesup_'+i]].values]
         df['j2_jesdn_'+i] = [add_subleadjet(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass','j1_jesdn_'+i]].values]
-    df['FinState_reco'] = [add_fin_state_reco(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
     # Calculus of up and down variations for observables different from leading jet
     df['Higgs'] = [tetra_Higgs(row[0],row[1],row[2],row[3]) for row in df[['ZZMass', 'ZZEta', 'ZZPhi', 'ZZPt']].values]
     for i in jesNames:
@@ -287,26 +270,35 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
             df['pTj2_jesup_'+i] = [x.Pt() for x in df['j2_jesup_'+i]]
             df['pTj2_jesdn_'+i] = [x.Pt() for x in df['j2_jesdn_'+i]]
         if 'njets' in obs_reco or 'njets' in obs_reco_2nd:
-            df['njets_pt30_eta2p5_jesup_'+i] = [count_jets(row[0],row[1],row[2],row[3]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass']].values]
-            df['njets_pt30_eta2p5_jesdn_'+i] = [count_jets(row[0],row[1],row[2],row[3]) for row in df[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass']].values]
+            df['njets_pt30_eta4p7_jesup_'+i] = [count_jets(row[0],row[1],row[2],row[3]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass']].values]
+            df['njets_pt30_eta4p7_jesdn_'+i] = [count_jets(row[0],row[1],row[2],row[3]) for row in df[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass']].values]
         if obs_reco == 'mjj' or obs_reco_2nd == 'mjj':
-            df['mjj_jesup_'+i] = [(j1+j2).M() for j1,j2 in zip(df['j1_jesup_'+i],df['j2_jesup_'+i])]
-            df['mjj_jesdn_'+i] = [(j1+j2).M() for j1,j2 in zip(df['j1_jesdn_'+i],df['j2_jesdn_'+i])]
+            df['mjj_jesup_'+i] = [(j1+j2).M() if j2.Pt()>0 else -1 for j1,j2 in zip(df['j1_jesup_'+i],df['j2_jesup_'+i])]
+            df['mjj_jesdn_'+i] = [(j1+j2).M() if j2.Pt()>0 else -1 for j1,j2 in zip(df['j1_jesdn_'+i],df['j2_jesdn_'+i])]
         if obs_reco == 'pTHj' or obs_reco_2nd == 'pTHj':
-            df['pTHj_jesup_'+i] = [(H+j1).Pt() for H,j1 in zip(df['Higgs'],df['j1_jesup_'+i])]
-            df['pTHj_jesdn_'+i] = [(H+j1).Pt() for H,j1 in zip(df['Higgs'],df['j1_jesdn_'+i])]
+            df['pTHj_jesup_'+i] = [(H+j1).Pt() if j1.Pt()>0 else -1 for H,j1 in zip(df['Higgs'],df['j1_jesup_'+i])]
+            df['pTHj_jesdn_'+i] = [(H+j1).Pt() if j1.Pt()>0 else -1 for H,j1 in zip(df['Higgs'],df['j1_jesdn_'+i])]
         if obs_reco == 'pTHjj' or obs_reco_2nd == 'pTHjj':
-            df['pTHjj_jesup_'+i] = [(row[0]+row[1]+row[2]).Pt() for row in df[['Higgs','j1_jesup_'+i,'j2_jesup_'+i]].values]
-            df['pTHjj_jesdn_'+i] = [(row[0]+row[1]+row[2]).Pt() for row in df[['Higgs','j1_jesdn_'+i,'j2_jesdn_'+i]].values]
+            df['pTHjj_jesup_'+i] = [(row[0]+row[1]+row[2]).Pt() if row[2].Pt()>0 else -1 for row in df[['Higgs','j1_jesup_'+i,'j2_jesup_'+i]].values]
+            df['pTHjj_jesdn_'+i] = [(row[0]+row[1]+row[2]).Pt() if row[2].Pt()>0 else -1 for row in df[['Higgs','j1_jesdn_'+i,'j2_jesdn_'+i]].values]
         if obs_reco == 'mHj' or obs_reco_2nd == 'mHj':
-            df['mHj_jesup_'+i] = [(H+j1).M() for H,j1 in zip(df['Higgs'],df['j1_jesup_'+i])]
-            df['mHj_jesdn_'+i] = [(H+j1).M() for H,j1 in zip(df['Higgs'],df['j1_jesdn_'+i])]
+            df['mHj_jesup_'+i] = [(H+j1).M() if j1.Pt()>0 else -1 for H,j1 in zip(df['Higgs'],df['j1_jesup_'+i])]
+            df['mHj_jesdn_'+i] = [(H+j1).M() if j1.Pt()>0 else -1 for H,j1 in zip(df['Higgs'],df['j1_jesdn_'+i])]
         if obs_reco == 'mHjj' or obs_reco_2nd == 'mHjj':
-            df['mHjj_jesup_'+i] = [(row[0]+row[1]+row[2]).M() for row in df[['Higgs','j1_jesup_'+i,'j2_jesup_'+i]].values]
-            df['mHjj_jesdn_'+i] = [(row[0]+row[1]+row[2]).M() for row in df[['Higgs','j1_jesdn_'+i,'j2_jesdn_'+i]].values]
+            df['mHjj_jesup_'+i] = [(row[0]+row[1]+row[2]).M() if row[2].Pt()>0 else -1 for row in df[['Higgs','j1_jesup_'+i,'j2_jesup_'+i]].values]
+            df['mHjj_jesdn_'+i] = [(row[0]+row[1]+row[2]).M() if row[2].Pt()>0 else -1 for row in df[['Higgs','j1_jesdn_'+i,'j2_jesdn_'+i]].values]
+        if obs_reco == 'absdetajj' or obs_reco_2nd == 'absdetajj':
+            df['absdetajj_jesup_'+i] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(df['j1_jesup_'+i],df['j2_jesup_'+i])]
+            df['absdetajj_jesdn_'+i] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(df['j1_jesdn_'+i],df['j2_jesdn_'+i])]
         if obs_reco == 'ZZPt' or obs_reco_2nd == 'ZZPt':
             df['ZZPt_jesup_'+i] = df['ZZPt']
             df['ZZPt_jesdn_'+i] = df['ZZPt']
+        if obs_reco == 'TCjmax' or obs_reco_2nd == 'TCjmax':
+            df['TCjmax_jesup_'+i] = [tc(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass','Higgs']].values]
+            df['TCjmax_jesdn_'+i] = [tc(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass','Higgs']].values]
+        if obs_reco == 'TBjmax' or obs_reco_2nd == 'TBjmax':
+            df['TBjmax_jesup_'+i] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass','Higgs']].values]
+            df['TBjmax_jesdn_'+i] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass','Higgs']].values]
 
     if signal != 'ggH125':
         df = weight(df, xsec, gen, lumi)

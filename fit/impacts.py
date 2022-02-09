@@ -89,6 +89,8 @@ def impactPlots():
     os.chdir('../impacts/')
     print 'Current directory: impacts'
     nBins = len(observableBins)
+    if '_' in obsName and obsName!='mass4l_zzfloating': nBins = len(observableBins)+1
+    #nBins = len(observableBins)
     tmp_xs = {}
     tmp_xs_sm = {}
     xsec = []
@@ -187,7 +189,8 @@ def impactPlots():
         print(cmd_sigma)
 
     if (obsName.startswith("mass4l")): max_sigma = '5'
-    else: max_sigma = '2.5'
+    # else: max_sigma = '2.5'
+    else: max_sigma = '5'
 
     ### First step (Files from asimov and data have the same name)
     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --cminDefaultMinimizerStrategy 0 --doInitialFit --robustFit 1 --redefineSignalPOIs '
@@ -331,9 +334,9 @@ if 'vs' in opt.OBSNAME:
 else:
     obsName = opt.OBSNAME
 impactPlots()
-if (os.path.exists('commands_impacts_'+obsName+'.py')):
-    os.system('rm commands_impacts_'+obsName+'.py')
-with open('commands_impacts_'+obsName+'.py', 'w') as f:
+if (os.path.exists('commands_impacts_'+obsName+'_'+opt.PHYSICSMODEL+'.py')):
+    os.system('rm commands_impacts_'+obsName+'_'+opt.PHYSICSMODEL+'.py')
+with open('commands_impacts_'+obsName+'_'+opt.PHYSICSMODEL+'.py', 'w') as f:
     for i in cmds:
         f.write(str(i)+' \n')
         f.write('\n')

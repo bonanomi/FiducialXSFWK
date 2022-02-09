@@ -10,8 +10,8 @@ scramv1 b ProjectRename
 eval `scramv1 runtime -sh`
 
 ## ----- Setting kerberos to access EOS area ----- ##
-export KRB5CCNAME=FILE:/etc/krb5c/$(whoami)
-/opt/exp_soft/cms/t3/eos-login -username atarabin
+# export KRB5CCNAME=FILE:/etc/krb5c/$(whoami)
+# /opt/exp_soft/cms/t3/eos-login -username atarabin
 
 mkdir coefficients coefficients/matrix_eff coefficients/matrix_eff/2016 coefficients/matrix_eff/2017 coefficients/matrix_eff/2018 coefficients/matrix_nonfid
 mkdir combine_files
@@ -32,28 +32,29 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/h
 
 cd coefficients
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunCoefficients.py .
-python RunCoefficients.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' ZZFLOATING
+python RunCoefficients.py --obsName 'VAR' --year 'Full' ZZFLOATING
 FIRST
 SECOND
 
 jes=SETTING
 if [ $jes == true ];then
-  mkdir JES JES/plots JES/plots/OBS JES/tables JES/tables/OBS
+  mkdir JES JES/tables JES/tables/OBS
   cd JES
-  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/RunJES.py .
+  # cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/RunJES.py .
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/PrintJES.py .
-  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/zx.py .
-  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/JESNP*_OBS_* .
-  # python RunJES.py --obsName 'VAR' --obsBins 'BIN' --year 'Full'
-  python PrintJES.py --obsName 'VAR' --obsBins 'BIN' --year '2016'
-  python PrintJES.py --obsName 'VAR' --obsBins 'BIN' --year '2017'
-  python PrintJES.py --obsName 'VAR' --obsBins 'BIN' --year '2018'
+  # cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/zx.py .
+  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/JESNP_OBS.py .
+  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/JESNP_evts_OBS.py .
+  # python RunJES.py --obsName 'VAR' --year 'Full'
+  python PrintJES.py --obsName 'VAR' --year '2016'
+  python PrintJES.py --obsName 'VAR' --year '2017'
+  python PrintJES.py --obsName 'VAR' --year '2018'
   cd ..
 fi
 
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncertainty.py .
-python pdfUncertainty.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' ZZFLOATING
-# python pdfUncertainty.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' --nnlops
+python pdfUncertainty.py --obsName 'VAR' --year 'Full' ZZFLOATING
+# python pdfUncertainty.py --obsName 'VAR' --year 'Full' --nnlops
 cd ../inputs
 sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py > accUnc_OBS_NNLOPS.py #FIXME: This is temporary!
 
@@ -61,7 +62,7 @@ cd ../templates
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/RunTemplates.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/plot_templates.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/tdrStyle.py .
-python RunTemplates.py --obsName 'VAR' --obsBins 'BIN' --year 'Full'
+python RunTemplates.py --obsName 'VAR' --year 'Full' ZZFLOATING
 # c++ -o  plot_templates plot_templates.cpp `root-config --cflags --glibs`
 # IN="BIN"
 # boundaries=$(echo $IN | tr "|" "\n")
@@ -75,19 +76,21 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/crea
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/createXSworkspace.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/addConstrainedModel.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/impacts.py .
-python RunFiducialXS.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
-python impacts.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
+python RunFiducialXS.py --obsName 'VAR' --year 'Full' UNBLIND ZZFLOATING
+python impacts.py --obsName 'VAR' --year 'Full' UNBLIND
+FIFTH UNBLIND
 
 cd ../LHScans
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plot_LLScan.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plotting.py .
-python plot_LLScan.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
+python plot_LLScan.py --obsName 'VAR' --year 'Full' UNBLIND
 FOURTH UNBLIND
 
 cd ..
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
-python producePlots.py --obsName 'VAR' --obsBins 'BIN' --year 'Full' UNBLIND
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots_v4.py .
+python producePlots.py --obsName 'VAR' --year 'Full' UNBLIND
 THIRD UNBLIND
 
 ## ----- Moving all outputs ----- ##
@@ -97,15 +100,15 @@ mv inputs/inputs_sig_* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/Fi
 # Outputs from JES
 if [ $jes == true ]; then
 
-  mv inputs/JES* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs
+  # mv inputs/JES* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs
 
-  if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS ]; then
-    rm -r /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS
-    mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS
-  else
-    mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS
-  fi
-  mv coefficients/JES/plots/OBS/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS/.
+  # if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS ]; then
+  #   rm -r /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS
+  #   mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS
+  # else
+  #   mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS
+  # fi
+  # mv coefficients/JES/plots/OBS/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/plots/OBS/.
 
   if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/tables/OBS ]; then
     rm -r /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/tables/OBS
@@ -188,8 +191,15 @@ fi
 mv plots/OBS/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/plots/OBS/.
 
 # Outputs from impacts.py
-mv impacts/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/impacts/.
+if [ -d /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/impacts/OBS ]; then
+  rm -rf /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/impacts/OBS
+  mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/impacts/OBS
+else
+  mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/impacts/OBS
+fi
+mv impacts/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/impacts/OBS/.
 
+# Combine files
 mv combine_files/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/combine_files/.
 
 rm -rf *

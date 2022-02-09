@@ -303,6 +303,8 @@ elif(obs_name == 'mass4l'):
     label = 'm$_4/ell$ (GeV)'
 elif(obs_name == 'mass4l_zzfloating'):
     label = 'm$_4/ell$ (GeV)'
+else:
+    label = ''
 
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins']) # Open file to retrieve the binning
 obs_bins = _temp.observableBins

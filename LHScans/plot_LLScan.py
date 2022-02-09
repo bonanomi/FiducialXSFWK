@@ -455,15 +455,27 @@ for i in range(nBins):
     graphs[0].Draw("AC")
     if v4_flag:
         if _bin == 0: xtitle = "#sigma_{bin 2e2mu 0}"
-        if _bin == 1: xtitle = "#sigma_{bin 4l 0}"
-        if _bin == 2: xtitle = "#sigma_{bin 2e2mu 1}"
-        if _bin == 3: xtitle = "#sigma_{bin 4l 1}"
-        if _bin == 4: xtitle = "#sigma_{bin 2e2mu 2}"
-        if _bin == 5: xtitle = "#sigma_{bin 4l 2}"
-        if _bin == 6: xtitle = "#sigma_{bin 2e2mu 3}"
-        if _bin == 7: xtitle = "#sigma_{bin 4l 3}"
-        if _bin == 8: xtitle = "#sigma_{bin 2e2mu 4}"
-        if _bin == 9: xtitle = "#sigma_{bin 4l 4}"
+        elif _bin == 1: xtitle = "#sigma_{bin 4l 0}"
+        elif _bin == 2: xtitle = "#sigma_{bin 2e2mu 1}"
+        elif _bin == 3: xtitle = "#sigma_{bin 4l 1}"
+        elif _bin == 4: xtitle = "#sigma_{bin 2e2mu 2}"
+        elif _bin == 5: xtitle = "#sigma_{bin 4l 2}"
+        elif _bin == 6: xtitle = "#sigma_{bin 2e2mu 3}"
+        elif _bin == 7: xtitle = "#sigma_{bin 4l 3}"
+        elif _bin == 8: xtitle = "#sigma_{bin 2e2mu 4}"
+        elif _bin == 9: xtitle = "#sigma_{bin 4l 4}"
+        elif _bin == 10: xtitle = "#sigma_{bin 2e2mu 5}"
+        elif _bin == 11: xtitle = "#sigma_{bin 4l 5}"
+        elif _bin == 12: xtitle = "#sigma_{bin 2e2mu 6}"
+        elif _bin == 13: xtitle = "#sigma_{bin 4l 6}"
+        elif _bin == 14: xtitle = "#sigma_{bin 2e2mu 7}"
+        elif _bin == 15: xtitle = "#sigma_{bin 4l 7}"
+        elif _bin == 16: xtitle = "#sigma_{bin 2e2mu 8}"
+        elif _bin == 17: xtitle = "#sigma_{bin 4l 8}"
+        elif _bin == 18: xtitle = "#sigma_{bin 2e2mu 9}"
+        elif _bin == 19: xtitle = "#sigma_{bin 4l 9}"
+        elif _bin == 20: xtitle = "#sigma_{bin 2e2mu 10}"
+        elif _bin == 21: xtitle = "#sigma_{bin 4l 10}"
     else:
         xtitle = "#sigma_{bin " + str(_bin) + "}"
     graphs[0].GetXaxis().SetTitle(xtitle)
@@ -557,6 +569,18 @@ for i in range(nBins):
         if _bin == 7: exp_fit = 'Exp. #sigma_{bin, 4l, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 8: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 9: exp_fit = 'Exp. #sigma_{bin, 4l, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 10: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 5} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 11: exp_fit = 'Exp. #sigma_{bin, 4l, 5} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 12: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 6} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 13: exp_fit = 'Exp. #sigma_{bin, 4l, 6} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 14: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 7} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 15: exp_fit = 'Exp. #sigma_{bin, 4l, 7} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 16: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 8} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 17: exp_fit = 'Exp. #sigma_{bin, 4l, 8} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 18: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 19: exp_fit = 'Exp. #sigma_{bin, 4l, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 20: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 21: exp_fit = 'Exp. #sigma_{bin, 4l, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     else:
         exp_fit = 'Exp. #sigma_{bin, %d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     Text3.SetTextAlign(12);
@@ -623,6 +647,18 @@ for i in range(nBins):
             if _bin == 7: latex2.DrawLatex(0.55,0.65, str(obs_bins[3])+' < '+label+' < '+str(obs_bins[4]))
             if _bin == 8: latex2.DrawLatex(0.55,0.65, str(obs_bins[4])+' < '+label+' < '+str(obs_bins[5]))
             if _bin == 9: latex2.DrawLatex(0.55,0.65, str(obs_bins[4])+' < '+label+' < '+str(obs_bins[5]))
+            if _bin == 10: latex2.DrawLatex(0.55,0.65, str(obs_bins[5])+' < '+label+' < '+str(obs_bins[6]))
+            if _bin == 11: latex2.DrawLatex(0.55,0.65, str(obs_bins[5])+' < '+label+' < '+str(obs_bins[6]))
+            if _bin == 12: latex2.DrawLatex(0.55,0.65, str(obs_bins[6])+' < '+label+' < '+str(obs_bins[7]))
+            if _bin == 13: latex2.DrawLatex(0.55,0.65, str(obs_bins[6])+' < '+label+' < '+str(obs_bins[7]))
+            if _bin == 14: latex2.DrawLatex(0.55,0.65, str(obs_bins[7])+' < '+label+' < '+str(obs_bins[8]))
+            if _bin == 15: latex2.DrawLatex(0.55,0.65, str(obs_bins[7])+' < '+label+' < '+str(obs_bins[8]))
+            if _bin == 16: latex2.DrawLatex(0.55,0.65, str(obs_bins[8])+' < '+label+' < '+str(obs_bins[9]))
+            if _bin == 17: latex2.DrawLatex(0.55,0.65, str(obs_bins[8])+' < '+label+' < '+str(obs_bins[9]))
+            if _bin == 18: latex2.DrawLatex(0.55,0.65, str(obs_bins[9])+' < '+label+' < '+str(obs_bins[10]))
+            if _bin == 19: latex2.DrawLatex(0.55,0.65, str(obs_bins[9])+' < '+label+' < '+str(obs_bins[10]))
+            if _bin == 20: latex2.DrawLatex(0.55,0.65, str(obs_bins[10])+' < '+label+' < '+str(obs_bins[11]))
+            if _bin == 21: latex2.DrawLatex(0.55,0.65, str(obs_bins[10])+' < '+label+' < '+str(obs_bins[11]))
         else:
             latex2.DrawLatex(0.45,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
     else:

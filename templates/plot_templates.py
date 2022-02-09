@@ -39,7 +39,7 @@ decimal = {
 'DL1': True,
 'DL1Zg': True,
 'rapidity4l vs pT4l': True,
-'njets_pt30_eta4p7 vs pT4l': False,
+'njets vs pt30_eta4p7_pT4l': False,
 'pTj1 vs pTj2': False,
 'pT4l vs pTHj': False,
 'massZ1 vs massZ2': False,
@@ -125,6 +125,11 @@ else:
     binRangeHigh = [str(obs_bins[i+1]) for i in range(N_BINS)]
     binRangeLeg = [str(int(obs_bins[i]))+'<'+obsTag+'<'+str(int(obs_bins[i+1])) for i in range(N_BINS)]
 
+print(binRange)
+print(binRangeLow)
+print(binRangeHigh)
+print(binRangeLeg)
+
 
 # setup environment & canvas
 setTDRStyle()
@@ -161,6 +166,8 @@ for iYear in range(len(year)):
             fTemplateFile_2e2mu[iBkg,iBin] = ROOT.TFile(sTemplateDirName+"/"+sTemplateFileName, "READ")
             h1D_2e2mu[iBkg,iBin] = ROOT.TH1D()
             h1D_2e2mu[iBkg,iBin] = fTemplateFile_2e2mu[iBkg,iBin].Get("m4l_"+obsTag+"_"+binRange[iBin])
+            print(sTemplateFileName)
+            print("m4l_"+obsTag+"_"+binRange[iBin])
 
             sTemplateFileName = "XSBackground_"+bkgName[iBkg]+"_4mu_"+obsTag+"_"+binRange[iBin]+".root"
             fTemplateFile_4mu[iBkg,iBin] = ROOT.TFile(sTemplateDirName+"/"+sTemplateFileName, "READ")
