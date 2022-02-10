@@ -118,6 +118,30 @@ int main (int argc, char ** argv){
   TCanvas *c1;
   setCavasAndStyles("c1",c1,"");
 
+  TString obsTag = argv[1];
+  const int N_BINS = argc-3;
+  TString binRange[N_BINS] = {};
+  TString binRangeLow[N_BINS] = {};
+  TString binRangeHigh[N_BINS] = {};
+  TString binRangeLeg[N_BINS] = {};
+  for (int i=0; i<N_BINS; i++){
+    cout << i << endl;
+    TString tmp = argv[i+2];
+    TString tmpBis = argv[i+3];
+    cout << tmp << endl;
+    cout << tmpBis << endl;
+    binRange[i] = tmp + TString("_") + tmpBis;
+    binRangeLow[i] = tmp;
+    binRangeHigh[i] = tmpBis;
+    binRangeLeg[i] = tmp + TString(" < ") + obsTag + TString(" < ") + tmpBis;
+  }
+
+  // TString binRange[N_BINS]     = {"0_10", "10_20", "20_30", "30_45", "45_80", "80_120", "120_200", "200_1300"};
+  // TString binRangeLow[N_BINS]  = {"0", "10", "20", "30", "45", "80", "120", "200"};
+  // TString binRangeHigh[N_BINS] = {"10", "20", "30", "45", "80", "120", "200", "1300"};
+  // TString binRangeLeg[N_BINS]  = {"0 < pT < 10 GeV", "10 < pT < 15 GeV", "20 < pT < 30 GeV", "30 < pT < 45 GeV", "45 < pT < 80 GeV", "80 < pT < 120 GeV", "120 < pT < 200 GeV", "200 < pT < 1300 GeV"};
+
+
   // TString obsTag = "pT4l";
   // const int N_BINS = 8;
   // TString binRange[N_BINS]     = {"0_10", "10_20", "20_30", "30_45", "45_80", "80_120", "120_200", "200_1300"};
@@ -125,12 +149,12 @@ int main (int argc, char ** argv){
   // TString binRangeHigh[N_BINS] = {"10", "20", "30", "45", "80", "120", "200", "1300"};
   // TString binRangeLeg[N_BINS]  = {"0 < pT < 10 GeV", "10 < pT < 15 GeV", "20 < pT < 30 GeV", "30 < pT < 45 GeV", "45 < pT < 80 GeV", "80 < pT < 120 GeV", "120 < pT < 200 GeV", "200 < pT < 1300 GeV"};
 
-  TString obsTag = "D0m";
-  const int N_BINS = 5;
-  TString binRange[N_BINS]     = {"0.0_0.4", "0.4_0.55", "0.55_0.7", "0.7_0.85", "0.85_1.0"};
-  TString binRangeLow[N_BINS]  = {"0.0", "0.4", "0.55", "0.7", "0.85"};
-  TString binRangeHigh[N_BINS] = {"0.4", "0.55", "0.7", "0.85", "1.0"};
-  TString binRangeLeg[N_BINS]  = {"0 < D0m < 0.4 ", "0.4 < D0m < 0.55", "0.55 < pT < 0.7", "0.7 < pT < 0.85", "0.85 < pT < 1"};
+  // TString obsTag = "D0m";
+  // const int N_BINS = 5;
+  // TString binRange[N_BINS]     = {"0.0_0.4", "0.4_0.55", "0.55_0.7", "0.7_0.85", "0.85_1.0"};
+  // TString binRangeLow[N_BINS]  = {"0.0", "0.4", "0.55", "0.7", "0.85"};
+  // TString binRangeHigh[N_BINS] = {"0.4", "0.55", "0.7", "0.85", "1.0"};
+  // TString binRangeLeg[N_BINS]  = {"0 < D0m < 0.4 ", "0.4 < D0m < 0.55", "0.55 < pT < 0.7", "0.7 < pT < 0.85", "0.85 < pT < 1"};
 
 
   // TString obsTag = "rapidity4l";
