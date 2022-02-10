@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
-import uproot
+import uproot3 as uproot
 from math import sqrt, log
 import sys,os
 import optparse
@@ -11,6 +11,8 @@ import itertools
 import math
 import ROOT
 import json
+
+from paths import path
 
 print 'Welcome in pdfUncertainty!'
 
@@ -28,6 +30,8 @@ def parseOptions():
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--verbose', action='store_true', dest='VERBOSE', default=False, help='print values')
     parser.add_option('',   '--nnlops', action='store_true', dest='NNLOPS', default=False, help='Calculate uncert for ggH_NNLOPS sample')
+    parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -322,12 +326,12 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
         # Selections
         cutm4l_gen = (datafr['GENmass4l'] > m4l_low) & (datafr['GENmass4l'] < m4l_high)
         if obs_reco.startswith('njets') and not doubleDiff:
-            cutobs_gen = abs(datafr[obs_gen]) >= obs_gen_low
+            cutobs_gen = datafr[obs_gen] >= obs_gen_low
         else:
-            cutobs_gen = (abs(datafr[obs_gen]) >= obs_gen_low) & (abs(datafr[obs_gen]) < obs_gen_high)
+            cutobs_gen = (datafr[obs_gen] >= obs_gen_low) & (datafr[obs_gen] < obs_gen_high)
             if (obs_name=='Dcp'): cutobs_gen = (datafr[obs_gen] >= obs_gen_low) & (datafr[obs_gen] < obs_gen_high)
             if doubleDiff:
-                cutobs_gen &= (abs(datafr[obs_gen_2nd]) >= obs_gen_2nd_low) & (abs(datafr[obs_gen_2nd]) < obs_gen_2nd_high)
+                cutobs_gen &= (datafr[obs_gen_2nd] >= obs_gen_2nd_low) & (datafr[obs_gen_2nd] < obs_gen_2nd_high)
         if channel != '4l':
             cutm4l_reco = (datafr['ZZMass'] > m4l_low) & (datafr['ZZMass'] < m4l_high) & (datafr['FinState_reco'] == channel)
             cutchan_gen = datafr['FinState_gen'] == channel
@@ -404,7 +408,7 @@ def getPdfUncert(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin
 # if opt.AC_HYP: signals_original = signals = ['ggH'+opt.AC_HYP+'_M125']
 # else: signals_original = signals = ['ggH125']
 signals_original = signals = ['ggH125']
-eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
+eos_path_sig = path['eos_path_sig']
 key = 'candTree'
 key_failed = 'candTree_failed'
 verbose = False
@@ -426,10 +430,10 @@ if doubleDiff:
 else:
     obs_name = opt.OBSNAME
 
-sys.path.append('../inputs/')
+# sys.path.append('../inputs/')
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
-sys.path.remove('../inputs/')
+# sys.path.remove('../inputs/')
 
 if doubleDiff:
     obs_reco = observables[obs_name_2d]['obs_reco']
@@ -478,8 +482,8 @@ else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (
 
 
 chans = ['4e', '4mu', '2e2mu', '4l']
-m4l_low = 105.0
-m4l_high = 140.0
+m4l_low = opt.LOWER_BOUND
+m4l_high = opt.UPPER_BOUND
 acceptance = {}
 qcdUncert = {}
 pdfUncert = {}

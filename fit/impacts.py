@@ -41,9 +41,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 # parse the arguments and options
 global opt, args, runAllSteps
@@ -69,10 +69,11 @@ def processCmd(cmd, quiet = 0):
 
 def impactPlots():
 
-    # prepare the set of bin boundaries to run over, only 1 bin in case of the inclusive measurement
-    observableBins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+    sys.path.append('../inputs/')
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+    observableBins = _temp.observableBins
+    sys.path.remove('../inputs/')
     ## Run for the given observable
-    obsName = opt.OBSNAME
     print 'NP impacts calculation - '+obsName+' - bin boundaries: ', observableBins, '\n'
 
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
@@ -88,6 +89,8 @@ def impactPlots():
     os.chdir('../impacts/')
     print 'Current directory: impacts'
     nBins = len(observableBins)
+    if '_' in obsName and obsName!='mass4l_zzfloating': nBins = len(observableBins)+1
+    #nBins = len(observableBins)
     tmp_xs = {}
     tmp_xs_sm = {}
     xsec = []
@@ -185,8 +188,9 @@ def impactPlots():
         cmd_sigma = cmd_sigma[:-1]
         print(cmd_sigma)
 
-    if (obsName == 'mass4l'): max_sigma = '5'
-    else: max_sigma = '2.5'
+    if (obsName.startswith("mass4l")): max_sigma = '5'
+    # else: max_sigma = '2.5'
+    else: max_sigma = '5'
 
     ### First step (Files from asimov and data have the same name)
     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --cminDefaultMinimizerStrategy 0 --doInitialFit --robustFit 1 --redefineSignalPOIs '
@@ -324,10 +328,15 @@ def impactPlots():
 
 # ----------------- Main -----------------
 cmds = [] #List of all cmds
+if 'vs' in opt.OBSNAME:
+    obsName_tmp = opt.OBSNAME.split(' vs ')
+    obsName = obsName_tmp[0]+'_'+obsName_tmp[1]
+else:
+    obsName = opt.OBSNAME
 impactPlots()
-if (os.path.exists('commands_impacts_'+opt.OBSNAME+'.py')):
-    os.system('rm commands_impacts_'+opt.OBSNAME+'.py')
-with open('commands_impacts_'+opt.OBSNAME+'.py', 'w') as f:
+if (os.path.exists('commands_impacts_'+obsName+'_'+opt.PHYSICSMODEL+'.py')):
+    os.system('rm commands_impacts_'+obsName+'_'+opt.PHYSICSMODEL+'.py')
+with open('commands_impacts_'+obsName+'_'+opt.PHYSICSMODEL+'.py', 'w') as f:
     for i in cmds:
         f.write(str(i)+' \n')
         f.write('\n')
