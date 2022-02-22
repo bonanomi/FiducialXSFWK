@@ -3,7 +3,7 @@
 
 declare -a obs=(
 # "mass4l noJES"
-"mass4l_zzfloating noJES"
+# "mass4l_zzfloating noJES"
 # "njets_pt30_eta4p7 JES"
 # "pT4l noJES"
 # "rapidity4l noJES"
@@ -32,7 +32,7 @@ declare -a obs=(
 # "DL1Zg noJES"
 # "rapidity4l vs pT4l noJES"
 # "njets_pt30_eta4p7 vs pT4l JES"
-# "pTj1 vs pTj2 JES"
+"pTj1 vs pTj2 JES"
 # "pT4l vs pTHj JES"
 # "massZ1 vs massZ2 noJES"
 # "TCjmax vs pT4l JES"
