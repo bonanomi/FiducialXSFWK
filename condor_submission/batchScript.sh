@@ -76,9 +76,14 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/crea
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/createXSworkspace.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/addConstrainedModel.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/impacts.py .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/impacts_klambda.sh .
 python RunFiducialXS.py --obsName 'VAR' --year 'Full' UNBLIND ZZFLOATING
-python impacts.py --obsName 'VAR' --year 'Full' UNBLIND
-FIFTH UNBLIND
+if [[ "VAR" == "pT4l_kL" ]]; then
+  sh impacts_klambda.sh
+else
+  python impacts.py --obsName 'VAR' --year 'Full' UNBLIND
+  FIFTH UNBLIND
+fi
 
 cd ../LHScans
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plot_LLScan.py .
@@ -87,11 +92,13 @@ python plot_LLScan.py --obsName 'VAR' --year 'Full' UNBLIND
 FOURTH UNBLIND
 
 cd ..
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots_v4.py .
-python producePlots.py --obsName 'VAR' --year 'Full' UNBLIND
-THIRD UNBLIND
+if [[ "VAR" != "pT4l_kL" ]]; then
+  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
+  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
+  cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots_v4.py .
+  python producePlots.py --obsName 'VAR' --year 'Full' UNBLIND
+  THIRD UNBLIND
+fi
 
 ## ----- Moving all outputs ----- ##
 # Outputs from RunCoefficients

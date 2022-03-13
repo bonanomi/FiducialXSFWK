@@ -128,23 +128,29 @@ def BuildScan(scan, param, files, color, yvals, ycut):
 
 yvals = [1., 4.]
 
+obsName = opt.OBSNAME
 
 channel = ["Expected","Expected - no syst.","Observed","Observed - no syst."]
 
 inputPath = '../combine_files/'
 
-fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
-            "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root",
-       ]
-
-if(opt.UNBLIND):
+if 'kL' in obsName:
+    fileList = [ "higgsCombine_BIN_grid.MultiDimFit.mH125.38.123456.root",
+                 "higgsCombine_BIN_NoSys_grid.MultiDimFit.mH125.38.123456.root"]
+else:
     fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
-                "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root",
-                    "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.root",
-                    "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.root"
-                   ]
+                 "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root"]
 
-outString = "test"
+if(opt.UNBLIND and 'kL' in obsName):
+    fileList = [ "higgsCombine_BIN_grid.MultiDimFit.mH125.38.123456.root",
+                 "higgsCombine_BIN_NoSys_grid.MultiDimFit.mH125.38.123456.root",
+                 "higgsCombine_BIN_grid.MultiDimFit.mH125.38.root",
+                 "higgsCombine_BIN_NoSys_grid.MultiDimFit.mH125.38.root"]
+elif(opt.UNBLIND):
+    fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
+                 "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root",
+                 "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.root",
+                 "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.root"]
 
 titles = ["Expected","Expected - stat-only"]
 idx_max = 1
@@ -176,7 +182,6 @@ else:
     _lumi = '137'
 
 _poi    = 'SigmaBin'
-obsName = opt.OBSNAME
 v4_flag = opt.V4
 
 doubleDiff = False
@@ -184,6 +189,7 @@ if(obsName == 'mass4l'): label = 'm_{4l}'
 elif(obsName == 'mass4l_zzfloating'): label = 'm_{4l}'
 elif(obsName == 'njets_pt30_eta4p7'): label = 'N_{jet}, pT>30 GeV, |#eta|<4.7'
 elif(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
+elif(obsName == 'pT4l_kL'): label = ''
 elif(obsName == 'rapidity4l'): label = '|y_{H}|'
 elif(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
 elif(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
@@ -256,6 +262,7 @@ nBins = len(obs_bins)
 if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 if obsName.startswith("mass4l"): nBins = nBins + 3 #in case of mass4l len(obs_bins)=1, we need to add +3 for cross section in the three different final states
 if v4_flag: nBins = (len(obs_bins)-1)*2
+if 'kL' in obsName: nBins = 1
 
 
 for i in range(nBins):
@@ -275,6 +282,10 @@ for i in range(nBins):
             _obs_bin = 'r2e2muBin'+str(i/2)
         else:
             _obs_bin = 'r4lBin'+str((i-1)/2)
+
+    if 'kL' in obsName:
+            _obs_bin = 'kappa_lambda'
+
     print _obs_bin
 
     graphs = []
@@ -295,6 +306,8 @@ for i in range(nBins):
                 if _bin == 0:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin0,2.0*entry.deltaNLL)
+                    elif 'kL' in obsName:
+                        graphs[ifile].SetPoint(ipoint,entry.kappa_lambda,2.0*entry.deltaNLL)
                     else:
                         graphs[ifile].SetPoint(ipoint,entry.SigmaBin0,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
@@ -476,6 +489,8 @@ for i in range(nBins):
         elif _bin == 19: xtitle = "#sigma_{bin 4l 9}"
         elif _bin == 20: xtitle = "#sigma_{bin 2e2mu 10}"
         elif _bin == 21: xtitle = "#sigma_{bin 4l 10}"
+    elif 'kL' in obsName:
+        xtitle = "k_{#lambda}"
     else:
         xtitle = "#sigma_{bin " + str(_bin) + "}"
     graphs[0].GetXaxis().SetTitle(xtitle)
@@ -528,26 +543,65 @@ for i in range(nBins):
     leg.Draw("SAME")
 
     poi = _obs_bin
-    fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.123456.root"
-    exp_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
-    exp_nom = exp_scan['val']
-    exp_2sig = exp_scan['val_2sig']
+    if 'kL' in obsName:
+        fname = inputPath + "higgsCombine_"+obsName+".MultiDimFit.mH125.38.123456.root"
+        if plot.TFileIsGood(fname):
+            goodFile = TFile(fname)
+        else:
+            print('File is not good')
+            break
+        limit = goodFile.Get('limit')
+        kappa_lambda = []
+        for entry in limit:
+            kappa_lambda.append(entry.kappa_lambda)
+        print(kappa_lambda)
+        exp_nom = []
+        exp_nom.append(kappa_lambda[0])
+        exp_nom.append(kappa_lambda[2]-kappa_lambda[0])
+        exp_nom.append(kappa_lambda[0]-kappa_lambda[1])
+    else:
+        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.123456.root"
+        exp_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+        exp_nom = exp_scan['val']
+        # exp_2sig = exp_scan['val_2sig']
 
-    fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.123456.root"
-    exp_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
-    exp_nom_stat = exp_scan_stat['val']
-    exp_2sig_stat = exp_scan_stat['val_2sig']
+    if 'kL' in obsName:
+        fname = inputPath + "higgsCombine_"+obsName+"_NoSys.MultiDimFit.mH125.38.123456.root"
+        if plot.TFileIsGood(fname):
+            goodFile = TFile(fname)
+        else:
+            print('File is not good')
+            break
+        limit = goodFile.Get('limit')
+        kappa_lambda = []
+        for entry in limit:
+            kappa_lambda.append(entry.kappa_lambda)
+        exp_nom_stat = []
+        exp_nom_stat.append(kappa_lambda[0])
+        exp_nom_stat.append(kappa_lambda[2]-kappa_lambda[0])
+        exp_nom_stat.append(kappa_lambda[0]-kappa_lambda[1])
+    else:
+        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.123456.root"
+        exp_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+        exp_nom_stat = exp_scan_stat['val']
+        # exp_2sig_stat = exp_scan_stat['val_2sig']
 
     exp_up_sys = np.sqrt(exp_nom[1]**2 - exp_nom_stat[1]**2)
     exp_do_sys = np.sqrt(abs(exp_nom[2])**2 - abs(exp_nom_stat[2])**2)
 
     if (opt.UNBLIND):
-        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.root"
+        if 'kL' in obsName:
+            fname = inputPath + "higgsCombine_"+obsName+".MultiDimFit.mH125.38.root"
+        else:
+            fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.root"
         obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom = obs_scan['val']
         obs_2sig = obs_scan['val_2sig']
 
-        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys.MultiDimFit.mH125.38.root"
+        if 'kL' in obsName:
+            fname = inputPath + "higgsCombine_"+obsName+"_NoSys.MultiDimFit.mH125.38.root"
+        else:
+            fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.root"
         obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom_stat = obs_scan_stat['val']
         obs_2sig_stat = obs_scan_stat['val_2sig']
@@ -581,6 +635,8 @@ for i in range(nBins):
         if _bin == 19: exp_fit = 'Exp. #sigma_{bin, 4l, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 20: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 21: exp_fit = 'Exp. #sigma_{bin, 4l, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+    elif 'kL' in obsName:
+        exp_fit = 'Exp. k_{#lambda} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     else:
         exp_fit = 'Exp. #sigma_{bin, %d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     Text3.SetTextAlign(12);
@@ -636,6 +692,8 @@ for i in range(nBins):
         elif doubleDiff:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin][0])+' < '+label+' < '+str(obs_bins[_bin][1]))
             latex2.DrawLatex(0.55,0.60, str(obs_bins[_bin][2])+' < '+label_2nd+' < '+str(obs_bins[_bin][3]))
+        elif 'kL' in obsName:
+            latex2.DrawLatex(0.55,0.60, '')
         elif v4_flag:
             if _bin == 0: latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
             if _bin == 1: latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))

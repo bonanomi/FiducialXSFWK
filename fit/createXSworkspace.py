@@ -13,6 +13,7 @@ decimal = {
 'mass4l_zzfloating': False,
 'njets_pt30_eta4p7': False,
 'pT4l': False,
+'pT4l_kL': False,
 'rapidity4l': True,
 'costhetaZ1': True,
 'costhetaZ2': True,
@@ -436,6 +437,73 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
            #     trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2*(1-@3)", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi,JES_sig_rfv))
             #else:
                 trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+year+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[channel+str(genbin)], fideff_var[genbin],lumi))
+        elif (physicalModel=='kLambda'):
+            muBin = {}
+            C1_map = {}
+            tot_xs = {}
+            fidxs_fl = {}
+            C1_ggH = {}; mu_ggH = {}; scale_ggH = {}; fidxs_ggH = {}
+            C1_VH = {}; mu_VH = {}; scale_VH = {}; fidxs_WH = {}; fidxs_ZH = {}
+            C1_ttH = {}; mu_ttH = {}; scale_ttH = {}; fidxs_ttH = {}
+            C1_VBFH = {}; mu_VBFH = {}; scale_VBFH = {}; fidxs_VBFH = {}
+            C1_HZZ = {}; mu_BR = {}
+            C1_tot = {}
+            dZH = {}
+
+            kappa_lambda = ROOT.RooRealVar("kappa_lambda", "kappa_lambda", 1.0, -10.0, 20.0)
+
+            C1i_ttH = [0.0530525859571, 0.0472618825815, 0.0392337055167, 0.0278818345971, 0.0141882242091]
+            C1i_VH = [0.0165863149378, 0.012328663897, 0.00774755197694, 0.0034957241269, 0.00024199147094]
+            for genbin in range(nBins):
+                C1_ggH[str(genbin)] = ROOT.RooRealVar("C1_ggH_"+str(genbin), "C1_ggH_"+str(genbin), 0.0066, 0.0066, 0.0066)
+
+                C1_ttH[str(genbin)] = ROOT.RooRealVar("C1_ttH_"+str(genbin), "C1_ttH_"+str(genbin), C1i_ttH[genbin], C1i_ttH[genbin], C1i_ttH[genbin])
+
+                C1_VH[str(genbin)] = ROOT.RooRealVar("C1_VH_"+str(genbin), "C1_VH_"+str(genbin), C1i_VH[genbin], C1i_VH[genbin], C1i_VH[genbin])
+
+                C1_VBFH[str(genbin)] = ROOT.RooRealVar("C1_VBFH_"+str(genbin), "C1_VBFH_"+str(genbin), 0.0063, 0.0063, 0.0063)
+
+                # hzz4l
+                C1_HZZ[str(genbin)] = ROOT.RooRealVar("C1_HZZ_"+str(genbin), "C1_HZZ_"+str(genbin), 0.0083, 0.0083, 0.0083)
+
+                C1_tot[str(genbin)] = ROOT.RooRealVar("C1_tot_"+str(genbin), "C1_tot", 2.5e-3, 2.5e-3, 2.5e-3)
+
+                #Define dZH constant variable
+                dZH[str(genbin)] = ROOT.RooRealVar("dZH_"+str(genbin), "dZH_"+str(genbin), -1.536e-3, -1.536e-3, -1.536e-3)
+
+                mu_ggH[str(genbin)] = ROOT.RooFormulaVar("XSscal_ggH_"+str(genbin), "XSscal_ggH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_ggH[str(genbin)],dZH[str(genbin)]))
+                mu_VBFH[str(genbin)] = ROOT.RooFormulaVar("XSscal_VBFH_"+str(genbin), "XSscal_VBFH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_VBFH[str(genbin)],dZH[str(genbin)]))
+                mu_VH [str(genbin)]= ROOT.RooFormulaVar("XSscal_VH_"+str(genbin), "XSscal_VH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_VH[str(genbin)],dZH[str(genbin)]))
+                mu_ttH[str(genbin)] = ROOT.RooFormulaVar("XSscal_ttH_"+str(genbin), "XSscal_ttH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_ttH[str(genbin)],dZH[str(genbin)]))
+
+                mu_BR[str(genbin)] = ROOT.RooFormulaVar("BRscal_hzz_"+str(genbin), "BRscal_hzz_"+str(genbin), "(1+(((@0-1)*(@1-@2))/(1+(@0-1)*@2)))", ROOT.RooArgList(kappa_lambda, C1_HZZ[str(genbin)], C1_tot[str(genbin)]))
+
+                scale_ggH[str(genbin)] = ROOT.RooFormulaVar("scale_ggH_"+str(genbin), "scale_ggH_"+str(genbin), "@0*@1", ROOT.RooArgList(mu_ggH[str(genbin)],mu_BR[str(genbin)]))
+                scale_VBFH[str(genbin)] = ROOT.RooFormulaVar("scale_VBFH_"+str(genbin), "scale_VBFH_"+str(genbin), "@0*@1", ROOT.RooArgList(mu_VBFH[str(genbin)],mu_BR[str(genbin)]))
+                scale_VH[str(genbin)] = ROOT.RooFormulaVar("scale_VH_"+str(genbin), "scale_VH_"+str(genbin),"@0*@1", ROOT.RooArgList(mu_VH[str(genbin)],mu_BR[str(genbin)]))
+                scale_ttH[str(genbin)] = ROOT.RooFormulaVar("scale_ttH_"+str(genbin), "scale_ttH_"+str(genbin),"@0*@1", ROOT.RooArgList(mu_ttH[str(genbin)],mu_BR[str(genbin)]))
+
+                fidxs_ggH[str(genbin)] = ROOT.RooRealVar("fidxs_ggH_"+str(genbin), "fidxs_ggH_"+str(genbin), 1.0*higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_ggH[str(genbin)].setConstant(True)
+                fidxs_VBFH[str(genbin)] = ROOT.RooRealVar("fidxs_VBFH_"+str(genbin), "fidxs_VBFH_"+str(genbin), 1.000*higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_VBFH[str(genbin)].setConstant(True)
+                fidxs_WH[str(genbin)] = ROOT.RooRealVar("fidxs_WH_"+str(genbin), "fidxs_WH_"+str(genbin), 1.000*higgs_xs['WH_125.0']*higgs4l_br['125.0_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_WH[str(genbin)].setConstant(True)
+                fidxs_ZH[str(genbin)] = ROOT.RooRealVar("fidxs_ZH_"+str(genbin), "fidxs_ZH_"+str(genbin), 1.000*higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_ZH[str(genbin)].setConstant(True)
+                fidxs_ttH[str(genbin)] = ROOT.RooRealVar("fidxs_ttH_"+str(genbin), "fidxs_ttH_"+str(genbin), 1.000*higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_ttH[str(genbin)].setConstant(True)
+
+                fidxs_fl[str(genbin)] = ROOT.RooFormulaVar("fidxs_fl_"+str(genbin), "fidxs_fl_"+str(genbin), "(@0*@5+@1*@6+(@2+@3)*@7+@4*@8)", ROOT.RooArgList(fidxs_ggH[str(genbin)], fidxs_VBFH[str(genbin)], fidxs_WH[str(genbin)], fidxs_ZH[str(genbin)], fidxs_ttH[str(genbin)], scale_ggH[str(genbin)], scale_VBFH[str(genbin)], scale_VH[str(genbin)], scale_ttH[str(genbin)]))
+
+                print('ggH Bin', genbin, higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('VBF Bin', genbin, higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('WH Bin', genbin, higgs_xs['WH_125.0']*higgs4l_br['125.0_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('ZH Bin', genbin, higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('ttH Bin', genbin, higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+
+                trueH_norm_final[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+recobin+"_final","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
+                trueH_norm[genbin] = ROOT.RooFormulaVar("trueH"+channel+"Bin"+str(genbin)+"_norm","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
 
     outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     print "outin",obsBin,outin
