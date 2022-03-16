@@ -6,7 +6,7 @@ class InclusiveFiducial( PhysicsModel ):
     def __init__(self):
         PhysicsModel.__init__(self)
         self.Range=[0.,10]
-        self.fracRange=[0.,0.5]                
+        self.fracRange=[0.,0.5]
         self.mHRange=[20,1000]
         self.mass=125.0
         self.debug=1
@@ -40,15 +40,15 @@ class InclusiveFiducial( PhysicsModel ):
     def doParametersOfInterest(self):
         POIs=""
         if self.debug>0:print "Setting pois"
-                
+
         self.modelBuilder.doVar("r[1,%s,%s]" % (self.Range[0], self.Range[1]))
         self.modelBuilder.doVar("frac4e[0.25,%s,%s]" % (self.fracRange[0], self.fracRange[1]))
         self.modelBuilder.doVar("frac4mu[0.25,%s,%s]" % (self.fracRange[0], self.fracRange[1]))
-                
+
         POIs+="r,"
         POIs+="frac4e,"
         POIs+="frac4mu"
-                                        
+
         poiNames=[]
         if self.modelBuilder.out.var("MH"):
             if len(self.mHRange) == 2:
@@ -85,7 +85,7 @@ class InclusiveFiducial( PhysicsModel ):
 
     def getYieldScale(self,bin,process):
         if not self.DC.isSignal[process]: return 1
-        if process in [ "trueH4e","trueH4mu","trueH2e2mu","trueZ4e","trueZ4mu","trueZ2e2mu"]: 
+        if process in [ "trueH4e","trueH4mu","trueH2e2mu","trueZ4e","trueZ4mu","trueZ2e2mu"]:
             return 'Sigma_'+process
         else : return 1
 
@@ -179,7 +179,7 @@ class DifferentialFiducial( PhysicsModel ):
         self.modelBuilder.doSet("POI",POIs)
         self.setup()
 
-    def setup(self):        
+    def setup(self):
         for iBin in range(0,self.nBin):
             self.modelBuilder.factory_('expr::r_trueH2e2muBin%d("@0*(1-@1-@2)", rBin%d, frac4eBin%d, frac4muBin%d)' % (iBin,iBin,iBin,iBin))
             self.modelBuilder.factory_('expr::r_trueH4eBin%d("@0*@1", rBin%d, frac4eBin%d)'% (iBin,iBin,iBin))
@@ -188,9 +188,9 @@ class DifferentialFiducial( PhysicsModel ):
     def getYieldScale(self,bin,process):
         if not self.DC.isSignal[process]: return 1
         name = "fiducial_%s" % process
-             
+
         self.modelBuilder.factory_('expr::%s("@0", r_%s)' % (name, process))
-        if process in [ "trueH2e2muBin0","trueH4eBin0","trueH4muBin0","trueH2e2muBin1","trueH4eBin1","trueH4muBin1","trueH2e2muBin2","trueH4eBin2","trueH4muBin2","trueH2e2muBin3","trueH4eBin3","trueH4muBin3"]: 
+        if process in [ "trueH2e2muBin0","trueH4eBin0","trueH4muBin0","trueH2e2muBin1","trueH4eBin1","trueH4muBin1","trueH2e2muBin2","trueH4eBin2","trueH4muBin2","trueH2e2muBin3","trueH4eBin3","trueH4muBin3"]:
             return name
         else :
             return 1
@@ -339,11 +339,11 @@ class DifferentialFiducialV2( PhysicsModel ):
         if self.debug>0:print "Setting pois"
         print "nBins:",self.nBin
         for iBin in range(0,self.nBin):
-            print "bin",iBin    
-            if self.modelBuilder.out.var("r2e2muBin%d" % (iBin)):  
+            print "bin",iBin
+            if self.modelBuilder.out.var("r2e2muBin%d" % (iBin)):
                 self.modelBuilder.out.var("r2e2muBin%d" % (iBin)).setRange(self.Range[0], self.Range[1])
                 self.modelBuilder.out.var("r2e2muBin%d" % (iBin)).setConstant(False)
-            else : 
+            else :
                 self.modelBuilder.doVar("r2e2muBin%d[1, %s,%s]" % (iBin, self.Range[0],self.Range[1]))
 
             if self.modelBuilder.out.var("r4muBin%d" % (iBin)):
@@ -412,7 +412,7 @@ class DifferentialFiducialV2( PhysicsModel ):
 class InclusiveFiducialV3( PhysicsModel ):
     ''' Fiducial cross-section model for both H->4l and Z->4l'''
 # Define SM fractions, and set them as constants:
-#  fracSM4e: const 
+#  fracSM4e: const
 #  fracSM4mu: const
 #  fracSM2e2mu: = 1 - fracSM4e - fracSM4mu
 #
@@ -428,8 +428,8 @@ class InclusiveFiducialV3( PhysicsModel ):
 #
 # Express them in terms of Sigma total, SM fractions, and the K1, K2 parameters:
 #  Sigma4e    = Sigma *    fracSM4e*K1
-#  Sigma4mu   = Sigma * (1-fracSM4e*K1) *      K2 * fracSM4mu/(1-fracSM4e) 
-#  Sigma2e2mu = Sigma * (1-fracSM4e*K1) * [1 - K2 * fracSM4mu/(1-fracSM4e)] 
+#  Sigma4mu   = Sigma * (1-fracSM4e*K1) *      K2 * fracSM4mu/(1-fracSM4e)
+#  Sigma2e2mu = Sigma * (1-fracSM4e*K1) * [1 - K2 * fracSM4mu/(1-fracSM4e)]
 #
 # In this way, we have:
 #                          Sigma4e           Sigma4mu                       Sigma2e2mu
@@ -476,7 +476,7 @@ class InclusiveFiducialV3( PhysicsModel ):
     def doParametersOfInterest(self):
         POIs=""
         if self.debug>0:print "Setting pois"
-        
+
         # get values from the workspace
         fracSM4e = self.modelBuilder.out.var("fracSM4e").getVal()
         fracSM4mu = self.modelBuilder.out.var("fracSM4mu").getVal()
@@ -636,11 +636,11 @@ class DifferentialFiducialV3( PhysicsModel ):
         self.modelBuilder.doSet("POI",POIs)
         self.setup()
 
-    def setup(self):        
+    def setup(self):
         for iBin in range(0,self.nBin):
-            self.modelBuilder.factory_('expr::Sigma_trueH4eBin%d("@0*@1*@2", SigmaBin%d, fracSM4eBin%d, K1Bin%d)' % (iBin,iBin,iBin,iBin))
-            self.modelBuilder.factory_('expr::Sigma_trueH4muBin%d("@0*(1.0-@1*@2)*@3*@4/(1.0-@1)", SigmaBin%d, fracSM4eBin%d, K1Bin%d, K2Bin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin,iBin) )
-            self.modelBuilder.factory_('expr::Sigma_trueH2e2muBin%d("@0*(1.0-@1*@2)*(1.0-@3*@4/(1.0-@1))", SigmaBin%d, fracSM4eBin%d, K1Bin%d, K2Bin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin,iBin) )
+            self.modelBuilder.factory_('expr::Sigma_smH4eBin%d("@0*@1*@2", SigmaBin%d, fracSM4eBin%d, K1Bin%d)' % (iBin,iBin,iBin,iBin))
+            self.modelBuilder.factory_('expr::Sigma_smH4muBin%d("@0*(1.0-@1*@2)*@3*@4/(1.0-@1)", SigmaBin%d, fracSM4eBin%d, K1Bin%d, K2Bin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin,iBin) )
+            self.modelBuilder.factory_('expr::Sigma_smH2e2muBin%d("@0*(1.0-@1*@2)*(1.0-@3*@4/(1.0-@1))", SigmaBin%d, fracSM4eBin%d, K1Bin%d, K2Bin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin,iBin) )
             self.modelBuilder.factory_('expr::Sigma_trueZ4eBin%d("@0*@1*@2", SigmaBin%d, fracSM4eBin%d, K1Bin%d)' % (iBin,iBin,iBin,iBin))
             self.modelBuilder.factory_('expr::Sigma_trueZ4muBin%d("@0*(1.0-@1*@2)*@3*@4/(1.0-@1)", SigmaBin%d, fracSM4eBin%d, K1Bin%d, K2Bin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin,iBin) )
             self.modelBuilder.factory_('expr::Sigma_trueZ2e2muBin%d("@0*(1.0-@1*@2)*(1.0-@3*@4/(1.0-@1))", SigmaBin%d, fracSM4eBin%d, K1Bin%d, K2Bin%d, fracSM4muBin%d)' % (iBin,iBin,iBin,iBin,iBin,iBin) )
@@ -652,8 +652,8 @@ class DifferentialFiducialV3( PhysicsModel ):
         Processes = []
         for Boson in ['H', 'Z']:
             for iBin in range(0,self.nBin):
-                for channel in ['4e', '4mu', '2e2mu']:       
-                    Processes += ['true'+Boson+channel+'Bin'+str(iBin)]
+                for channel in ['4e', '4mu', '2e2mu']:
+                    Processes += ['smH'+channel+'Bin'+str(iBin)]
         if process in Processes: return 'Sigma_'+process
         else: return 1
 
@@ -720,11 +720,11 @@ class H4lZ4lInclusiveFiducialRatio( PhysicsModel ):
 
         if self.modelBuilder.out.var("SigmaH"):
             self.modelBuilder.out.var("SigmaH").setRange(self.SigmaRange[0], self.SigmaRange[1])
-        else: 
+        else:
             self.modelBuilder.doVar("SigmaH[1,%s,%s]" % (self.SigmaRange[0], self.SigmaRange[1]))
         if self.modelBuilder.out.var("SigmaH4e"):
             self.modelBuilder.out.var("SigmaH4e").setRange(self.SigmaRange[0], self.SigmaRange[1])
-        else:        
+        else:
             self.modelBuilder.doVar("SigmaH4e[1,%s,%s]" % (self.SigmaRange[0], self.SigmaRange[1]))
         if self.modelBuilder.out.var("SigmaH4mu"):
             self.modelBuilder.out.var("SigmaH4mu").setRange(self.SigmaRange[0], self.SigmaRange[1])
@@ -774,7 +774,7 @@ class H4lZ4lInclusiveFiducialRatio( PhysicsModel ):
             else:
                 print 'MH (not there before) will be assumed to be', self.defaultMH
                 self.modelBuilder.doVar("MH[%g]" % self.defaultMH)
-        # set Parameter DeltaMHmZ 
+        # set Parameter DeltaMHmZ
         if self.modelBuilder.out.var("DeltaMHmZ"):
             if len(self.DeltaMHmZRange) == 2:
                 print 'DeltaMHmZ will be left floating within', self.DeltaMHmZRange[0], 'and', self.DeltaMHmZRange[1]
@@ -825,7 +825,7 @@ class H4lZ4lInclusiveFiducialRatio( PhysicsModel ):
         if not self.DC.isSignal[process]: return 1
         if process in [ "trueH4e", "trueH4mu","trueH2e2mu","trueZ4e", "trueZ4mu","trueZ2e2mu"]:
             return "sigma_"+process
-        else: 
+        else:
             return 1
 
 
@@ -1001,7 +1001,7 @@ class H4lZ4lInclusiveFiducialRatioV2( PhysicsModel ):
 
 
 
-                     
+
 inclusiveFiducial=InclusiveFiducial()
 inclusiveFiducialV2=InclusiveFiducialV2()
 inclusiveFiducialV3=InclusiveFiducialV3()
@@ -1012,4 +1012,3 @@ differentialFiducialV3=DifferentialFiducialV3()
 
 h4lZ4lInclusiveFiducialRatio=H4lZ4lInclusiveFiducialRatio()
 h4lZ4lInclusiveFiducialRatioV2=H4lZ4lInclusiveFiducialRatioV2()
-
