@@ -165,6 +165,8 @@ def runFiducialXS():
         PhysicalModels = ['v2','v3']
     elif obsName == 'D0m' or obsName == 'Dcp' or obsName == 'D0hp' or obsName == 'Dint' or obsName == 'DL1' or obsName == 'DL1Zg' or obsName == 'costhetaZ1' or obsName == 'costhetaZ2'or obsName == 'costhetastar' or obsName == 'phi' or obsName == 'phistar' or obsName == 'massZ1' or obsName == 'massZ2':
         PhysicalModels = ['v3','v4']
+    elif 'kL' in obsName:
+        PhysicalModels = ['kLambda']
     else:
         PhysicalModels = ['v3']
 
@@ -240,7 +242,7 @@ def runFiducialXS():
             cmds.append(cmd)
             print cmd, '\n'
 
-        # text-to-workspace
+        # text-to-workspace (No text-to-ws for kLambda)
         if (physicalModel=="v3"):
             cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial:differentialFiducialV3 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
@@ -253,6 +255,11 @@ def runFiducialXS():
             cmds.append(cmd)
         elif (physicalModel=="v2"):
             cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -P HiggsAnalysis.CombinedLimit.HZZ4L_Fiducial_v2:differentialFiducialV2 --PO higgsMassRange=115,135 --PO nBin='+str(nBins)+' -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
+            print cmd, '\n'
+            processCmd(cmd)
+            cmds.append(cmd)
+        elif (physicalModel=="kLambda"):
+            cmd = 'text2workspace.py hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt -o hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
             print cmd, '\n'
             processCmd(cmd)
             cmds.append(cmd)
@@ -456,6 +463,36 @@ def runFiducialXS():
                 print cmd+'\n'
                 output = processCmd(cmd)
                 cmds.append(cmd)
+
+        elif physicalModel == 'kLambda':
+            #Stat+sys singles
+            cmd = 'combine SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -n _'+obsName+' -M MultiDimFit --algo=singles -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --freezeParameters MH,r --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1'
+            output = processCmd(cmd)
+            cmds.append(cmd)
+
+            #Stat+sys grid
+            cmd = 'combine SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -n _'+obsName+'_grid -M MultiDimFit --algo=grid --points=300 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --freezeParameters MH,r --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1'
+            output = processCmd(cmd)
+            cmds.append(cmd)
+
+            #Stat-only singles
+            cmd = 'combine higgsCombine_'+obsName+'.MultiDimFit.mH125.38'
+            if(not opt.UNBLIND): cmd += '.123456'
+            cmd += '.root -n _'+obsName+'_NoSys -M MultiDimFit -w w --snapshotName "MultiDimFit" --algo=singles -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1 --freezeNuisanceGroups nuis'
+            if (opt.YEAR == 'Full'): cmd += ' --freezeParameters MH,r,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
+            else: cmd += ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+            output = processCmd(cmd)
+            cmds.append(cmd)
+
+            #Stat-only grid
+            cmd = 'combine higgsCombine_'+obsName+'_grid.MultiDimFit.mH125.38'
+            if(not opt.UNBLIND): cmd += '.123456'
+            cmd += '.root -n _'+obsName+'_NoSys_grid -M MultiDimFit -w w --snapshotName "MultiDimFit" --algo=grid --points=300 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1 --freezeNuisanceGroups nuis'
+            if (opt.YEAR == 'Full'): cmd += ' --freezeParameters MH,r,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
+            else: cmd += ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+            output = processCmd(cmd)
+            cmds.append(cmd)
+
 
 # ----------------- Main -----------------
 _fit_dir = os.getcwd()

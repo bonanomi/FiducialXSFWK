@@ -3,9 +3,10 @@
 
 declare -a obs=(
 # "mass4l noJES"
-"mass4l_zzfloating noJES"
+# "mass4l_zzfloating noJES"
 # "njets_pt30_eta4p7 JES"
 # "pT4l noJES"
+"pT4l_kL noJES"
 # "rapidity4l noJES"
 # "costhetaZ1 noJES"
 # "costhetaZ2 noJES"

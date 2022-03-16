@@ -62,11 +62,14 @@ JESNP = _temp.JESNP
 if not os.path.exists('tables/'+obsname_out):
     os.makedirs('tables/'+obsname_out)
 
+if doubleDiff: nBins = len(obs_bins)
+else: nBins = len(obs_bins)-1
+
 # Tables with numerical values
 tables = {}
 inclusiveJES = {}
 for fState in ['2e2mu', '4e', '4mu']:
-    for recobin in range(len(obs_bins)-1):
+    for recobin in range(nBins):
         table = []
         for jesName in jesNames:
             # nominal_incl = 0

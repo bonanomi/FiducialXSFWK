@@ -129,8 +129,10 @@ def getJes(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, obs
             cutobs_reco &= (datafr[obs_reco_2nd] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd] < obs_reco_2nd_high)
             cutobs_reco_jesup &= (datafr[obs_reco_2nd+'_jesup_'+i] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesup_'+i] < obs_reco_2nd_high)
             cutobs_reco_jesdn &= (datafr[obs_reco_2nd+'_jesdn_'+i] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesdn_'+i] < obs_reco_2nd_high)
+            cutobs_reco_qqzz &= (datafr_qqzz[obs_reco_2nd] >= obs_reco_2nd_low) & (datafr_qqzz[obs_reco_2nd] < obs_reco_2nd_high)
             cutobs_reco_jesup_qqzz &= (datafr_qqzz[obs_reco_2nd+'_jesup_'+i] >= obs_reco_2nd_low) & (datafr_qqzz[obs_reco_2nd+'_jesup_'+i] < obs_reco_2nd_high)
             cutobs_reco_jesdn_qqzz &= (datafr_qqzz[obs_reco_2nd+'_jesdn_'+i] >= obs_reco_2nd_low) & (datafr_qqzz[obs_reco_2nd+'_jesdn_'+i] < obs_reco_2nd_high)
+            cutobs_reco_ggzz &= (datafr_ggzz[obs_reco_2nd] >= obs_reco_2nd_low) & (datafr_ggzz[obs_reco_2nd] < obs_reco_2nd_high)
             cutobs_reco_jesup_ggzz &= (datafr_ggzz[obs_reco_2nd+'_jesup_'+i] >= obs_reco_2nd_low) & (datafr_ggzz[obs_reco_2nd+'_jesup_'+i] < obs_reco_2nd_high)
             cutobs_reco_jesdn_ggzz &= (datafr_ggzz[obs_reco_2nd+'_jesdn_'+i] >= obs_reco_2nd_low) & (datafr_ggzz[obs_reco_2nd+'_jesdn_'+i] < obs_reco_2nd_high)
 
@@ -223,6 +225,7 @@ if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
 m4l_low = opt.LOWER_BOUND
 m4l_high = opt.UPPER_BOUND
+
 
 print (obsname, years, m4l_low, m4l_high, obsname_out)
 

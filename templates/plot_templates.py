@@ -14,6 +14,7 @@ decimal = {
 'mass4l_zzfloating': False,
 'njets_pt30_eta4p7': False,
 'pT4l': False,
+'pT4l_kL': False,
 'rapidity4l': True,
 'costhetaZ1': True,
 'costhetaZ2': True,

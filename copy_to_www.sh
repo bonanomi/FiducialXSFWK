@@ -59,7 +59,7 @@ mv datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_20
 mv datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2018/.
 
 mv plots/${1}/asimov/${1}_unfoldwith* $path/${1}/.
-mv impacts/impacts_*_${1}_*_asimov* $path/${1}/.
+cp impacts/${1}/impacts_*_${1}_*_asimov* $path/${1}/.
 mv LHScans/plots/lhscan_compare_${1}_* $path/${1}/.
 
 mv fit/commands_${1}.py $path/${1}/.
