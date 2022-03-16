@@ -287,6 +287,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     # Out of acceptance events
     # (same shape as in acceptance shape)
     OutsideAcceptance = trueH.Clone()
+    OutsideAcceptance.SetName("OutsideAcceptance")
 
     # Coefficients for wrong signal combination events
     if (addfakeH):
@@ -458,17 +459,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         GGH_norm[genbin] = ROOT.RooFormulaVar(ggHName+"_norm","@0*@1*@2", ROOT.RooArgList(SigmaHBin_ggH[channel+str(genbin)],fideff_ggH_var[genbin], lumi) );
         XH_norm[genbin] = ROOT.RooFormulaVar(xHName+"_norm","@0*@1*@2", ROOT.RooArgList(SigmaHBin_xH[channel+str(genbin)],fideff_xH_var[genbin], lumi) );
 
-    # outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
+    outin = outinratio[modelName+"_"+channel+"_"+obsName+"_genbin"+str(obsBin)+"_"+recobin]
     # print "outin",obsBin,outin
-    # outin_var = ROOT.RooRealVar("outfracBin_"+recobin+"_"+channel+year,"outfracBin_"+recobin+"_"+channel+year, outin);
-    # outin_var.setConstant(True)
-    # OutsideAcceptance_norm_args = ROOT.RooArgList(outin_var)
-    # OutsideAcceptance_norm_func = "@0*("
-    # for i in range(nBins):
-    #     OutsideAcceptance_norm_args.add(trueH_norm_final[i])
-    #     OutsideAcceptance_norm_func = OutsideAcceptance_norm_func+"@"+str(i+1)+"+"
-    # OutsideAcceptance_norm_func = OutsideAcceptance_norm_func.replace(str(nBins)+"+",str(nBins)+")")
-    # OutsideAcceptance_norm = ROOT.RooFormulaVar("OutsideAcceptance_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
+    outin_var = ROOT.RooRealVar("outfracBin_"+recobin+"_"+channel+year,"outfracBin_"+recobin+"_"+channel+year, outin);
+    outin_var.setConstant(True)
+    OutsideAcceptance_norm_args = ROOT.RooArgList(outin_var)
+    OutsideAcceptance_norm_func = "@0*("
+    for i in range(nBins):
+        OutsideAcceptance_norm_args.add(trueH_norm_final[i])
+        OutsideAcceptance_norm_func = OutsideAcceptance_norm_func+"@"+str(i+1)+"+"
+    OutsideAcceptance_norm_func = OutsideAcceptance_norm_func.replace(str(nBins)+"+",str(nBins)+")")
+    OutsideAcceptance_norm = ROOT.RooFormulaVar("OutsideAcceptance_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
 
     frac_qqzz = fractionsBackground['qqzz_'+channel+'_'+obsName+'_'+recobin]
     frac_qqzz_var  = ROOT.RooRealVar("frac_qqzz_"+recobin+"_"+channel+"_"+year,"frac_qqzz_"+recobin+"_"+channel+"_"+year, frac_qqzz);
@@ -476,30 +477,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     frac_ggzz = fractionsBackground['ggzz_'+channel+'_'+obsName+'_'+recobin]
     frac_ggzz_var = ROOT.RooRealVar("frac_ggzz_"+recobin+"_"+channel+"_"+year,"frac_ggzz_"+recobin+"_"+channel+"_"+year, frac_ggzz);
 
-    # frac_zjets = fractionsBackground['ZJetsCR_AllChans_'+obsName+'_'+recobin]
-    # frac_zjets_var = ROOT.RooRealVar("frac_zjet_"+recobin+"_"+channel+"_"+year,"frac_zjet_"+recobin+"_"+channel+"_"+year, frac_zjets);
     frac_zjets = fractionsBackground['ZJetsCR_'+channel+'_'+obsName+'_'+recobin]
     frac_zjets_var = ROOT.RooRealVar("frac_zjet_"+recobin+"_"+channel+"_"+year,"frac_zjet_"+recobin+"_"+channel+"_"+year, frac_zjets);
 
-
     print obsBin,"frac_qqzz",frac_qqzz,"frac_ggzz",frac_ggzz,"frac_zjets",frac_zjets
-    '''
-    if (obsName=="nJets" or ("jet" in obsName)):
-        #######
-        lambda_JES_qqzz = 0.0 #lambda_qqzz_jes[modelName+"_"+channel+"_nJets_"+recobin]
-        lambda_JES_qqzz_var = ROOT.RooRealVar("lambda_qqzz_"+recobin+"_"+channel,"lambda_"+recobin+"_"+channel, lambda_JES_qqzz)
-        JES_qqzz_rfv = ROOT.RooFormulaVar("JES_rfv_qqzz_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_qqzz_var) )
-
-        ####
-        lambda_JES_ggzz = 0.0 #lambda_ggzz_jes[modelName+"_"+channel+"_nJets_"+recobin]
-        lambda_JES_ggzz_var = ROOT.RooRealVar("lambda_ggzz_"+recobin+"_"+channel,"lambda_"+recobin+"_"+channel, lambda_JES_ggzz)
-        JES_ggzz_rfv = ROOT.RooFormulaVar("JES_rfv_ggzz_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_ggzz_var) )
-
-        ####
-        lambda_JES_zjets = 0.0 #lambda_zjets_jes[modelName+"_"+channel+"_nJets_"+recobin]
-        lambda_JES_zjets_var = ROOT.RooRealVar("lambda_zjets_"+recobin+"_"+channel,"lambda_zjets_"+recobin+"_"+channel, lambda_JES_zjets)
-        JES_zjets_rfv = ROOT.RooFormulaVar("JES_rfv_zjets_"+recobin+"_"+channel,"@0*@1", ROOT.RooArgList(JES, lambda_JES_zjets_var) )
-    '''
 
     os.chdir('../../templates/'+year+"/"+obsName+"/")
 
@@ -519,7 +500,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
         template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
         template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
-    print('================>', template_qqzzName, template_ggzzName, template_zjetsName)
+
     # if (not obsName=="mass4l"):
     #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_AllChans_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
     # else:
@@ -718,10 +699,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         getattr(wout,'import')(GGH_norm[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
         getattr(wout,'import')(XH_norm[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
 
-    # if (not usecfactor):
-    #     OutsideAcceptance.SetName("OutsideAcceptance")
-    #     getattr(wout,'import')(OutsideAcceptance,ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
-    #     getattr(wout,'import')(OutsideAcceptance_norm,ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
+    if (not usecfactor):
+       getattr(wout,'import')(OutsideAcceptance,ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
+       getattr(wout,'import')(OutsideAcceptance_norm,ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
 
     getattr(wout,'import')(nonResH,ROOT.RooFit.Silence())
     getattr(wout,'import')(nonResH_norm,ROOT.RooFit.Silence())

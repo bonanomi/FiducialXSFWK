@@ -137,7 +137,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('## mass window ['+str(lowerBound)+','+str(upperBound)+']\n')
     file.write('bin ')
     # for i in range(nBins+5): # In addition to the observableBins, there are OutsideAcceptance, fakeH, bkg_ggzz, bkg_qqzz, bkg_zjets
-    for i in range(nBins+4):
+    for i in range(nBins+5):
         file.write(binName+' ')
     file.write('\n')
     file.write('process ')
@@ -147,18 +147,18 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
         else:
             file.write(processName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
-    # file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
-    file.write('nonResH bkg_qqzz bkg_ggzz bkg_zjets')
+    file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
+    #file.write('nonResH bkg_qqzz bkg_ggzz bkg_zjets')
     file.write('\n')
     file.write('process ')
     for i in range(nBins):
         file.write('-'+str(i+1)+' ')
     # file.write('1 2 3 4 5')
-    file.write('1 2 3 4')
+    file.write('1 2 3 4 5')
     file.write('\n')
     file.write('rate ')
     # for i in range(nBins+2): # In addition to the observableBins, there are OutsideAcceptance, fakeH
-    for i in range(nBins+1):
+    for i in range(nBins+2):
         file.write('1.0 ')
     # file.write(str(bkg_qqzz[year+'_'+channel])+' '+str(bkg_ggzz[year+'_'+channel])+' '+str(bkg_zx[year+'_'+channel])+'\n') #Old implementation with hard coding bkg expectation values
     file.write(str(expected_yield[int(year),'qqzz',channel])+' '+str(expected_yield[int(year),'ggzz',channel])+' '+str(expected_yield[int(year),'ZX',channel])+'\n')
@@ -167,7 +167,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # norm_fake
     file.write('norm_nonResH lnU ')
     # for i in range(nBins+1): # Signal + OutsideAcceptance
-    for i in range(nBins): # Signal + OutsideAcceptance
+    for i in range(nBins+1): # Signal + OutsideAcceptance
         file.write('- ')
     file.write('10.0 - - -    # [/10,*10]\n')
 
@@ -175,27 +175,27 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         # lumi_uncorrelated
         file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+3): # All except ZX
+        for i in range(nBins+4): # All except ZX
             file.write(lumi[year]+' ')
         file.write('-\n') # ZX
         # lumi_correlated_16_17_18
         file.write('lumi_13TeV_correlated_16_17_18 lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+3): # All except ZX
+        for i in range(nBins+4): # All except ZX
             file.write(lumi_corr_16_17_18[year]+' ')
         file.write('-\n') # ZX
         # lumi_correlated_17_18
         if year == '2017' or year == '2018':
             file.write('lumi_13TeV_correlated_17_18 lnN ')
             # for i in range(nBins+4): # All except ZX
-            for i in range(nBins+3): # All except ZX
+            for i in range(nBins+4): # All except ZX
                 file.write(lumi_corr_17_18[year]+' ')
             file.write('-\n') # ZX
     else:
         # lumi
         file.write('lumi_13TeV_'+year+' lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+3): # All except ZX
+        for i in range(nBins+4): # All except ZX
             file.write(lumi[year]+' ')
         file.write('-\n') # ZX
 
@@ -203,20 +203,20 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if channel == '4mu' or channel == '2e2mu':
         file.write('CMS_eff_m lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+3): # All except ZX
+        for i in range(nBins+4): # All except ZX
             file.write(eff_mu[year+'_'+channel]+' ')
         file.write('-\n') # ZX
     if channel == '4e' or channel == '2e2mu':
         file.write('CMS_eff_e lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+3): # All except ZX
+        for i in range(nBins+4): # All except ZX
             file.write(eff_e[year+'_'+channel]+' ')
         file.write('-\n') # ZX
 
     # ZX
     file.write('CMS_hzz'+channel+'_Zjets_'+year+' lnN ')
     # for i in range(nBins+4): # All except ZX
-    for i in range(nBins+3): # All except ZX
+    for i in range(nBins+4): # All except ZX
         file.write('- ')
     file.write(ZX[year+'_'+channel]+'\n')
 
@@ -233,27 +233,27 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # Theoretical
     file.write('QCDscale_ggVV lnN ')
     # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(nBins+2): # All except ZX
+    for i in range(nBins+3): # All except ZX
         file.write('- ')
     file.write('1.039/0.961 -\n')
     file.write('QCDscale_VV lnN ')
     # for i in range(nBins+2): # Signal + out + fake
-    for i in range(nBins+1):
+    for i in range(nBins+2):
         file.write('- ')
     file.write('1.0325/0.958 - -\n')
     file.write('pdf_gg lnN ')
     # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(nBins+2): # All except ZX
+    for i in range(nBins+3): # All except ZX
         file.write('- ')
     file.write('1.032/0.968 -\n')
     file.write('pdf_qqbar lnN ')
     # for i in range(nBins+2): # Signal + out + fake
-    for i in range(nBins+1): # All except ZX
+    for i in range(nBins+2): # All except ZX
         file.write('- ')
     file.write('1.031/0.966 - -\n')
     file.write('kfactor_ggzz lnN ')
     # for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
-    for i in range(nBins+2): # Signal + out + fake  + bkg_qqzz
+    for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
         file.write('- ')
     file.write('1.1 -\n')
 
@@ -275,7 +275,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
             file.write('-\n') # ZX
         file.write('CMS_scale_j_ZX lnN ')
-        for i in range(nBins+3): # All except ZX
+        for i in range(nBins+4): # All except ZX
             file.write('- ')
         file.write(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+'\n')
 
@@ -387,7 +387,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
     file.write('## mass window ['+str(lowerBound)+','+str(upperBound)+']\n')
     file.write('bin ')
     # for i in range(nBins+5): # In addition to the observableBins, there are OutsideAcceptance, fakeH, bkg_ggzz, bkg_qqzz, bkg_zjets
-    for i in range(2*nBins+4):
+    for i in range(2*nBins+5):
         file.write(binName+' ')
     file.write('\n')
     file.write('process ')
@@ -403,21 +403,21 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
             file.write(xHName+'_GT'+str(int(observableBins[i]))+' ')
         else:
             file.write(xHName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
-    # file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
-    file.write('nonResH bkg_qqzz bkg_ggzz bkg_zjets')
+    file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
+    #file.write('nonResH bkg_qqzz bkg_ggzz bkg_zjets')
     file.write('\n')
     file.write('process ')
     for i in range(nBins):
         file.write('-'+str(i+1)+' ')
     # nonResH bkg_qqzz bkg_ggzz bkg_zjets
-    file.write('1 2 3 4 ')
+    file.write('1 2 3 4 5')
     # xH as bkg processBin
     for i in range(nBins):
         file.write(str(i+5)+' ')
     file.write('\n')
     file.write('rate ')
     # ggH, XH bins and nonRes contribution
-    for i in range(2*nBins+1):
+    for i in range(2*nBins+2):
         file.write('1.0 ')
     # file.write(str(bkg_qqzz[year+'_'+channel])+' '+str(bkg_ggzz[year+'_'+channel])+' '+str(bkg_zx[year+'_'+channel])+'\n') #Old implementation with hard coding bkg expectation values
     file.write(str(expected_yield[int(year),'qqzz',channel])+' '+str(expected_yield[int(year),'ggzz',channel])+' '+str(expected_yield[int(year),'ZX',channel])+'\n')
@@ -426,7 +426,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
     # norm_fake
     file.write('norm_nonResH lnU ')
     # ggH + xH
-    for i in range(2*nBins):
+    for i in range(2*nBins+1):
         file.write('- ')
     file.write('10.0 - - -    # [/10,*10]\n')
 
@@ -434,27 +434,27 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
         # lumi_uncorrelated
         file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+3): # All except ZX
+        for i in range(2*nBins+4): # All except ZX
             file.write(lumi[year]+' ')
         file.write('-\n') # ZX
         # lumi_correlated_16_17_18
         file.write('lumi_13TeV_correlated_16_17_18 lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+3): # All except ZX
+        for i in range(2*nBins+4): # All except ZX
             file.write(lumi_corr_16_17_18[year]+' ')
         file.write('-\n') # ZX
         # lumi_correlated_17_18
         if year == '2017' or year == '2018':
             file.write('lumi_13TeV_correlated_17_18 lnN ')
             # for i in range(nBins+4): # All except ZX
-            for i in range(2*nBins+3): # All except ZX
+            for i in range(2*nBins+4): # All except ZX
                 file.write(lumi_corr_17_18[year]+' ')
             file.write('-\n') # ZX
     else:
         # lumi
         file.write('lumi_13TeV_'+year+' lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+3): # All except ZX
+        for i in range(2*nBins+4): # All except ZX
             file.write(lumi[year]+' ')
         file.write('-\n') # ZX
 
@@ -462,20 +462,20 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
     if channel == '4mu' or channel == '2e2mu':
         file.write('CMS_eff_m lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+3): # All except ZX
+        for i in range(2*nBins+4): # All except ZX
             file.write(eff_mu[year+'_'+channel]+' ')
         file.write('-\n') # ZX
     if channel == '4e' or channel == '2e2mu':
         file.write('CMS_eff_e lnN ')
         # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+3): # All except ZX
+        for i in range(2*nBins+4): # All except ZX
             file.write(eff_e[year+'_'+channel]+' ')
         file.write('-\n') # ZX
 
     # ZX
     file.write('CMS_hzz'+channel+'_Zjets_'+year+' lnN ')
     # for i in range(nBins+4): # All except ZX
-    for i in range(2*nBins+3): # All except ZX
+    for i in range(2*nBins+4): # All except ZX
         file.write('- ')
     file.write(ZX[year+'_'+channel]+'\n')
 
@@ -492,27 +492,27 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
     # Theoretical
     file.write('QCDscale_ggVV lnN ')
     # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(2*nBins+2): # All except ZX
+    for i in range(2*nBins+3): # All except ZX
         file.write('- ')
     file.write('1.039/0.961 -\n')
     file.write('QCDscale_VV lnN ')
     # for i in range(nBins+2): # Signal + out + fake
-    for i in range(2*nBins+1):
+    for i in range(2*nBins+2):
         file.write('- ')
     file.write('1.0325/0.958 - -\n')
     file.write('pdf_gg lnN ')
     # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(2*nBins+2): # All except ZX
+    for i in range(2*nBins+3): # All except ZX
         file.write('- ')
     file.write('1.032/0.968 -\n')
     file.write('pdf_qqbar lnN ')
     # for i in range(nBins+2): # Signal + out + fake
-    for i in range(2*nBins+1): # All except ZX
+    for i in range(2*nBins+2): # All except ZX
         file.write('- ')
     file.write('1.031/0.966 - -\n')
     file.write('kfactor_ggzz lnN ')
     # for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
-    for i in range(2*nBins+2): # Signal + out + fake  + bkg_qqzz
+    for i in range(2*nBins+3): # Signal + out + fake  + bkg_qqzz
         file.write('- ')
     file.write('1.1 -\n')
 
