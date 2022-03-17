@@ -11,7 +11,7 @@ sys.path.append('../inputs/')
 
 from higgs_xsbr_13TeV import *
 from createXSworkspace import createXSworkspace
-from createDatacard import createDatacard
+from createDatacard import createDatacard, createDatacard_ggH
 
 
 def parseOptions():
@@ -105,6 +105,7 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
                 for obsBin in range(nBins):
                     ndata = createXSworkspace(obsName,fState, nBins, obsBin, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff, opt.LOWER_BOUND, opt.UPPER_BOUND, opt.OBSNAME)
                     createDatacard(obsName, fState, nBins, obsBin, observableBins, physicalmodel, year, ndata, JES, opt.LOWER_BOUND, opt.UPPER_BOUND, opt.YEAR)
+                    createDatacard_ggH(obsName, fState, nBins, obsBin, observableBins, physicalmodel, year, ndata, JES, opt.LOWER_BOUND, opt.UPPER_BOUND, opt.YEAR)
                     os.chdir('../datacard/datacard_'+year)
             else:
                 ndata = createXSworkspace(obsName,fState, nBins, 0, observableBins, False, True, ModelName, physicalmodel, year, JES, doubleDiff, opt.LOWER_BOUND, opt.UPPER_BOUND, opt.OBSNAME)
@@ -172,7 +173,7 @@ def runFiducialXS():
 
     for physicalModel in PhysicalModels:
         produceDatacards(obsName, observableBins, DataModelName, physicalModel)
-
+        break
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
         nBins = len(observableBins)
@@ -295,8 +296,8 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r'+channel+'Bin0.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
-                else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_12018,CMS_nonResH_p3_12018,CMS_nonResH_p1_22018,CMS_nonResH_p3_22018,CMS_nonResH_p1_32018,CMS_nonResH_p3_32018,CMS_nonResH_p1_12017,CMS_nonResH_p3_12017,CMS_nonResH_p1_22017,CMS_nonResH_p3_22017,CMS_nonResH_p1_32017,CMS_nonResH_p3_32017,CMS_nonResH_p1_12016,CMS_nonResH_p3_12016,CMS_nonResH_p1_22016,CMS_nonResH_p3_22016,CMS_nonResH_p1_32016,CMS_nonResH_p3_32016'
+                else: cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_1'+str(opt.YEAR)+',CMS_nonResH_p3_1'+str(opt.YEAR)+',CMS_nonResH_p1_2'+str(opt.YEAR)+',CMS_nonResH_p3_2'+str(opt.YEAR)+',CMS_nonResH_p1_3'+str(opt.YEAR)+',CMS_nonResH_p3_3'+str(opt.YEAR)
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
                 print cmd+'\n'
                 output = processCmd(cmd)
@@ -323,8 +324,8 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r2e2muBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r2e2muBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r2e2muBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r2e2muBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
-                else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_12018,CMS_nonResH_p3_12018,CMS_nonResH_p1_22018,CMS_nonResH_p3_22018,CMS_nonResH_p1_32018,CMS_nonResH_p3_32018,CMS_nonResH_p1_12017,CMS_nonResH_p3_12017,CMS_nonResH_p1_22017,CMS_nonResH_p3_22017,CMS_nonResH_p1_32017,CMS_nonResH_p3_32017,CMS_nonResH_p1_12016,CMS_nonResH_p3_12016,CMS_nonResH_p1_22016,CMS_nonResH_p3_22016,CMS_nonResH_p1_32016,CMS_nonResH_p3_32016'
+                else: cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_1'+str(opt.YEAR)+',CMS_nonResH_p3_1'+str(opt.YEAR)+',CMS_nonResH_p1_2'+str(opt.YEAR)+',CMS_nonResH_p3_2'+str(opt.YEAR)+',CMS_nonResH_p1_3'+str(opt.YEAR)+',CMS_nonResH_p3_3'+str(opt.YEAR)
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r2e2muBin'+str(obsBin)+'='+str(round(fidxs,4))
                 print cmd+'\n'
                 output = processCmd(cmd)
@@ -356,8 +357,8 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r4lBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r4lBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r4lBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r4lBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
-                else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_12018,CMS_nonResH_p3_12018,CMS_nonResH_p1_22018,CMS_nonResH_p3_22018,CMS_nonResH_p1_32018,CMS_nonResH_p3_32018,CMS_nonResH_p1_12017,CMS_nonResH_p3_12017,CMS_nonResH_p1_22017,CMS_nonResH_p3_22017,CMS_nonResH_p1_32017,CMS_nonResH_p3_32017,CMS_nonResH_p1_12016,CMS_nonResH_p3_12016,CMS_nonResH_p1_22016,CMS_nonResH_p3_22016,CMS_nonResH_p1_32016,CMS_nonResH_p3_32016'
+                else: cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_1'+str(opt.YEAR)+',CMS_nonResH_p3_1'+str(opt.YEAR)+',CMS_nonResH_p1_2'+str(opt.YEAR)+',CMS_nonResH_p3_2'+str(opt.YEAR)+',CMS_nonResH_p1_3'+str(opt.YEAR)+',CMS_nonResH_p3_3'+str(opt.YEAR)
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r4lBin'+str(obsBin)+'='+str(round(fidxs,4))
                 print cmd+'\n'
                 output = processCmd(cmd)
@@ -452,8 +453,8 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_12018,CMS_fakeH_p3_12018,CMS_fakeH_p1_22018,CMS_fakeH_p3_22018,CMS_fakeH_p1_32018,CMS_fakeH_p3_32018,CMS_fakeH_p1_12017,CMS_fakeH_p3_12017,CMS_fakeH_p1_22017,CMS_fakeH_p3_22017,CMS_fakeH_p1_32017,CMS_fakeH_p3_32017,CMS_fakeH_p1_12016,CMS_fakeH_p3_12016,CMS_fakeH_p1_22016,CMS_fakeH_p3_22016,CMS_fakeH_p1_32016,CMS_fakeH_p3_32016'
-                else: cmd = cmd + ' --freezeParameters MH,CMS_fakeH_p1_1'+str(opt.YEAR)+',CMS_fakeH_p3_1'+str(opt.YEAR)+',CMS_fakeH_p1_2'+str(opt.YEAR)+',CMS_fakeH_p3_2'+str(opt.YEAR)+',CMS_fakeH_p1_3'+str(opt.YEAR)+',CMS_fakeH_p3_3'+str(opt.YEAR)
+                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_12018,CMS_nonResH_p3_12018,CMS_nonResH_p1_22018,CMS_nonResH_p3_22018,CMS_nonResH_p1_32018,CMS_nonResH_p3_32018,CMS_nonResH_p1_12017,CMS_nonResH_p3_12017,CMS_nonResH_p1_22017,CMS_nonResH_p3_22017,CMS_nonResH_p1_32017,CMS_nonResH_p3_32017,CMS_nonResH_p1_12016,CMS_nonResH_p3_12016,CMS_nonResH_p1_22016,CMS_nonResH_p3_22016,CMS_nonResH_p1_32016,CMS_nonResH_p3_32016'
+                else: cmd = cmd + ' --freezeParameters MH,CMS_nonResH_p1_1'+str(opt.YEAR)+',CMS_nonResH_p3_1'+str(opt.YEAR)+',CMS_nonResH_p1_2'+str(opt.YEAR)+',CMS_nonResH_p3_2'+str(opt.YEAR)+',CMS_nonResH_p1_3'+str(opt.YEAR)+',CMS_nonResH_p3_3'+str(opt.YEAR)
                 if(not opt.UNBLIND):
                     cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
                     if(opt.FIXFRAC):
