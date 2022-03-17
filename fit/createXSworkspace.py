@@ -432,7 +432,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             trueH_norm[genbin] = ROOT.RooFormulaVar(processName+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
             rBin_channel[str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
             rBin_channel[str(genbin)].setConstant(True)
-            trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+'_'+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[str(genbin)], fideff_var[genbin],lumi))
 
         elif (physicalModel=='v4'):
 
@@ -440,7 +440,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             trueH_norm[genbin] = ROOT.RooFormulaVar(processName+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
             if channel == '2e2mu':
                 rBin_channel['2e2mu'+str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel['2e2mu'+str(genbin)], fideff_var[genbin],lumi))
+                trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+'_'+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel['2e2mu'+str(genbin)], fideff_var[genbin],lumi))
             else: #4e+4mu
                 fidxs = {}
                 for fState in ['4e','4mu']:
@@ -460,7 +460,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
                 rBin_channel['4e'+str(genbin)] = ROOT.RooFormulaVar("r4eBin"+str(genbin),"(@0*@1)", ROOT.RooArgList(rBin_channel[str(genbin)], fracSM4eBin[str(genbin)]))
                 rBin_channel['4mu'+str(genbin)] = ROOT.RooFormulaVar("r4muBin"+str(genbin),"(@0*@1)", ROOT.RooArgList(rBin_channel[str(genbin)], fracSM4muBin[str(genbin)]))
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[channel+str(genbin)], fideff_var[genbin],lumi))
+                trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+'_'+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel[channel+str(genbin)], fideff_var[genbin],lumi))
 
         elif (physicalModel=='kLambda'):
             muBin = {}
@@ -480,6 +480,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             C1i_ttH = [0.0530525859571, 0.0472618825815, 0.0392337055167, 0.0278818345971, 0.0141882242091]
             C1i_VH = [0.0165863149378, 0.012328663897, 0.00774755197694, 0.0034957241269, 0.00024199147094]
             for genbin in range(nBins):
+
                 C1_ggH[str(genbin)] = ROOT.RooRealVar("C1_ggH_"+str(genbin), "C1_ggH_"+str(genbin), 0.0066, 0.0066, 0.0066)
 
                 C1_ttH[str(genbin)] = ROOT.RooRealVar("C1_ttH_"+str(genbin), "C1_ttH_"+str(genbin), C1i_ttH[genbin], C1i_ttH[genbin], C1i_ttH[genbin])
@@ -526,9 +527,19 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
                 print('WH Bin', genbin, higgs_xs['WH_125.0']*higgs4l_br['125.0_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 print('ZH Bin', genbin, higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 print('ttH Bin', genbin, higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
-                print(fideff_var[genbin], lumi, fidxs_fl[str(genbin)])
-                # For klambda we need to define ad hoc these because of the C1 scalings
-                trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+recobin+"_final","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
+
+                # Set name of the process according to conventions for combination
+                if observableBins[genbin+1] > 1000:
+                  _binName = 'GT'+str(int(observableBins[genbin]))
+                else:
+                  _binName = str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p')
+
+                # Need to be redefined here for proper import in ws
+                processName = 'smH_' + _obsName[obsName]
+                processName = processName+'_'+_binName 
+
+                # Fo klambda we need to ad hoc these because of the C1 scaline
+                trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+'_'+recobin+"_final","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
                 trueH_norm[genbin] = ROOT.RooFormulaVar(processName+"_norm","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
 
         else:
@@ -581,7 +592,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
             # Here we define the scalings used for the Combination (and v3 measurements)
             # The POIs are now signal strenght modifiers, hence xsecSM is constant
-            trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+recobin+"_final","@0*@1*@2" ,ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
+            trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+'_'+recobin+"_final","@0*@1*@2" ,ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin],lumi))
             trueH_norm[genbin] = ROOT.RooFormulaVar(processName+"_norm","@0*@1*@2", ROOT.RooArgList(SigmaHBin[channel+str(genbin)],fideff_var[genbin], lumi) );
             GGH_norm[genbin] = ROOT.RooFormulaVar(ggHName+"_norm","@0*@1*@2", ROOT.RooArgList(SigmaHBin_ggH[channel+str(genbin)],fideff_ggH_var[genbin], lumi) );
             XH_norm[genbin] = ROOT.RooFormulaVar(xHName+"_norm","@0*@1*@2", ROOT.RooArgList(SigmaHBin_xH[channel+str(genbin)],fideff_xH_var[genbin], lumi) );
