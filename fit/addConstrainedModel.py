@@ -42,11 +42,6 @@ sys.argv = grootargs
 sys.path.append('../inputs')
 obsName = opt.OBSNAME
 
-# observableBins = opt.OBSBINS
-# observableBins = observableBins.split('|')
-# observableBins.pop()
-# observableBins.pop(0)
-
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins','acc','eff','err_eff','outinratio','err_outinratio','inc_wrongfrac','binfrac_wrongfrac','number_fake','lambdajesup','lambdajesdn'], -1)
 observableBins = _temp.observableBins
 if not opt.DOUBLEDIFF: lenObsBins = len(observableBins)-1
@@ -292,3 +287,5 @@ with open('../inputs/inputs_sig_'+opt.OBSNAME+'_'+opt.YEAR+'.py', 'w') as f:
     f.write('number_fake = '+str(number_fake)+' \n')
     f.write('lambdajesup = '+str(lambdajesup)+' \n')
     f.write('lambdajesdn = '+str(lambdajesdn))
+
+sys.path.remove('../inputs')

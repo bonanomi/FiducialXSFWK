@@ -3,17 +3,19 @@ import matplotlib.pyplot as plt
 import os, sys
 import numpy as np
 import pandas as pd
-import uproot
+import uproot3 as uproot
 from math import sqrt, log
 import itertools
 import optparse
 import math
 import ROOT
 import json
-from tdrStyle import *
+# from tdrStyle import *
 import random #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not have discriminantsa in data yet, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
+from binning import binning
+from paths import path
 
-sys.path.append('../inputs/')
+# sys.path.append('../inputs/')
 # from observables import observables
 
 print 'Welcome in RunTemplates!'
@@ -36,9 +38,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -159,7 +161,7 @@ def dataframes(year):
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
                  'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                  'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
-                 'njets_pt30_eta4p7', 'pTj1_eta4p7',
+                 'njets_pt30_eta4p7', 'absdetajj',
                  'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
         if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
@@ -319,7 +321,7 @@ def doZX(year):
 # ------------------------------- FUNCTIONS FOR TEMPLATES ----------------------------------------------------
 def smoothAndNormaliseTemplate(h1d, norm):
     #smooth
-    h1d.Smooth()#10000)
+    h1d.Smooth(10000)
     #norm + floor + norm
     #normaliseHist(h1d, norm)
     fillEmptyBinsHist(h1d,.01/(h1d.GetNbinsX()))
@@ -337,6 +339,7 @@ def fillEmptyBinsHist(h1d, floor):
 
 def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
     for year in years:
+        checkDir(str(year))
         checkDir(str(year)+"/"+var_string)
         fractionBkg = {}
         nBins = len(obs_bins)
@@ -344,7 +347,6 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
         # qqzz and ggzz
         for bkg in ['qqzz', 'ggzz']:
             for f in ['2e2mu', '4e', '4mu']:
-                #df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].Z2Mass < 60)  & (df_irr[year][bkg].ZZMass >= 105) & (df_irr[year][bkg].ZZMass <= 160)].copy()
                 df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= opt.LOWER_BOUND) & (df_irr[year][bkg].ZZMass <= opt.UPPER_BOUND)].copy()
                 len_tot = df['weight'].sum() # Total number of bkg b events in final state f
                 yield_bkg[year,bkg,f] = len_tot
@@ -371,6 +373,20 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     sel = sel_bin_low & sel_bin_high & sel_bin_mass_low & sel_bin_mass_high & sel_fstate
                     if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
 
+                    if 'zzfloating' in obs_name:
+                        df_2016_qqzz = df_irr[2016]['qqzz'][(df_irr[2016]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['qqzz'][var] >= bin_low) & (df_irr[2016]['qqzz'][var] < bin_high)].copy()
+                        df_2017_qqzz = df_irr[2017]['qqzz'][(df_irr[2017]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['qqzz'][var] >= bin_low) & (df_irr[2017]['qqzz'][var] < bin_high)].copy()
+                        df_2018_qqzz = df_irr[2018]['qqzz'][(df_irr[2018]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['qqzz'][var] >= bin_low) & (df_irr[2018]['qqzz'][var] < bin_high)].copy()
+                        df_2016_ggzz = df_irr[2016]['ggzz'][(df_irr[2016]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['ggzz'][var] >= bin_low) & (df_irr[2016]['ggzz'][var] < bin_high)].copy()
+                        df_2017_ggzz = df_irr[2017]['ggzz'][(df_irr[2017]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['ggzz'][var] >= bin_low) & (df_irr[2017]['ggzz'][var] < bin_high)].copy()
+                        df_2018_ggzz = df_irr[2018]['ggzz'][(df_irr[2018]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['ggzz'][var] >= bin_low) & (df_irr[2018]['ggzz'][var] < bin_high)].copy()
+                        df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
+                                        df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
+                                        df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
+                        # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
+                        len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
+                        yield_bkg['ZZ_'+str(i)] = len_tot
+
                     df = df_irr[year][bkg][sel].copy()
                     len_bin = df['weight'].sum() # Number of bkg events in bin i
                     if(len_tot <= 0):
@@ -387,8 +403,10 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     w = np.asarray(w).astype('float')
                     # ------
 
-                    if((obs_name == 'rapidity4l') | acFlag):
+                    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
+                    elif doubleDiff and 'rapidity' in var_string:
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     else:
@@ -398,8 +416,10 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
 
-                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
+                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+                    elif doubleDiff and 'rapidity' in var_string:
+                        outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd)+".root", "RECREATE")
                     elif doubleDiff:
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
                     else:
@@ -417,7 +437,6 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 sel_f_state_zx = df_red[year]['FinState'] == 1
             elif(f == '2e2mu'):
                 sel_f_state_zx = (df_red[year]['FinState'] == 2) | (df_red[year]['FinState'] == 3)
-            #df = df_red[year][(sel_f_state_zx) & (df_red[year].Z2Mass < 60) & (df_red[year].ZZMass >= 105) & (df_red[year].ZZMass <=160)].copy()
             df = df_red[year][(sel_f_state_zx) & (df_red[year].ZZMass >= opt.LOWER_BOUND) & (df_red[year].ZZMass <=opt.UPPER_BOUND)].copy()
             df_inclusive = df.copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
@@ -454,16 +473,20 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
+                elif doubleDiff and 'rapidity' in var_string:
+                    histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 else:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | acFlag):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
+                elif doubleDiff and 'rapidity' in var_string:
+                    outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd)+".root", "RECREATE")
                 elif doubleDiff:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd))+".root", "RECREATE")
                 else:
@@ -483,8 +506,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
 # General settings
 bkgs = ['ZZTo4lext', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
         'ggTo4e_Contin_MCFM701', 'ggTo4mu_Contin_MCFM701', 'ggTo4tau_Contin_MCFM701']
-eos_path_FR = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIILegacy/200205_CutBased/'
-eos_path = '/eos/user/a/atarabin/'
+eos_path_FR = path['eos_path_FR']
+eos_path = path['eos_path']
 key = 'candTree'
 # years = [2016, 2017, 2018]
 
@@ -493,77 +516,79 @@ if (opt.YEAR == '2017'): years = [2017]
 if (opt.YEAR == '2018'): years = [2018]
 if (opt.YEAR == 'Full'): years = [2016,2017,2018]
 
-if not 'vs' in opt.OBSBINS: #It is not a double-differential analysis
-    obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-    obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
-    doubleDiff = False
-    print 'It is a single-differential measurement, binning', obs_bins
-else: #It is a double-differential analysis
-    doubleDiff = True
-    # The structure of obs_bins is:
-    # index of the dictionary is the number of the bin
-    # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
-    # The first two entries are the lower and upper bound of the first variable
-    # The second two entries are the lower and upper bound of the second variable
-    if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
-        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
-        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
-        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
-        obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
-        obs_bins_2nd = {}
-        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
-            obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
-            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
-        obs_bins = {}
-        k = 0 #Bin index
-        for i in range(len(obs_bins_1st)-1):
-            for j in range(len(obs_bins_2nd[i])-1):
-                obs_bins[k] = []
-                obs_bins[k].append(obs_bins_1st[i])
-                obs_bins[k].append(obs_bins_1st[i+1])
-                obs_bins[k].append(obs_bins_2nd[i][j])
-                obs_bins[k].append(obs_bins_2nd[i][j+1])
-                k +=1
-    elif opt.OBSBINS.count('vs')>1 and opt.OBSBINS.count('/')>1: #Situation like this one '|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|'
-        obs_bins_tmp = opt.OBSBINS.split(' / ') #['|50|80| vs |10|30|', '|50|80| vs |30|60|', '|80|110| vs |10|25|', '|80|110| vs |25|30|']
-        obs_bins_1st={}
-        obs_bins_2nd={}
-        obs_bins={}
-        for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_1st {0: ['50', '80'], 1: ['50', '80'], 2: ['80', '110'], 3: ['80', '110']} and obs_bins_2nd {0: ['10', '30'], 1: ['30', '60'], 2: ['10', '25'], 3: ['25', '30']}
-            obs_bins_tmp_bis = obs_bins_tmp[i].split(' vs ')
-            obs_bins_1st[i] = obs_bins_tmp_bis[0].split('|')[1:len(obs_bins_tmp_bis[0].split('|'))-1]
-            obs_bins_1st[i] = [float(j) for j in obs_bins_1st[i]] #Convert a list of str to a list of float
-            obs_bins_2nd[i] = obs_bins_tmp_bis[1].split('|')[1:len(obs_bins_tmp_bis[1].split('|'))-1]
-            obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
-            obs_bins[i] = []
-            obs_bins[i].append(obs_bins_1st[i][0])
-            obs_bins[i].append(obs_bins_1st[i][1])
-            obs_bins[i].append(obs_bins_2nd[i][0])
-            obs_bins[i].append(obs_bins_2nd[i][1])
-    elif opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')==0: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250|'
-        obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250|']
-        obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
-        obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
-        obs_bins_2nd = obs_bins_tmp[1].split('|')[1:len(obs_bins_tmp[1].split('|'))-1] #['0', '10', '20', '45', '90', '250']
-        obs_bins_2nd = [float(i) for i in obs_bins_2nd] #Convert a list of str to a list of float
-        obs_bins = {}
-        k = 0 #Bin index
-        for i in range(len(obs_bins_1st)-1):
-            for j in range(len(obs_bins_2nd)-1):
-                obs_bins[k] = []
-                obs_bins[k].append(obs_bins_1st[i])
-                obs_bins[k].append(obs_bins_1st[i+1])
-                obs_bins[k].append(obs_bins_2nd[j])
-                obs_bins[k].append(obs_bins_2nd[j+1])
-                k +=1
-    else:
-        print 'Problem in the definition of the binning'
-        quit()
-    print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
-    print obs_bins
+obs_bins, doubleDiff = binning(opt.OBSNAME)
+
+# if not 'vs' in opt.OBSBINS: #It is not a double-differential analysis
+#     obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
+#     obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
+#     doubleDiff = False
+#     print 'It is a single-differential measurement, binning', obs_bins
+# else: #It is a double-differential analysis
+#     doubleDiff = True
+#     # The structure of obs_bins is:
+#     # index of the dictionary is the number of the bin
+#     # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
+#     # The first two entries are the lower and upper bound of the first variable
+#     # The second two entries are the lower and upper bound of the second variable
+#     if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
+#         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
+#         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+#         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+#         obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
+#         obs_bins_2nd = {}
+#         for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
+#             obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
+#             obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+#         obs_bins = {}
+#         k = 0 #Bin index
+#         for i in range(len(obs_bins_1st)-1):
+#             for j in range(len(obs_bins_2nd[i])-1):
+#                 obs_bins[k] = []
+#                 obs_bins[k].append(obs_bins_1st[i])
+#                 obs_bins[k].append(obs_bins_1st[i+1])
+#                 obs_bins[k].append(obs_bins_2nd[i][j])
+#                 obs_bins[k].append(obs_bins_2nd[i][j+1])
+#                 k +=1
+#     elif opt.OBSBINS.count('vs')>1 and opt.OBSBINS.count('/')>1: #Situation like this one '|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|'
+#         obs_bins_tmp = opt.OBSBINS.split(' / ') #['|50|80| vs |10|30|', '|50|80| vs |30|60|', '|80|110| vs |10|25|', '|80|110| vs |25|30|']
+#         obs_bins_1st={}
+#         obs_bins_2nd={}
+#         obs_bins={}
+#         for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_1st {0: ['50', '80'], 1: ['50', '80'], 2: ['80', '110'], 3: ['80', '110']} and obs_bins_2nd {0: ['10', '30'], 1: ['30', '60'], 2: ['10', '25'], 3: ['25', '30']}
+#             obs_bins_tmp_bis = obs_bins_tmp[i].split(' vs ')
+#             obs_bins_1st[i] = obs_bins_tmp_bis[0].split('|')[1:len(obs_bins_tmp_bis[0].split('|'))-1]
+#             obs_bins_1st[i] = [float(j) for j in obs_bins_1st[i]] #Convert a list of str to a list of float
+#             obs_bins_2nd[i] = obs_bins_tmp_bis[1].split('|')[1:len(obs_bins_tmp_bis[1].split('|'))-1]
+#             obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
+#             obs_bins[i] = []
+#             obs_bins[i].append(obs_bins_1st[i][0])
+#             obs_bins[i].append(obs_bins_1st[i][1])
+#             obs_bins[i].append(obs_bins_2nd[i][0])
+#             obs_bins[i].append(obs_bins_2nd[i][1])
+#     elif opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')==0: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250|'
+#         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250|']
+#         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
+#         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
+#         obs_bins_2nd = obs_bins_tmp[1].split('|')[1:len(obs_bins_tmp[1].split('|'))-1] #['0', '10', '20', '45', '90', '250']
+#         obs_bins_2nd = [float(i) for i in obs_bins_2nd] #Convert a list of str to a list of float
+#         obs_bins = {}
+#         k = 0 #Bin index
+#         for i in range(len(obs_bins_1st)-1):
+#             for j in range(len(obs_bins_2nd)-1):
+#                 obs_bins[k] = []
+#                 obs_bins[k].append(obs_bins_1st[i])
+#                 obs_bins[k].append(obs_bins_1st[i+1])
+#                 obs_bins[k].append(obs_bins_2nd[j])
+#                 obs_bins[k].append(obs_bins_2nd[j+1])
+#                 k +=1
+#     else:
+#         print 'Problem in the definition of the binning'
+#         quit()
+#     print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
+#     print obs_bins
 
 obs_name = opt.OBSNAME
-if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == 'Dint' or obs_name == 'DL1': acFlag = True
+if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == 'Dint' or obs_name == 'DL1' or obs_name == 'DL1Zg': acFlag = True
 else: acFlag = False
 print acFlag
 
@@ -594,8 +619,8 @@ for year in years:
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7', 'pTj1_eta4p7',
-               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
+               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7',
+               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint','absdetajj']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)

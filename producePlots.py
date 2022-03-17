@@ -85,7 +85,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     higgs4l_br = _temp.higgs4l_br
     if (opt.FIXFRAC): floatfix = '_fixfrac'
     else: floatfix = ''
-    if (obsName == "mass4l"):
+    if (obsName.startswith("mass4l")):
         if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         # modelNames = _temp.modelNames
@@ -466,7 +466,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             total_NNLOunc_fs_minloHJ_hi += XH_qcdunc_fs
             total_NNLOunc_fs_minloHJ_lo += XH_qcdunc_fs
-            if (obsName=="mass4l"):
+            if (obsName.startswith("mass4l")):
                 total_NNLOunc_fs_minloHJ_hi += (unc_qcd_ggH_hi
                                                 *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
                 total_NNLOunc_fs_minloHJ_lo += (unc_qcd_ggH_lo
@@ -513,7 +513,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             # add pdf unc, anti correlate ggH and ttH
             #NNLO
-            if (obsName=="mass4l"):
+            if (obsName.startswith("mass4l")):
                 obsUnc_pdf_ggH_hi = unc_pdf_ggH_hi
                 obsUnc_pdf_ggH_lo = unc_pdf_ggH_lo
             else:
@@ -626,7 +626,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         data_hi_allunc[obsBin] = sqrt(data_hi[obsBin]**2+modeldep_hi[obsBin]**2)
         data_lo_allunc[obsBin] = sqrt(data_lo[obsBin]**2+modeldep_lo[obsBin]**2)
 
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
         for channel in ['2e2mu','4mu','4e']:
 
             # theory cross sections
@@ -778,7 +778,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                 #modeldep_lo[bin] = -1.0*modelIndUncert_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)]["uncerDn"]
                 #systematics_hi[bin] = sqrt(resultsXS_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)]["uncerUp"]**2-resultsXS_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)+'_statOnly']["uncerUp"]**2)
                 #systematics_lo[bin] = sqrt(resultsXS_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)]["uncerDn"]**2-resultsXS_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)+'_statOnly']["uncerDn"]**2)
-                if (obsName=="mass4l"):
+                if (obsName.startswith("mass4l")):
                     # modeldep_hi[bin] = modelIndUncert_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)]["uncerUp"]
                     # modeldep_lo[bin] = -1.0*modelIndUncert_v2["AsimovData_"+obsName+"_"+channel+"_genbin"+str(obsBin)]["uncerDn"]
                     systematics_hi[bin] = sqrt(resultsXS_v2[datamodel+"_"+obsName+"_"+channel+"_genbin"+str(obsBin)]["uncerUp"]**2-resultsXS_v2[datamodel+"_"+obsName+"_"+channel+"_genbin"+str(obsBin)+'_statOnly']["uncerUp"]**2)
@@ -838,7 +838,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     print 'systematics_lo',systematics_lo
     print 'stat_hi',stat_hi
     print 'stat_lo',stat_lo
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
         offset = 0.0
 
         a_observable  = array('d',[0.5+i for i in range(0,4)])
@@ -1130,7 +1130,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     g_ggH_powhege0.SetLineColor(ROOT.kAzure+2)
     g_ggH_powhege0.SetMarkerColor(ROOT.kAzure+2)
 
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
 
         g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
         g_ggH_powheg.SetFillStyle(3254);
@@ -1162,8 +1162,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ggH_powhegBorder.SetLineColor(ROOT.kAzure+2)
         g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
-        h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",5, 0, 5)
-        for i in range(5):
+        h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",4, 0, 4)
+        for i in range(4):
             h_ggH_powheg.SetBinContent(i+1,v_ggH_powheg[i])
     else:
         g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
@@ -1256,7 +1256,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     g_ggH_minloHJe0.SetLineColor(ROOT.kOrange+2)
     g_ggH_minloHJe0.SetMarkerColor(ROOT.kOrange+2)
 
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
         h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",4, 0, 4)
         for i in range(4):
             h_ggH_minloHJ.SetBinContent(i+1,v_ggH_minloHJ[i])
@@ -1278,7 +1278,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     g_ggH_minloHJBorder.SetLineColor(ROOT.kOrange+2)
     g_ggH_minloHJBorder.SetMarkerColor(ROOT.kOrange+2)
 
-    if (not obsName =="mass4l" and not doubleDiff):
+    if (not obsName.startswith("mass4l") and not doubleDiff):
         if ("jet" in obsName and (not obsName.startswith("njets"))):
             h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
             for i in range(1,nBins-1):
@@ -1437,7 +1437,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_powhege0.SetLineWidth(2)
         g_ratio_powhege0.SetMarkerColor(ROOT.kAzure+2)
 
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
         g_ratio_powheg = TGraphAsymmErrors(v_observable_1,v_ratio_powheg,v_dobservable_1,v_dobservable_1,v_ratio_powheg_lo,v_ratio_powheg_hi)
         g_ratio_powheg.SetFillStyle(3254);
         g_ratio_powheg.SetFillColor(ROOT.kAzure+2)
@@ -1468,8 +1468,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_powhegBorder.SetLineColor(ROOT.kAzure+2)
         g_ratio_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
-        h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",5, 0, 5)
-        for i in range(5):
+        h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",4, 0, 4)
+        for i in range(4):
             h_ratio_powheg.SetBinContent(i+1,v_ratio_powheg[i])
     else:
         g_ratio_powheg = TGraphAsymmErrors(v_observable_1,v_ratio_powheg,v_dobservable_1,v_dobservable_1,v_ratio_powheg_lo,v_ratio_powheg_hi)
@@ -1517,7 +1517,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     # g_ratio_minloHJe0.SetLineWidth(2)
     # g_ratio_minloHJe0.SetMarkerColor(ROOT.kOrange+2)
 
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
 
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_minloHJ,v_dobservable_2,v_dobservable_2,v_ratio_minloHJ_lo,v_ratio_minloHJ_hi)
         g_ratio_minloHJ.SetFillStyle(3245);
@@ -1550,8 +1550,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_minloHJBorder.SetLineColor(ROOT.kOrange+2)
         g_ratio_minloHJBorder.SetMarkerColor(ROOT.kOrange+2)
 
-        h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",5, 0, 5)
-        for i in range(5):
+        h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",4, 0, 4)
+        for i in range(4):
             h_ratio_minloHJ.SetBinContent(i+1,v_ratio_minloHJ[i])
     elif acFlag: # We keep the same names as in the last else (just to reduce entropy with if statements)
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
@@ -1696,7 +1696,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif (obsName=="phistar"):
         label = "|#Phi_{1}|"
         unit = ""
-    elif (obsName=="mass4l"):
+    elif (obsName.startswith("mass4l")):
         label = "inclusive"
         unit = ""
     elif obsName=='massZ1_massZ2':
@@ -1725,12 +1725,12 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
     c = TCanvas("c",obsName, 1400, 1400)
     if(opt.SETLOG): c.SetLogy()
-    if (not obsName=="mass4l"): c.SetBottomMargin(0.35)
+    if (not obsName.startswith("mass4l")): c.SetBottomMargin(0.35)
     c.SetRightMargin(0.04)
     c.SetTopMargin(0.07)
     c.SetLeftMargin(0.18)
 
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
         dummy = TH1D("dummy","dummy", 4, 0, 4)
         for i in range(1,5):
             dummy.SetBinContent(i,2.5*max(a_ggH_powheg))
@@ -1775,7 +1775,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif (obsName=="DL1"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
     else:
-        if (obsName=="mass4l") or doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
+        if (obsName.startswith("mass4l")) or doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
         if doubleDiff: dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
         elif (obsName=="massZ2"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="massZ1"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
@@ -1806,7 +1806,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         dummy.GetXaxis().SetBinLabel(2,'')
         dummy.GetXaxis().SetBinLabel(3,'')
         dummy.GetXaxis().SetBinLabel(4,'')
-    if (obsName=="mass4l"):
+    if (obsName.startswith("mass4l")):
         dummy.GetXaxis().SetLabelSize(0.08)
         dummy.GetXaxis().SetBinLabel(1,'4l')
         dummy.GetXaxis().SetBinLabel(2,'2e2#mu')
@@ -1963,7 +1963,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
     dummy.Draw("axissame")
 
-    if (not obsName=="mass4l"):
+    if (not obsName.startswith("mass4l")):
         pad = TPad("pad", "pad", 0.0, 0.0, 1.0, 1.0)
         pad.SetTopMargin(0.65)
         pad.SetRightMargin(0.04)
@@ -1974,7 +1974,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         pad.Draw()
         pad.cd(0)
 
-        if (obsName=="mass4l"):
+        if (obsName.startswith("mass4l")):
             dummy2 = TH1D("dummy2","dummy2", 4, 0, 4)
             for i in range(1,5):
                 dummy2.SetBinContent(i,1.02)
@@ -2170,7 +2170,9 @@ elif obs_name == 'DL1':
     acFlagBis = True
     acSample = '0L1'
     acSampleBis = '0L1f05ph0'
-else: acFlag = False
+else:
+    acFlag = False
+    acFlagBis = False
 
 if not doubleDiff:
     if float(obs_bins[len(obs_bins)-1])>300.0:

@@ -29,9 +29,9 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-    if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
-        parser.error('Bin boundaries not specified for differential measurement. Exiting...')
-        sys.exit()
+    # if (opt.OBSBINS=='' and opt.OBSNAME!='inclusive'):
+    #     parser.error('Bin boundaries not specified for differential measurement. Exiting...')
+    #     sys.exit()
 
 
 # parse the arguments and options
@@ -282,7 +282,7 @@ elif (obs_name == "njets_pt30_eta2p5"):
 elif(obs_name == 'njets_pt30_eta2p5 vs pT4l'):
     obs_name = 'njets_pt30_eta2p5_pT4l' #Change name of obs_name
     label = 'N$_{jet}$/p$_T^H$(GeV)'
-elif(obs_name == 'massZ1 vs massZ2'):
+elif(obs_name == 'massZ1_massZ2'):
     obs_name = 'massZ1_massZ2' #Change name of obs_name
     label = 'm$_{Z1}$(GeV)/m$_{Z2}$(GeV)'
 elif(obs_name == 'D0m'):
@@ -297,6 +297,14 @@ elif(obs_name == 'DL1'):
     label = 'DL1'
 elif(obs_name == 'pTj1'):
     label = 'p$_T^{j1}$ (GeV)'
+elif(obs_name == 'pTHj'):
+    label = 'p$_T^{Hj}$ (GeV)'
+elif(obs_name == 'mass4l'):
+    label = 'm$_4/ell$ (GeV)'
+elif(obs_name == 'mass4l_zzfloating'):
+    label = 'm$_4/ell$ (GeV)'
+else:
+    label = ''
 
 _temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins']) # Open file to retrieve the binning
 obs_bins = _temp.observableBins
