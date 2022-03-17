@@ -9,6 +9,10 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if(channel == '2e2mu'): channelNumber = 3
     # binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
 
+    # ZZfloating
+    if 'zzfloating' in obsName: zzfloating = True
+    else: zzfloating = False
+
     # _recobin = str(observableBins[obsBin]).replace('.', 'p') + '_' + str(observableBins[obsBin+1]).replace('.', 'p')
     _recobin = str(observableBins[obsBin]).replace('.', 'p')+'_'+str(observableBins[obsBin+1]).replace('.', 'p')
     if int(observableBins[obsBin+1]) > 1000:
@@ -172,32 +176,53 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('10.0 - - -    # [/10,*10]\n')
 
     if yearSetting == 'Full':
-        # lumi_uncorrelated
-        file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
-        # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+4): # All except ZX
-            file.write(lumi[year]+' ')
-        file.write('-\n') # ZX
-        # lumi_correlated_16_17_18
-        file.write('lumi_13TeV_correlated_16_17_18 lnN ')
-        # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+4): # All except ZX
-            file.write(lumi_corr_16_17_18[year]+' ')
-        file.write('-\n') # ZX
-        # lumi_correlated_17_18
-        if year == '2017' or year == '2018':
-            file.write('lumi_13TeV_correlated_17_18 lnN ')
-            # for i in range(nBins+4): # All except ZX
+        if zzfloating:
+            # lumi_uncorrelated
+            file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
+            for i in range(nBins+2): # signals + out + fake
+                file.write(lumi[year]+' ')
+            file.write('- - -\n') # qqzz + ggzz + ZX
+            # lumi_correlated_16_17_18
+            file.write('lumi_13TeV_correlated_16_17_18 lnN ')
+            for i in range(nBins+2): # signals + out + fake
+                file.write(lumi_corr_16_17_18[year]+' ')
+            file.write('- - -\n') # qqzz + ggzz + ZX
+            # lumi_correlated_17_18
+            if year == '2017' or year == '2018':
+                file.write('lumi_13TeV_correlated_17_18 lnN ')
+                for i in range(nBins+2): # signals + out + fake
+                    file.write(lumi_corr_17_18[year]+' ')
+                file.write('- - -\n') # qqzz + ggzz + ZX
+        else:
+            # lumi_uncorrelated
+            file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
             for i in range(nBins+4): # All except ZX
-                file.write(lumi_corr_17_18[year]+' ')
+                file.write(lumi[year]+' ')
             file.write('-\n') # ZX
+            # lumi_correlated_16_17_18
+            file.write('lumi_13TeV_correlated_16_17_18 lnN ')
+            for i in range(nBins+4): # All except ZX
+                file.write(lumi_corr_16_17_18[year]+' ')
+            file.write('-\n') # ZX
+            # lumi_correlated_17_18
+            if year == '2017' or year == '2018':
+                file.write('lumi_13TeV_correlated_17_18 lnN ')
+                for i in range(nBins+4): # All except ZX
+                    file.write(lumi_corr_17_18[year]+' ')
+                file.write('-\n') # ZX
     else:
-        # lumi
-        file.write('lumi_13TeV_'+year+' lnN ')
-        # for i in range(nBins+4): # All except ZX
-        for i in range(nBins+4): # All except ZX
-            file.write(lumi[year]+' ')
-        file.write('-\n') # ZX
+        if zzfloating:
+            # lumi
+            file.write('lumi_13TeV_'+year+' lnN ')
+            for i in range(nBins+2): # signals + out + fake
+                file.write(lumi[year]+' ')
+            file.write('- - -\n') # qqzz + ggzz + ZX
+        else:
+            # lumi
+            file.write('lumi_13TeV_'+year+' lnN ')
+            for i in range(nBins+4): # All except ZX
+                file.write(lumi[year]+' ')
+            file.write('-\n') # ZX
 
     # Lepton efficiency
     if channel == '4mu' or channel == '2e2mu':
@@ -231,37 +256,27 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('CMS_zz4l_n_sig_'+str(channelNumber)+'_'+year+' param 0.0 0.05\n')
 
     # Theoretical
-    file.write('QCDscale_ggVV lnN ')
-    # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(nBins+3): # All except ZX
-        file.write('- ')
-    file.write('1.039/0.961 -\n')
-    file.write('QCDscale_VV lnN ')
-    # for i in range(nBins+2): # Signal + out + fake
-    for i in range(nBins+2):
-        file.write('- ')
-    file.write('1.0325/0.958 - -\n')
-    file.write('pdf_gg lnN ')
-    # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(nBins+3): # All except ZX
-        file.write('- ')
-    file.write('1.032/0.968 -\n')
-    file.write('pdf_qqbar lnN ')
-    # for i in range(nBins+2): # Signal + out + fake
-    for i in range(nBins+2): # All except ZX
-        file.write('- ')
-    file.write('1.031/0.966 - -\n')
-    file.write('kfactor_ggzz lnN ')
-    # for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
-    for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
-        file.write('- ')
-    file.write('1.1 -\n')
-
-    # # ZX
-    # file.write('CMS_zjets_bkgdcompo_'+str(year)+' lnN ')
-    # for i in range(nBins+4): # All except ZX
-    #     file.write('- ')
-    # file.write('1.32\n')
+    if not zzfloating:
+        file.write('QCDscale_ggVV lnN ')
+        for i in range(nBins+3): # Signal + out + fake + qqzz
+            file.write('- ')
+        file.write('1.039/0.961 -\n')
+        file.write('QCDscale_VV lnN ')
+        for i in range(nBins+2): # Signal + out + fake
+            file.write('- ')
+        file.write('1.0325/0.958 - -\n')
+        file.write('pdf_gg lnN ')
+        for i in range(nBins+3): # Signal + out + fake + qqzz
+            file.write('- ')
+        file.write('1.032/0.968 -\n')
+        file.write('pdf_qqbar lnN ')
+        for i in range(nBins+2): # Signal + out + fake
+            file.write('- ')
+        file.write('1.031/0.966 - -\n')
+        file.write('kfactor_ggzz lnN ')
+        for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
+            file.write('- ')
+        file.write('1.1 -\n')
 
     # JES
     if jes == True:
