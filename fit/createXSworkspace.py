@@ -85,6 +85,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         _recobin = 'GT'+str(int(observableBins[obsBin]))
 
     _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+    if obsName not in _obsName:
+        _obsName[obsName] = obsName    
 
     # Parameters of doubleCB signal
     m = ROOT.RooRealVar("CMS_zz4l_mass", "CMS_zz4l_mass", lowerBound, upperBound)
@@ -413,6 +415,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         fideff_ggH_var[genbin] = ROOT.RooRealVar(_effName_ggH, _effName_ggH, fideff_ggH[genbin]);
         fideff_xH_var[genbin] = ROOT.RooRealVar(_effName_xH, _effName_xH, fideff_xH[genbin]);
 
+    for genbin in range(nBins):
+
+        # Set name of the process according to conventions for combination
+        if observableBins[genbin+1] > 1000:
+            _binName = 'GT'+str(int(observableBins[genbin]))
+        else:
+            _binName = str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p')
+
+        processName = 'smH_' + _obsName[obsName]
+        processName = processName+'_'+_binName
+
         if (physicalModel=='v2'):
 
             # In these models the xsec is left floting, being directly the POI
@@ -513,7 +526,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
                 print('WH Bin', genbin, higgs_xs['WH_125.0']*higgs4l_br['125.0_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 print('ZH Bin', genbin, higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 print('ttH Bin', genbin, higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
-
+                print(fideff_var[genbin], lumi, fidxs_fl[str(genbin)])
                 # For klambda we need to define ad hoc these because of the C1 scalings
                 trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+recobin+"_final","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
                 trueH_norm[genbin] = ROOT.RooFormulaVar(processName+"_norm","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
@@ -807,9 +820,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     for genbin in range(nBins):
         getattr(wout,'import')(trueH_shape[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
+        getattr(wout,'import')(trueH_norm[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
+        if physicalModel != 'v3': continue
         getattr(wout,'import')(ggH_shape[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
         getattr(wout,'import')(xH_shape[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
-        getattr(wout,'import')(trueH_norm[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
         getattr(wout,'import')(GGH_norm[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
         getattr(wout,'import')(XH_norm[genbin],ROOT.RooFit.RecycleConflictNodes(),ROOT.RooFit.Silence())
 

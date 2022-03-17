@@ -4,6 +4,9 @@ observables = {'rapidity4l':
 'pT4l':
     {'obs_reco': 'ZZPt',
     'obs_gen': 'GENpT4l'},
+'pT4l_kL':
+    {'obs_reco': 'ZZPt',
+    'obs_gen': 'GENpT4l'},
 'massZ1':
     {'obs_reco': 'Z1Mass',
     'obs_gen': 'GENmassZ1'},
@@ -168,8 +171,5 @@ observables = {'rapidity4l':
     'obs_gen': 'GEN_Dint'},
 'DL1':
     {'obs_reco': 'DL1',
-    'obs_gen': 'GEN_DL1'},
-'pTHj':
-    {'obs_reco': 'pTHj',
-    'obs_gen': 'GENpTHj'}
+    'obs_gen': 'GEN_DL1'}
 }

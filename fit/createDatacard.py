@@ -19,10 +19,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         _recobin = 'GT'+str(int(observableBins[obsBin]))
 
     _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+    if obsName not in _obsName:
+        _obsName[obsName] = obsName
     binName = 'hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
-    # Root of the name of the process (signal from genBin)
-    # processName = 'smH'+channel+'Bin'
     processName = 'smH_' + _obsName[obsName]
+
     # Background expectations in [105,160]
     sys.path.append('../inputs')
     _temp = __import__('inputs_bkgTemplate_'+obsName, globals(), locals(), ['expected_yield'], -1)
