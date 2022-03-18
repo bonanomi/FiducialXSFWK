@@ -130,6 +130,8 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
           low = str(observableBins[i]).replace('.','p')
           high = str(observableBins[i+1]).replace('.','p')
           boundaries = low+'_'+high
+          if int(observableBins[i+1]) > 1000:
+            boundaries = 'GT'+str(int(observableBins[i]))
           dc_name = 'datacard_%s/hzz4l_%sS_13TeV_xs_%s_bin%d_v3.txt ' %(year,cat,obsName,i)
           cmd_combCards += 'hzz_%s_%s_cat%s_%s=%s' %(fitName,boundaries,cat,year,dc_name)
 
@@ -154,6 +156,8 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
       low = str(observableBins[i]).replace('.','p')
       high = str(observableBins[i+1]).replace('.','p')
       boundaries = low+'_'+high
+      if int(observableBins[i+1]) > 1000:
+        boundaries = 'GT'+str(int(observableBins[i]))
       process = 'smH_%s_%s' %(fitName, boundaries)
       POI = 'r_smH_%s_%d' %(fitName, i)
       cmd_t2w += "--PO 'map=.*/%s:%s[1.0,0.0,3.0]' " %(process, POI)
@@ -229,8 +233,8 @@ def runFiducialXS():
     for physicalModel in PhysicalModels:
         produceDatacards(obsName, observableBins, DataModelName, physicalModel)
         os.chdir(_fit_dir)
-        runv3(years, observableBins, obsName, _obsName[obsName], physicalModel)
-        break
+        #runv3(years, observableBins, obsName, _obsName[obsName], physicalModel)
+        #break
         # combination of bins (if there is just one bin, it is essentially a change of name from _bin0_ to _bin_)
         fStates = ['2e2mu','4mu','4e']
         nBins = len(observableBins)
