@@ -184,6 +184,15 @@ def doGetJes(obs_reco, obs_gen, obs_name, obs_bins, obs_reco_2nd = 'None', obs_g
                 getJes(chan, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, obs_name, year, obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
 
 
+        with open('JESNP_'+obsname_out+'_'+str(year)+'.py', 'w') as f:
+                f.write('obsbins = ' + str(obs_bins) + '\n')
+                f.write('JESNP = ' + str(ratio) + '\n')
+
+        with open('JESNP_evts_'+obsname_out+'_'+str(year)+'.py', 'w') as f:
+                f.write('obsbins = ' + str(obs_bins) + '\n')
+                f.write('evts = ' + str(evts) + '\n')
+
+
 ## ---------------------------- Main ----------------------------
 sys.path.append('../../inputs/')
 from observables import observables

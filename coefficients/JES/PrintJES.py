@@ -130,3 +130,4 @@ for fState in ['2e2mu', '4e', '4mu']:
 
         with open('tables/'+obsname_out+'/JESNP_table_'+obsname_out+'_'+fState+'_'+str(year)+'_recobin'+str(recobin)+'.py', 'w') as f:
             f.write(tables[fState,recobin])
+>>>>>>> abacad9bead1eba9b11795c1ae0fc95f872d30a7

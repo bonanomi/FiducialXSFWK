@@ -76,7 +76,6 @@ def prepareTrees(year):
 def xsecs(year):
     xsec_sig = {}
     xsec_bkg = {}
-
     #Hard-coded values
     xsec_sig['ggH125'] = 0.0133352
     xsec_sig['VBFH125'] = 0.0010381
