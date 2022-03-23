@@ -171,5 +171,8 @@ observables = {'rapidity4l':
     'obs_gen': 'GEN_Dint'},
 'DL1':
     {'obs_reco': 'DL1',
-    'obs_gen': 'GEN_DL1'}
+    'obs_gen': 'GEN_DL1'},
+'pTHj':
+    {'obs_reco': 'pTHj',
+    'obs_gen': 'GENpTHj'}
 }
