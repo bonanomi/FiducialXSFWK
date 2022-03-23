@@ -4,6 +4,9 @@ observables = {'rapidity4l':
 'pT4l':
     {'obs_reco': 'ZZPt',
     'obs_gen': 'GENpT4l'},
+'pT4l_kL':
+    {'obs_reco': 'ZZPt',
+    'obs_gen': 'GENpT4l'},
 'massZ1':
     {'obs_reco': 'Z1Mass',
     'obs_gen': 'GENmassZ1'},
