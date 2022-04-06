@@ -100,12 +100,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # Lepton efficiency
     eff_mu = {}
-    eff_mu['2016_2e2mu'] = '0.983/1.012'
-    eff_mu['2016_4mu'] = '0.977/1.016'
-    eff_mu['2017_2e2mu'] = '0.985/1.008'
-    eff_mu['2017_4mu'] = '0.98/1.011'
-    eff_mu['2018_2e2mu'] = '0.986/1.007'
-    eff_mu['2018_4mu'] = '0.981/1.01'
+    eff_mu['2016_2e2mu'] = '0.986/1.007'
+    eff_mu['2016_4mu'] = '0.981/1.01'
+    eff_mu['2017_2e2mu'] = '0.986/1.006'
+    eff_mu['2017_4mu'] = '0.981/1.009'
+    eff_mu['2018_2e2mu'] = '0.986/1.006'
+    eff_mu['2018_4mu'] = '0.981/1.008'
 
     # eff_mu['2016_2e2mu'] = '1.025'
     # eff_mu['2016_4mu'] = '0.953/1.046'
@@ -115,12 +115,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # eff_mu['2018_4mu'] = '0.976/1.018'
 
     eff_e = {}
-    eff_e['2016_2e2mu'] = '0.893/1.105'
-    eff_e['2016_4e'] = '0.835/1.155'
-    eff_e['2017_2e2mu'] = '0.915/1.082'
-    eff_e['2017_4e'] = '0.867/1.121'
-    eff_e['2018_2e2mu'] = '0.923/1.074'
-    eff_e['2018_4e'] = '0.877/1.11'
+    eff_e['2016_2e2mu'] = '0.934/1.062'
+    eff_e['2016_4e'] = '0.891/1.093'
+    eff_e['2017_2e2mu'] = '0.953/1.043'
+    eff_e['2017_4e'] = '0.915/1.064'
+    eff_e['2018_2e2mu'] = '0.95/1.052'
+    eff_e['2018_4e'] = '0.905/1.077'
 
     # eff_e['2016_2e2mu'] = '0.96/1.039'
     # eff_e['2016_4e'] = '0.914/1.082'
