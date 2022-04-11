@@ -139,7 +139,7 @@ if 'kL' in obsName:
                  "higgsCombine_BIN_NoSys_grid.MultiDimFit.mH125.38.123456.root"]
 else:
     fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
-                 "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root"]
+                 "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.123456.root"]
 
 if(opt.UNBLIND and 'kL' in obsName):
     fileList = [ "higgsCombine_BIN_grid.MultiDimFit.mH125.38.123456.root",
@@ -148,7 +148,7 @@ if(opt.UNBLIND and 'kL' in obsName):
                  "higgsCombine_BIN_NoSys_grid.MultiDimFit.mH125.38.root"]
 elif(opt.UNBLIND):
     fileList = [ "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.123456.root",
-                 "higgsCombine_BIN_OBS_NoSys_exp.MultiDimFit.mH125.38.123456.root",
+                 "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.123456.root",
                  "higgsCombine_BIN_OBS.MultiDimFit.mH125.38.root",
                  "higgsCombine_BIN_OBS_NoSys.MultiDimFit.mH125.38.root"]
 
@@ -181,7 +181,12 @@ elif year == '2018':
 else:
     _lumi = '137'
 
-_poi    = 'SigmaBin'
+# _poi    = 'SigmaBin'
+_obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+if obsName not in _obsName:
+    _obsName[obsName] = obsName
+# _poi    = 'r_smH_'+_obsName[obsName]+'_'
+_poi    = 'r_smH_'
 v4_flag = opt.V4
 
 doubleDiff = False
@@ -256,6 +261,8 @@ elif(obsName == 'TCjmax vs pT4l'):
 sys.path.append('../inputs')
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 obs_bins = _temp.observableBins
+_temp = __import__('xsec_'+obsName, globals(), locals(), ['xsec'], -1)
+xsec = _temp.xsec
 sys.path.remove('../inputs')
 
 nBins = len(obs_bins)
@@ -298,7 +305,12 @@ for i in range(nBins):
         graphs.append(TGraph())
         fname = inputPath+rfile
         inF = TFile.Open(fname,"READ")
+        print fname
         tree = inF.Get("limit")
+
+        if tree.GetBranch('r_smH_'+_obsName[obsName]+'_'+str(_bin)):
+            tree.GetBranch('r_smH_'+_obsName[obsName]+'_'+str(_bin)).SetTitle('r_smH_'+str(_bin)+'/F');
+            tree.GetBranch('r_smH_'+_obsName[obsName]+'_'+str(_bin)).SetName('r_smH_'+str(_bin)+'');
 
         ipoint = 0
         for entry in tree :
@@ -309,7 +321,7 @@ for i in range(nBins):
                     elif 'kL' in obsName:
                         graphs[ifile].SetPoint(ipoint,entry.kappa_lambda,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin0,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_0,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 1:
                     if obsName.startswith("mass4l"):
@@ -317,7 +329,7 @@ for i in range(nBins):
                     elif v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin0,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin1,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_1,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 2:
                     if obsName.startswith("mass4l"):
@@ -325,7 +337,7 @@ for i in range(nBins):
                     elif v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin1,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin2,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_2,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 3:
                     if obsName.startswith("mass4l"):
@@ -333,115 +345,115 @@ for i in range(nBins):
                     elif v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin1,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin3,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_3,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 4:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin2,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin4,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_4,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 5:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin2,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin5,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_5,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 6:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin3,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin6,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_6,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 7:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin3,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin7,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_7,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 8:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin4,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin8,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_8,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 9:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin4,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin9,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_9,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 10:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin5,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin10,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_10,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 11:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin5,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin11,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_11,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 12:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin6,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin12,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_12,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 13:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin6,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin12,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_13,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 14:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin7,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin13,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_14,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 15:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin7,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin14,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_15,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 16:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin8,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin15,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_16,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 17:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin8,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin16,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_17,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 18:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin9,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin17,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_18,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 19:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin9,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin17,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_19,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 20:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin10,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin18,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_20,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif  _bin == 21:
                     if v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin10,2.0*entry.deltaNLL)
                     else:
-                        graphs[ifile].SetPoint(ipoint,entry.SigmaBin18,2.0*entry.deltaNLL)
+                        graphs[ifile].SetPoint(ipoint,entry.r_smH_21,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
 
     c=TCanvas("c", "c", 1000, 800)
@@ -492,7 +504,7 @@ for i in range(nBins):
     elif 'kL' in obsName:
         xtitle = "k_{#lambda}"
     else:
-        xtitle = "#sigma_{bin " + str(_bin) + "}"
+        xtitle = "r_{" + str(_bin) + "}"
     graphs[0].GetXaxis().SetTitle(xtitle)
     graphs[0].GetYaxis().SetTitle("-2#Delta ln L")
     graphs[0].GetYaxis().SetTitleOffset(0.9)
@@ -542,7 +554,12 @@ for i in range(nBins):
 
     leg.Draw("SAME")
 
-    poi = _obs_bin
+    if 'smH' in _obs_bin:
+        poi = 'r_smH_'+_obsName[obsName]+'_'+str(i)
+        poi_fn = 'r_smH_'+str(i)
+    else:
+        poi = _obs_bin
+        poi_fn = poi
     if 'kL' in obsName:
         fname = inputPath + "higgsCombine_"+obsName+".MultiDimFit.mH125.38.123456.root"
         if plot.TFileIsGood(fname):
@@ -560,7 +577,8 @@ for i in range(nBins):
         exp_nom.append(kappa_lambda[2]-kappa_lambda[0])
         exp_nom.append(kappa_lambda[0]-kappa_lambda[1])
     else:
-        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.123456.root"
+        fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.123456.root"
+        # print(fname)
         exp_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         exp_nom = exp_scan['val']
         # exp_2sig = exp_scan['val_2sig']
@@ -581,7 +599,7 @@ for i in range(nBins):
         exp_nom_stat.append(kappa_lambda[2]-kappa_lambda[0])
         exp_nom_stat.append(kappa_lambda[0]-kappa_lambda[1])
     else:
-        fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.123456.root"
+        fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+"_NoSys.MultiDimFit.mH125.38.123456.root"
         exp_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         exp_nom_stat = exp_scan_stat['val']
         # exp_2sig_stat = exp_scan_stat['val_2sig']
@@ -593,7 +611,7 @@ for i in range(nBins):
         if 'kL' in obsName:
             fname = inputPath + "higgsCombine_"+obsName+".MultiDimFit.mH125.38.root"
         else:
-            fname = inputPath + "higgsCombine_"+obsName+"_"+poi+".MultiDimFit.mH125.38.root"
+            fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.root"
         obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom = obs_scan['val']
         obs_2sig = obs_scan['val_2sig']
@@ -601,44 +619,56 @@ for i in range(nBins):
         if 'kL' in obsName:
             fname = inputPath + "higgsCombine_"+obsName+"_NoSys.MultiDimFit.mH125.38.root"
         else:
-            fname = inputPath + "higgsCombine_"+obsName+"_"+poi+"_NoSys_exp.MultiDimFit.mH125.38.root"
+            fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+"_NoSys.MultiDimFit.mH125.38.root"
         obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_nom_stat = obs_scan_stat['val']
         obs_2sig_stat = obs_scan_stat['val_2sig']
         obs_up_sys = np.sqrt(obs_nom[1]**2 - obs_nom_stat[1]**2)
         obs_do_sys = np.sqrt(abs(obs_nom[2])**2 - abs(obs_nom_stat[2])**2)
 
+    #For v3 model we multiply by the expected th xs
+    if 'smH' in _obs_bin:
+        exp_nom = list(exp_nom)
+        exp_nom_stat = list(exp_nom_stat)
+        exp_nom[0] *= xsec['SigmaBin'+str(i)]
+        exp_nom[1] *= xsec['SigmaBin'+str(i)]
+        exp_nom[2] *= xsec['SigmaBin'+str(i)]
+        exp_nom_stat[1] *= xsec['SigmaBin'+str(i)]
+        exp_nom_stat[2] *= xsec['SigmaBin'+str(i)]
+        exp_up_sys *= xsec['SigmaBin'+str(i)]
+        exp_do_sys *= xsec['SigmaBin'+str(i)]
+
     if(opt.UNBLIND):
         Text3 = TPaveText(0.18, 0.81,0.4,0.9,'brNDC')
     else:
     	Text3 = TPaveText(0.18, 0.76,0.4,0.84,'bfNDC')
     if v4_flag:
-        if _bin == 0: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 1: exp_fit = 'Exp. #sigma_{bin, 4l, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 2: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 1} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 3: exp_fit = 'Exp. #sigma_{bin, 4l, 1} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 4: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 2} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 5: exp_fit = 'Exp. #sigma_{bin, 4l, 2} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 6: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 7: exp_fit = 'Exp. #sigma_{bin, 4l, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 8: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 9: exp_fit = 'Exp. #sigma_{bin, 4l, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 10: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 5} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 11: exp_fit = 'Exp. #sigma_{bin, 4l, 5} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 12: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 6} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 13: exp_fit = 'Exp. #sigma_{bin, 4l, 6} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 14: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 7} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 15: exp_fit = 'Exp. #sigma_{bin, 4l, 7} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 16: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 8} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 17: exp_fit = 'Exp. #sigma_{bin, 4l, 8} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 18: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 19: exp_fit = 'Exp. #sigma_{bin, 4l, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 20: exp_fit = 'Exp. #sigma_{bin, 2e2mu, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 21: exp_fit = 'Exp. #sigma_{bin, 4l, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 0: exp_fit = 'Exp. #sigma_{2e2mu, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 1: exp_fit = 'Exp. #sigma_{4l, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 2: exp_fit = 'Exp. #sigma_{2e2mu, 1} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 3: exp_fit = 'Exp. #sigma_{4l, 1} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 4: exp_fit = 'Exp. #sigma_{2e2mu, 2} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 5: exp_fit = 'Exp. #sigma_{4l, 2} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 6: exp_fit = 'Exp. #sigma_{2e2mu, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 7: exp_fit = 'Exp. #sigma_{4l, 3} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 8: exp_fit = 'Exp. #sigma_{2e2mu, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 9: exp_fit = 'Exp. #sigma_{4l, 4} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 10: exp_fit = 'Exp. #sigma_{2e2mu, 5} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 11: exp_fit = 'Exp. #sigma_{4l, 5} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 12: exp_fit = 'Exp. #sigma_{2e2mu, 6} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 13: exp_fit = 'Exp. #sigma_{4l, 6} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 14: exp_fit = 'Exp. #sigma_{2e2mu, 7} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 15: exp_fit = 'Exp. #sigma_{4l, 7} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 16: exp_fit = 'Exp. #sigma_{2e2mu, 8} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 17: exp_fit = 'Exp. #sigma_{4l, 8} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 18: exp_fit = 'Exp. #sigma_{2e2mu, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 19: exp_fit = 'Exp. #sigma_{4l, 9} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 20: exp_fit = 'Exp. #sigma_{2e2mu, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 21: exp_fit = 'Exp. #sigma_{4l, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     elif 'kL' in obsName:
         exp_fit = 'Exp. k_{#lambda} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     else:
-        exp_fit = 'Exp. #sigma_{bin, %d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        exp_fit = 'Exp. #sigma_{%d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     Text3.SetTextAlign(12);
     Text3.SetTextSize(0.036)
     Text3.AddText(exp_fit)

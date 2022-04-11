@@ -42,7 +42,7 @@ def binning(var):
         obs_bins = {0:(obsBins_input.split("|")[1:(len(obsBins_input.split("|"))-1)]),1:['0','inf']}[obsBins_input=='inclusive']
         obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
         doubleDiff = False
-        print 'It is a single-differential measurement, binning', obs_bins
+        print ('It is a single-differential measurement, binning', obs_bins)
     else: #It is a double-differential analysis
         doubleDiff = True
         # The structure of obs_bins is:
@@ -102,8 +102,8 @@ def binning(var):
                     obs_bins[k].append(obs_bins_2nd[j+1])
                     k +=1
         else:
-            print 'Problem in the definition of the binning'
+            print ('Problem in the definition of the binning')
             quit()
-        print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
-        print obs_bins
+        print ('It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd)
+        print (obs_bins)
     return obs_bins, doubleDiff

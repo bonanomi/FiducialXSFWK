@@ -134,6 +134,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     m = ROOT.RooRealVar("CMS_zz4l_mass", "CMS_zz4l_mass", lowerBound, upperBound)
     #MH = ROOT.RooRealVar("MH","MH",125.7,109.55,1000.05)
     MH = ROOT.RooRealVar("MH","MH", 125.38, lowerBound, upperBound)
+
+    if( physicalModel=='v3'):
+        comb_name = 'nonResH'
+        sig_name = 'smH'
+    else:
+        comb_name = 'fakeH'
+        sig_name = 'trueH'
+
     if(year == '2018'):
         CMS_zz4l_mean_m_sig_2018 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2018","CMS_zz4l_mean_m_sig_2018",-10,10)
         CMS_zz4l_mean_e_sig_2018 = ROOT.RooRealVar("CMS_zz4l_mean_e_sig_2018","CMS_zz4l_mean_e_sig_2018",-10,10)
@@ -151,7 +159,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_n_3_centralValue_2e2murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2018","CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2018","(3.33147279858+(-0.0438375854704)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_3_2018))
             CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2018","CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2018","(1.52497361611+(0)*(@0-125))",ROOT.RooArgList(MH))
             CMS_zz4l_n2_3_centralValue_2e2murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2018","CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2018","(5.20522265056+(0)*(@0-125))",ROOT.RooArgList(MH))
-            trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha_3_centralValue_2e2murecobin2018, CMS_zz4l_n_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018, CMS_zz4l_n2_3_centralValue_2e2murecobin2018)
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha_3_centralValue_2e2murecobin2018, CMS_zz4l_n_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018, CMS_zz4l_n2_3_centralValue_2e2murecobin2018)
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha_3_centralValue_2e2murecobin2018, CMS_zz4l_n_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018, CMS_zz4l_n2_3_centralValue_2e2murecobin2018)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha_3_centralValue_2e2murecobin2018, CMS_zz4l_n_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018, CMS_zz4l_n2_3_centralValue_2e2murecobin2018)
         if (channel=='4e'):
@@ -164,7 +172,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_n_2_centralValue_4erecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_n_2_centralValue_4e" + recobin + "2018","CMS_zz4l_n_2_centralValue_4e" + recobin + "2018","(4.50639853892+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_2_2018))
             CMS_zz4l_alpha2_2_centralValue_4erecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2018","CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2018","(1.50095152675+(0)*(@0-125))",ROOT.RooArgList(MH))
             CMS_zz4l_n2_2_centralValue_4erecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_n2_2_centralValue_4e" + recobin + "2018","CMS_zz4l_n2_2_centralValue_4e" + recobin + "2018","(8.41693578742+(0.219719825966)*(@0-125))",ROOT.RooArgList(MH))
-            trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2018, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2018, CMS_zz4l_alpha_2_centralValue_4erecobin2018, CMS_zz4l_n_2_centralValue_4erecobin2018, CMS_zz4l_alpha2_2_centralValue_4erecobin2018, CMS_zz4l_n2_2_centralValue_4erecobin2018)
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2018, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2018, CMS_zz4l_alpha_2_centralValue_4erecobin2018, CMS_zz4l_n_2_centralValue_4erecobin2018, CMS_zz4l_alpha2_2_centralValue_4erecobin2018, CMS_zz4l_n2_2_centralValue_4erecobin2018)
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2018, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2018, CMS_zz4l_alpha_2_centralValue_4erecobin2018, CMS_zz4l_n_2_centralValue_4erecobin2018, CMS_zz4l_alpha2_2_centralValue_4erecobin2018, CMS_zz4l_n2_2_centralValue_4erecobin2018)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2018, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2018, CMS_zz4l_alpha_2_centralValue_4erecobin2018, CMS_zz4l_n_2_centralValue_4erecobin2018, CMS_zz4l_alpha2_2_centralValue_4erecobin2018, CMS_zz4l_n2_2_centralValue_4erecobin2018)
         if (channel=='4mu'):
@@ -177,26 +185,26 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_n_1_centralValue_4murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_n_1_centralValue_4mu" + recobin + "2018","CMS_zz4l_n_1_centralValue_4mu" + recobin + "2018","(2.04575884495+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_1_2018))
             CMS_zz4l_alpha2_1_centralValue_4murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2018","CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2018","(1.84386824883+(0)*(@0-125))",ROOT.RooArgList(MH))
             CMS_zz4l_n2_1_centralValue_4murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2018","CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2018","(2.98483993137+(0)*(@0-125))",ROOT.RooArgList(MH))
-            trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2018, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2018, CMS_zz4l_alpha_1_centralValue_4murecobin2018, CMS_zz4l_n_1_centralValue_4murecobin2018, CMS_zz4l_alpha2_1_centralValue_4murecobin2018, CMS_zz4l_n2_1_centralValue_4murecobin2018)
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2018, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2018, CMS_zz4l_alpha_1_centralValue_4murecobin2018, CMS_zz4l_n_1_centralValue_4murecobin2018, CMS_zz4l_alpha2_1_centralValue_4murecobin2018, CMS_zz4l_n2_1_centralValue_4murecobin2018)
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2018, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2018, CMS_zz4l_alpha_1_centralValue_4murecobin2018, CMS_zz4l_n_1_centralValue_4murecobin2018, CMS_zz4l_alpha2_1_centralValue_4murecobin2018, CMS_zz4l_n2_1_centralValue_4murecobin2018)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2018, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2018, CMS_zz4l_alpha_1_centralValue_4murecobin2018, CMS_zz4l_n_1_centralValue_4murecobin2018, CMS_zz4l_alpha2_1_centralValue_4murecobin2018, CMS_zz4l_n2_1_centralValue_4murecobin2018)
 
         # Wrong signal combination events
         if (channel=='4mu'):
-            p1_12018 = ROOT.RooRealVar("CMS_nonResH_p1_12018","p1_12018",165.0, 145.0, 185.0)
-            p3_12018 = ROOT.RooRealVar("CMS_nonResH_p3_12018","p3_12018",89.0, 84.0,94.0)
-            p2_12018 = ROOT.RooFormulaVar("CMS_nonResH_p2_12018","p2_12018","0.72*@0-@1",ROOT.RooArgList(p1_12018,p3_12018))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_12018, p2_12018)
+            p1_12018 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_12018","p1_12018",165.0, 145.0, 185.0)
+            p3_12018 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_12018","p3_12018",89.0, 84.0,94.0)
+            p2_12018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12018","p2_12018","0.72*@0-@1",ROOT.RooArgList(p1_12018,p3_12018))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12018, p2_12018)
         if (channel=='4e'):
-            p1_22018 = ROOT.RooRealVar("CMS_nonResH_p1_22018","p1_22018",165.0, 145.0, 185.0)
-            p3_22018 = ROOT.RooRealVar("CMS_nonResH_p3_22018","p3_22018",89.0, 84.0,94.0)
-            p2_22018 = ROOT.RooFormulaVar("CMS_nonResH_p2_22018","p2_22018","0.72*@0-@1",ROOT.RooArgList(p1_22018,p3_22018))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_22018, p2_22018)
+            p1_22018 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_22018","p1_22018",165.0, 145.0, 185.0)
+            p3_22018 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_22018","p3_22018",89.0, 84.0,94.0)
+            p2_22018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22018","p2_22018","0.72*@0-@1",ROOT.RooArgList(p1_22018,p3_22018))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22018, p2_22018)
         if (channel=='2e2mu'):
-            p1_32018 = ROOT.RooRealVar("CMS_nonResH_p1_32018","p1_32018",165.0, 145.0, 185.0)
-            p3_32018 = ROOT.RooRealVar("CMS_nonResH_p3_32018","p3_32018",89.0, 84.0,94.0)
-            p2_32018 = ROOT.RooFormulaVar("CMS_nonResH_p2_32018","p2_32018","0.72*@0-@1",ROOT.RooArgList(p1_32018,p3_32018))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_32018, p2_32018)
+            p1_32018 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_32018","p1_32018",165.0, 145.0, 185.0)
+            p3_32018 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_32018","p3_32018",89.0, 84.0,94.0)
+            p2_32018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32018","p2_32018","0.72*@0-@1",ROOT.RooArgList(p1_32018,p3_32018))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32018, p2_32018)
 
     elif(year == '2017'):
         CMS_zz4l_mean_m_sig_2017 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2017","CMS_zz4l_mean_m_sig_2017",-10,10)
@@ -215,7 +223,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_n_3_centralValue_2e2murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2017","CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2017","(3.69774+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_3_2017))
             CMS_zz4l_alpha2_3_centralValue_2e2murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2017","CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2017","(1.51606+(-0.000272186)*(@0-125))",ROOT.RooArgList(MH))
             CMS_zz4l_n2_3_centralValue_2e2murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2017","CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2017","(6.01048+(0)*(@0-125))",ROOT.RooArgList(MH))
-            trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha_3_centralValue_2e2murecobin2017, CMS_zz4l_n_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2017, CMS_zz4l_n2_3_centralValue_2e2murecobin2017)
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha_3_centralValue_2e2murecobin2017, CMS_zz4l_n_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2017, CMS_zz4l_n2_3_centralValue_2e2murecobin2017)
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha_3_centralValue_2e2murecobin2017, CMS_zz4l_n_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2017, CMS_zz4l_n2_3_centralValue_2e2murecobin2017)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha_3_centralValue_2e2murecobin2017, CMS_zz4l_n_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2017, CMS_zz4l_n2_3_centralValue_2e2murecobin2017)
 
@@ -229,7 +237,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_n_2_centralValue_4erecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_n_2_centralValue_4e" + recobin + "2017","CMS_zz4l_n_2_centralValue_4e" + recobin + "2017","(5.05142+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_2_2017))
             CMS_zz4l_alpha2_2_centralValue_4erecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2017","CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2017","(1.62625+(0.0121146)*(@0-125))",ROOT.RooArgList(MH))
             CMS_zz4l_n2_2_centralValue_4erecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_n2_2_centralValue_4e" + recobin + "2017","CMS_zz4l_n2_2_centralValue_4e" + recobin + "2017","(6.30057+(0)*(@0-125))",ROOT.RooArgList(MH))
-            trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2017, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2017, CMS_zz4l_alpha_2_centralValue_4erecobin2017, CMS_zz4l_n_2_centralValue_4erecobin2017, CMS_zz4l_alpha2_2_centralValue_4erecobin2017, CMS_zz4l_n2_2_centralValue_4erecobin2017)
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2017, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2017, CMS_zz4l_alpha_2_centralValue_4erecobin2017, CMS_zz4l_n_2_centralValue_4erecobin2017, CMS_zz4l_alpha2_2_centralValue_4erecobin2017, CMS_zz4l_n2_2_centralValue_4erecobin2017)
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2017, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2017, CMS_zz4l_alpha_2_centralValue_4erecobin2017, CMS_zz4l_n_2_centralValue_4erecobin2017, CMS_zz4l_alpha2_2_centralValue_4erecobin2017, CMS_zz4l_n2_2_centralValue_4erecobin2017)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2017, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2017, CMS_zz4l_alpha_2_centralValue_4erecobin2017, CMS_zz4l_n_2_centralValue_4erecobin2017, CMS_zz4l_alpha2_2_centralValue_4erecobin2017, CMS_zz4l_n2_2_centralValue_4erecobin2017)
 
@@ -243,26 +251,26 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             CMS_zz4l_n_1_centralValue_4murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_n_1_centralValue_4mu" + recobin + "2017","CMS_zz4l_n_1_centralValue_4mu" + recobin + "2017","(2.07185+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_1_2017))
             CMS_zz4l_alpha2_1_centralValue_4murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2017","CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2017","(1.92338+(0.0109082)*(@0-125))",ROOT.RooArgList(MH))
             CMS_zz4l_n2_1_centralValue_4murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2017","CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2017","(2.90336+(0)*(@0-125))",ROOT.RooArgList(MH))
-            trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2017, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2017, CMS_zz4l_alpha_1_centralValue_4murecobin2017, CMS_zz4l_n_1_centralValue_4murecobin2017, CMS_zz4l_alpha2_1_centralValue_4murecobin2017, CMS_zz4l_n2_1_centralValue_4murecobin2017)
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2017, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2017, CMS_zz4l_alpha_1_centralValue_4murecobin2017, CMS_zz4l_n_1_centralValue_4murecobin2017, CMS_zz4l_alpha2_1_centralValue_4murecobin2017, CMS_zz4l_n2_1_centralValue_4murecobin2017)
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2017, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2017, CMS_zz4l_alpha_1_centralValue_4murecobin2017, CMS_zz4l_n_1_centralValue_4murecobin2017, CMS_zz4l_alpha2_1_centralValue_4murecobin2017, CMS_zz4l_n2_1_centralValue_4murecobin2017)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2017, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2017, CMS_zz4l_alpha_1_centralValue_4murecobin2017, CMS_zz4l_n_1_centralValue_4murecobin2017, CMS_zz4l_alpha2_1_centralValue_4murecobin2017, CMS_zz4l_n2_1_centralValue_4murecobin2017)
 
         # Wrong signal combination events
         if (channel=='4mu'):
-            p1_12017 = ROOT.RooRealVar("CMS_nonResH_p1_12017","p1_12017",165.0, 145.0, 185.0)
-            p3_12017 = ROOT.RooRealVar("CMS_nonResH_p3_12017","p3_12017",89.0, 84.0,94.0)
-            p2_12017 = ROOT.RooFormulaVar("CMS_nonResH_p2_12017","p2_12017","0.72*@0-@1",ROOT.RooArgList(p1_12017,p3_12017))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_12017, p2_12017)
+            p1_12017 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_12017","p1_12017",165.0, 145.0, 185.0)
+            p3_12017 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_12017","p3_12017",89.0, 84.0,94.0)
+            p2_12017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12017","p2_12017","0.72*@0-@1",ROOT.RooArgList(p1_12017,p3_12017))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12017, p2_12017)
         if (channel=='4e'):
-            p1_22017 = ROOT.RooRealVar("CMS_nonResH_p1_22017","p1_22017",165.0, 145.0, 185.0)
-            p3_22017 = ROOT.RooRealVar("CMS_nonResH_p3_22017","p3_22017",89.0, 84.0,94.0)
-            p2_22017 = ROOT.RooFormulaVar("CMS_nonResH_p2_22017","p2_22017","0.72*@0-@1",ROOT.RooArgList(p1_22017,p3_22017))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_22017, p2_22017)
+            p1_22017 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_22017","p1_22017",165.0, 145.0, 185.0)
+            p3_22017 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_22017","p3_22017",89.0, 84.0,94.0)
+            p2_22017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22017","p2_22017","0.72*@0-@1",ROOT.RooArgList(p1_22017,p3_22017))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22017, p2_22017)
         if (channel=='2e2mu'):
-            p1_32017 = ROOT.RooRealVar("CMS_nonResH_p1_32017","p1_32017",165.0, 145.0, 185.0)
-            p3_32017 = ROOT.RooRealVar("CMS_nonResH_p3_32017","p3_32017",89.0, 84.0,94.0)
-            p2_32017 = ROOT.RooFormulaVar("CMS_nonResH_p2_32017","p2_32017","0.72*@0-@1",ROOT.RooArgList(p1_32017,p3_32017))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_32017, p2_32017)
+            p1_32017 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_32017","p1_32017",165.0, 145.0, 185.0)
+            p3_32017 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_32017","p3_32017",89.0, 84.0,94.0)
+            p2_32017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32017","p2_32017","0.72*@0-@1",ROOT.RooArgList(p1_32017,p3_32017))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32017, p2_32017)
 
     elif(year == '2016'):
           CMS_zz4l_mean_m_sig_2016 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2016","CMS_zz4l_mean_m_sig_2016",-10,10)
@@ -281,7 +289,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
               CMS_zz4l_n_3_centralValue_2e2murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2016","CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2016","(3.90164+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_3_2016))
               CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2016","CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2016","(1.5737+(0.00776476)*(@0-125))",ROOT.RooArgList(MH))
               CMS_zz4l_n2_3_centralValue_2e2murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2016","CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2016","(4.33416+(0)*(@0-125))",ROOT.RooArgList(MH))
-              trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha_3_centralValue_2e2murecobin2016, CMS_zz4l_n_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016, CMS_zz4l_n2_3_centralValue_2e2murecobin2016)
+              trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha_3_centralValue_2e2murecobin2016, CMS_zz4l_n_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016, CMS_zz4l_n2_3_centralValue_2e2murecobin2016)
               ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha_3_centralValue_2e2murecobin2016, CMS_zz4l_n_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016, CMS_zz4l_n2_3_centralValue_2e2murecobin2016)
               xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha_3_centralValue_2e2murecobin2016, CMS_zz4l_n_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016, CMS_zz4l_n2_3_centralValue_2e2murecobin2016)
           if (channel=='4e'):
@@ -294,7 +302,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
               CMS_zz4l_n_2_centralValue_4erecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_n_2_centralValue_4e" + recobin + "2016","CMS_zz4l_n_2_centralValue_4e" + recobin + "2016","(6.85936+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_2_2016))
               CMS_zz4l_alpha2_2_centralValue_4erecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2016","CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2016","(1.47389+(0.00503384)*(@0-125))",ROOT.RooArgList(MH))
               CMS_zz4l_n2_2_centralValue_4erecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_n2_2_centralValue_4e" + recobin + "2016","CMS_zz4l_n2_2_centralValue_4e" + recobin + "2016","(7.24158+(0)*(@0-125))",ROOT.RooArgList(MH))
-              trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2016, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2016, CMS_zz4l_alpha_2_centralValue_4erecobin2016, CMS_zz4l_n_2_centralValue_4erecobin2016, CMS_zz4l_alpha2_2_centralValue_4erecobin2016, CMS_zz4l_n2_2_centralValue_4erecobin2016)
+              trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2016, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2016, CMS_zz4l_alpha_2_centralValue_4erecobin2016, CMS_zz4l_n_2_centralValue_4erecobin2016, CMS_zz4l_alpha2_2_centralValue_4erecobin2016, CMS_zz4l_n2_2_centralValue_4erecobin2016)
               ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2016, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2016, CMS_zz4l_alpha_2_centralValue_4erecobin2016, CMS_zz4l_n_2_centralValue_4erecobin2016, CMS_zz4l_alpha2_2_centralValue_4erecobin2016, CMS_zz4l_n2_2_centralValue_4erecobin2016)
               xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2016, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2016, CMS_zz4l_alpha_2_centralValue_4erecobin2016, CMS_zz4l_n_2_centralValue_4erecobin2016, CMS_zz4l_alpha2_2_centralValue_4erecobin2016, CMS_zz4l_n2_2_centralValue_4erecobin2016)
           if (channel=='4mu'):
@@ -307,31 +315,34 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
               CMS_zz4l_n_1_centralValue_4murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_n_1_centralValue_4mu" + recobin + "2016","CMS_zz4l_n_1_centralValue_4mu" + recobin + "2016","(2.1216+(0)*(@0-125))*(1+@1)",ROOT.RooArgList(MH,CMS_zz4l_n_sig_1_2016))
               CMS_zz4l_alpha2_1_centralValue_4murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2016","CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2016","(1.90093+(-0.0017352)*(@0-125))",ROOT.RooArgList(MH))
               CMS_zz4l_n2_1_centralValue_4murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2016","CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2016","(2.7194+(0)*(@0-125))",ROOT.RooArgList(MH))
-              trueH = ROOT.RooDoubleCB('smH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2016, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2016, CMS_zz4l_alpha_1_centralValue_4murecobin2016, CMS_zz4l_n_1_centralValue_4murecobin2016, CMS_zz4l_alpha2_1_centralValue_4murecobin2016, CMS_zz4l_n2_1_centralValue_4murecobin2016)
+              trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2016, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2016, CMS_zz4l_alpha_1_centralValue_4murecobin2016, CMS_zz4l_n_1_centralValue_4murecobin2016, CMS_zz4l_alpha2_1_centralValue_4murecobin2016, CMS_zz4l_n2_1_centralValue_4murecobin2016)
               ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2016, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2016, CMS_zz4l_alpha_1_centralValue_4murecobin2016, CMS_zz4l_n_1_centralValue_4murecobin2016, CMS_zz4l_alpha2_1_centralValue_4murecobin2016, CMS_zz4l_n2_1_centralValue_4murecobin2016)
               xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2016, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2016, CMS_zz4l_alpha_1_centralValue_4murecobin2016, CMS_zz4l_n_1_centralValue_4murecobin2016, CMS_zz4l_alpha2_1_centralValue_4murecobin2016, CMS_zz4l_n2_1_centralValue_4murecobin2016)
 
           # Wrong signal combination events
           if (channel=='4mu'):
-              p1_12016 = ROOT.RooRealVar("CMS_nonResH_p1_12016","p1_12016",165.0, 145.0, 185.0)
-              p3_12016 = ROOT.RooRealVar("CMS_nonResH_p3_12016","p3_12016",89.0, 84.0,94.0)
-              p2_12016 = ROOT.RooFormulaVar("CMS_nonResH_p2_12016","p2_12016","0.72*@0-@1",ROOT.RooArgList(p1_12016,p3_12016))
-              nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_12016, p2_12016)
+              p1_12016 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_12016","p1_12016",165.0, 145.0, 185.0)
+              p3_12016 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_12016","p3_12016",89.0, 84.0,94.0)
+              p2_12016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12016","p2_12016","0.72*@0-@1",ROOT.RooArgList(p1_12016,p3_12016))
+              nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12016, p2_12016)
           if (channel=='4e'):
-              p1_22016 = ROOT.RooRealVar("CMS_nonResH_p1_22016","p1_22016",165.0, 145.0, 185.0)
-              p3_22016 = ROOT.RooRealVar("CMS_nonResH_p3_22016","p3_22016",89.0, 84.0,94.0)
-              p2_22016 = ROOT.RooFormulaVar("CMS_nonResH_p2_22016","p2_22016","0.72*@0-@1",ROOT.RooArgList(p1_22016,p3_22016))
-              nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_22016, p2_22016)
+              p1_22016 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_22016","p1_22016",165.0, 145.0, 185.0)
+              p3_22016 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_22016","p3_22016",89.0, 84.0,94.0)
+              p2_22016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22016","p2_22016","0.72*@0-@1",ROOT.RooArgList(p1_22016,p3_22016))
+              nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22016, p2_22016)
           if (channel=='2e2mu'):
-              p1_32016 = ROOT.RooRealVar("CMS_nonResH_p1_32016","p1_32016",165.0, 145.0, 185.0)
-              p3_32016 = ROOT.RooRealVar("CMS_nonResH_p3_32016","p3_32016",89.0, 84.0,94.0)
-              p2_32016 = ROOT.RooFormulaVar("CMS_nonResH_p2_32016","p2_32016","0.72*@0-@1",ROOT.RooArgList(p1_32016,p3_32016))
-              nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_32016, p2_32016)
+              p1_32016 = ROOT.RooRealVar("CMS_"+comb_name+"_p1_32016","p1_32016",165.0, 145.0, 185.0)
+              p3_32016 = ROOT.RooRealVar("CMS_"+comb_name+"_p3_32016","p3_32016",89.0, 84.0,94.0)
+              p2_32016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32016","p2_32016","0.72*@0-@1",ROOT.RooArgList(p1_32016,p3_32016))
+              nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32016, p2_32016)
 
     # Out of acceptance events
     # (same shape as in acceptance shape)
     OutsideAcceptance = trueH.Clone()
-    OutsideAcceptance.SetName("OutsideAcceptance")
+    if( physicalModel=='v3'):
+        OutsideAcceptance.SetName("OutsideAcceptance")
+    else:
+        OutsideAcceptance.SetName("out_trueH")
 
     # Coefficients for wrong signal combination events
     if (addfakeH):
@@ -366,9 +377,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
     #n_nonResH = numberFake_WH + numberFake_ZH + numberFake_ttH
 
-    n_nonResH_var = ROOT.RooRealVar("n_nonResH_var_"+recobin+"_"+channel+"_"+year,"n_nonResH_var_"+recobin+"_"+channel+"_"+year,n_nonResH);
-
-    nonResH_norm = ROOT.RooFormulaVar("nonResH_norm","@0",ROOT.RooArgList(n_nonResH_var))
+    n_nonResH_var = ROOT.RooRealVar("n_"+comb_name+"_var_"+recobin+"_"+channel+"_"+year,"n_"+comb_name+"_var_"+recobin+"_"+channel+"_"+year,n_nonResH)
+    nonResH_norm = ROOT.RooFormulaVar(comb_name+"_norm","@0",ROOT.RooArgList(n_nonResH_var))
 
 
     # signal shape in different recobin
@@ -377,6 +387,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
     fideff_ggH = {}; fideff_xH = {}
     fideff_var = {}; fideff_ggH_var = {}; fideff_xH_var = {}
     trueH_norm = {}; GGH_norm = {}; XH_norm = {}
+
+    rBin_channel = {}
 
     trueH_norm_final = {}
     fracBin = {}
@@ -395,17 +407,22 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         else:
             _binName = str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p')
 
-        processName = 'smH_' + _obsName[obsName]
-        processName = processName+'_'+_binName
-        trueH_shape[genbin] = trueH.Clone();
-        trueH_shape[genbin].SetName(processName)
+        if( physicalModel=='v3'):
+            processName = sig_name+'_' + _obsName[obsName]
+            processName = processName+'_'+_binName
+            trueH_shape[genbin] = trueH.Clone();
+            trueH_shape[genbin].SetName(processName)
+        else:
+            processName = "trueH"+channel+"Bin"+str(genbin)
+            trueH_shape[genbin] = trueH.Clone();
+            trueH_shape[genbin].SetName(processName)
 
         if (usecfactor): fideff[genbin] = cfactor[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         else: fideff[genbin] = eff[modelName+"_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]
         print "fideff[genbin]", fideff[genbin]
         print "model name is ", modelName
 
-        _effName = "eff_hzz_smH_"+_obsName[obsName]+"_13TeV_"+_binName
+        _effName = "eff_hzz_"+sig_name+"_"+_obsName[obsName]+"_13TeV_"+_binName
         _effName = _effName + '_hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
 
         fideff_var[genbin] = ROOT.RooRealVar(_effName, _effName, fideff[genbin]);
@@ -418,8 +435,11 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         else:
             _binName = str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p')
 
-        processName = 'smH_' + _obsName[obsName]
-        processName = processName+'_'+_binName
+        if( physicalModel=='v3'):
+            processName = sig_name+'_' + _obsName[obsName]
+            processName = processName+'_'+_binName
+        else:
+            processName = "trueH"+channel+"Bin"+str(genbin)
 
         fidxs = {}; fidxs_ggH = {}; fidxs_xH = {}
         for fState in ['4e','4mu', '2e2mu']:
@@ -575,8 +595,11 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
                   _binName = str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p')
 
                 # Need to be redefined here for proper import in ws
-                processName = 'smH_' + _obsName[obsName]
-                processName = processName+'_'+_binName 
+                if( physicalModel=='v3'):
+                    processName = sig_name+'_' + _obsName[obsName]
+                    processName = processName+'_'+_binName
+                else:
+                    processName = "trueH"+channel+"Bin"+str(genbin)
 
                 # For klambda we need to define ad hoc these because of the C1 scalings
                 trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+"_"+recobin+"_final","@0*@1*@2", ROOT.RooArgList(fideff_var[genbin], lumi, fidxs_fl[str(genbin)]));
@@ -612,7 +635,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
             K1XHBin[str(genbin)] = ROOT.RooRealVar('K1XHBin'+str(genbin), 'K1XHBin'+str(genbin), 1.0, 0.0,  1.0/fracXH4eBin[str(genbin)].getVal())
             K2XHBin[str(genbin)] = ROOT.RooRealVar('K2XHBin'+str(genbin), 'K2XHBin'+str(genbin), 1.0, 0.0, (1.0-fracXH4eBin[str(genbin)].getVal())/fracXH4muBin[str(genbin)].getVal())
 
-            SigmaBin[str(genbin)] = ROOT.RooRealVar('xs_hzz_smH_'+_obsName[obsName]+'_'+str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p'), 'xs_hzz_smH_'+_obsName[obsName]+'_'+str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p'), fidxs['4l'], 0.0, 10.0)
+            SigmaBin[str(genbin)] = ROOT.RooRealVar('xs_hzz_'+sig_name+'_'+_obsName[obsName]+'_'+str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p'), 'xs_hzz_'+sig_name+'_'+_obsName[obsName]+'_'+str(observableBins[genbin]).replace('.', 'p')+'_'+str(observableBins[genbin+1]).replace('.', 'p'), fidxs['4l'], 0.0, 10.0)
             SigmaBin[str(genbin)].setConstant(True)
             SigmaHBin['4e'+str(genbin)] = ROOT.RooFormulaVar("Sigma4eBin"+str(genbin),"(@0*@1*@2)", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)], K1Bin[str(genbin)]))
             SigmaHBin['4mu'+str(genbin)] = ROOT.RooFormulaVar("Sigma4muBin"+str(genbin),"(@0*(1.0-@1*@2)*@3*@4/(1.0-@1))", ROOT.RooArgList(SigmaBin[str(genbin)], fracSM4eBin[str(genbin)], K1Bin[str(genbin)], K2Bin[str(genbin)], fracSM4muBin[str(genbin)]))
@@ -647,7 +670,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
         OutsideAcceptance_norm_args.add(trueH_norm_final[i])
         OutsideAcceptance_norm_func = OutsideAcceptance_norm_func+"@"+str(i+1)+"+"
     OutsideAcceptance_norm_func = OutsideAcceptance_norm_func.replace(str(nBins)+"+",str(nBins)+")")
-    OutsideAcceptance_norm = ROOT.RooFormulaVar("OutsideAcceptance_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
+    if( physicalModel=='v3'):
+        OutsideAcceptance_norm = ROOT.RooFormulaVar("OutsideAcceptance_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
+    else:
+        OutsideAcceptance_norm = ROOT.RooFormulaVar("out_trueH_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
 
     frac_qqzz = fractionsBackground['qqzz_'+channel+'_'+obsName+'_'+recobin]
     frac_qqzz_var  = ROOT.RooRealVar("frac_qqzz_"+recobin+"_"+channel+"_"+year,"frac_qqzz_"+recobin+"_"+channel+"_"+year, frac_qqzz);

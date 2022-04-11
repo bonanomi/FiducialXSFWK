@@ -18,11 +18,15 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if int(observableBins[obsBin+1]) > 1000:
         _recobin = 'GT'+str(int(observableBins[obsBin]))
 
-    _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
-    if obsName not in _obsName:
-        _obsName[obsName] = obsName
-    binName = 'hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
-    processName = 'smH_' + _obsName[obsName]
+    if physicalModel == 'v3':
+        _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+        if obsName not in _obsName:
+            _obsName[obsName] = obsName
+        binName = 'hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
+        processName = 'smH_' + _obsName[obsName]
+    else:
+        binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
+        processName = 'trueH'+channel+'Bin'
 
     # Background expectations
     sys.path.append('../inputs')
@@ -167,13 +171,17 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write(binName+' ')
     file.write('\n')
     file.write('process ')
-    for i in range(nBins):
-        # file.write(processName+str(i)+' ')
-        if observableBins[i+1] > 1000:
-            file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
-        else:
-            file.write(processName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
-    file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
+    if physicalModel == 'v3':
+        for i in range(nBins):
+            if observableBins[i+1] > 1000:
+                file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
+            else:
+                file.write(processName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
+        file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
+    else:
+        for i in range(nBins):
+            file.write(processName+str(i)+' ')
+        file.write('out_trueH fakeH bkg_qqzz bkg_ggzz bkg_zjets')
     #file.write('nonResH bkg_qqzz bkg_ggzz bkg_zjets')
     file.write('\n')
     file.write('process ')
