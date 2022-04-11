@@ -92,13 +92,13 @@ def prepareTrees(year):
     d_sig_failed = {}
     for signal in signals_original:
         if(opt.AC==True or opt.AC_ONLYACC==True):
-            fname = eos_path_sig + 'AC%i_MELA' %year
+            fname = eos_path_sig + 'AC%s_MELA' %year
         else:
-            fname = eos_path_sig + '%i_MELA' %year
-        if signal == 'VBFH125' and year == 2017:
-            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
-        else:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            fname = eos_path_sig + '%s_MELA' %year
+        # if signal == 'VBFH125' and year == 2017:
+        #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+        # else:
+        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
@@ -194,13 +194,13 @@ def generators(year):
     gen_sig = {}
     for signal in signals_original:
         if(opt.AC==True or opt.AC_ONLYACC==True):
-            fname = eos_path_sig + 'AC%i_MELA' %year
+            fname = eos_path_sig + 'AC%s_MELA' %year
         else:
-            fname = eos_path_sig + '%i_MELA' %year
-        if signal == 'VBFH125' and year == 2017:
-            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
-        else:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            fname = eos_path_sig + '%s_MELA' %year
+        # if signal == 'VBFH125' and year == 2017:
+        #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+        # else:
+        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
@@ -261,11 +261,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
 
 # Set up data frames
 def dataframes(year, doubleDiff):
-    if year == 2016:
-        lumi = 35.9
-    elif year == 2017:
+    if year == '2016post':
+        lumi = 36.33
+    elif year == '2017':
         lumi = 41.5
-    elif year == 2018:
+    elif year == '2018':
         lumi = 59.7
     d_df_sig = {}
     d_df_sig_failed = {}
@@ -294,19 +294,19 @@ def skim_df(year, doubleDiff):
     d_skim_sig_failed = {}
     frames = []
     for signal in signals_original:
-        if ('WplusH12' in signal) or ('WminusH12' in signal):
+        if ('WplusH1' in signal) or ('WminusH1' in signal):
             frames.append(d_df_sig[signal])
         else:
             d_skim_sig[signal] = d_df_sig[signal]
-    if frames: d_skim_sig['WH12'+signal[len(signal)-1]] = pd.concat(frames)
+    if frames: d_skim_sig['WH1'+signal[len(signal)-2]+signal[len(signal)-1]] = pd.concat(frames)
     frames = []
     for signal in signals_original:
-        if ('WplusH12' in signal) or ('WminusH12' in signal):
+        if ('WplusH1' in signal) or ('WminusH1' in signal):
             frames.append(d_df_sig_failed[signal])
         else:
             d_skim_sig_failed[signal] = d_df_sig_failed[signal]
-    if frames: d_skim_sig_failed['WH12'+signal[len(signal)-1]] = pd.concat(frames)
-    print '%i SKIMMED df CREATED' %year
+    if frames: d_skim_sig_failed['WH1'+signal[len(signal)-2]+signal[len(signal)-1]] = pd.concat(frames)
+    print '%s SKIMMED df CREATED' %year
     return d_skim_sig, d_skim_sig_failed
 
 # ------------------------------- FUNCTIONS TO CALCULATE COEFFICIENTS ----------------------------------------------------
@@ -510,7 +510,7 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
     if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
     if(opt.AC==True): add_ac = 'AC_'
     elif(opt.AC_ONLYACC==True): add_ac = 'ACggH_'+opt.AC_HYP+'_'
-    elif opt.INTER: add_ac = '12'+opt.HYP+'_'
+    elif opt.INTER: add_ac = '1'+opt.HYP+'_'
     else: add_ac = ''
     if type=='std':
         for year in years:
@@ -586,8 +586,8 @@ if(opt.AC or opt.AC_ONLYACC):
 	signals_original = signals_AC
 	signals = signals_AC
 elif opt.INTER:
-    signals_original = ['VBFH12', 'ggH12', 'WminusH12', 'WplusH12', 'ZH12']
-    signals = ['ggH12', 'VBFH12', 'WH12', 'ZH12']
+    signals_original = ['VBFH1', 'ggH1', 'WminusH1', 'WplusH1', 'ZH1']
+    signals = ['ggH1', 'VBFH1', 'WH1', 'ZH1']
     signals_original = [root+opt.HYP for root in signals_original]
     signals = [root+opt.HYP for root in signals]
 else:
@@ -597,10 +597,10 @@ eos_path_sig = path['eos_path_sig']
 key = 'candTree'
 key_failed = 'candTree_failed'
 
-if (opt.YEAR == '2016'): years = [2016]
-if (opt.YEAR == '2017'): years = [2017]
-if (opt.YEAR == '2018'): years = [2018]
-if (opt.YEAR == 'Full'): years = [2016,2017,2018]
+if (opt.YEAR == '2016'): years = ['2016post']
+if (opt.YEAR == '2017'): years = ['2017']
+if (opt.YEAR == '2018'): years = ['2018']
+if (opt.YEAR == 'Full'): years = ['2016post','2017','2018']
 
 
 obs_bins, doubleDiff = binning(opt.OBSNAME)
@@ -634,7 +634,6 @@ for year in years:
     sig, sig_failed = skim_df(year, doubleDiff)
     d_sig[year] = sig
     d_sig_failed[year] = sig_failed
-
 
 # Create dataframe with all the events
 d_sig_tot = {}

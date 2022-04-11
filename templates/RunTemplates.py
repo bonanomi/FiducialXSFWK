@@ -71,11 +71,11 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = eos_path + 'MC_samples/%i_MELA' %year
+        fname = eos_path + 'MC_samples_UL/%s_MELA' %year
         # if year == 2016:
         #     fname += '_CorrectBTag'
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
+        # if (year == 2018) & (bkg == 'ZZTo4lext'):
+        #     bkg += '1'
         fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         d_bkg[bkg] = uproot.open(fname)[key]
 
@@ -87,8 +87,8 @@ def xsecs(year):
     d_bkg = prepareTrees(year)
 
     for bkg in bkgs:
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
+        # if (year == 2018) & (bkg == 'ZZTo4lext'):
+        #     bkg += '1'
         xsec_bkg[bkg] = d_bkg[bkg].pandas.df('xsec').xsec[0]
 
     return xsec_bkg
@@ -97,11 +97,11 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = eos_path + 'MC_samples/%i_MELA' %year
+        fname = eos_path + 'MC_samples_UL/%s_MELA' %year
         # if year == 2016:
         #     fname += '_CorrectBTag'
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
+        # if (year == 2018) & (bkg == 'ZZTo4lext'):
+        #     bkg += '1'
         fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
@@ -144,9 +144,11 @@ def add_fin_state(i, j):
 
 # Set up data frames
 def dataframes(year):
-    if year == 2016:
-        lumi = 35.9
-    elif year == 2017:
+    if year == '2016pre':
+        lumi = 19.52
+    elif year == '2016post':
+        lumi = 16.81
+    elif year == '2017':
         lumi = 41.5
     else:
         lumi = 59.7
@@ -155,15 +157,15 @@ def dataframes(year):
     gen_bkg = generators(year)
     xsec_bkg = xsecs(year)
     for bkg in bkgs:
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
+        # if (year == 2018) & (bkg == 'ZZTo4lext'):
+        #     bkg += '1'
         b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
                  'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                  'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
                  'njets_pt30_eta4p7', 'absdetajj',
                  'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
-        if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
+        if (bkg == 'ZZTo4l'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
         else:
             b_bkg.append('KFactor_QCD_ggZZ_Nominal')
@@ -171,14 +173,14 @@ def dataframes(year):
         xsec = xsec_bkg[bkg]
         df = d_bkg[bkg].pandas.df(b_bkg, flatten = False)
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
-        df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
+        # df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         #df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         df = add_rapidity(df)
-        if (bkg != 'ZZTo4lext') & (bkg != 'ZZTo4lext1'):
+        if (bkg != 'ZZTo4l'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
         else:
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'qqzz')
-    print('Background df created, %i' %year)
+    print('Background df created, %s' %year)
     return d_df_bkg
 
 # Sort production modes in view of the histogram (VBF, ggH, Others, qqZZ, ggZZ)
@@ -187,14 +189,14 @@ def skim_df(year):
     d_skim_bkg = {}
     frames = []
     for bkg in bkgs:
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            bkg += '1'
-        if (bkg == 'ZZTo4lext') | (bkg == 'ZZTo4lext1'):
+        # if (year == 2018) & (bkg == 'ZZTo4lext'):
+        #     bkg += '1'
+        if (bkg == 'ZZTo4l'):
             d_skim_bkg['qqzz'] = d_df_bkg[bkg]
         else:
             frames.append(d_df_bkg[bkg])
     d_skim_bkg['ggzz'] = pd.concat(frames)
-    print('%i skimmed df created' %year)
+    print('%s skimmed df created' %year)
     return d_skim_bkg
 
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ZX ----------------------------------------------------
@@ -229,7 +231,7 @@ def GetFakeRate(lep_Pt, lep_eta, lep_ID):
 
 # Open Fake Rates files
 def openFR(year):
-    fnameFR = eos_path_FR + 'FRfiles/newData_FakeRates_SS_%i.root' %year
+    fnameFR = eos_path_FR + 'FRfiles_UL/FakeRates_SS_%i.root' %year
     file = uproot.open(fnameFR)
     # Retrieve FR from TGraphErrors
     input_file_FR = ROOT.TFile(fnameFR)
@@ -248,24 +250,24 @@ def findFSZX(df):
 def comb(year):
     if year == 2016:
         cb_SS = np.array([
-            1.23628,   # 4e
-            0.95433,   # 4mu
-            1.0726,    # 2e2mu
-            1.0726,    # 2mu2e
+            1.175,   # 4e
+            0.975,   # 4mu
+            1.052,    # 2e2mu
+            1.148,    # 2mu2e
         ])
     elif year == 2017:
         cb_SS = np.array([
-            1.1934,   # 4e
-            0.99669,   # 4mu
-            1.0569,    # 2e2mu
-            1.0569,    # 2mu2e
+            1.094,   # 4e
+            0.948,   # 4mu
+            0.930,    # 2e2mu
+            1.139,    # 2mu2e
         ])
     else:
         cb_SS = np.array([
-            1.2087,   # 4e
-            0.9878,   # 4mu
-            1.0552,    # 2e2mu
-            1.0552,    # 2mu2e
+            1.157,   # 4e
+            0.974,   # 4mu
+            0.930,    # 2e2mu
+            1.143,    # 2mu2e
         ])
     return cb_SS
 
@@ -273,24 +275,24 @@ def comb(year):
 def ratio(year):
     if year == 2016:
         fs_ROS_SS = np.array([
-            1.00245,   # 4e
-            0.998863,  # 4mu
-            1.03338,   # 2e2mu
-            0.998852,  # 2mu2e
+            1.0039,   # 4e
+            0.999103,  # 4mu
+            1.0332,   # 2e2mu
+            1.00216,  # 2mu2e
             ])
     elif year == 2017:
         fs_ROS_SS = np.array([
-            1.01198,   # 4e
-            1.03949,  # 4mu
-            1.013128,   # 2e2mu
-            1.00257,  # 2mu2e
+            0.990314,   # 4e
+            1.02903,  # 4mu
+            1.0262,   # 2e2mu
+            1.00154,  # 2mu2e
             ])
     else:
         fs_ROS_SS = np.array([
-            1.00568,   # 4e
-            1.02926,  # 4mu
-            1.03226,   # 2e2mu
-            1.00432,  # 2mu2e
+            1.00322,   # 4e
+            1.0187,  # 4mu
+            1.04216,   # 2e2mu
+            0.996253,  # 2mu2e
             ])
     return fs_ROS_SS
 
@@ -310,7 +312,7 @@ def ZXYield(df, year):
 
 def doZX(year):
     keyZX = 'CRZLL'
-    data = eos_path + 'Data/reducedTree_AllData_'+str(year)+'.root'
+    data = eos_path + 'Data_UL/reducedTree_AllData_'+str(year)+'.root'
     ttreeZX = uproot.open(data)[keyZX]
     dfZX = ttreeZX.pandas.df(branches_ZX, flatten = False)
     dfZX = dfZX[dfZX.Z2Flav > 0] #Keep just same-sign events
@@ -504,88 +506,26 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
 # -----------------------------------------------------------------------------------------
 
 # General settings
-bkgs = ['ZZTo4lext', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
+bkgs = ['ZZTo4l', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
         'ggTo4e_Contin_MCFM701', 'ggTo4mu_Contin_MCFM701', 'ggTo4tau_Contin_MCFM701']
 eos_path_FR = path['eos_path_FR']
 eos_path = path['eos_path']
 key = 'candTree'
-# years = [2016, 2017, 2018]
 
-if (opt.YEAR == '2016'): years = [2016]
-if (opt.YEAR == '2017'): years = [2017]
-if (opt.YEAR == '2018'): years = [2018]
-if (opt.YEAR == 'Full'): years = [2016,2017,2018]
+if (opt.YEAR == '2016'):
+    years_MC = ['2016pre', '2016post']
+    years = [2016]
+if (opt.YEAR == '2017'):
+    years_MC = ['2017']
+    years = [2017]
+if (opt.YEAR == '2018'):
+    years_MC = ['2018']
+    years = [2018]
+if (opt.YEAR == 'Full'):
+    years_MC = ['2016pre', '2016post', '2017', '2018']
+    years = [2016,2017,2018]
 
 obs_bins, doubleDiff = binning(opt.OBSNAME)
-
-# if not 'vs' in opt.OBSBINS: #It is not a double-differential analysis
-#     obs_bins = {0:(opt.OBSBINS.split("|")[1:(len(opt.OBSBINS.split("|"))-1)]),1:['0','inf']}[opt.OBSBINS=='inclusive']
-#     obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
-#     doubleDiff = False
-#     print 'It is a single-differential measurement, binning', obs_bins
-# else: #It is a double-differential analysis
-#     doubleDiff = True
-#     # The structure of obs_bins is:
-#     # index of the dictionary is the number of the bin
-#     # [obs_bins_low, obs_bins_high, obs_bins_low_2nd, obs_bins_high_2nd]
-#     # The first two entries are the lower and upper bound of the first variable
-#     # The second two entries are the lower and upper bound of the second variable
-#     if opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')>=1: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|'
-#         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250| / |0|10|20|80|250| / |0|20|90|250| / |0|25|250|']
-#         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
-#         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
-#         obs_bins_tmp = obs_bins_tmp[1].split(' / ') #['|0|10|20|45|90|250|', '|0|10|20|80|250|', '|0|20|90|250|', '|0|25|250|']
-#         obs_bins_2nd = {}
-#         for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_2nd {0: ['0', '10', '20', '45', '90', '250'], 1: ['0', '10', '20', '80', '250'], 2: ['0', '20', '90', '250'], 3: ['0', '25', '250']}
-#             obs_bins_2nd[i] = obs_bins_tmp[i].split('|')[1:len(obs_bins_tmp[i].split('|'))-1]
-#             obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
-#         obs_bins = {}
-#         k = 0 #Bin index
-#         for i in range(len(obs_bins_1st)-1):
-#             for j in range(len(obs_bins_2nd[i])-1):
-#                 obs_bins[k] = []
-#                 obs_bins[k].append(obs_bins_1st[i])
-#                 obs_bins[k].append(obs_bins_1st[i+1])
-#                 obs_bins[k].append(obs_bins_2nd[i][j])
-#                 obs_bins[k].append(obs_bins_2nd[i][j+1])
-#                 k +=1
-#     elif opt.OBSBINS.count('vs')>1 and opt.OBSBINS.count('/')>1: #Situation like this one '|50|80| vs |10|30| / |50|80| vs |30|60| / |80|110| vs |10|25| / |80|110| vs |25|30|'
-#         obs_bins_tmp = opt.OBSBINS.split(' / ') #['|50|80| vs |10|30|', '|50|80| vs |30|60|', '|80|110| vs |10|25|', '|80|110| vs |25|30|']
-#         obs_bins_1st={}
-#         obs_bins_2nd={}
-#         obs_bins={}
-#         for i in range(len(obs_bins_tmp)): #At the end of the loop -> obs_bins_1st {0: ['50', '80'], 1: ['50', '80'], 2: ['80', '110'], 3: ['80', '110']} and obs_bins_2nd {0: ['10', '30'], 1: ['30', '60'], 2: ['10', '25'], 3: ['25', '30']}
-#             obs_bins_tmp_bis = obs_bins_tmp[i].split(' vs ')
-#             obs_bins_1st[i] = obs_bins_tmp_bis[0].split('|')[1:len(obs_bins_tmp_bis[0].split('|'))-1]
-#             obs_bins_1st[i] = [float(j) for j in obs_bins_1st[i]] #Convert a list of str to a list of float
-#             obs_bins_2nd[i] = obs_bins_tmp_bis[1].split('|')[1:len(obs_bins_tmp_bis[1].split('|'))-1]
-#             obs_bins_2nd[i] = [float(j) for j in obs_bins_2nd[i]] #Convert a list of str to a list of float
-#             obs_bins[i] = []
-#             obs_bins[i].append(obs_bins_1st[i][0])
-#             obs_bins[i].append(obs_bins_1st[i][1])
-#             obs_bins[i].append(obs_bins_2nd[i][0])
-#             obs_bins[i].append(obs_bins_2nd[i][1])
-#     elif opt.OBSBINS.count('vs')==1 and opt.OBSBINS.count('/')==0: #Situation like this one '|0|1|2|3|20| vs |0|10|20|45|90|250|'
-#         obs_bins_tmp = opt.OBSBINS.split(" vs ") #['|0|1|2|3|20|', '|0|10|20|45|90|250|']
-#         obs_bins_1st = obs_bins_tmp[0].split('|')[1:len(obs_bins_tmp[0].split('|'))-1] #['0', '1', '2', '3', '20']
-#         obs_bins_1st = [float(i) for i in obs_bins_1st] #Convert a list of str to a list of float
-#         obs_bins_2nd = obs_bins_tmp[1].split('|')[1:len(obs_bins_tmp[1].split('|'))-1] #['0', '10', '20', '45', '90', '250']
-#         obs_bins_2nd = [float(i) for i in obs_bins_2nd] #Convert a list of str to a list of float
-#         obs_bins = {}
-#         k = 0 #Bin index
-#         for i in range(len(obs_bins_1st)-1):
-#             for j in range(len(obs_bins_2nd)-1):
-#                 obs_bins[k] = []
-#                 obs_bins[k].append(obs_bins_1st[i])
-#                 obs_bins[k].append(obs_bins_1st[i+1])
-#                 obs_bins[k].append(obs_bins_2nd[j])
-#                 obs_bins[k].append(obs_bins_2nd[j+1])
-#                 k +=1
-#     else:
-#         print 'Problem in the definition of the binning'
-#         quit()
-#     print 'It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd
-#     print obs_bins
 
 obs_name = opt.OBSNAME
 if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == 'Dint' or obs_name == 'DL1' or obs_name == 'DL1Zg': acFlag = True
@@ -597,7 +537,6 @@ observables = _temp.observables
 
 if doubleDiff:
     obs_reco_2nd = observables[obs_name]['obs_reco_2nd']
-
 obs_reco = observables[obs_name]['obs_reco']
 
 if doubleDiff:
@@ -609,12 +548,24 @@ print 'Following observables extracted from dictionary: RECO = ',obs_reco
 if doubleDiff:
     print 'It is a double-differential measurement: RECO_2nd = ',obs_reco_2nd
 
-
 # Generate pandas for ggZZ and qqZZ
-d_bkg = {}
-for year in years:
+d_bkg_tmp = {}
+for year in years_MC:
     bkg = skim_df(year)
-    d_bkg[year] = bkg
+    d_bkg_tmp[year] = bkg
+
+# # Create pandas with int as indeces and 2016post+2016pre
+d_bkg = {}
+if (opt.YEAR == '2016' or opt.YEAR == 'Full'):
+    d_bkg_2016 = {}
+    d_bkg_2016['qqzz'] = pd.concat([d_bkg_tmp['2016post']['qqzz'], d_bkg_tmp['2016pre']['qqzz']])
+    d_bkg_2016['ggzz'] = pd.concat([d_bkg_tmp['2016post']['ggzz'], d_bkg_tmp['2016pre']['ggzz']])
+    d_bkg[2016] = d_bkg_2016
+if (opt.YEAR == '2017' or opt.YEAR == 'Full'):
+    d_bkg[2017] = d_bkg_tmp['2017']
+if (opt.YEAR == '2018' or opt.YEAR == 'Full'):
+    d_bkg[2018] = d_bkg_tmp['2018']
+
 
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
@@ -625,20 +576,9 @@ dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
     dfZX[year] = doZX(year)
-    dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
+    # dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     dfZX[year] = add_rapidity(dfZX[year])
-
-    # #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
-    # dfZX[year]['Dcp'] = np.random.choice(d_bkg[year]['qqzz']['Dcp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['D0m'] = np.random.choice(d_bkg[year]['qqzz']['D0m'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['D0hp'] = np.random.choice(d_bkg[year]['qqzz']['D0hp'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['Dint'] = np.random.choice(d_bkg[year]['qqzz']['Dint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['DL1'] = np.random.choice(d_bkg[year]['qqzz']['DL1'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['DL1int'] = np.random.choice(d_bkg[year]['qqzz']['DL1int'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['DL1Zg'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zg'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # dfZX[year]['DL1Zgint'] = np.random.choice(d_bkg[year]['qqzz']['DL1Zgint'].tolist(), len(dfZX[year]['ZZMass']), replace=False)
-    # #-*-*-*-*-*-*-*-*-*-*-*-* Temporary - since we do not still have discriminantsa in data, we perform a random generation -*-*-*-*-*-*-*-*-*-*-*-*
 
     print(year,'done')
 
