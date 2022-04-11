@@ -193,16 +193,16 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
         # Wrong signal combination events
         if (channel=='4mu'):
-            p1_12018 = ROOT.RooFormulaVar("CMS_nonResH_p1_12018", "p1_12018","131.340882+0.75421000*(@0-125)",ROOT.RooArgList(MH))
-            p2_12018 = ROOT.RooFormulaVar("CMS_nonResH_p2_12018","p2_12018","14.74471725-0.1551525*(@0-125)",ROOT.RooArgList(MH))
+            p1_12018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_12018", "p1_12018","131.340882+0.75421000*(@0-125)",ROOT.RooArgList(MH))
+            p2_12018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12018","p2_12018","14.74471725-0.1551525*(@0-125)",ROOT.RooArgList(MH))
             nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12018, p2_12018)
         if (channel=='4e'):
-            p1_22018 = ROOT.RooFormulaVar("CMS_nonResH_p1_22018","p1_22018","130.584411-0.2031*(@0-125)",ROOT.RooArgList(MH))
-            p2_22018 = ROOT.RooFormulaVar("CMS_nonResH_p2_22018","p2_22018","8.91571425-0.320975*(@0-125)",ROOT.RooArgList(MH))
+            p1_22018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_22018","p1_22018","130.584411-0.2031*(@0-125)",ROOT.RooArgList(MH))
+            p2_22018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22018","p2_22018","8.91571425-0.320975*(@0-125)",ROOT.RooArgList(MH))
             nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22018, p2_22018)
         if (channel=='2e2mu'):
-            p1_32018 = ROOT.RooFormulaVar("CMS_nonResH_p1_32018","p1_32018","134.18608325-0.38346*(@0-125)",ROOT.RooArgList(MH))
-            p2_32018 = ROOT.RooFormulaVar("CMS_nonResH_p2_32018","p2_32018","6.65369825-0.41184*(@0-125)",ROOT.RooArgList(MH))
+            p1_32018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_32018","p1_32018","134.18608325-0.38346*(@0-125)",ROOT.RooArgList(MH))
+            p2_32018 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32018","p2_32018","6.65369825-0.41184*(@0-125)",ROOT.RooArgList(MH))
             nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32018, p2_32018)
 
     elif(year == '2017'):
@@ -256,17 +256,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
         # Wrong signal combination events
         if (channel=='4mu'):
-            p1_12017 = ROOT.RooFormulaVar("CMS_nonResH_p1_12017", "p1_12017","132.869494+0.0407925*(@0-125)",ROOT.RooArgList(MH))
-            p2_12017 = ROOT.RooFormulaVar("CMS_nonResH_p2_12017","p2_12017","8.26728375-0.0072275*(@0-125)",ROOT.RooArgList(MH))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_12017, p2_12017)
+            p1_12017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_12017", "p1_12017","132.869494+0.0407925*(@0-125)",ROOT.RooArgList(MH))
+            p2_12017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12017","p2_12017","8.26728375-0.0072275*(@0-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12017, p2_12017)
         if (channel=='4e'):
-            p1_22017 = ROOT.RooFormulaVar("CMS_nonResH_p1_22017","p1_22017","136.0837385+0.201235*(@0-125)",ROOT.RooArgList(MH))
-            p2_22017 = ROOT.RooFormulaVar("CMS_nonResH_p2_22017","p2_22017","5.12573525-0.102225*(@0-125)",ROOT.RooArgList(MH))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_22017, p2_22017)
+            p1_22017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_22017","p1_22017","136.0837385+0.201235*(@0-125)",ROOT.RooArgList(MH))
+            p2_22017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22017","p2_22017","5.12573525-0.102225*(@0-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22017, p2_22017)
         if (channel=='2e2mu'):
-            p1_32017 = ROOT.RooFormulaVar("CMS_nonResH_p1_32017","p1_32017","136.028339-0.28177*(@0-125)",ROOT.RooArgList(MH))
-            p2_32017 = ROOT.RooFormulaVar("CMS_nonResH_p2_32017","p2_32017","6.92665-0.271735*(@0-125)",ROOT.RooArgList(MH))
-            nonResH = ROOT.RooLandau("nonResH", "landau", m, p1_32017, p2_32017)
+            p1_32017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_32017","p1_32017","136.028339-0.28177*(@0-125)",ROOT.RooArgList(MH))
+            p2_32017 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32017","p2_32017","6.92665-0.271735*(@0-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32017, p2_32017)
 
     elif(year == '2016'):
         CMS_zz4l_mean_m_sig_2016 = ROOT.RooRealVar("CMS_zz4l_mean_m_sig_2016","CMS_zz4l_mean_m_sig_2016",-10,10)
@@ -317,17 +317,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, usecfacto
 
         # Wrong signal combination events
         if (channel=='4mu'):
-            p1_12016 = ROOT.RooFormulaVar("CMS_nonResH_p1_12016", "p1_12016","131.65661025+0.237035*(@0-125)",ROOT.RooArgList(MH))
-            p2_12016 = ROOT.RooFormulaVar("CMS_nonResH_p2_12016","p2_12016","10.246387-0.0921975*(@0-125)",ROOT.RooArgList(MH))
-            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12017, p2_12017)
+            p1_12016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_12016", "p1_12016","131.65661025+0.237035*(@0-125)",ROOT.RooArgList(MH))
+            p2_12016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12016","p2_12016","10.246387-0.0921975*(@0-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12016, p2_12016)
         if (channel=='4e'):
-            p1_22016 = ROOT.RooFormulaVar("CMS_nonResH_p1_22016","p1_22016","137.63165525+0.05316*(@0-125)",ROOT.RooArgList(MH))
-            p2_22016 = ROOT.RooFormulaVar("CMS_nonResH_p2_22016","p2_22016","6.465639-0.143375*(@0-125)",ROOT.RooArgList(MH))
-            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22017, p2_22017)
+            p1_22016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_22016","p1_22016","137.63165525+0.05316*(@0-125)",ROOT.RooArgList(MH))
+            p2_22016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22016","p2_22016","6.465639-0.143375*(@0-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22016, p2_22016)
         if (channel=='2e2mu'):
-            p1_32016 = ROOT.RooFormulaVar("CMS_nonResH_p1_32016","p1_32016","136.40392375+(-0.0554875)*(@0-125)",ROOT.RooArgList(MH))
-            p2_32016 = ROOT.RooFormulaVar("CMS_nonResH_p2_32016","p2_32016","7.14906775-0.13516*(@0-125)",ROOT.RooArgList(MH))
-            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32017, p2_32017)
+            p1_32016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_32016","p1_32016","136.40392375+(-0.0554875)*(@0-125)",ROOT.RooArgList(MH))
+            p2_32016 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32016","p2_32016","7.14906775-0.13516*(@0-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32016, p2_32016)
 
     # Out of acceptance events
     # (same shape as in acceptance shape)

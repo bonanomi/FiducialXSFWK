@@ -115,7 +115,8 @@ def impactPlots():
 
                 tmp_xs_sm[channel+'_genbin'+str(obsBin)] = fidxs_sm
                 tmp_xs[channel+'_genbin'+str(obsBin)] = fidxs
-            cmd_XSEC += 'SigmaBin'+str(obsBin)+'='+str(tmp_xs['2e2mu_genbin'+str(obsBin)]+tmp_xs['4e_genbin'+str(obsBin)]+tmp_xs['4mu_genbin'+str(obsBin)])+','
+            # cmd_XSEC += 'SigmaBin'+str(obsBin)+'='+str(tmp_xs['2e2mu_genbin'+str(obsBin)]+tmp_xs['4e_genbin'+str(obsBin)]+tmp_xs['4mu_genbin'+str(obsBin)])+','
+            cmd_XSEC += 'r_smH_'+obsName+'_'+str(obsBin)+'=1,'
         cmd_XSEC = cmd_XSEC[:-1]
 
         cmd_BR = ''
@@ -138,7 +139,8 @@ def impactPlots():
 
         cmd_sigma = ''
         for obsBin in range(nBins-1):
-            cmd_sigma += 'SigmaBin'+str(obsBin)+','
+            # cmd_sigma += 'SigmaBin'+str(obsBin)+','
+            cmd_sigma += 'r_smH_' + obsName + '_' + str(obsBin) + ','
         cmd_sigma = cmd_sigma[:-1]
         print(cmd_sigma)
 
@@ -196,7 +198,8 @@ def impactPlots():
     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --cminDefaultMinimizerStrategy 0 --doInitialFit --robustFit 1 --redefineSignalPOIs '
     for obsBin in range(nBins-1):
         if opt.PHYSICSMODEL=='v3':
-            cmd += 'SigmaBin' + str(obsBin) + ','
+            # cmd += 'SigmaBin' + str(obsBin) + ','
+            cmd += 'r_smH_' + obsName + '_' + str(obsBin) + ','
         elif opt.PHYSICSMODEL=='v2':
             cmd += 'r2e2muBin' + str(obsBin) + ',r4eBin' + str(obsBin) +',r4muBin' + str(obsBin) +','
         elif opt.PHYSICSMODEL=='v4':
@@ -205,7 +208,8 @@ def impactPlots():
     cmd += ' --setParameterRanges MH=125.38,125.38'
     for obsBin in range(nBins-1):
         if opt.PHYSICSMODEL=='v3':
-            cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
+            # cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
+            cmd += 'r_smH_' + obsName + '_' + str(obsBin) + '=0,'+max_sigma
         elif opt.PHYSICSMODEL=='v2':
             cmd += ':r2e2muBin' + str(obsBin) + '=0,'+max_sigma+':r4muBin' + str(obsBin) + '=0,'+max_sigma+':r4eBin' + str(obsBin) + '=0,'+max_sigma
         elif opt.PHYSICSMODEL=='v4':
@@ -227,7 +231,8 @@ def impactPlots():
     cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+opt.PHYSICSMODEL+'.root -m 125.38 --cminDefaultMinimizerStrategy 0 --doFits --robustFit 1 --parallel 10 --redefineSignalPOIs '
     for obsBin in range(nBins-1):
         if opt.PHYSICSMODEL=='v3':
-            cmd += 'SigmaBin' + str(obsBin) + ','
+            # cmd += 'SigmaBin' + str(obsBin) + ','
+            cmd += 'r_smH_' + obsName + '_' + str(obsBin) + ','
         elif opt.PHYSICSMODEL=='v2':
             cmd += 'r2e2muBin' + str(obsBin) + ',r4eBin' + str(obsBin) +',r4muBin' + str(obsBin) +','
         elif opt.PHYSICSMODEL=='v4':
@@ -236,7 +241,8 @@ def impactPlots():
     cmd += ' --setParameterRanges MH=125.38,125.38'
     for obsBin in range(nBins-1):
         if opt.PHYSICSMODEL=='v3':
-            cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
+            # cmd += ':SigmaBin' + str(obsBin) + '=0,'+max_sigma
+            cmd += 'r_smH_' + obsName + '_' + str(obsBin) + '=0,'+max_sigma
         elif opt.PHYSICSMODEL=='v2':
             cmd += ':r2e2muBin' + str(obsBin) + '=0,'+max_sigma+':r4muBin' + str(obsBin) + '=0,'+max_sigma+':r4eBin' + str(obsBin) + '=0,'+max_sigma
         elif opt.PHYSICSMODEL=='v4':
@@ -258,7 +264,7 @@ def impactPlots():
     if opt.PHYSICSMODEL=='v3':
         for obsBin in range(nBins-1):
             cmd = 'combineTool.py -M Impacts -d ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 -t -1 --setParameters MH=125.38,'+cmd_BR[:-1]+','+cmd_XSEC+' --redefineSignalPOIs '+cmd_sigma
-            cmd += ' -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
+            cmd += ' -o impacts_v3_'+obsName+'r_smH_' + obsName + '_' + str(obsBin) +'_'
             if (not opt.UNBLIND):
                 cmd = cmd + 'asimov.json'
             elif (opt.UNBLIND):
@@ -269,9 +275,9 @@ def impactPlots():
             cmds.append(cmd)
             output = processCmd(cmd)
             # plot
-            cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_'
-            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_asimov --POI SigmaBin'+str(obsBin)
-            elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'_SigmaBin'+str(obsBin)+'_data --POI SigmaBin'+str(obsBin)
+            cmd = 'plotImpacts.py -i impacts_v3_'+obsName+'r_smH_' + obsName + '_' + str(obsBin) +'_'
+            if (not opt.UNBLIND): cmd = cmd + 'asimov.json -o impacts_v3_'+obsName+'r_smH_' + obsName + '_' + str(obsBin) +'_asimov --POI r_smH_' + obsName + '_' + str(obsBin)
+            elif (opt.UNBLIND): cmd = cmd + 'data.json -o impacts_v3_'+obsName+'r_smH_' + obsName + '_' + str(obsBin) +'_data --POI r_smH_' + obsName + '_' + str(obsBin)
             print '---------------------------'
             print cmd, '\n'
             print '---------------------------'
