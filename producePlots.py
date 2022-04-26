@@ -61,7 +61,7 @@ sys.path.append('./LHScans')
 
 def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
-    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
     print 'inputs_sig_'+obsName+'_'+opt.YEAR
     # eff = _temp.eff
@@ -1919,13 +1919,13 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     #     latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
     # else:
     if(opt.YEAR=='2016'):
-        latex2.DrawLatex(0.92, 0.95,"35.9 fb^{-1} (13 TeV)")
+        latex2.DrawLatex(0.92, 0.95,"36.3 fb^{-1} (13 TeV)")
     if(opt.YEAR=='2017'):
         latex2.DrawLatex(0.92, 0.95,"41.5 fb^{-1} (13 TeV)")
     if(opt.YEAR=='2018'):
         latex2.DrawLatex(0.92, 0.95,"59.7 fb^{-1} (13 TeV)")
     if(opt.YEAR=='Full'):
-        latex2.DrawLatex(0.92, 0.95,"137 fb^{-1} (13 TeV)")
+        latex2.DrawLatex(0.92, 0.95,"138 fb^{-1} (13 TeV)")
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right

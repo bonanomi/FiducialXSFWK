@@ -6,13 +6,16 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation"
+# path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation" #ReReco
+path="/eos/user/a/atarabin/www/fiducial/run2_UL" #UL
 
 /opt/exp_soft/cms/t3/eos-login -init -username atarabin
 
 cd coefficients
 source /opt/exp_soft/llr/root/vv6.20.06-el7-gcc9-py37/etc/init.sh
 python RunPlotCoefficients.py --obsName "${1}" --year 'Full'
+cd ../fit
+python RunPlotCorrelation.py --obsName "${1}" --year 'Full'
 cd ..
 
 if [ -d "$path/${1}" ]; then
@@ -59,6 +62,7 @@ mv datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_20
 mv datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2018/.
 
 mv plots/${1}/asimov/${1}_unfoldwith* $path/${1}/.
+mv plots/${1}/asimov/corr_${1}_*.png $path/${1}/.
 cp impacts/${1}/impacts_*_${1}_*_asimov* $path/${1}/.
 mv LHScans/plots/lhscan_compare_${1}_* $path/${1}/.
 

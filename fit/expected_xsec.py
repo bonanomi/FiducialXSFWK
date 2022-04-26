@@ -49,7 +49,7 @@ def exp_xsec():
     _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
     higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
-    fname = 'inputs_sig_'+obsName+'_'+opt.YEAR
+    fname = 'inputs_sig_extrap_'+obsName+'_'+opt.YEAR
     if opt.DOHIG: fname = fname + '_HIG19001'
     _temp = __import__(fname, globals(), locals(), ['acc'], -1)
     acc = _temp.acc

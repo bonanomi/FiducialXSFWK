@@ -104,9 +104,9 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"} # 4l is dummy, won't be used
     run = {"2016":"1", "2017":"2", "2018":"3", "Full": "2"}
-    SignalNames = {"v3":"smH_", "v2":"trueH"}
-    CombNames = {"v3":"nonResH", "v2":"fakeH"}
-    OutNames = {"v3":"OutsideAcceptance", "v2":"out_trueH"}
+    SignalNames = {"v3":"smH_", "v2":"trueH", "v4":"trueH"}
+    CombNames = {"v3":"nonResH", "v2":"fakeH", "v4":"fakeH"}
+    OutNames = {"v3":"OutsideAcceptance", "v2":"out_trueH", "v4":"out_trueH"}
 
     # Load some libraries
     ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
@@ -120,7 +120,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
     else:
-        fname = 'higgsCombine_'+obsName+'_r4eBin0.MultiDimFit.mH'+theorymass+'.root'
+        fname = 'higgsCombine_'+obsName+'_r2e2muBin0.MultiDimFit.mH'+theorymass+'.root'
     print 'combine file: ', fname
 
     f_asimov = TFile(sourcedir + fname, "READ")

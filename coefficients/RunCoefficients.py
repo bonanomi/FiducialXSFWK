@@ -341,7 +341,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             datafr = d_sig_tot[year][signal]
             genweight = 'weight_gen'
             recoweight = 'weight_reco'
-        elif type=='full' or 'ACggH':
+        elif type=='full' or type=='ACggH':
             datafr = d_sig_full[signal]
             genweight = 'weight_gen'
             recoweight = 'weight_reco'
@@ -361,6 +361,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_genbin'+str(genbin)+'_recobin'+str(recobin)
         if type=='fullNNLOPS' and doubleDiff:
             processBin = signal+'_NNLOPS_'+channel+'_'+obs_name+'_'+obs_name_2nd+'_genbin'+str(genbin)+'_recobin'+str(recobin)
+
 
         # Selections (in case of Dcp - always 1D - we do not use the absolute value)
         cutobs_reco = (datafr[obs_reco] >= obs_reco_low) & (datafr[obs_reco] < obs_reco_high)
@@ -521,9 +522,14 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
             # Write dictionaries
             if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
             else: obs_name_dic = obs_name
-            if (os.path.exists('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year)+'_ORIG.py')):
-                os.system('rm ../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year)+'_ORIG.py')
-            with open('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year)+'.py', 'w') as f:
+            #Fix 2016post to 2016
+            if 'post' in year:
+                year_label = '2016'
+            else:
+                year_label = year
+            if (os.path.exists('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year_label)+'_ORIG.py')):
+                os.system('rm ../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year_label)+'_ORIG.py')
+            with open('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+str(year_label)+'.py', 'w') as f:
                 f.write('observableBins = '+str(obs_bins)+';\n')
                 f.write('acc = '+str(acceptance)+' \n')
                 f.write('err_acc = '+str(err_acceptance)+' \n')
@@ -652,7 +658,7 @@ if(opt.YEAR == 'Full'):
         frame = [d_sig_tot[year][signal] for year in years]
         d_sig_full[signal] = pd.concat(frame, ignore_index=True, sort=True)
 else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (it is useful when fullNNLOPS is calculated)
-    d_sig_full = d_sig_tot[int(opt.YEAR)]
+    d_sig_full = d_sig_tot[opt.YEAR]
 print 'Dataframes created successfully'
 
 if not opt.AC_ONLYACC:
