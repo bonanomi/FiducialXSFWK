@@ -56,7 +56,7 @@ def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, 
     _years = {"1":"2016", "2":"2017", "3":"2018"}
     if _physicalModel != 'v3':
         # In case of mass4l we have only one bin, so the third 'chan' part is not included in the name of the function
-        if (_obsName!='mass4l'):
+        if (_obsName!='mass4l' and _obsName!='mass4l_zzfloating'):
             binName = "ch"+_year+"_ch"+_fStateNumber+"_ch"+str(_recobin+1)
             procName = _fState+"Bin"+str(_bin)
         else:
@@ -67,13 +67,18 @@ def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, 
         if _obsName not in _obsName_v3:
             _obsName_v3[_obsName] = _obsName
 
-        _recobin_final = str(_observableBins[_recobin]).replace('.', 'p')+'_'+str(_observableBins[_recobin+1]).replace('.', 'p')
-        if int(_observableBins[_recobin+1]) > 1000:
-            _recobin_final = 'GT'+str(int(_observableBins[_recobin]))
+        if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+            _recobin_final = str(_observableBins[_recobin][0]).replace('.', 'p')+'_'+str(_observableBins[_recobin][1]).replace('.', 'p')+'_'+str(_observableBins[_recobin][2]).replace('.', 'p')+'_'+str(_observableBins[_recobin][3]).replace('.', 'p')
+            _genbin_final = str(_observableBins[_bin][0]).replace('.', 'p')+'_'+str(_observableBins[_bin][1]).replace('.', 'p')+'_'+str(_observableBins[_bin][2]).replace('.', 'p')+'_'+str(_observableBins[_bin][3]).replace('.', 'p')
+        else:
+            _recobin_final = str(_observableBins[_recobin]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_recobin+1]).replace('.', 'p').replace('-','m')
+            if int(_observableBins[_recobin+1]) > 1000:
+                _recobin_final = 'GT'+str(int(_observableBins[_recobin]))
 
-        _genbin_final = str(_observableBins[_bin]).replace('.', 'p')+'_'+str(_observableBins[_bin+1]).replace('.', 'p')
-        if int(_observableBins[_bin+1]) > 1000:
-            _genbin_final = 'GT'+str(int(_observableBins[_bin]))
+            _genbin_final = str(_observableBins[_bin]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_bin+1]).replace('.', 'p').replace('-','m')
+            if int(_observableBins[_bin+1]) > 1000:
+                _genbin_final = 'GT'+str(int(_observableBins[_bin]))
+
 
         binName = "hzz_" + _obsName_v3[_obsName] + "_" + _recobin_final + "_cat" + _fState + "_" + _years[_year]
         procName = _obsName_v3[_obsName] + "_" + _genbin_final
@@ -104,9 +109,9 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"} # 4l is dummy, won't be used
     run = {"2016":"1", "2017":"2", "2018":"3", "Full": "2"}
-    SignalNames = {"v3":"smH_", "v2":"trueH", "v4":"trueH"}
-    CombNames = {"v3":"nonResH", "v2":"fakeH", "v4":"fakeH"}
-    OutNames = {"v3":"OutsideAcceptance", "v2":"out_trueH", "v4":"out_trueH"}
+    SignalNames = {"v3":"smH_", "v2":"trueH", "v4":"trueH", "kLambda": "trueH"}
+    CombNames = {"v3":"nonResH", "v2":"fakeH", "v4":"fakeH", "kLambda":"fakeH"}
+    OutNames = {"v3":"OutsideAcceptance", "v2":"out_trueH", "v4":"out_trueH", "kLambda":"out_trueH"}
 
     # Load some libraries
     ROOT.gSystem.AddIncludePath("-I$CMSSW_BASE/src/ ")
@@ -119,6 +124,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     	theorymass = theorymass + '.123456'
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
+    elif physicalModel == 'kLambda':
+        fname = 'higgsCombine_'+obsName+'.MultiDimFit.mH'+theorymass+'.root'
     else:
         fname = 'higgsCombine_'+obsName+'_r2e2muBin0.MultiDimFit.mH'+theorymass+'.root'
     print 'combine file: ', fname
@@ -351,7 +358,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     datacut = ''
     bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
     for year in ["1", "2", "3"]:
-        if(obsName!='mass4l'):
+        if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
             datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
         else:
             datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
@@ -394,7 +401,6 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
                     bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                     comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
         comp_otherfid = comp_otherfid.rstrip(',')
-        print(comp_otherfid)
 
         comp_out = ''
         comp_fake = ''
@@ -411,6 +417,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_fake = comp_fake.rstrip(',')
         comp_zz = comp_zz.rstrip(',')
         comp_zx = comp_zx.rstrip(',')
+
+    print(comp_zx)
 
     sim.plotOn(mass, RooFit.LineColor(kGreen+2), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid+","+comp_out), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kOrange-3), RooFit.LineStyle(2), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid), RooFit.ProjWData(data,True))
@@ -560,7 +568,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     elif (obsName=="Phi"):
         label = "|#Phi^{#star}|"
         unit = ""
-    elif (obsName=="mass4l"):
+    elif (obsName=="mass4l") or (obsName=='mass4l_zzfloating'):
         label = "inclusive"
         unit = ""
     else:
@@ -588,7 +596,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     latex2.SetTextFont(42)
     latex2.SetTextSize(0.45*c.GetTopMargin())
     #latex2.DrawLatex(0.20,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit+"    Unfolding model: "+modelName.replace("_"," ")+" GeV")
-    if (obsName!='mass4l'): latex2.DrawLatex(0.65,0.85, str(observableBins[recobin])+" "+unit+" < "+label+" < "+str(observableBins[recobin+1])+" "+unit)
+    if (obsName!='mass4l' and obsName!='mass4l_zzfloating'): latex2.DrawLatex(0.65,0.85, str(observableBins[recobin])+" "+unit+" < "+label+" < "+str(observableBins[recobin+1])+" "+unit)
 
     checkDir("plots")
     checkDir("plots/"+obsName)

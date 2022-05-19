@@ -61,11 +61,15 @@ def weight(df, fail, xsec, gen, lumi, additional = None):
     #Coefficient to calculate weights for histograms
     coeff = (lumi * 1000 * xsec) / gen
     #Gen
-    weight_gen = df.genHEPMCweight * df.PUWeight
+    weight_gen = np.sign(df.genHEPMCweight)# * df.PUWeight
     weight_histo_gen = weight_gen * coeff
     #Reco
     if(fail == False):
-        weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
+        # weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
+        if not opt.AC_ONLYACC: #AC samples are ReReco, there is no SFcorr for ReReco
+            weight_reco = np.sign(df.genHEPMCweight) * df.PUWeight * df.dataMCWeight * df.L1prefiringWeight * df.SFcorr
+        else:
+            weight_reco = np.sign(df.genHEPMCweight) * df.PUWeight * df.dataMCWeight * df.L1prefiringWeight
         weight_histo_reco = weight_reco * coeff
     elif(fail == True):
         weight_reco = 0
@@ -98,7 +102,10 @@ def prepareTrees(year):
         # if signal == 'VBFH125' and year == 2017:
         #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
         # else:
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if opt.AC==True or opt.AC_ONLYACC==True:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
+        else:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
@@ -200,7 +207,10 @@ def generators(year):
         # if signal == 'VBFH125' and year == 2017:
         #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
         # else:
-        fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+        if opt.AC==True or opt.AC_ONLYACC==True:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
+        else:
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
@@ -214,10 +224,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
              'GENZ_MomId', 'passedFiducialSelection_bbf', 'PUWeight', 'genHEPMCweight']
     if (obs_gen != 'GENmass4l'): b_sig.append(obs_gen)
     if (obs_gen_2nd!='None'): b_sig.append(obs_gen_2nd)
-    if signal == 'ggH125': b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
+    if 'ggH' in signal and not opt.AC_ONLYACC: b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail:
         b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'lep_genindex', 'lep_Hindex', 'overallEventWeight',
                       'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
+        if not opt.AC_ONLYACC: b_sig.append('SFcorr') #AC samples are ReReco, there is no SFcorr for ReReco
         if (obs_reco!='ZZMass'): b_sig.append(obs_reco) #We need to include the if condition otherwise for mass4l ZZMass would be repeated twice
         if (obs_reco_2nd!='None'): b_sig.append(obs_reco_2nd)
 
@@ -236,6 +247,8 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         if (obs_reco_2nd!='None'): df[obs_reco_2nd] = -1
     df['gen'] = gen
     df['xsec'] = xsec
+    if opt.AC_ONLYACC:
+        df['ggH_NNLOPS_weight'] = 1 #Set to 1 for ggH, in CJLST ntuple the values is always the same (PERHAPS TO BE UNDERSTOOD)
     if not fail:
         df['FinState_reco'] = [add_fin_state_reco(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
     elif fail:
@@ -250,7 +263,7 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df['cuth4l_reco'] = [add_cuth4l_reco(row[0],row[1],row[2],row[3]) for row in df[['lep_Hindex','lep_genindex','GENlep_MomMomId','GENlep_MomId']].values]
     elif fail:
         df['cuth4l_reco'] = False
-    if not 'ggH125' in signal:
+    if not 'ggH' in signal:
         df = weight(df, fail, xsec, gen, lumi)
     else:
         df = weight(df, fail, xsec, gen, lumi, 'ggH')
@@ -345,11 +358,11 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             datafr = d_sig_full[signal]
             genweight = 'weight_gen'
             recoweight = 'weight_reco'
-        elif type=='fullNNLOPS' and signal=='ggH125':
+        elif type=='fullNNLOPS' and 'ggH' in signal:
             datafr = d_sig_full[signal]
             genweight = 'weight_gen_NNLOPS'
             recoweight = 'weight_reco_NNLOPS'
-        elif type=='fullNNLOPS' and signal!='ggH125': # In case of fullNNLOPS we are interested in ggH125 only
+        elif type=='fullNNLOPS' and not 'ggH' in signal: # In case of fullNNLOPS we are interested in ggH125 only
             continue
 
         if doubleDiff:
@@ -419,7 +432,7 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             err_acceptance[processBin] = -1.0
 
 
-        if type=='fullNNLOPS' or type=='ACggH' or opt.INTER: continue # In case of fullNNLOPS we are interested in acceptance only
+        if type=='fullNNLOPS' or type=='ACggH': continue # In case of fullNNLOPS we are interested in acceptance only
 
         # --------------- EffRecoToFid ---------------
         eff_num = datafr[cutm4l_reco & cutobs_reco & passedFullSelection & cuth4l_reco &
@@ -619,7 +632,6 @@ else:
 
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
-print(observables)
 if doubleDiff:
     obs_reco = observables[obs_name_2d]['obs_reco']
     obs_reco_2nd = observables[obs_name_2d]['obs_reco_2nd']
@@ -628,6 +640,8 @@ if doubleDiff:
 else:
     obs_reco = observables[obs_name]['obs_reco']
     obs_gen = observables[obs_name]['obs_gen']
+
+print obs_reco
 
 print 'Following observables extracted from dictionary: RECO = ',obs_reco,' GEN = ',obs_gen
 if doubleDiff:
@@ -658,7 +672,10 @@ if(opt.YEAR == 'Full'):
         frame = [d_sig_tot[year][signal] for year in years]
         d_sig_full[signal] = pd.concat(frame, ignore_index=True, sort=True)
 else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (it is useful when fullNNLOPS is calculated)
-    d_sig_full = d_sig_tot[opt.YEAR]
+    if opt.YEAR == '2016':
+        d_sig_full = d_sig_tot[opt.YEAR+'post']
+    else:
+        d_sig_full = d_sig_tot[opt.YEAR]
 print 'Dataframes created successfully'
 
 if not opt.AC_ONLYACC:

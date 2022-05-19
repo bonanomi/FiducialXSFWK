@@ -31,11 +31,11 @@ declare -a obs=(
 "Dint noJES"
 "DL1 noJES"
 "DL1Zg noJES"
-# "rapidity4l vs pT4l noJES"
+"rapidity4l vs pT4l noJES"
 # "njets_pt30_eta4p7 vs pT4l JES"
 # "pTj1 vs pTj2 JES"
 # "pT4l vs pTHj JES"
-# "massZ1 vs massZ2 noJES"
+"massZ1 vs massZ2 noJES"
 # "TCjmax vs pT4l JES"
 )
 source /opt/exp_soft/cms/t3/t3setup
@@ -183,7 +183,7 @@ for i in "${!obs[@]}"; do
   if [ $name_folder == mass4l_zzfloating ]; then
     zzfloating="--m4lLower 105 --m4lUpper 160"
   else
-    zzfloating=""
+    zzfloating="--m4lLower 105 --m4lUpper 160" #All measurements between [105,160]
   fi
   sed -i "s/ZZFLOATING/$zzfloating/g" batchScript.sh
 

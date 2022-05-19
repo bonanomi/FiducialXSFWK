@@ -83,37 +83,44 @@ def getJes(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, obs
     datafr_ggzz = d_bkg[year]['ggzz']
     datafr_zx = d_ZX[year]
 
-    # ------------- ZX computation (at this stage it is done only the inclusive JES) -------------
-    if doubleDiff:
-        processBin = '_'+channel+'_'+str(year)+'_'+obs_reco+'_'+obs_reco_2nd+'_recobin'+str(recobin)
-    else:
-        processBin = '_'+channel+'_'+str(year)+'_'+obs_reco+'_recobin'+str(recobin)
-
-    cutobs_reco_zx = (datafr_zx[obs_reco] >= obs_reco_low) & (datafr_zx[obs_reco] < obs_reco_high)
-    cutobs_reco_jesup_zx = (datafr_zx[obs_reco+'_jesup'] >= obs_reco_low) & (datafr_zx[obs_reco+'_jesup'] < obs_reco_high)
-    cutobs_reco_jesdn_zx = (datafr_zx[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr_zx[obs_reco+'_jesdn'] < obs_reco_high)
-    cutchan_reco_zx = (datafr_zx['FinState_reco'] == channel)
-    cutm4l_reco_zx = (datafr_zx['ZZMass'] > m4l_low) & (datafr_zx['ZZMass'] < m4l_high) & (datafr_zx['FinState_reco'] == channel)
-    if doubleDiff:
-        cutobs_reco_zx &= (datafr_zx[obs_reco_2nd] >= obs_reco_2nd_low) & (datafr_zx[obs_reco_2nd] < obs_reco_2nd_high)
-        cutobs_reco_jesup_zx &= (datafr_zx[obs_reco_2nd+'_jesup'] >= obs_reco_2nd_low) & (datafr_zx[obs_reco_2nd+'_jesup'] < obs_reco_2nd_high)
-        cutobs_reco_jesdn_zx &= (datafr_zx[obs_reco_2nd+'_jesdn'] >= obs_reco_2nd_low) & (datafr_zx[obs_reco_2nd+'_jesdn'] < obs_reco_2nd_high)
-
-    evts['ZX'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_zx & cutchan_reco_zx]['yield_SR'].sum()
-    evts['ZX_jesup'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_jesup_zx & cutchan_reco_zx]['yield_SR'].sum()
-    evts['ZX_jesdn'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_jesdn_zx & cutchan_reco_zx]['yield_SR'].sum()
-    evts_noWeight['ZX'+processBin] = len(datafr_zx[cutm4l_reco_zx & cutobs_reco_zx & cutchan_reco_zx])
-    evts_noWeight['ZX_jesup'+processBin] = len(datafr_zx[cutm4l_reco_zx & cutobs_reco_jesup_zx & cutchan_reco_zx])
-    evts_noWeight['ZX_jesdn'+processBin] = len(datafr_zx[cutm4l_reco_zx & cutobs_reco_jesdn_zx & cutchan_reco_zx])
-
-    ratio['ZX'+processBin] = computeRatio(evts['ZX'+processBin], evts['ZX_jesup'+processBin], evts['ZX_jesdn'+processBin])
-
-    # ------------- signal, qqZZ, and ggZZ computation -------------
     for i in jesNames:
         if doubleDiff:
             processBin = '_'+i+'_'+channel+'_'+str(year)+'_'+obs_reco+'_'+obs_reco_2nd+'_recobin'+str(recobin)
         else:
             processBin = '_'+i+'_'+channel+'_'+str(year)+'_'+obs_reco+'_recobin'+str(recobin)
+
+
+    # ------------- ZX computation (at this stage it is done only the inclusive JES) -------------
+    # if doubleDiff:
+    #     processBin = '_'+channel+'_'+str(year)+'_'+obs_reco+'_'+obs_reco_2nd+'_recobin'+str(recobin)
+    # else:
+    #     processBin = '_'+channel+'_'+str(year)+'_'+obs_reco+'_recobin'+str(recobin)
+
+        cutobs_reco_zx = (datafr_zx[obs_reco] >= obs_reco_low) & (datafr_zx[obs_reco] < obs_reco_high)
+        cutobs_reco_jesup_zx = (datafr_zx[obs_reco+'_jesup_'+i] >= obs_reco_low) & (datafr_zx[obs_reco+'_jesup_'+i] < obs_reco_high)
+        cutobs_reco_jesdn_zx = (datafr_zx[obs_reco+'_jesdn_'+i] >= obs_reco_low) & (datafr_zx[obs_reco+'_jesdn_'+i] < obs_reco_high)
+        cutchan_reco_zx = (datafr_zx['FinState_reco'] == channel)
+        cutm4l_reco_zx = (datafr_zx['ZZMass'] > m4l_low) & (datafr_zx['ZZMass'] < m4l_high) & (datafr_zx['FinState_reco'] == channel)
+        if doubleDiff:
+            cutobs_reco_zx &= (datafr_zx[obs_reco_2nd] >= obs_reco_2nd_low) & (datafr_zx[obs_reco_2nd] < obs_reco_2nd_high)
+            cutobs_reco_jesup_zx &= (datafr_zx[obs_reco_2nd+'_jesup_'+i] >= obs_reco_2nd_low) & (datafr_zx[obs_reco_2nd+'_jesup_'+i] < obs_reco_2nd_high)
+            cutobs_reco_jesdn_zx &= (datafr_zx[obs_reco_2nd+'_jesdn_'+i] >= obs_reco_2nd_low) & (datafr_zx[obs_reco_2nd+'_jesdn_'+i] < obs_reco_2nd_high)
+
+        evts['ZX'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_zx & cutchan_reco_zx]['yield_SR'].sum()
+        evts['ZX_jesup'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_jesup_zx & cutchan_reco_zx]['yield_SR'].sum()
+        evts['ZX_jesdn'+processBin] = datafr_zx[cutm4l_reco_zx & cutobs_reco_jesdn_zx & cutchan_reco_zx]['yield_SR'].sum()
+        evts_noWeight['ZX'+processBin] = len(datafr_zx[cutm4l_reco_zx & cutobs_reco_zx & cutchan_reco_zx])
+        evts_noWeight['ZX_jesup'+processBin] = len(datafr_zx[cutm4l_reco_zx & cutobs_reco_jesup_zx & cutchan_reco_zx])
+        evts_noWeight['ZX_jesdn'+processBin] = len(datafr_zx[cutm4l_reco_zx & cutobs_reco_jesdn_zx & cutchan_reco_zx])
+
+        ratio['ZX'+processBin] = computeRatio(evts['ZX'+processBin], evts['ZX_jesup'+processBin], evts['ZX_jesdn'+processBin])
+
+    # ------------- signal, qqZZ, and ggZZ computation -------------
+    # for i in jesNames:
+    #     if doubleDiff:
+    #         processBin = '_'+i+'_'+channel+'_'+str(year)+'_'+obs_reco+'_'+obs_reco_2nd+'_recobin'+str(recobin)
+    #     else:
+    #         processBin = '_'+i+'_'+channel+'_'+str(year)+'_'+obs_reco+'_recobin'+str(recobin)
 
         cutobs_reco = (datafr[obs_reco] >= obs_reco_low) & (datafr[obs_reco] < obs_reco_high)
         cutobs_reco_qqzz = (datafr_qqzz[obs_reco] >= obs_reco_low) & (datafr_qqzz[obs_reco] < obs_reco_high)
@@ -173,8 +180,6 @@ def getJes(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, obs
 
 def doGetJes(obs_reco, obs_gen, obs_name, obs_bins, obs_reco_2nd = 'None', obs_gen_2nd = 'None', obs_name_2nd = 'None',):
     chans = ['4e', '4mu', '2e2mu']
-    m4l_low = 105
-    m4l_high = 140
 
     nBins = len(obs_bins)
     if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
@@ -217,10 +222,18 @@ if doubleDiff:
     obs_gen_2nd = observables[obsname]['obs_gen_2nd']
 
 # year    = opt.YEAR
-if (opt.YEAR == '2016'): years = [2016]
-if (opt.YEAR == '2017'): years = [2017]
-if (opt.YEAR == '2018'): years = [2018]
-if (opt.YEAR == 'Full'): years = [2016,2017,2018]
+if (opt.YEAR == '2016'):
+    years = [2016]
+    years_MC = ['2016pre', '2016post']
+if (opt.YEAR == '2017'):
+    years = [2017]
+    years_MC = ['2017']
+if (opt.YEAR == '2018'):
+    years = [2018]
+    years_MC = ['2018']
+if (opt.YEAR == 'Full'):
+    years = [2016,2017,2018]
+    years_MC = ['2016pre', '2016post', '2017', '2018']
 
 
 m4l_low = opt.LOWER_BOUND
@@ -232,17 +245,37 @@ print (obsname, years, m4l_low, m4l_high, obsname_out)
 obs_bins, doubleDiff = binning(opt.OBSNAME)
 
 # Generate dataframes
-d_sig = {}
-d_bkg = {}
-for year in years:
+d_sig_tmp = {}
+d_bkg_tmp = {}
+for year in years_MC:
     if doubleDiff: sig, bkg = skim_df(year, doubleDiff, obs_reco, obs_reco_2nd)
     else: sig, bkg = skim_df(year, doubleDiff, obs_reco)
-    d_sig[year] = sig
-    d_sig[year] = pd.concat([d_sig[year]['ggH125'], d_sig[year]['VBFH125'], d_sig[year]['WH125'], d_sig[year]['ZH125'], d_sig[year]['ttH125']])
-    d_bkg[year] = bkg
+    d_bkg_tmp[year] = bkg
+    if year!='2016pre':
+        d_sig_tmp[year] = sig
+        d_sig_tmp[year] = pd.concat([d_sig_tmp[year]['ggH125'], d_sig_tmp[year]['VBFH125'], d_sig_tmp[year]['WH125'], d_sig_tmp[year]['ZH125'], d_sig_tmp[year]['ttH125']])
+
+
+d_bkg = {}
+d_sig = {}
+if (opt.YEAR == '2016' or opt.YEAR == 'Full'):
+    d_bkg_2016 = {}
+    d_bkg_2016['qqzz'] = pd.concat([d_bkg_tmp['2016post']['qqzz'], d_bkg_tmp['2016pre']['qqzz']])
+    d_bkg_2016['ggzz'] = pd.concat([d_bkg_tmp['2016post']['ggzz'], d_bkg_tmp['2016pre']['ggzz']])
+    d_bkg[2016] = d_bkg_2016
+    d_sig[2016] = d_sig_tmp['2016post']
+if (opt.YEAR == '2017' or opt.YEAR == 'Full'):
+    d_bkg[2017] = d_bkg_tmp['2017']
+    d_sig[2017] = d_sig_tmp['2017']
+if (opt.YEAR == '2018' or opt.YEAR == 'Full'):
+    d_bkg[2018] = d_bkg_tmp['2018']
+    d_sig[2018] = d_sig_tmp['2018']
 
 d_ZX = {}
-d_ZX = zx()
+if doubleDiff:
+    d_ZX = zx(obs_reco, obs_reco_2nd)
+else:
+    d_ZX = zx(obs_reco)
 
 
 ratio = {} # Dict with ratio of jesup and jesdown variations wrt nominal value

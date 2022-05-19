@@ -20,7 +20,7 @@ def parseOptions():
     # input options
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
-    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -111,17 +111,17 @@ for fState in ['2e2mu', '4e', '4mu']:
                           evts['ggzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
                           JESNP['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
 
-        # nominal_incl += evts['ZX_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-        # up_incl += evts['ZX_jesup_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-        # dn_incl += evts['ZX_jesdn_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-        table.append(['ZX_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin),
-                      evts_noWeight['ZX_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                      evts_noWeight['ZX_jesup_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                      evts_noWeight['ZX_jesdn_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                      evts['ZX_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                      evts['ZX_jesup_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                      evts['ZX_jesdn_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                      JESNP['ZX_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
+            # nominal_incl += evts['ZX_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
+            # up_incl += evts['ZX_jesup_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
+            # dn_incl += evts['ZX_jesdn_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
+            table.append(['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin),
+                          evts_noWeight['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
+                          evts_noWeight['ZX_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
+                          evts_noWeight['ZX_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
+                          evts['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
+                          evts['ZX_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
+                          evts['ZX_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
+                          JESNP['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
 
         # table.append(['INCLUSIVE', nominal_incl, up_incl, dn_incl, str(round(dn_incl/nominal_incl,3))+'/'+str(round(up_incl/nominal_incl,3))])
         table.append([])
@@ -130,4 +130,3 @@ for fState in ['2e2mu', '4e', '4mu']:
 
         with open('tables/'+obsname_out+'/JESNP_table_'+obsname_out+'_'+fState+'_'+str(year)+'_recobin'+str(recobin)+'.py', 'w') as f:
             f.write(tables[fState,recobin])
->>>>>>> abacad9bead1eba9b11795c1ae0fc95f872d30a7

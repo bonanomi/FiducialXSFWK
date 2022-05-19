@@ -408,9 +408,9 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff and 'rapidity' in var_string:
-                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+'_'+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff:
-                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
+                        histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+"_"+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high))+'_'+str(int(bin_low_2nd))+"_"+str(int(bin_high_2nd)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     else:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
 

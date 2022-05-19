@@ -35,12 +35,16 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coeffici
 python RunCoefficients.py --obsName 'VAR' --year 'Full' ZZFLOATING
 python RunCoefficients.py --obsName 'VAR' --year 'Full' --interpolation --hypothesis '24' ZZFLOATING
 python RunCoefficients.py --obsName 'VAR' --year 'Full' --interpolation --hypothesis '26' ZZFLOATING
-FIRST
-SECOND
+FIRST ZZFLOATING
+SECOND ZZFLOATING
 
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunInterpolation.py .
 mkdir extrapolation
 python3 RunInterpolation.py --obsName 'VAR' --year 'Full'
+python3 RunInterpolation.py --obsName 'VAR' --year '2016'
+python3 RunInterpolation.py --obsName 'VAR' --year '2017'
+python3 RunInterpolation.py --obsName 'VAR' --year '2018'
+python3 RunInterpolation.py --obsName 'VAR' --year 'Full' --nnlops
 
 jes=SETTING
 if [ $jes == true ];then
@@ -59,7 +63,8 @@ if [ $jes == true ];then
 fi
 
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncROOT.py .
-python pdfUncROOT.py --obsName 'VAR' --year 'Full' ZZFLOATING
+python pdfUncROOT.py --obsName 'VAR' ZZFLOATING
+python pdfUncROOT.py --obsName 'VAR' --nnlops ZZFLOATING
 # python pdfUncertainty.py --obsName 'VAR' --year 'Full' --nnlops
 cd ../inputs
 # sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py > accUnc_OBS_NNLOPS.py #FIXME: This is temporary!
@@ -73,7 +78,7 @@ python RunTemplates.py --obsName 'VAR' --year 'Full' ZZFLOATING
 # IN="BIN"
 # boundaries=$(echo $IN | tr "|" "\n")
 # ./plot_templates OBS $boundaries
-python plot_templates.py --obsName 'VAR' --year 'Full'
+python plot_templates.py --obsName 'VAR' --year 'Full' ZZFLOATING
 
 
 cd ../fit
@@ -94,6 +99,9 @@ else
   FIFTH UNBLIND
 fi
 
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/RunCorrelation.py .
+python RunCorrelation.py --obsName 'VAR' --year 'Full' UNBLIND
+
 cd ../LHScans
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plot_LLScan.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plotting.py .
@@ -103,7 +111,7 @@ FOURTH UNBLIND
 cd ..
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/plotShapes.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
-python plotShapes.py --obsName 'VAR' --year 'Full' UNBLIND
+python plotShapes.py --obsName 'VAR' --year 'Full' UNBLIND ZZFLOATING
 
 if [[ "VAR" != "pT4l_kL" ]]; then
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .

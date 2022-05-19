@@ -40,8 +40,18 @@ parseOptions()
 def exp_xsec():
     # prepare the set of bin boundaries to run over, only 1 bin in case of the inclusive measurement
     observableBins, doubleDiff = binning(opt.OBSNAME)
+    if doubleDiff:
+        obs_name = opt.OBSNAME.split(' vs ')[0]
+        obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
+        obs_name_2d = opt.OBSNAME
+        doubleDiff = True
+    else:
+        obs_name = opt.OBSNAME
+        doubleDiff = False
     ## Run for the given observable
-    obsName = opt.OBSNAME
+    # obsName = opt.OBSNAME
+    if doubleDiff: obsName = obs_name+'_'+obs_name_2nd
+    else: obsName = obs_name
     _th_MH = opt.THEORYMASS
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Theory xsec and BR at MH = '+_th_MH
@@ -55,8 +65,9 @@ def exp_xsec():
     acc = _temp.acc
     XH = []
     nBins = len(observableBins)
+    if not doubleDiff: nBins = nBins - 1
     xs = {}
-    for obsBin in range(nBins-1):
+    for obsBin in range(nBins):
         XH.append(0.0)
         # if('mass4l' not in obsName):
         for channel in ['4e','4mu','2e2mu']:

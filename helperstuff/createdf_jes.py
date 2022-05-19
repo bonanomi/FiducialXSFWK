@@ -11,9 +11,9 @@ import ROOT
 
 jesNames = ['Total', 'Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
 signals_original = ['ggH125', 'VBFH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
-bkgs = ['ZZTo4lext', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
+bkgs = ['ZZTo4l', 'ggTo2e2mu_Contin_MCFM701', 'ggTo2e2tau_Contin_MCFM701', 'ggTo2mu2tau_Contin_MCFM701',
         'ggTo4e_Contin_MCFM701', 'ggTo4mu_Contin_MCFM701', 'ggTo4tau_Contin_MCFM701']
-eos_path_sig = '/eos/user/a/atarabin/MC_samples/'
+eos_path_sig = '/grid_mnt/data__data.polcms/cms/tarabini/HZZ4l/'
 key = 'candTree'
 
 
@@ -48,26 +48,34 @@ def weight(df, xsec, gen, lumi, additional = None):
 def prepareTrees(year):
     d_sig = {}
     d_bkg = {}
-    for signal in signals_original:
-        # if(opt.AC==False):
-        fname = eos_path_sig + '%i_MELA' %year
-        # else:
-	        # fname = eos_path_sig + 'AC%i' %year
-        if (year == 2017) & (signal == 'VBFH125'):
-            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
-        else:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
-        d_sig[signal] = uproot.open(fname)[key]
 
     for bkg in bkgs:
-        fname = eos_path_sig + '%i_MELA' %year
-#         if year == 2016:
-#             fname += '_CorrectBTag'
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            fname += '/'+bkg+'1/'+bkg+'1_reducedTree_MC_'+str(year)+'.root'
-        else:
-            fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
+        fname = eos_path_sig + 'MC_samples_UL/%s_MELA' %year
+        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
+        print fname
+#         fname = eos_path_sig + '%i_MELA' %year
+# #         if year == 2016:
+# #             fname += '_CorrectBTag'
+#         if (year == 2018) & (bkg == 'ZZTo4lext'):
+#             fname += '/'+bkg+'1/'+bkg+'1_reducedTree_MC_'+str(year)+'.root'
+#         else:
+#             fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         d_bkg[bkg] = uproot.open(fname)[key]
+
+    if year!='2016pre':
+        for signal in signals_original:
+            # if(opt.AC==False):
+            fname = eos_path_sig + 'MC_samples_UL/%s_MELA' %year
+            # else:
+    	        # fname = eos_path_sig + 'AC%i' %year
+            # if (year == 2017) & (signal == 'VBFH125'):
+            #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+            # else:
+            #     fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            print fname
+            d_sig[signal] = uproot.open(fname)[key]
+
 
     return d_sig, d_bkg
 
@@ -84,7 +92,7 @@ def xsecs(year):
     xsec_sig['WplusH125'] = 0.0002305
     xsec_sig['ZH125'] = 0.0005321
 
-    xsec_bkg['ZZTo4lext'] = 1.2560000
+    xsec_bkg['ZZTo4l'] = 1.2560000
     xsec_bkg['ggTo2e2mu_Contin_MCFM701'] = 0.0031914
     xsec_bkg['ggTo2e2tau_Contin_MCFM701'] = 0.0031914
     xsec_bkg['ggTo2mu2tau_Contin_MCFM701'] = 0.0031914
@@ -122,32 +130,31 @@ def add_fin_state_reco(i, j):
 def generators(year):
     gen_sig = {}
     gen_bkg = {}
-    for signal in signals_original:
-        # if(opt.AC==False):
-        fname = eos_path_sig + '%i_MELA' %year
-        # else:
-	        # fname = eos_path_sig + 'AC%i' %year
-        if (year == 2017) & (signal == 'VBFH125'):
-            fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
-        else:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
-        input_file = ROOT.TFile(fname)
-        hCounters = input_file.Get("Counters")
-        gen_sig[signal] = hCounters.GetBinContent(40)
-        input_file.Close()
 
     for bkg in bkgs:
-        fname = eos_path_sig + '%i_MELA' %year
-#         if year == 2016:
-#             fname += '_CorrectBTag'
-        if (year == 2018) & (bkg == 'ZZTo4lext'):
-            fname += '/'+bkg+'1/'+bkg+'1_reducedTree_MC_'+str(year)+'.root'
-        else:
-            fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
+        fname = eos_path_sig + 'MC_samples_UL/%s_MELA' %year
+        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
         hCounters = input_file.Get("Counters")
         gen_bkg[bkg] = hCounters.GetBinContent(40)
         input_file.Close()
+
+    if year!='2016pre':
+        for signal in signals_original:
+            # if(opt.AC==False):
+            fname = eos_path_sig + 'MC_samples_UL/%s_MELA' %year
+            # else:
+    	        # fname = eos_path_sig + 'AC%i' %year
+            # if (year == 2017) & (signal == 'VBFH125'):
+            #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
+            # else:
+            #     fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
+            print fname
+            input_file = ROOT.TFile(fname)
+            hCounters = input_file.Get("Counters")
+            gen_sig[signal] = hCounters.GetBinContent(40)
+            input_file.Close()
 
     return gen_sig, gen_bkg
 
@@ -237,7 +244,7 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
 
     if signal == 'ggH125':
         b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
-    elif signal == 'ZZTo4lext':
+    elif signal == 'ZZTo4l':
         b_sig.append('KFactor_EW_qqZZ')
         b_sig.append('KFactor_QCD_qqZZ_M')
     elif 'gg' in signal:
@@ -247,10 +254,11 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
     if obs_reco != 'pTj1' and obs_reco != 'pTj2': b_sig.append(obs_reco)
     if (obs_reco_2nd!='None' and obs_reco_2nd != 'pTj1' and obs_reco_2nd != 'pTj2'): b_sig.append(obs_reco_2nd)
 
-    df = dataFrame.pandas.df(b_sig, flatten = False)
+    df = dataFrame.pandas.df(b_sig, flatten = False)#, entrystop=500)
     df['gen'] = gen
     df['xsec'] = xsec
     df['FinState_reco'] = [add_fin_state_reco(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
+    # print df[['JetPt','JetPt_JESUp_Total', 'JetPt_JESDown_Total']]
     # Leading jets
     for i in jesNames:
         df['j1_jesup_'+i] = [add_leadjet(row[0],row[1],row[2],row[3]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass']].values]
@@ -299,8 +307,15 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
             df['TBjmax_jesup_'+i] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESUp_'+i,'JetEta','JetPhi','JetMass','Higgs']].values]
             df['TBjmax_jesdn_'+i] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in df[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass','Higgs']].values]
 
+    # print df[['pTj1', 'pTj1_jesup_Total', 'pTj1_jesdn_Total']]
     if signal != 'ggH125':
         df = weight(df, xsec, gen, lumi)
+    elif 'ZZTo' in signal and isBkg:
+        df = weight(df, xsec, gen, lumi, 'qqzz')
+        df = df.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M'])
+    elif 'ggTo' in signal and isBkg:
+        df = weight(df, xsec, gen, lumi, 'ggzz')
+        df = df.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M'])
     else:
         df = weight(df, xsec, gen, lumi, 'ggH')
         df = df.drop(columns=['ggH_NNLOPS_weight'])
@@ -310,33 +325,39 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
 
 # Set up data frames
 def dataframes(year, doubleDiff, obs_reco, obs_reco_2nd):
-    if year == 2016:
-        lumi = 35.9
-    elif year == 2017:
-        lumi = 41.5
-    elif year == 2018:
-        lumi = 59.7
+    if year == '2016pre':
+        lumi_bkg = 19.52
+    elif year == '2016post':
+        lumi_bkg = 16.81
+        lumi_sig = 35.9
+    elif year == '2017':
+        lumi_sig = 41.5
+        lumi_bkg = 41.5
+    elif year == '2018':
+        lumi_sig = 59.7
+        lumi_bkg = 59.7
     d_df_sig = {}
     d_df_bkg = {}
     d_sig, d_bkg = prepareTrees(year)
     gen_sig, gen_bkg = generators(year)
     xsec_sig, xsec_bkg = xsecs(year)
 
-    for signal in signals_original:
-        print ('Processing', signal, year)
-        if doubleDiff:
-            d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi,obs_reco,obs_reco_2nd)
-        else:
-            d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi,obs_reco)
-        print ('Signal created')
-
     for bkg in bkgs:
         print ('Processing', bkg, year)
         if doubleDiff:
-            d_df_bkg[bkg] = createDataframe(d_bkg[bkg],True,gen_bkg[bkg],xsec_bkg[bkg],bkg,lumi,obs_reco,obs_reco_2nd)
+            d_df_bkg[bkg] = createDataframe(d_bkg[bkg],True,gen_bkg[bkg],xsec_bkg[bkg],bkg,lumi_bkg,obs_reco,obs_reco_2nd)
         else:
-            d_df_bkg[bkg] = createDataframe(d_bkg[bkg],True,gen_bkg[bkg],xsec_bkg[bkg],bkg,lumi,obs_reco)
+            d_df_bkg[bkg] = createDataframe(d_bkg[bkg],True,gen_bkg[bkg],xsec_bkg[bkg],bkg,lumi_bkg,obs_reco)
         print ('Background created')
+
+    if year!='2016pre':
+        for signal in signals_original:
+            print ('Processing', signal, year)
+            if doubleDiff:
+                d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi_sig,obs_reco,obs_reco_2nd)
+            else:
+                d_df_sig[signal] = createDataframe(d_sig[signal],False,gen_sig[signal],xsec_sig[signal],signal,lumi_sig,obs_reco)
+            print ('Signal created')
 
 
     return d_df_sig, d_df_bkg
@@ -347,21 +368,24 @@ def skim_df(year, doubleDiff, obs_reco, obs_reco_2nd = ''):
     d_df_sig, d_df_bkg = dataframes(year, doubleDiff, obs_reco, obs_reco_2nd)
     d_skim_sig = {}
     d_skim_bkg = {}
-    frames = []
-    for signal in signals_original:
-        if (signal == 'WplusH125') or (signal == 'WminusH125'):
-            frames.append(d_df_sig[signal])
-        else:
-            d_skim_sig[signal] = d_df_sig[signal]
-    d_skim_sig['WH125'] = pd.concat(frames)
 
     frames = []
     for bkg in bkgs:
-        if (bkg == 'ZZTo4lext'):
+        if (bkg == 'ZZTo4l'):
             d_skim_bkg['qqzz'] = d_df_bkg[bkg]
         else:
             frames.append(d_df_bkg[bkg])
     d_skim_bkg['ggzz'] = pd.concat(frames)
 
-    print ('%i SKIMMED df CREATED' %year)
+    if year!='2016pre':
+        frames = []
+        for signal in signals_original:
+            if (signal == 'WplusH125') or (signal == 'WminusH125'):
+                frames.append(d_df_sig[signal])
+            else:
+                d_skim_sig[signal] = d_df_sig[signal]
+        d_skim_sig['WH125'] = pd.concat(frames)
+
+
+    print ('%s SKIMMED df CREATED' %year)
     return d_skim_sig, d_skim_bkg

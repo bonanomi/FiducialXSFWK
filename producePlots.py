@@ -63,14 +63,14 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
     _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
-    print 'inputs_sig_'+obsName+'_'+opt.YEAR
+    print 'inputs_sig_extrap_'+obsName+'_'+opt.YEAR
     # eff = _temp.eff
     # outinratio = _temp.outinratio
     if(opt.YEAR=='Full'):
-        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
 
     if(acFlag):
@@ -2145,7 +2145,7 @@ if 'vs' in opt.OBSNAME:
     obs_name_tmp = opt.OBSNAME.split(' vs ')
     obs_name = obs_name_tmp[0]+'_'+obs_name_tmp[1]
 
-_temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+_temp = __import__('inputs_sig_extrap_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 obs_bins = _temp.observableBins
 print(obs_bins)
 
