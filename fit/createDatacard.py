@@ -1,5 +1,32 @@
 import os,sys
 
+def fixJes(jesnp):
+    # Cases where jes are '-' or single value
+    if (len(jesnp)==1) | ('/' not in jesnp):
+        return jesnp
+    else:
+        jesnp_tmp = jesnp.split('/')
+        jesnp_tmp_dn = jesnp_tmp[0]
+        jesnp_tmp_up = jesnp_tmp[1]
+        if ((jesnp_tmp_dn=='1.0') & (jesnp_tmp_up!='1.0')):
+            return jesnp_tmp_up
+        elif ((jesnp_tmp_dn!='1.0') & (jesnp_tmp_up=='1.0')):
+            return jesnp_tmp_up
+        elif (float(jesnp_tmp_dn) > float(jesnp_tmp_up)):
+            '''
+               if 1.X/0.X cases
+               return a single NP (symmetric) corresponding to largest variation
+               return the variation always as 1.X
+            '''
+            if((float(jesnp_tmp_dn)-1) > (1-float(jesnp_tmp_up))):
+                return jesnp_tmp_dn
+            else:
+                return str(1+(1-float(jesnp_tmp_up)))
+        else:
+            '''
+               if dn/up: correct jes, use it
+            '''
+            return jesnp
 
 
 def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound, yearSetting):
@@ -275,16 +302,16 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         for index,jesName in enumerate(jesNames_datacard):
             file.write('CMS_scale_j_'+jesName+' lnN ')
             for i in range(nBins): # Signals
-                file.write(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
+                file.write(fixJes(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)]))+' ')
+            file.write(fixJes(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
+            file.write(fixJes(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
+            file.write(fixJes(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
+            file.write(fixJes(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
             file.write('-\n') # ZX
         file.write('CMS_scale_j_ZX lnN ')
         for i in range(nBins+4): # All except ZX
             file.write('- ')
-        file.write(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+'\n')
+        file.write(fixJes(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+'\n')
 
             #file.write('JES param 0.0 1.0\n')
 
@@ -559,17 +586,17 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
             # file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
 
             for i in range(nBins+2): # Signal + out + fake
-                file.write(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+                file.write(fixJes(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
 
             # Bkgs
-            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+            file.write(fixJes(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
+            file.write(fixJes(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
             file.write('-\n') # ZX
             #file.write('JES param 0.0 1.0\n')
         file.write('CMS_scale_j_ZX lnN ')
         for i in range(nBins+4): # All except ZX
             file.write('- ')
-        file.write(str(jesnp['ZX_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+'\n')
+        file.write(fixJes(str(jesnp['ZX_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+'\n')
 
     file.close()
 
