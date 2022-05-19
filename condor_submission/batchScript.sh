@@ -33,8 +33,18 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/h
 cd coefficients
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunCoefficients.py .
 python RunCoefficients.py --obsName 'VAR' --year 'Full' ZZFLOATING
-FIRST
-SECOND
+python RunCoefficients.py --obsName 'VAR' --year 'Full' --interpolation --hypothesis '24' ZZFLOATING
+python RunCoefficients.py --obsName 'VAR' --year 'Full' --interpolation --hypothesis '26' ZZFLOATING
+FIRST ZZFLOATING
+SECOND ZZFLOATING
+
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunInterpolation.py .
+mkdir extrapolation
+python3 RunInterpolation.py --obsName 'VAR' --year 'Full'
+python3 RunInterpolation.py --obsName 'VAR' --year '2016'
+python3 RunInterpolation.py --obsName 'VAR' --year '2017'
+python3 RunInterpolation.py --obsName 'VAR' --year '2018'
+python3 RunInterpolation.py --obsName 'VAR' --year 'Full' --nnlops
 
 jes=SETTING
 if [ $jes == true ];then
@@ -52,11 +62,12 @@ if [ $jes == true ];then
   cd ..
 fi
 
-cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncertainty.py .
-python pdfUncertainty.py --obsName 'VAR' --year 'Full' ZZFLOATING
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncROOT.py .
+python pdfUncROOT.py --obsName 'VAR' ZZFLOATING
+python pdfUncROOT.py --obsName 'VAR' --nnlops ZZFLOATING
 # python pdfUncertainty.py --obsName 'VAR' --year 'Full' --nnlops
 cd ../inputs
-sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py > accUnc_OBS_NNLOPS.py #FIXME: This is temporary!
+# sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py > accUnc_OBS_NNLOPS.py #FIXME: This is temporary!
 
 cd ../templates
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/templates/RunTemplates.py .
@@ -67,7 +78,7 @@ python RunTemplates.py --obsName 'VAR' --year 'Full' ZZFLOATING
 # IN="BIN"
 # boundaries=$(echo $IN | tr "|" "\n")
 # ./plot_templates OBS $boundaries
-python plot_templates.py --obsName 'VAR' --year 'Full'
+python plot_templates.py --obsName 'VAR' --year 'Full' ZZFLOATING
 
 
 cd ../fit
@@ -77,6 +88,9 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/crea
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/addConstrainedModel.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/impacts.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/impacts_klambda.sh .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/expected_xsec.py .
+
+python expected_xsec.py --obsName 'VAR' --year='Full'
 python RunFiducialXS.py --obsName 'VAR' --year 'Full' UNBLIND ZZFLOATING
 if [[ "VAR" == "pT4l_kL" ]]; then
   sh impacts_klambda.sh
@@ -85,6 +99,9 @@ else
   FIFTH UNBLIND
 fi
 
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/RunCorrelation.py .
+python RunCorrelation.py --obsName 'VAR' --year 'Full' UNBLIND
+
 cd ../LHScans
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plot_LLScan.py .
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/LHScans/plotting.py .
@@ -92,6 +109,10 @@ python plot_LLScan.py --obsName 'VAR' --year 'Full' UNBLIND
 FOURTH UNBLIND
 
 cd ..
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/plotShapes.py .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
+python plotShapes.py --obsName 'VAR' --year 'Full' UNBLIND ZZFLOATING
+
 if [[ "VAR" != "pT4l_kL" ]]; then
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/tdrStyle.py .
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
@@ -124,8 +145,10 @@ if [ $jes == true ]; then
     mkdir /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/tables/OBS
   fi
   mv coefficients/JES/tables/OBS/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/JES/tables/OBS/.
-
 fi
+
+# Output from RunInterpolation
+mv coefficients/extrapolation/* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/extrapolation/.
 
 # Outputs from pdfUncertainty
 mv inputs/accUnc_* /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs

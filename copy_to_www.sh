@@ -6,13 +6,16 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation"
+# path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation" #ReReco
+path="/eos/user/a/atarabin/www/fiducial/run2_UL" #UL
 
 /opt/exp_soft/cms/t3/eos-login -init -username atarabin
 
 cd coefficients
 source /opt/exp_soft/llr/root/vv6.20.06-el7-gcc9-py37/etc/init.sh
 python RunPlotCoefficients.py --obsName "${1}" --year 'Full'
+cd ../fit
+python RunPlotCorrelation.py --obsName "${1}" --year 'Full'
 cd ..
 
 if [ -d "$path/${1}" ]; then
@@ -36,31 +39,33 @@ mkdir $path/${1}/templatesBkgs_2016 $path/${1}/templatesBkgs_2017 $path/${1}/tem
 cp $path/index.php $path/${1}/templatesBkgs_2016/.
 cp $path/index.php $path/${1}/templatesBkgs_2017/.
 cp $path/index.php $path/${1}/templatesBkgs_2018/.
-mv templates/plots/2016/${1}/* $path/${1}/templatesBkgs_2016/.
-mv templates/plots/2017/${1}/* $path/${1}/templatesBkgs_2017/.
-mv templates/plots/2018/${1}/* $path/${1}/templatesBkgs_2018/.
+cp templates/plots/2016/${1}/* $path/${1}/templatesBkgs_2016/.
+cp templates/plots/2017/${1}/* $path/${1}/templatesBkgs_2017/.
+cp templates/plots/2018/${1}/* $path/${1}/templatesBkgs_2018/.
 
-mv coefficients/matrix_eff/2016/eff_2016_${1}_* $path/${1}/.
-mv coefficients/matrix_eff/2017/eff_2017_${1}_* $path/${1}/.
-mv coefficients/matrix_eff/2018/eff_2018_${1}_* $path/${1}/.
+cp coefficients/matrix_eff/2016/eff_2016_${1}_* $path/${1}/.
+cp coefficients/matrix_eff/2017/eff_2017_${1}_* $path/${1}/.
+cp coefficients/matrix_eff/2018/eff_2018_${1}_* $path/${1}/.
 
-mv coefficients/matrix_nonfid/2016/nonFid_2016_${1}_* $path/${1}/.
-mv coefficients/matrix_nonfid/2017/nonFid_2017_${1}_* $path/${1}/.
-mv coefficients/matrix_nonfid/2018/nonFid_2018_${1}_* $path/${1}/.
+cp coefficients/matrix_nonfid/2016/nonFid_2016_${1}_* $path/${1}/.
+cp coefficients/matrix_nonfid/2017/nonFid_2017_${1}_* $path/${1}/.
+cp coefficients/matrix_nonfid/2018/nonFid_2018_${1}_* $path/${1}/.
 
 # Move datacards
-mv datacard/datacard_2016/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2016/.
-mv datacard/datacard_2017/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2017/.
-mv datacard/datacard_2018/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2018/.
-mv datacard/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/.
+cp datacard/datacard_2016/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2016/.
+cp datacard/datacard_2017/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2017/.
+cp datacard/datacard_2018/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2018/.
+cp datacard/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/.
 # Move ws
-mv datacard/datacard_2016/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2016/.
-mv datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2017/.
-mv datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2018/.
+cp datacard/datacard_2016/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2016/.
+cp datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2017/.
+cp datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2018/.
 
-mv plots/${1}/asimov/${1}_unfoldwith* $path/${1}/.
+cp plots/${1}/asimov/${1}_unfoldwith* $path/${1}/.
+cp plots/${1}/asimov/corr_${1}_*.png $path/${1}/.
+cp plots/${1}/asimov/model/* $path/${1}/.
 cp impacts/${1}/impacts_*_${1}_*_asimov* $path/${1}/.
-mv LHScans/plots/lhscan_compare_${1}_* $path/${1}/.
+cp LHScans/plots/lhscan_compare_${1}_* $path/${1}/.
 
-mv fit/commands_${1}.py $path/${1}/.
-mv impacts/commands_impacts_${1}_v* $path/${1}/.
+cp fit/commands_${1}.py $path/${1}/.
+cp impacts/commands_impacts_${1}_v* $path/${1}/.

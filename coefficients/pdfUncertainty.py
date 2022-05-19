@@ -83,7 +83,7 @@ def prepareTrees(year):
     for signal in signals_original:
         # if opt.AC_HYP: fname = eos_path_sig + 'AC%i_MELA' %year
         # else: fname = eos_path_sig + '%i_MELA' %year
-        fname = eos_path_sig + '%i_MELA' %year
+        fname = eos_path_sig + '%s_MELA' %year
         if not opt.NNLOPS: fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         else: fname += '/'+signal+'_NNLOPS/'+signal+'_NNLOPS_reducedTree_MC_'+str(year)+'.root'
         d_sig[signal] = uproot.open(fname)[key]
@@ -181,7 +181,7 @@ def generators(year):
     for signal in signals_original:
         # if opt.AC_HYP: fname = eos_path_sig + 'AC%i_MELA' %year
         # else: fname = eos_path_sig + '%i_MELA' %year
-        fname = eos_path_sig + '%i_MELA' %year
+        fname = eos_path_sig + '%s_MELA' %year
         if not opt.NNLOPS: fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         else: fname += '/'+signal+'_NNLOPS/'+signal+'_NNLOPS_reducedTree_MC_'+str(year)+'.root'
         input_file = ROOT.TFile(fname)
@@ -246,11 +246,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
 
 # Set up data frames
 def dataframes(year, doubleDiff):
-    if year == 2016:
+    if year == '2016post':
         lumi = 35.9
-    elif year == 2017:
+    elif year == '2017':
         lumi = 41.5
-    elif year == 2018:
+    elif year == '2018':
         lumi = 59.7
     d_df_sig = {}
     d_df_sig_failed = {}
@@ -291,7 +291,7 @@ def skim_df(year, doubleDiff):
         else:
             d_skim_sig_failed[signal] = d_df_sig_failed[signal]
 
-    print '%i SKIMMED df CREATED' %year
+    print '%s SKIMMED df CREATED' %year
     return d_skim_sig, d_skim_sig_failed
 
 # ------------------------------- FUNCTIONS TO CALCULATE COEFFICIENTS ----------------------------------------------------
@@ -413,10 +413,10 @@ key = 'candTree'
 key_failed = 'candTree_failed'
 verbose = False
 
-if (opt.YEAR == '2016'): years = [2016]
-elif (opt.YEAR == '2017'): years = [2017]
-elif (opt.YEAR == '2018'): years = [2018]
-elif (opt.YEAR == 'Full'): years = [2016,2017,2018]
+if (opt.YEAR == '2016'): years = ['2016post']
+elif (opt.YEAR == '2017'): years = ['2017']
+elif (opt.YEAR == '2018'): years = ['2018']
+elif (opt.YEAR == 'Full'): years = ['2016post','2017','2018']
 
 obs_name = opt.OBSNAME
 doubleDiff=False

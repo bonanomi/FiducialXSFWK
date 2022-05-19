@@ -16,7 +16,7 @@ observables = {
     'obs_gen': 'GENpT4l'},
 'rapidity4l':
     {'obs_reco': 'ZZy',
-    'obs_gen': 'GENrapidity4l'},
+    'obs_gen': 'GENrapidity4lAbs'},
 'costhetaZ1':
     {'obs_reco': 'helcosthetaZ1',
     'obs_gen': 'GENcosTheta1'},
@@ -92,7 +92,7 @@ observables = {
 'rapidity4l vs pT4l':
     {'obs_reco': 'ZZy',
     'obs_reco_2nd': 'ZZPt',
-    'obs_gen': 'GENrapidity4l',
+    'obs_gen': 'GENrapidity4lAbs',
     'obs_gen_2nd': 'GENpT4l'},
 'njets_pt30_eta4p7 vs pT4l':
     {'obs_reco': 'njets_pt30_eta4p7',

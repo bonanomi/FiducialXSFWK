@@ -173,19 +173,14 @@ if opt.V4:
 year = opt.YEAR
 
 if year == '2016':
-    _lumi = '35.9'
+    _lumi = '36.3'
 elif year == '2017':
     _lumi = '41.5'
 elif year == '2018':
     _lumi = '59.7'
 else:
-    _lumi = '137'
+    _lumi = '138'
 
-# _poi    = 'SigmaBin'
-_obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
-if obsName not in _obsName:
-    _obsName[obsName] = obsName
-# _poi    = 'r_smH_'+_obsName[obsName]+'_'
 _poi    = 'r_smH_'
 v4_flag = opt.V4
 
@@ -256,6 +251,11 @@ elif(obsName == 'TCjmax vs pT4l'):
     label_2nd = 'p_{T}^{H} (GeV)'
     doubleDiff = True
 
+# _poi    = 'SigmaBin'
+_obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+if obsName not in _obsName:
+    _obsName[obsName] = obsName
+# _poi    = 'r_smH_'+_obsName[obsName]+'_'
 
 
 sys.path.append('../inputs')
@@ -263,14 +263,15 @@ _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['ob
 obs_bins = _temp.observableBins
 _temp = __import__('xsec_'+obsName, globals(), locals(), ['xsec'], -1)
 xsec = _temp.xsec
+print(xsec)
 sys.path.remove('../inputs')
 
 nBins = len(obs_bins)
 if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 if obsName.startswith("mass4l"): nBins = nBins + 3 #in case of mass4l len(obs_bins)=1, we need to add +3 for cross section in the three different final states
+if obsName == 'mass4l_zzfloating': nBins += 1 #Add a bin for floating bkg
 if v4_flag: nBins = (len(obs_bins)-1)*2
 if 'kL' in obsName: nBins = 1
-
 
 for i in range(nBins):
     _bin = i
@@ -283,6 +284,8 @@ for i in range(nBins):
             _obs_bin = 'r4muBin0'
         if _bin == 3:
             _obs_bin = 'r4eBin0'
+        if _bin == 4:
+            _obs_bin = 'zz_norm_0'
 
     if v4_flag:
         if (_bin % 2) == 0:
@@ -348,7 +351,9 @@ for i in range(nBins):
                         graphs[ifile].SetPoint(ipoint,entry.r_smH_3,2.0*entry.deltaNLL)
                     ipoint = ipoint+1
                 elif _bin == 4:
-                    if v4_flag:
+                    if obsName.startswith("mass4l"):
+                        graphs[ifile].SetPoint(ipoint,entry.zz_norm_0,2.0*entry.deltaNLL)
+                    elif v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin2,2.0*entry.deltaNLL)
                     else:
                         graphs[ifile].SetPoint(ipoint,entry.r_smH_4,2.0*entry.deltaNLL)

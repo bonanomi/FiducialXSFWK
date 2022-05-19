@@ -40,10 +40,17 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if 'zzfloating' in obsName: zzfloating = True
     else: zzfloating = False
 
-    # _recobin = str(observableBins[obsBin]).replace('.', 'p') + '_' + str(observableBins[obsBin+1]).replace('.', 'p')
-    _recobin = str(observableBins[obsBin]).replace('.', 'p')+'_'+str(observableBins[obsBin+1]).replace('.', 'p')
-    if int(observableBins[obsBin+1]) > 1000:
-        _recobin = 'GT'+str(int(observableBins[obsBin]))
+    # # _recobin = str(observableBins[obsBin]).replace('.', 'p') + '_' + str(observableBins[obsBin+1]).replace('.', 'p')
+    # _recobin = str(observableBins[obsBin]).replace('.', 'p')+'_'+str(observableBins[obsBin+1]).replace('.', 'p')
+    # if int(observableBins[obsBin+1]) > 1000:
+    #     _recobin = 'GT'+str(int(observableBins[obsBin]))
+
+    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName: #it means it is a double differential measurement
+        _recobin = str(observableBins[obsBin][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][3]).replace('.', 'p').replace('-','m')
+    else:
+        _recobin = str(observableBins[obsBin]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin+1]).replace('.', 'p').replace('-','m')
+        if int(observableBins[obsBin+1]) > 1000:
+            _recobin = 'GT'+str(int(observableBins[obsBin]))
 
     if physicalModel == 'v3':
         _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
@@ -156,10 +163,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('process ')
     if physicalModel == 'v3':
         for i in range(nBins):
-            if observableBins[i+1] > 1000:
+            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+                file.write(processName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
+            elif observableBins[i+1] > 1000:
                 file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
             else:
-                file.write(processName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
+                file.write(processName+'_'+str(observableBins[i]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i+1]).replace('.', 'p').replace('-','m')+' ')
         file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
     else:
         for i in range(nBins):
@@ -300,6 +309,17 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # JES
     if jes == True:
         for index,jesName in enumerate(jesNames_datacard):
+
+            if obsName == 'pTj1':
+                if obsBin == 0:
+                    print jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]
+                    p = float(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)][:-4])
+                    # p = p-1
+                    print 2-p
+
+
+                    sys.out()
+
             file.write('CMS_scale_j_'+jesName+' lnN ')
             for i in range(nBins): # Signals
                 file.write(fixJes(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)]))+' ')
@@ -313,8 +333,6 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             file.write('- ')
         file.write(fixJes(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+'\n')
 
-            #file.write('JES param 0.0 1.0\n')
-
     file.close()
 
     print(os.getcwd())
@@ -327,7 +345,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
     # binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
 
     # _recobin = str(observableBins[obsBin]).replace('.', 'p') + '_' + str(observableBins[obsBin+1]).replace('.', 'p')
-    _recobin = str(observableBins[obsBin]).replace('.', 'p')+'_'+str(observableBins[obsBin+1]).replace('.', 'p')
+    _recobin = str(observableBins[obsBin]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin+1]).replace('.', 'p').replace('-','m')
     if int(observableBins[obsBin+1]) > 1000:
         _recobin = 'GT'+str(int(observableBins[obsBin]))
 
@@ -433,18 +451,24 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
         file.write(binName+' ')
     file.write('\n')
     file.write('process ')
-    for i in range(nBins):
-        # file.write(processName+str(i)+' ')
-        if observableBins[i+1] > 1000:
-            file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
-        else:
-            file.write(processName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
-    for i in range(nBins):
-        # file.write(processName+str(i)+' ')
-        if observableBins[i+1] > 1000:
-            file.write(xHName+'_GT'+str(int(observableBins[i]))+' ')
-        else:
-            file.write(xHName+'_'+str(observableBins[i]).replace('.', 'p')+'_'+str(observableBins[i+1]).replace('.', 'p')+' ')
+    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+        for i in range(nBins):
+            file.write(processName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
+        for i in range(nBins):
+            file.write(xHName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
+    else:
+        for i in range(nBins):
+            # file.write(processName+str(i)+' ')
+            if observableBins[i+1] > 1000:
+                file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
+            else:
+                file.write(processName+'_'+str(observableBins[i]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i+1]).replace('.', 'p').replace('-','m')+' ')
+        for i in range(nBins):
+            # file.write(processName+str(i)+' ')
+            if observableBins[i+1] > 1000:
+                file.write(xHName+'_GT'+str(int(observableBins[i]))+' ')
+            else:
+                file.write(xHName+'_'+str(observableBins[i]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i+1]).replace('.', 'p').replace('-','m')+' ')
     file.write('OutsideAcceptance nonResH bkg_qqzz bkg_ggzz bkg_zjets')
     #file.write('nonResH bkg_qqzz bkg_ggzz bkg_zjets')
     file.write('\n')

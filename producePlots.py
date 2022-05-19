@@ -61,16 +61,16 @@ sys.path.append('./LHScans')
 
 def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
-    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
-    print 'inputs_sig_'+obsName+'_'+opt.YEAR
+    print 'inputs_sig_extrap_'+obsName+'_'+opt.YEAR
     # eff = _temp.eff
     # outinratio = _temp.outinratio
     if(opt.YEAR=='Full'):
-        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
 
     if(acFlag):
@@ -1919,13 +1919,13 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     #     latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
     # else:
     if(opt.YEAR=='2016'):
-        latex2.DrawLatex(0.92, 0.95,"35.9 fb^{-1} (13 TeV)")
+        latex2.DrawLatex(0.92, 0.95,"36.3 fb^{-1} (13 TeV)")
     if(opt.YEAR=='2017'):
         latex2.DrawLatex(0.92, 0.95,"41.5 fb^{-1} (13 TeV)")
     if(opt.YEAR=='2018'):
         latex2.DrawLatex(0.92, 0.95,"59.7 fb^{-1} (13 TeV)")
     if(opt.YEAR=='Full'):
-        latex2.DrawLatex(0.92, 0.95,"137 fb^{-1} (13 TeV)")
+        latex2.DrawLatex(0.92, 0.95,"138 fb^{-1} (13 TeV)")
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
@@ -2145,7 +2145,7 @@ if 'vs' in opt.OBSNAME:
     obs_name_tmp = opt.OBSNAME.split(' vs ')
     obs_name = obs_name_tmp[0]+'_'+obs_name_tmp[1]
 
-_temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+_temp = __import__('inputs_sig_extrap_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 obs_bins = _temp.observableBins
 print(obs_bins)
 
