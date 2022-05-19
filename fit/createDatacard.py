@@ -1,8 +1,8 @@
 import os,sys
 
 def fixJes(jesnp):
-    # Cases where jes are '-'
-    if len(jesnp)==1:
+    # Cases where jes are '-' or single value
+    if (len(jesnp)==1) | ('/' not in jesnp):
         return jesnp
     else:
         jesnp_tmp = jesnp.split('/')
