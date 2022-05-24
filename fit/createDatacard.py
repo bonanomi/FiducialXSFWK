@@ -1,6 +1,64 @@
 import os,sys
 
+# def fixJes(jesnp):
+#      # Cases where jes are '-' or single value
+#      if (len(jesnp)==1) | ('/' not in jesnp):
+#          return jesnp
+#      else:
+#          jesnp_tmp = jesnp.split('/')
+#          jesnp_tmp_dn = jesnp_tmp[0]
+#          jesnp_tmp_up = jesnp_tmp[1]
+#          if ((jesnp_tmp_dn=='1.0') & (jesnp_tmp_up!='1.0')):
+#              return jesnp_tmp_up
+#          elif ((jesnp_tmp_dn!='1.0') & (jesnp_tmp_up=='1.0')):
+#              return jesnp_tmp_up
+#          elif (float(jesnp_tmp_dn) > float(jesnp_tmp_up)):
+#              '''
+#                 if 1.X/0.X cases
+#                 return a single NP (symmetric) corresponding to largest variation
+#                 return the variation always as 1.X
+#              '''
+#              if((float(jesnp_tmp_dn)-1) > (1-float(jesnp_tmp_up))):
+#                  return jesnp_tmp_dn
+#              else:
+#                  return str(1+(1-float(jesnp_tmp_up)))
+#          else:
+#              '''
+#                 if dn/up: correct jes, use it
+#              '''
+#              return jesnp
 
+def fixJes(jesnp):
+     # Cases where jes are '-' or single value
+    if (len(jesnp)==1) | ('/' not in jesnp):
+        return jesnp
+    else:
+        jesnp_tmp = jesnp.split('/')
+        jesnp_tmp_dn = jesnp_tmp[0]
+        jesnp_tmp_up = jesnp_tmp[1]
+        if ((jesnp_tmp_dn=='1.0') & (jesnp_tmp_up!='1.0')):
+            return jesnp_tmp_up
+        elif ((jesnp_tmp_dn!='1.0') & (jesnp_tmp_up=='1.0')):
+            return jesnp_tmp_dn+'/'+ str(abs(round(2-float(jesnp_tmp_dn),3)))
+        elif ((float(jesnp_tmp_dn) > 1) & (float(jesnp_tmp_up) > 1)):
+            return jesnp_tmp_up + '/' + str(abs(round(2-float(jesnp_tmp_up),3)))
+        elif ((float(jesnp_tmp_dn) < 1) & (float(jesnp_tmp_up) < 1)):
+            return jesnp_tmp_dn + '/' + str(abs(round(2-float(jesnp_tmp_dn),3)))
+        elif (float(jesnp_tmp_dn) > float(jesnp_tmp_up)):
+            '''
+            if 1.X/0.X cases
+            return a single NP (symmetric) corresponding to largest variation
+            return the variation always as 1.X
+            '''
+            if((float(jesnp_tmp_dn)-1) > (1-float(jesnp_tmp_up))):
+                return jesnp_tmp_dn
+            else:
+                return str(1+(1-float(jesnp_tmp_up)))
+        else:
+            '''
+            if dn/up: correct jes, use it
+            '''
+            return jesnp
 
 def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound, yearSetting):
     # Name of the bin (aFINALSTATE_ recobinX)
@@ -111,7 +169,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+_obsName[obsName]+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -119,7 +177,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     file.write('------------ \n')
 
-    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
+    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+_obsName[obsName]+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
 
     file.write('------------ \n')
 
@@ -283,24 +341,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if jes == True:
         for index,jesName in enumerate(jesNames_datacard):
 
-            if obsName == 'pTj1':
-                if obsBin == 0:
-                    print jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]
-                    p = float(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)][:-4])
-                    # p = p-1
-                    print 2-p
-
-
-                    sys.out()
-
             file.write('CMS_scale_j_'+jesName+' lnN ')
-            for i in range(nBins): # Signals
-                file.write(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+'\n')
+            for i in range(nBins+2): # Signals + out + fake
+                file.write(str(fixJes(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+'\n')
         # file.write('CMS_scale_j_ZX lnN ')
         # for i in range(nBins+4): # All except ZX
         #     file.write('- ')
@@ -403,7 +449,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('../datacard/datacard_'+year+'/hzz4l_GGH_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('../datacard/datacard_'+year+'/hzz4l_GGH_'+channel+'S_13TeV_xs_'+_obsName[obsName]+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -411,7 +457,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
 
     file.write('------------ \n')
 
-    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
+    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+_obsName[obsName]+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
 
     file.write('------------ \n')
 

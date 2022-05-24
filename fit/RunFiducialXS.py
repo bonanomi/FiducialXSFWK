@@ -144,7 +144,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
                 if int(observableBins[i+1]) > 1000:
                     boundaries = 'GT'+str(int(observableBins[i]))
 
-            dc_name = 'datacard_%s/hzz4l_%sS_13TeV_xs_%s_bin%d_v3.txt ' %(year,cat,obsName,i)
+            dc_name = 'datacard_%s/hzz4l_%sS_13TeV_xs_%s_bin%d_v3.txt ' %(year,cat,fitName,i)
             cmd_combCards += 'hzz_%s_%s_cat%s_%s=%s' %(fitName,boundaries,cat,year,dc_name)
 
     cmd_combCards += '> %s' %card_name
@@ -167,7 +167,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
     cmd_addNuis += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
 
     processCmd(cmd_combCards)
+    cmds.append(cmd_combCards)
     processCmd(cmd_addNuis)
+    cmds.append(cmd_addNuis)
 
     cmd_t2w = 'text2workspace.py %s -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO verbose ' %card_name
     cmd_t2w += "--PO 'higgsMassRange=123,127' "
@@ -213,6 +215,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
 
         print(cmd_fit_tmp)
         processCmd(cmd_fit_tmp)
+        cmds.append(cmd_fit_tmp)
 
     if obsName == 'mass4l_zzfloating':
         for i in range(nBins):
@@ -225,6 +228,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
 
             print(cmd_fit_tmp)
             processCmd(cmd_fit_tmp)
+            cmds.append(cmd_fit_tmp)
 
     #Stat-only
     for i in range(nBins):
@@ -235,6 +239,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         cmd_fit_tmp = cmd_fit + '%s=1 -P %s --setParameterRanges %s=0.0,2.0 --redefineSignalPOI %s' %(POI, POI, POI, POI)
 
         processCmd(cmd_fit_tmp)
+        cmds.append(cmd_fit_tmp)
 
         if obsName == 'mass4l_zzfloating':
             for i in range(nBins):
@@ -247,6 +252,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
 
                 print(cmd_fit_tmp)
                 processCmd(cmd_fit_tmp)
+                cmds.append(cmd_fit_tmp)
 
 def runFiducialXS():
     # variable for double-differential measurements and obsName

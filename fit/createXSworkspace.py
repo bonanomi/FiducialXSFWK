@@ -946,9 +946,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     getattr(wout,'import')(data_obs.reduce(ROOT.RooArgSet(m)))
 
     if (addfakeH):
-        fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root','RECREATE')
+        fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+_obsName[obsName]+'_'+physicalModel+'.Databin'+str(obsBin)+'.root','RECREATE')
     else:
-        fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.NoFakeH.root','RECREATE')
+        fout = ROOT.TFile('hzz4l_'+channel+'S_13TeV_xs_'+modelName+'_'+_obsName[obsName]+'_'+physicalModel+'.Databin'+str(obsBin)+'.NoFakeH.root','RECREATE')
 
     print "write ws to fout"
     fout.WriteTObject(wout)

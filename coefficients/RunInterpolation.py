@@ -109,7 +109,7 @@ extrap_inc_wrongfrac = {}
 extrap_binfrac_wrongfrac = {}
 nBins = len(obs_bins)
 if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
-for channel in ['2e2mu', '4e', '4mu']:
+for channel in ['2e2mu', '4e', '4mu']:#, '4l']:
     for genBin in range(nBins):
         for recoBin in range(nBins):
             fig,axs = plt.subplots(2, 3, figsize=(30,10), dpi=80)
@@ -247,6 +247,7 @@ else:
     with open('../inputs/inputs_sig_extrap_'+obsName+'_'+str(opt.YEAR)+'.py', 'w') as f:
         f.write('observableBins = '+str(observableBins)+' \n')
         f.write('acc = '+str(extrap_acc)+' \n')
+        # f.write('err_acc = '+str(err_acc[125])+' \n')
         f.write('eff = '+str(extrap_eff)+' \n')
         f.write('err_eff = '+str(err_eff[125])+' \n')
         f.write('outinratio = '+str(extrap_outinratio)+' \n')
