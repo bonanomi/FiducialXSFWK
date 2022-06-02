@@ -809,7 +809,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     #     os.system('c++ -o  skim_data_tree skim_data_tree.cpp `root-config --cflags --glibs`')
     #     os.system('./skim_data_tree '+year)
     #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard_'+year)
-    data_obs_file = ROOT.TFile(path['eos_path']+'Data/reducedTree_AllData_'+year+'.root')
+    data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_'+year+'.root')
     data_obs_tree = data_obs_file.Get('SR')
 
     print obsName,obsBin_low,obsBin_high
