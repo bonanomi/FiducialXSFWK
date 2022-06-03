@@ -131,7 +131,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
     for year in years:
       for cat in fStates:
         for i in range(nBins):
-            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7':
                 low = str(observableBins[i][0]).replace('.','p').replace('-','m')
                 high = str(observableBins[i][1]).replace('.','p').replace('-','m')
                 low_2nd = str(observableBins[i][2]).replace('.','p').replace('-','m')
@@ -175,7 +175,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
     cmd_t2w += "--PO 'higgsMassRange=123,127' "
 
     for i in range(nBins):
-        if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+        if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7':
             low = str(observableBins[i][0]).replace('.','p').replace('-','m')
             high = str(observableBins[i][1]).replace('.','p').replace('-','m')
             low_2nd = str(observableBins[i][2]).replace('.','p').replace('-','m')
@@ -210,8 +210,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         POI = 'r_smH_%s_%d' %(fitName, i)
         POI_n = 'r_smH_%d' %i
         cmd_fit = 'combine -n _%s_%s -M MultiDimFit %s ' %(obsName, POI_n, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-        cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=100 --saveToys --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
-        cmd_fit_tmp = cmd_fit + '%s=1 -P %s --setParameterRanges %s=0.0,2.0 --redefineSignalPOI %s' %(POI, POI, POI, POI)
+        cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --cminDefaultMinimizerStrategy 0 '
+        if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI)
+        cmd_fit_tmp = cmd_fit + '-P %s --setParameterRanges %s=0.0,2.5 --redefineSignalPOI %s' %(POI, POI, POI)
 
         print(cmd_fit_tmp)
         processCmd(cmd_fit_tmp)
@@ -223,8 +224,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             POI_xs = 'r_smH_%s_%d' %(fitName, i)
             POI_n = 'r_smH_%d' %i
             cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-            cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=100 --saveToys --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
-            cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+            cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --cminDefaultMinimizerStrategy 0 '
+            if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
+            cmd_fit_tmp = cmd_fit + '-P %s --redefineSignalPOI %s' %(POI, POI)
 
             print(cmd_fit_tmp)
             processCmd(cmd_fit_tmp)
@@ -235,8 +237,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         POI = 'r_smH_%s_%d' %(fitName, i)
         POI_n = 'r_smH_%d' %i
         cmd_fit = 'combine -n _%s_%s_NoSys -M MultiDimFit %s ' %(obsName, POI_n, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-        cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=100 --saveToys --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
-        cmd_fit_tmp = cmd_fit + '%s=1 -P %s --setParameterRanges %s=0.0,2.0 --redefineSignalPOI %s' %(POI, POI, POI, POI)
+        cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
+        if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI)
+        cmd_fit_tmp = cmd_fit + '-P %s --setParameterRanges %s=0.0,2.5 --redefineSignalPOI %s' %(POI, POI, POI)
 
         processCmd(cmd_fit_tmp)
         cmds.append(cmd_fit_tmp)
@@ -247,8 +250,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
                 POI_xs = 'r_smH_%s_%d' %(fitName, i)
                 POI_n = 'r_smH_%d' %i
                 cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-                cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=100 --saveToys --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
-                cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+                cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
+                if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
+                cmd_fit_tmp = cmd_fit + '-P %s --redefineSignalPOI %s' %(POI, POI)
 
                 print(cmd_fit_tmp)
                 processCmd(cmd_fit_tmp)
@@ -272,7 +276,7 @@ def runFiducialXS():
     print 'Theory xsec and BR at MH = '+_th_MH
     print 'Current directory: python'
 
-    _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+    _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
     if obsName not in _obsName:
         _obsName[obsName] = obsName
 
@@ -420,7 +424,7 @@ def runFiducialXS():
         # nBins = len(observableBins)
         if physicalModel == 'v2': # In this case implemented for mass4l only
             for channel in ['4e', '4mu', '2e2mu']:
-                cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0 -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --saveInactivePOI=1'
+                cmd = 'combine -n _'+obsName+'_r'+channel+'Bin0 -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --saveInactivePOI=1'
 
                 fidxs = 0
                 fidxs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -437,7 +441,7 @@ def runFiducialXS():
                 # if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r'+channel+'Bin0.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
@@ -448,7 +452,7 @@ def runFiducialXS():
         if physicalModel == 'v4':
             for obsBin in range(nBins):
                 # ----- 2e2mu -----
-                cmd = 'combine -n _'+obsName+'_r2e2muBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v4.root -m 125.38 --freezeParameters MH -P r2e2muBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r2e2muBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r2e2muBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --saveInactivePOI=1'
+                cmd = 'combine -n _'+obsName+'_r2e2muBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v4.root -m 125.38 --freezeParameters MH -P r2e2muBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r2e2muBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r2e2muBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --saveInactivePOI=1'
 
                 fidxs = 0
                 fidxs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_2e2mu']*acc['ggH125_2e2mu_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -465,7 +469,7 @@ def runFiducialXS():
                 # if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r2e2muBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r2e2muBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r2e2muBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r2e2muBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r2e2muBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r2e2muBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r2e2muBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r2e2muBin'+str(obsBin)+'='+str(round(fidxs,4))
@@ -474,7 +478,7 @@ def runFiducialXS():
                 cmds.append(cmd)
 
                 # ----- 4e+4mu = 4l -----
-                cmd = 'combine -n _'+obsName+'_r4lBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v4.root -m 125.38 --freezeParameters MH -P r4lBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r4lBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r4lBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0'
+                cmd = 'combine -n _'+obsName+'_r4lBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v4.root -m 125.38 --freezeParameters MH -P r4lBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r4lBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r4lBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0'
 
                 fidxs = 0
                 # 4e
@@ -498,7 +502,7 @@ def runFiducialXS():
                 # if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r4lBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r4lBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r4lBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r4lBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r4lBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r4lBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r4lBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r4lBin'+str(obsBin)+'='+str(round(fidxs,4))
@@ -568,7 +572,7 @@ def runFiducialXS():
                 ## The inclusive xsec for 2j phase space is about 2.49 fb, hence enlarge fit range
                 if ('jj' in obsName) and (obsBin == 0): max_range = '5.0'
                 if ('njet' in obsName) and ('pTj' in obsName) and (obsBin == 0): max_range = '5.0'
-                cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0'
+                cmd = 'combine -n _'+obsName+'_SigmaBin'+str(obsBin)+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v3.root -m 125.38 --freezeParameters MH -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin'+str(obsBin)+'=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0'
                 if(not opt.UNBLIND):
                     cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))
                     if opt.FIXFRAC:
@@ -595,7 +599,7 @@ def runFiducialXS():
                 # if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=100 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND):
@@ -614,11 +618,13 @@ def runFiducialXS():
             cmd = 'combine SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -n _'+obsName+' -M MultiDimFit --algo=singles -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --freezeParameters MH,r --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1'
             output = processCmd(cmd)
             cmds.append(cmd)
+            print(cmd)
 
             #Stat+sys grid
-            cmd = 'combine SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -n _'+obsName+'_grid -M MultiDimFit --algo=grid --points=300 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --freezeParameters MH,r --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1'
+            cmd = 'combine SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -n _'+obsName+'_grid -M MultiDimFit --algo=grid --points=250 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --freezeParameters MH,r --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1'
             output = processCmd(cmd)
             cmds.append(cmd)
+            print(cmd)
 
             #Stat-only singles
             cmd = 'combine higgsCombine_'+obsName+'.MultiDimFit.mH125.38'
@@ -628,16 +634,17 @@ def runFiducialXS():
             else: cmd += ' --freezeParameters MH'
             output = processCmd(cmd)
             cmds.append(cmd)
+            print(cmd)
 
             #Stat-only grid
             cmd = 'combine higgsCombine_'+obsName+'_grid.MultiDimFit.mH125.38'
             if(not opt.UNBLIND): cmd += '.123456'
-            cmd += '.root -n _'+obsName+'_NoSys_grid -M MultiDimFit -w w --snapshotName "MultiDimFit" --algo=grid --points=300 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1 --freezeNuisanceGroups nuis'
+            cmd += '.root -n _'+obsName+'_NoSys_grid -M MultiDimFit -w w --snapshotName "MultiDimFit" --algo=grid --points=250 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --saveWorkspace --saveToys --setParameterRanges kappa_lambda=-10,20:r=1,1 --setParameters kappa_lambda=1.0,r=1.0 -t -1 --cminDefaultMinimizerStrategy 0 --robustFit 1 --freezeNuisanceGroups nuis'
             if (opt.YEAR == 'Full'): cmd += ' --freezeParameters MH,r'
             else: cmd += ' --freezeParameters MH'
             output = processCmd(cmd)
             cmds.append(cmd)
-
+            print(cmd)
 
 # ----------------- Main -----------------
 _fit_dir = os.getcwd()

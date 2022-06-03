@@ -40,7 +40,7 @@ decimal = {
 'DL1': True,
 'DL1Zg': True,
 'rapidity4l vs pT4l': True,
-'njets vs pt30_eta4p7_pT4l': False,
+'njets_pt30_eta4p7 vs pT4l': False,
 'pTj1 vs pTj2': False,
 'pT4l vs pTHj': False,
 'massZ1 vs massZ2': False,
@@ -227,7 +227,7 @@ for iYear in range(len(year)):
         #### qqZZZ + ggZZ +ZX ####
         h1D_dummy.SetMaximum(2.0*h1D_4mu[kBkg_qqZZ,iBin].GetMaximum())
         h1D_dummy.Draw()
-        cmsPreliminary(c1, binRangeLeg[iBin]+"      2e2#mu      "+year[iYear])
+        cmsPreliminary(c1, binRangeLeg[iBin]+"      4#mu      "+year[iYear])
         leg1 = ROOT.TLegend(leg_xl,leg_yb,leg_xr,leg_yt)
         setLegendProperties(leg1)
         setHistProperties(h1D_4mu[kBkg_qqZZ,iBin],lineWidth,1,ROOT.kBlack)
@@ -247,7 +247,7 @@ for iYear in range(len(year)):
         #### qqZZZ + ggZZ +ZX ####
         h1D_dummy.SetMaximum(2.0*h1D_4e[kBkg_qqZZ,iBin].GetMaximum())
         h1D_dummy.Draw()
-        cmsPreliminary(c1, binRangeLeg[iBin]+"      2e2#mu      "+year[iYear])
+        cmsPreliminary(c1, binRangeLeg[iBin]+"      4e      "+year[iYear])
         leg1 = ROOT.TLegend(leg_xl,leg_yb,leg_xr,leg_yt)
         setLegendProperties(leg1)
         setHistProperties(h1D_4e[kBkg_qqZZ,iBin],lineWidth,1,ROOT.kBlack)

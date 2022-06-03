@@ -56,7 +56,7 @@ def checkDir(folder_path):
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ggZZ AND qqZZ ----------------------------------------------------
 # Weights for histogram
 def weight(df, xsec, gen, lumi, additional = None):
-    weight = (lumi * 1000 * xsec * df.overallEventWeight * df.L1prefiringWeight) / gen #Common structure
+    weight = (lumi * 1000 * xsec * df.overallEventWeight * df.SFcorr * df.L1prefiringWeight) / gen #Common structure
     if additional == 'ggH':
         weight *= df.ggH_NNLOPS_weight
     elif additional == 'qqzz':
@@ -113,7 +113,7 @@ def generators(year):
 def add_njets(pt,eta):
     n = 0
     for i in range(len(pt)):
-        if pt[i]>30 and abs(eta[i])<2.5: n=n+1
+        if pt[i]>30 and abs(eta[i])<4.7: n=n+1
     return n
 def add_leadjet(pt,eta):
     _pTj1 = 0.0
@@ -121,7 +121,7 @@ def add_leadjet(pt,eta):
         return _pTj1
     else:
         for i in range(len(pt)):
-            if (pt[i]>30 and abs(eta[i])<2.5 and pt[i] > _pTj1): _pTj1 = pt[i]
+            if (pt[i]>30 and abs(eta[i])<4.7 and pt[i] > _pTj1): _pTj1 = pt[i]
         return _pTj1
 
 # Rapidity
@@ -163,7 +163,7 @@ def dataframes(year):
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
                  'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                  'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
-                 'njets_pt30_eta4p7', 'absdetajj',
+                 'njets_pt30_eta4p7', 'absdetajj', 'SFcorr', 'dphijj',
                  'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
         if (bkg == 'ZZTo4l'):
             b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
@@ -405,7 +405,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     w = np.asarray(w).astype('float')
                     # ------
 
-                    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
+                    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff and 'rapidity' in var_string:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+'_'+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -418,7 +418,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
 
-                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
+                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                     elif doubleDiff and 'rapidity' in var_string:
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd)+".root", "RECREATE")
@@ -475,7 +475,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff and 'rapidity' in var_string:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -485,7 +485,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('eta' in obs_name) | acFlag):
+                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                 elif doubleDiff and 'rapidity' in var_string:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd)+".root", "RECREATE")
@@ -571,7 +571,7 @@ if (opt.YEAR == '2018' or opt.YEAR == 'Full'):
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7',
-               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint','absdetajj']
+               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint','absdetajj', 'dphijj']
 dfZX={}
 for year in years:
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)

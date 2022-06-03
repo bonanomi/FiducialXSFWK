@@ -76,7 +76,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # if int(observableBins[obsBin+1]) > 1000:
     #     _recobin = 'GT'+str(int(observableBins[obsBin]))
 
-    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName: #it means it is a double differential measurement
+    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7': #it means it is a double differential measurement
         _recobin = str(observableBins[obsBin][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][3]).replace('.', 'p').replace('-','m')
     else:
         _recobin = str(observableBins[obsBin]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin+1]).replace('.', 'p').replace('-','m')
@@ -84,12 +84,14 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             _recobin = 'GT'+str(int(observableBins[obsBin]))
 
     if physicalModel == 'v3':
-        _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+        _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
         if obsName not in _obsName:
             _obsName[obsName] = obsName
         binName = 'hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
         processName = 'smH_' + _obsName[obsName]
     else:
+        _obsName = {}
+        _obsName[obsName] = obsName
         binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
         processName = 'trueH'+channel+'Bin'
 
@@ -194,7 +196,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('process ')
     if physicalModel == 'v3':
         for i in range(nBins):
-            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7':
                 file.write(processName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
             elif observableBins[i+1] > 1000:
                 file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
@@ -343,10 +345,10 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
             file.write('CMS_scale_j_'+jesName+' lnN ')
             for i in range(nBins+2): # Signals + out + fake
-                file.write(str(fixJes(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
-            file.write(str(fixJes(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
-            file.write(str(fixJes(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
-            file.write(str(fixJes(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName+'_recobin'+str(obsBin)]))+'\n')
+                file.write(str(fixJes(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+'\n')
         # file.write('CMS_scale_j_ZX lnN ')
         # for i in range(nBins+4): # All except ZX
         #     file.write('- ')
@@ -472,7 +474,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
         file.write(binName+' ')
     file.write('\n')
     file.write('process ')
-    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7':
         for i in range(nBins):
             file.write(processName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
         for i in range(nBins):

@@ -217,25 +217,35 @@ for channel in ['2e2mu', '4e', '4mu']:#, '4l']:
 
             if opt.NNLOPS:
                 continue
-            diff = [(extrap_acc[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] - acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]) / acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = (1+diff) * acc[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
+            # diff = [(extrap_acc[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] - acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]) / acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = (1+diff) * acc[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
+            #
+            # diff = [(extrap_eff[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_eff['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * eff[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            #
+            # diff = [(extrap_outinratio[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_outinratio['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * outinratio[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            #
+            # diff = [(extrap_inc_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_inc_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * inc_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            #
+            # diff = [(extrap_binfrac_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] if binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]>0 else 0 for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-            diff = [(extrap_eff[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_eff['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * eff[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = acc[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
 
-            diff = [(extrap_outinratio[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_outinratio['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * outinratio[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_eff['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = eff[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-            diff = [(extrap_inc_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_inc_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * inc_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_outinratio['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = outinratio[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-            diff = [(extrap_binfrac_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] if binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]>0 else 0 for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_inc_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = inc_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+
+            extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
 # if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
 # else: obs_name_dic = obs_name

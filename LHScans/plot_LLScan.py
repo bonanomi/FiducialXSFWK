@@ -189,7 +189,7 @@ if(obsName == 'mass4l'): label = 'm_{4l}'
 elif(obsName == 'mass4l_zzfloating'): label = 'm_{4l}'
 elif(obsName == 'njets_pt30_eta4p7'): label = 'N_{jet}, pT>30 GeV, |#eta|<4.7'
 elif(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
-elif(obsName == 'pT4l_kL'): label = ''
+elif(obsName == 'pT4l_kL'): label = 'k_{#lambda}'
 elif(obsName == 'rapidity4l'): label = '|y_{H}|'
 elif(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
 elif(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
@@ -252,7 +252,7 @@ elif(obsName == 'TCjmax vs pT4l'):
     doubleDiff = True
 
 # _poi    = 'SigmaBin'
-_obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+_obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
 if obsName not in _obsName:
     _obsName[obsName] = obsName
 # _poi    = 'r_smH_'+_obsName[obsName]+'_'
@@ -533,7 +533,7 @@ for i in range(nBins):
         graphs[ig].SetLineWidth(3)
         if 'stat-only' in titles[ig]:
             graphs[ig].SetLineWidth(2)
-            graphs[ig].SetLineStyle(9)
+            graphs[ig].SetLineStyle(2)
         graphs[ig].SetTitle(titles[ig])
         graphs[ig].Sort()
 
@@ -642,6 +642,17 @@ for i in range(nBins):
         exp_nom_stat[2] *= xsec['SigmaBin'+str(i)]
         exp_up_sys *= xsec['SigmaBin'+str(i)]
         exp_do_sys *= xsec['SigmaBin'+str(i)]
+
+        if opt.UNBLIND:
+            obs_nom = list(obs_nom)
+            obs_nom_stat = list(obs_nom_stat)
+            obs_nom[0] *= xsec['SigmaBin'+str(i)]
+            obs_nom[1] *= xsec['SigmaBin'+str(i)]
+            obs_nom[2] *= xsec['SigmaBin'+str(i)]
+            obs_nom_stat[1] *= xsec['SigmaBin'+str(i)]
+            obs_nom_stat[2] *= xsec['SigmaBin'+str(i)]
+            obs_up_sys *= xsec['SigmaBin'+str(i)]
+            obs_do_sys *= xsec['SigmaBin'+str(i)]
 
     if(opt.UNBLIND):
         Text3 = TPaveText(0.18, 0.81,0.4,0.9,'brNDC')

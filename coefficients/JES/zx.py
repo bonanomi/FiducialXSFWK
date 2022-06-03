@@ -136,26 +136,25 @@ def findFSZX(df):
 def comb(year):
     if year == 2016:
         cb_SS = np.array([
-            1.23628,   # 4e
-            0.95433,   # 4mu
-            1.0726,    # 2e2mu
-            1.0726,    # 2mu2e
+            1.175,   # 4e
+            0.975,   # 4mu
+            1.052,    # 2e2mu
+            1.148,    # 2mu2e
         ])
     elif year == 2017:
         cb_SS = np.array([
-            1.1934,   # 4e
-            0.99669,   # 4mu
-            1.0569,    # 2e2mu
-            1.0569,    # 2mu2e
+            1.094,   # 4e
+            0.948,   # 4mu
+            0.930,    # 2e2mu
+            1.139,    # 2mu2e
         ])
     else:
         cb_SS = np.array([
-            1.2087,   # 4e
-            0.9878,   # 4mu
-            1.0552,    # 2e2mu
-            1.0552,    # 2mu2e
+            1.157,   # 4e
+            0.974,   # 4mu
+            0.930,    # 2e2mu
+            1.143,    # 2mu2e
         ])
-
     return cb_SS
 
 
@@ -163,26 +162,25 @@ def comb(year):
 def ratio(year):
     if year == 2016:
         fs_ROS_SS = np.array([
-            1.00245,   # 4e
-            0.998863,  # 4mu
-            1.03338,   # 2e2mu
-            0.998852,  # 2mu2e
+            1.0039,   # 4e
+            0.999103,  # 4mu
+            1.0332,   # 2e2mu
+            1.00216,  # 2mu2e
             ])
     elif year == 2017:
         fs_ROS_SS = np.array([
-            1.01198,   # 4e
-            1.03949,  # 4mu
-            1.013128,   # 2e2mu
-            1.00257,  # 2mu2e
+            0.990314,   # 4e
+            1.02903,  # 4mu
+            1.0262,   # 2e2mu
+            1.00154,  # 2mu2e
             ])
     else:
         fs_ROS_SS = np.array([
-            1.00568,   # 4e
-            1.02926,  # 4mu
-            1.03226,   # 2e2mu
-            1.00432,  # 2mu2e
+            1.00322,   # 4e
+            1.0187,  # 4mu
+            1.04216,   # 2e2mu
+            0.996253,  # 2mu2e
             ])
-
     return fs_ROS_SS
 
 def count_jets(pt,eta,phi,mass):
@@ -218,7 +216,7 @@ def doZX(year, g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE, obs_reco,obs_reco_2
                    'helcosthetaZ1','helcosthetaZ2', 'helphi', 'costhetastar', 'phistarZ1', 'ZZPhi',
                    'pTj1', 'pTj2', 'absdetajj',
                    'JetEta','JetPhi','JetMass',
-                   'pTHj', 'pTHjj', 'mHj', 'mHjj', 'detajj', 'dphijj', 'mjj', 'njets_pt30_eta2p5', 'ZZy',
+                   'pTHj', 'pTHjj', 'mHj', 'mHjj', 'detajj', 'dphijj', 'mjj', 'njets_pt30_eta4p7', 'ZZy',
                    'D0m', 'Dcp', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint', 'TCjmax', 'TBjmax']
 
     keyZX = 'CRZLL'
@@ -253,29 +251,6 @@ def doZX(year, g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE, obs_reco,obs_reco_2
         dfZX['j2_jesdn_'+i] = [add_subleadjet(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESDown_'+i,'JetEta','JetPhi','JetMass','j1_jesdn_'+i]].values]
     dfZX['Higgs'] = [tetra_Higgs(row[0],row[1],row[2],row[3]) for row in dfZX[['ZZMass', 'ZZEta', 'ZZPhi', 'ZZPt']].values]
 
-    # dfZX['pTj1_jesup'] = [x.Pt() for x in dfZX['j1_jesup']]
-    # dfZX['pTj1_jesdn'] = [x.Pt() for x in dfZX['j1_jesdn']]
-    # dfZX['pTj2_jesup'] = [x.Pt() for x in dfZX['j2_jesup']]
-    # dfZX['pTj2_jesdn'] = [x.Pt() for x in dfZX['j2_jesdn']]
-    # dfZX['njets_pt30_eta2p5_jesup'] = [count_jets(row[0],row[1],row[2],row[3]) for row in dfZX[['JetPt_JESUp','JetEta','JetPhi','JetMass']].values]
-    # dfZX['njets_pt30_eta2p5_jesdn'] = [count_jets(row[0],row[1],row[2],row[3]) for row in dfZX[['JetPt_JESDown','JetEta','JetPhi','JetMass']].values]
-    # dfZX['mjj_jesup'] = [(j1+j2).M() if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesup'],dfZX['j2_jesup'])]
-    # dfZX['mjj_jesdn'] = [(j1+j2).M() if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesdn'],dfZX['j2_jesdn'])]
-    # dfZX['pTHj_jesup'] = [(H+j1).Pt() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesup'])]
-    # dfZX['pTHj_jesdn'] = [(H+j1).Pt() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
-    # dfZX['pTHjj_jesup'] = [(row[0]+row[1]+row[2]).Pt() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
-    # dfZX['pTHjj_jesdn'] = [(row[0]+row[1]+row[2]).Pt() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
-    # dfZX['mHj_jesup'] = [(H+j1).M() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesup'])]
-    # dfZX['mHj_jesdn'] = [(H+j1).M() if j1.Pt()>0 else -1 for H,j1 in zip(dfZX['Higgs'],dfZX['j1_jesdn'])]
-    # dfZX['mHjj_jesup'] = [(row[0]+row[1]+row[2]).M() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesup','j2_jesup']].values]
-    # dfZX['mHjj_jesdn'] = [(row[0]+row[1]+row[2]).M() if row[2].Pt()>0 else -1 for row in dfZX[['Higgs','j1_jesdn','j2_jesdn']].values]
-    # dfZX['TCjmax_jesup'] = [tc(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESUp','JetEta','JetPhi','JetMass','Higgs']].values]
-    # dfZX['TCjmax_jesdn'] = [tc(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESDown','JetEta','JetPhi','JetMass','Higgs']].values]
-    # dfZX['TBjmax_jesup'] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESUp','JetEta','JetPhi','JetMass','Higgs']].values]
-    # dfZX['TBjmax_jesdn'] = [tb(row[0],row[1],row[2],row[3],row[4]) for row in dfZX[['JetPt_JESDown','JetEta','JetPhi','JetMass','Higgs']].values]
-    # dfZX['absdetajj_jesup'] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesup'],dfZX['j2_jesup'])]
-    # dfZX['absdetajj_jesdn'] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesdn'],dfZX['j2_jesdn'])]
-
     for i in jesNames:
         if obs_reco == 'pTj1' or obs_reco_2nd == 'pTj1':
             dfZX['pTj1_jesup_'+i] = [x.Pt() for x in dfZX['j1_jesup_'+i]]
@@ -304,6 +279,9 @@ def doZX(year, g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE, obs_reco,obs_reco_2
         if obs_reco == 'absdetajj' or obs_reco_2nd == 'absdetajj':
             dfZX['absdetajj_jesup_'+i] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesup_'+i],dfZX['j2_jesup_'+i])]
             dfZX['absdetajj_jesdn_'+i] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(dfZX['j1_jesdn_'+i],dfZX['j2_jesdn_'+i])]
+        if obs_reco == 'dphijj' or obs_reco_2nd == 'dphijj':
+            dfZX['dphijj_jesup_'+i] = [math.atan2(math.sin(j1.Phi()-j2.Phi()), math.cos(j1.Phi()-j2.Phi())) if j2.Pt()>0 else -99 for j1,j2 in zip(dfZX['j1_jesup_'+i],dfZX['j2_jesup_'+i])]
+            dfZX['dphijj_jesdn_'+i] = [math.atan2(math.sin(j1.Phi()-j2.Phi()), math.cos(j1.Phi()-j2.Phi())) if j2.Pt()>0 else -99 for j1,j2 in zip(dfZX['j1_jesdn_'+i],dfZX['j2_jesdn_'+i])]
         if obs_reco == 'ZZPt' or obs_reco_2nd == 'ZZPt':
             dfZX['ZZPt_jesup_'+i] = dfZX['ZZPt']
             dfZX['ZZPt_jesdn_'+i] = dfZX['ZZPt']

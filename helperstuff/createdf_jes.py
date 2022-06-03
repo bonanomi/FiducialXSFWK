@@ -23,7 +23,7 @@ def weight(df, xsec, gen, lumi, additional = None):
     #Coefficient to calculate weights for histograms
     coeff = (lumi * 1000 * xsec) / gen
     #Reco
-    weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
+    weight_reco = (df.overallEventWeight * df.L1prefiringWeight * df.SFcorr)
     if additional == 'ggH':
         weight_reco *= df.ggH_NNLOPS_weight
     elif additional == 'qqzz':
@@ -235,7 +235,7 @@ def tb(pt,eta,phi,mass,H):
 def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='None'):
     b_sig = ['EventNumber', 'PUWeight', 'genHEPMCweight',
              'ZZMass', 'ZZPt','ZZEta', 'ZZPhi', 'Z1Flav', 'Z2Flav', 'JetPt', 'JetMass', 'JetEta', 'JetPhi',
-             'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight',
+             'overallEventWeight', 'L1prefiringWeight','dataMCWeight', 'trigEffWeight', 'SFcorr',
              'pTj1', 'Mj1', 'ETAj1', 'PHIj1',
              'pTj2', 'Mj2', 'ETAj2', 'PHIj2']
 
@@ -297,6 +297,9 @@ def createDataframe(dataFrame,isBkg,gen,xsec,signal,lumi,obs_reco,obs_reco_2nd='
         if obs_reco == 'absdetajj' or obs_reco_2nd == 'absdetajj':
             df['absdetajj_jesup_'+i] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(df['j1_jesup_'+i],df['j2_jesup_'+i])]
             df['absdetajj_jesdn_'+i] = [abs(j1.Eta()-j2.Eta()) if j2.Pt()>0 else -1 for j1,j2 in zip(df['j1_jesdn_'+i],df['j2_jesdn_'+i])]
+        if obs_reco == 'dphijj' or obs_reco_2nd == 'dphijj':
+            df['dphijj_jesup_'+i] = [math.atan2(math.sin(j1.Phi()-j2.Phi()), math.cos(j1.Phi()-j2.Phi())) if j2.Pt()>0 else -99 for j1,j2 in zip(df['j1_jesup_'+i],df['j2_jesup_'+i])]
+            df['dphijj_jesdn_'+i] = [math.atan2(math.sin(j1.Phi()-j2.Phi()), math.cos(j1.Phi()-j2.Phi())) if j2.Pt()>0 else -99 for j1,j2 in zip(df['j1_jesdn_'+i],df['j2_jesdn_'+i])]
         if obs_reco == 'ZZPt' or obs_reco_2nd == 'ZZPt':
             df['ZZPt_jesup_'+i] = df['ZZPt']
             df['ZZPt_jesdn_'+i] = df['ZZPt']

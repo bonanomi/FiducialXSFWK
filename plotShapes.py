@@ -63,13 +63,13 @@ def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, 
             binName = "ch"+_year+"_ch"+_fStateNumber
             procName = _fState+"Bin"+str(_bin)
     else:
-        _obsName_v3 = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+        _obsName_v3 = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
         if _obsName not in _obsName_v3:
             _obsName_v3[_obsName] = _obsName
 
-        if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
-            _recobin_final = str(_observableBins[_recobin][0]).replace('.', 'p')+'_'+str(_observableBins[_recobin][1]).replace('.', 'p')+'_'+str(_observableBins[_recobin][2]).replace('.', 'p')+'_'+str(_observableBins[_recobin][3]).replace('.', 'p')
-            _genbin_final = str(_observableBins[_bin][0]).replace('.', 'p')+'_'+str(_observableBins[_bin][1]).replace('.', 'p')+'_'+str(_observableBins[_bin][2]).replace('.', 'p')+'_'+str(_observableBins[_bin][3]).replace('.', 'p')
+        if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and obsName != 'njets_pt30_eta4p7':
+            _recobin_final = str(_observableBins[_recobin][0]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_recobin][1]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_recobin][2]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_recobin][3]).replace('.', 'p').replace('-','m')
+            _genbin_final = str(_observableBins[_bin][0]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_bin][1]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_bin][2]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_bin][3]).replace('.', 'p').replace('-','m')
         else:
             _recobin_final = str(_observableBins[_recobin]).replace('.', 'p').replace('-','m')+'_'+str(_observableBins[_recobin+1]).replace('.', 'p').replace('-','m')
             if int(_observableBins[_recobin+1]) > 1000:
@@ -352,20 +352,33 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     ##### ------------------------ Data ------------------------ #####
     CMS_channel = w.cat("CMS_channel")
-    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(20))
+    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(30))
 
-
-    datacut = ''
-    bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
-    for year in ["1", "2", "3"]:
-        if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
-            datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
-        else:
-            datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
-    datacut = datacut.rstrip(" || ")
-    data = data.reduce(RooFit.Cut(datacut))
-    data.plotOn(mass)
-    sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+    if (fstate=="4l"):
+        datacut = ''
+        for year in ["1", "2", "3"]:
+            for fState in fStates:
+                bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
+                if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
+                    datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
+                else:
+                    datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
+        datacut = datacut.rstrip(" || ")
+        data = data.reduce(RooFit.Cut(datacut))
+        data.plotOn(mass)
+        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+    else:
+        datacut = ''
+        for year in ["1", "2", "3"]:
+            bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
+            if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
+                datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
+            else:
+                datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
+        datacut = datacut.rstrip(" || ")
+        data = data.reduce(RooFit.Cut(datacut))
+        data.plotOn(mass)
+        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
 
     ##### ------------------------ Shapes ------------------------ #####
     if (fstate!="4l"):
@@ -373,7 +386,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         for bin in range(nBins):
             if bin==recobin: continue
             for year in ["1", "2", "3"]:
-                bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
+                bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
                 comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
         comp_otherfid = comp_otherfid.rstrip(',')
 
@@ -382,7 +395,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_zz = ''
         comp_zx = ''
         for year in ["1", "2", "3"]:
-            bin_name, process_name = generateName(year, channel[fState], recobin, fState, 0, physicalModel, observableBins, obsName)
+            bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, 0, physicalModel, observableBins, obsName)
             comp_out += "shapeBkg_"+OutNames[physicalModel]+"_"+bin_name+","
             comp_fake += "shapeBkg_"+CombNames[physicalModel]+"_"+bin_name+","
             comp_zz += "shapeBkg_bkg_ggzz_"+bin_name+",shapeBkg_bkg_qqzz_"+bin_name+","
@@ -442,15 +455,20 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy.SetLineWidth(0)
     dummy.SetMarkerSize(0)
     dummy.SetMarkerColor(0)
-    dummy.GetYaxis().SetTitle("Events / (2.33 GeV)")
+    dummy.GetYaxis().SetTitle("Events / (1.83 GeV)")
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} [GeV]")
     if (opt.UNBLIND):
-        dummy.SetMaximum(max(1.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        # if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
-    else:
+        # dummy.SetMaximum(max(1.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         else: dummy.SetMaximum(max(0.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
+    else:
+        # if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # else: dummy.SetMaximum(max(0.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
+        dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
         #dummy.SetMaximum(0.5*max(n_trueH_asimov[fstate],n_zz_asimov[fstate],2.5))
     dummy.SetMinimum(0.0)
@@ -529,8 +547,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     elif (obsName=="nJets" or obsName=="njets_reco_pt30_eta4p7"):
         label = "N(jets) |#eta|<4.7"
         unit = ""
-    elif (obsName=="njets_pt30_eta2p5"):
-        label = "N(jets) |#eta|<2.5"
+    elif (obsName=="njets_pt30_eta4p7"):
+        label = "N(jets) |#eta|<4.7"
         unit = ""
     elif (obsName=='pt_leadingjet_pt30_eta4p7'):
         label = "p_{T}(jet)"
@@ -634,8 +652,8 @@ observableBins = _temp.observableBins
 sys.path.remove("inputs")
 
 if obsName.startswith("mass4l"):
-    PhysicalModels = ['v2','v3']
-    # PhysicalModels = ['v3']
+    # PhysicalModels = ['v2','v3']
+    PhysicalModels = ['v3']
 elif obsName == 'D0m' or obsName == 'Dcp' or obsName == 'D0hp' or obsName == 'Dint' or obsName == 'DL1' or obsName == 'DL1Zg' or obsName == 'costhetaZ1' or obsName == 'costhetaZ2'or obsName == 'costhetastar' or obsName == 'phi' or obsName == 'phistar' or obsName == 'massZ1' or obsName == 'massZ2':
     PhysicalModels = ['v4','v3']
 elif 'kL' in obsName:
