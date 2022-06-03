@@ -20,6 +20,8 @@ from zx import zx
 print 'Welcome in RunJES!'
 
 jesNames = ['Total', 'Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
+JESobservables = ['pTj1', 'pTHj', 'mHj', 'pTj2', 'mjj', 'absdetajj', 'dphijj', 'pTHjj', 'TCjmax', 'TBjmax', 'njets_pt30_eta4p7 vs pT4l', 'pTj1 vs pTj2', 'pT4l vs pTHj', 'TCjmax vs pT4l']
+
 
 def parseOptions():
 

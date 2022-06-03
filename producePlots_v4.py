@@ -61,16 +61,16 @@ sys.path.append('./LHScans')
 
 def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
 
-    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
     print 'inputs_sig_'+obsName+'_'+opt.YEAR
     # eff = _temp.eff
     # outinratio = _temp.outinratio
     if(opt.YEAR=='Full'):
-        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
     else:
-        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
 
     if(acFlag):
@@ -1721,6 +1721,9 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     elif obsName=="DL1":
         label = "D_{#Lambda 1}^{dec}"
         unit = ""
+    elif obsName=="DL1Zg":
+        label = "D_{#Lambda 1Zg}^{dec}"
+        unit = ""
     else:
         label = obsName
         unit = ""
@@ -1778,6 +1781,7 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         elif (obsName=="Dcp"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         elif (obsName=="D0hp"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         elif (obsName=="DL1"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
+        elif (obsName=="DL1Zg"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
     else:
         if (obsName=="mass4l") or doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
@@ -1788,6 +1792,7 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         elif (obsName=="Dcp"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="D0hp"): dummy.SetMaximum(2.5*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="DL1"): dummy.SetMaximum(2.8*max(max(a_data),(max(a_ggH_powheg))))
+        elif (obsName=="DL1Zg"): dummy.SetMaximum(2.8*max(max(a_data),(max(a_ggH_powheg))))
 	else: dummy.SetMaximum(1.5*(max(max(a_ggH_powheg),(max(a_data)+max(a_data_hi)))))
     if (opt.SETLOG):
         dummy.SetMinimum(0.0601*max(min(a_data),(min(a_ggH_powheg))))
@@ -1867,13 +1872,16 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG + JHUGen) + XH", "lf")
     else:
         legend . AddEntry(g_ggH_powheg , "SM (POWHEG + JHUGen + Pythia)", "lf")
-        if (obsName=="D0m"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa3=1 + Pythia)", "lf")
-        if (obsName=="Dcp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa3=0.5 + Pythia)", "lf")
-        if (obsName=="Dint"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa2=0.5 + Pythia)", "lf")
-        if (obsName=="D0hp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa2=1 + Pythia)", "lf")
+        if (obsName=="D0m"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a3}=1 + Pythia)", "lf")
+        if (obsName=="Dcp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a3}=0.5 + Pythia)", "lf")
+        if (obsName=="Dint"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=0.5 + Pythia)", "lf")
+        if (obsName=="D0hp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=1 + Pythia)", "lf")
         if (obsName=="DL1"):
-            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen faL1=1 + Pythia)", "lf")
-            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen faL1=0.5 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}=0.5 + Pythia)", "lf")
+        if (obsName=="DL1Zg"):
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Zg}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Zg}=0.5 + Pythia)", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
     if not acFlag: legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen)", "f")
     legend . AddEntry(dummy, "(LHCHWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
@@ -2180,6 +2188,11 @@ elif obs_name == 'DL1':
     acFlagBis = True
     acSample = '0L1'
     acSampleBis = '0L1f05ph0'
+elif obs_name == 'DL1Zg':
+    acFlag = True
+    acFlagBis = True
+    acSample = '0L1Zg'
+    acSampleBis = '0L1Zgf05ph0'
 else:
     acFlag = False
     acFlagBis = False

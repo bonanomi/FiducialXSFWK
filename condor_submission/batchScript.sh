@@ -118,7 +118,9 @@ if [[ "VAR" != "pT4l_kL" ]]; then
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots.py .
   cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/producePlots_v4.py .
   python producePlots.py --obsName 'VAR' --year 'Full' UNBLIND
+  python producePlots.py --obsName 'VAR' --year 'Full' UNBLIND --setLog
   THIRD UNBLIND
+  THIRD UNBLIND --setLog
 fi
 
 ## ----- Moving all outputs ----- ##

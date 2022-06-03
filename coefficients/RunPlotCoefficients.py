@@ -114,6 +114,7 @@ def matrix(obs_bins, obs_name, label):
                                 plt.text(j+0.5, i+0.5,'\n\n$\pm${:.3f}'.format(eps_err[i,j]), ha='center', va='center_baseline', size = 'x-small')
                         elif doubleDiff:
                             plt.text(j+0.5, i+0.5, '{:.2f}'.format(z), ha='center', va='center', size = 'x-small')
+                            # plt.text(j+0.5, i+0.5,'\n\n$\pm${:.4f}'.format(eps_err[i,j]), ha='center', va='center_baseline', size = 'x-small')
                 plt.clim(vmin=0.01, vmax=1) # Range colorbar
                 plt.colorbar(label = 'EFFICIENCY (> 0.01)')
                 plt.xticks(obs_bins_label_medium, tickLabel)

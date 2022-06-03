@@ -1,7 +1,8 @@
 import os,sys
 
+
 def fixJes(jesnp):
-    # Cases where jes are '-' or single value
+     # Cases where jes are '-' or single value
     if (len(jesnp)==1) | ('/' not in jesnp):
         return jesnp
     else:
@@ -11,12 +12,16 @@ def fixJes(jesnp):
         if ((jesnp_tmp_dn=='1.0') & (jesnp_tmp_up!='1.0')):
             return jesnp_tmp_up
         elif ((jesnp_tmp_dn!='1.0') & (jesnp_tmp_up=='1.0')):
-            return jesnp_tmp_up
+            return jesnp_tmp_dn+'/'+ str(abs(round(2-float(jesnp_tmp_dn),3)))
+        elif ((float(jesnp_tmp_dn) > 1) & (float(jesnp_tmp_up) > 1)):
+            return jesnp_tmp_up + '/' + str(abs(round(2-float(jesnp_tmp_up),3)))
+        elif ((float(jesnp_tmp_dn) < 1) & (float(jesnp_tmp_up) < 1)):
+            return jesnp_tmp_dn + '/' + str(abs(round(2-float(jesnp_tmp_dn),3)))
         elif (float(jesnp_tmp_dn) > float(jesnp_tmp_up)):
             '''
-               if 1.X/0.X cases
-               return a single NP (symmetric) corresponding to largest variation
-               return the variation always as 1.X
+            if 1.X/0.X cases
+            return a single NP (symmetric) corresponding to largest variation
+            return the variation always as 1.X
             '''
             if((float(jesnp_tmp_dn)-1) > (1-float(jesnp_tmp_up))):
                 return jesnp_tmp_dn
@@ -24,10 +29,9 @@ def fixJes(jesnp):
                 return str(1+(1-float(jesnp_tmp_up)))
         else:
             '''
-               if dn/up: correct jes, use it
+            if dn/up: correct jes, use it
             '''
             return jesnp
-
 
 def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalModel, year, nData, jes, lowerBound, upperBound, yearSetting):
     # Name of the bin (aFINALSTATE_ recobinX)
@@ -45,7 +49,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # if int(observableBins[obsBin+1]) > 1000:
     #     _recobin = 'GT'+str(int(observableBins[obsBin]))
 
-    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName: #it means it is a double differential measurement
+    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7': #it means it is a double differential measurement
         _recobin = str(observableBins[obsBin][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][3]).replace('.', 'p').replace('-','m')
     else:
         _recobin = str(observableBins[obsBin]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin+1]).replace('.', 'p').replace('-','m')
@@ -53,12 +57,14 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             _recobin = 'GT'+str(int(observableBins[obsBin]))
 
     if physicalModel == 'v3':
-        _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+        _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
         if obsName not in _obsName:
             _obsName[obsName] = obsName
         binName = 'hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
         processName = 'smH_' + _obsName[obsName]
     else:
+        _obsName = {}
+        _obsName[obsName] = obsName
         binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
         processName = 'trueH'+channel+'Bin'
 
@@ -138,7 +144,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('../datacard/datacard_'+year+'/hzz4l_'+channel+'S_13TeV_xs_'+_obsName[obsName]+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -146,7 +152,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     file.write('------------ \n')
 
-    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
+    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+_obsName[obsName]+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
 
     file.write('------------ \n')
 
@@ -163,7 +169,7 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write('process ')
     if physicalModel == 'v3':
         for i in range(nBins):
-            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+            if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7':
                 file.write(processName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
             elif observableBins[i+1] > 1000:
                 file.write(processName+'_GT'+str(int(observableBins[i]))+' ')
@@ -310,28 +316,18 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if jes == True:
         for index,jesName in enumerate(jesNames_datacard):
 
-            if obsName == 'pTj1':
-                if obsBin == 0:
-                    print jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]
-                    p = float(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)][:-4])
-                    # p = p-1
-                    print 2-p
-
-
-                    sys.out()
-
             file.write('CMS_scale_j_'+jesName+' lnN ')
-            for i in range(nBins): # Signals
-                file.write(fixJes(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)]))+' ')
-            file.write(fixJes(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
-            file.write(fixJes(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
-            file.write(fixJes(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
-            file.write(fixJes(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+' ')
-            file.write('-\n') # ZX
-        file.write('CMS_scale_j_ZX lnN ')
-        for i in range(nBins+4): # All except ZX
-            file.write('- ')
-        file.write(fixJes(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))+'\n')
+            for i in range(nBins+2): # Signals + out + fake
+                file.write(str(fixJes(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+'\n')
+        # file.write('CMS_scale_j_ZX lnN ')
+        # for i in range(nBins+4): # All except ZX
+        #     file.write('- ')
+        # file.write(str(jesnp['ZX_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+'\n')
+
+            #file.write('JES param 0.0 1.0\n')
 
     file.close()
 
@@ -428,7 +424,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
 
     # -------------------------------------------------------------------------------------------------
 
-    file = open('../datacard/datacard_'+year+'/hzz4l_GGH_'+channel+'S_13TeV_xs_'+obsName+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
+    file = open('../datacard/datacard_'+year+'/hzz4l_GGH_'+channel+'S_13TeV_xs_'+_obsName[obsName]+'_bin'+str(obsBin)+'_'+physicalModel+'.txt', 'w+')
 
     file.write('imax 1 \n')
     file.write('jmax * \n')
@@ -436,7 +432,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
 
     file.write('------------ \n')
 
-    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+obsName+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
+    file.write('shapes * * hzz4l_'+channel+'S_13TeV_xs_SM_125_'+_obsName[obsName]+'_'+physicalModel+'.Databin'+str(obsBin)+'.root w:$PROCESS\n')
 
     file.write('------------ \n')
 
@@ -451,7 +447,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
         file.write(binName+' ')
     file.write('\n')
     file.write('process ')
-    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName:
+    if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7':
         for i in range(nBins):
             file.write(processName+'_'+str(observableBins[i][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[i][3]).replace('.', 'p').replace('-','m')+' ')
         for i in range(nBins):
@@ -613,14 +609,14 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
                 file.write(fixJes(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
 
             # Bkgs
-            file.write(fixJes(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
-            file.write(fixJes(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
-            file.write('-\n') # ZX
+            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+            file.write(str(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+'\n')
             #file.write('JES param 0.0 1.0\n')
-        file.write('CMS_scale_j_ZX lnN ')
-        for i in range(nBins+4): # All except ZX
-            file.write('- ')
-        file.write(fixJes(str(jesnp['ZX_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+'\n')
+        # file.write('CMS_scale_j_ZX lnN ')
+        # for i in range(nBins+4): # All except ZX
+        #     file.write('- ')
+        # file.write(str(jesnp['ZX_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+'\n')
 
     file.close()
 

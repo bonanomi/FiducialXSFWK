@@ -871,6 +871,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         print 'a_ggH_powheg_hi',a_ggH_powheg_unc_hi
         print 'a_ggH_powheg_lo',a_ggH_powheg_unc_lo
 
+
         a_ggH_minloHJ = array('d',[ggH_minloHJ[i] for i in range(len(ggH_minloHJ))])
         v_ggH_minloHJ = TVectorD(len(a_ggH_minloHJ),a_ggH_minloHJ)
         a_ggH_minloHJ_unc_hi =  array('d',[ggH_minloHJ_NNLOunc_hi[i] for i in range(len(ggH_minloHJ_unc_hi))])
@@ -953,12 +954,14 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_ggH_powheg_unc_hi = TVectorD(len(a_ggH_powheg_unc_hi),a_ggH_powheg_unc_hi)
         v_ggH_powheg_unc_lo = TVectorD(len(a_ggH_powheg_unc_lo),a_ggH_powheg_unc_lo)
 
+
         a_ggH_minloHJ = array('d',[ggH_minloHJ[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_minloHJ))])
         v_ggH_minloHJ = TVectorD(len(a_ggH_minloHJ),a_ggH_minloHJ)
         a_ggH_minloHJ_unc_hi =  array('d',[ggH_minloHJ_NNLOunc_hi[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_minloHJ_unc_hi))])
         a_ggH_minloHJ_unc_lo =  array('d',[ggH_minloHJ_NNLOunc_lo[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_minloHJ_unc_lo))])
         v_ggH_minloHJ_unc_hi = TVectorD(len(a_ggH_minloHJ_unc_hi),a_ggH_minloHJ_unc_hi)
         v_ggH_minloHJ_unc_lo = TVectorD(len(a_ggH_minloHJ_unc_lo),a_ggH_minloHJ_unc_lo)
+
 
         '''
         a_ggH_HRes = array('d',[ggH_HRes[i]/((float(obs_bins_boundaries[i][1])-float(obs_bins_boundaries[i][0]))*(float(obs_bins_boundaries[i][3])-float(obs_bins_boundaries[i][2]))) for i in range(len(ggH_HRes))])
@@ -1011,9 +1014,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif (obsName=="massZ2"): offset=20.0
         elif (obsName=="massZ1"): offset=20.0
         elif (obsName=="rapidity4l"): offset=20.0
-        elif (obsName=="pTj1jet_pt30_eta2p5"): offset=30.0
         elif (obsName=="pTj1"): offset=30.0
-        elif (obsName=="njets_pt30_eta2p5"): offset=999.0
+        elif (obsName=="njets_pt30_eta4p7"): offset=999.0
         else: offset = 20.0
         a_observable  = array('d',[0.5*(float(obs_bins[i])+float(obs_bins[i+1])) for i in range(len(obs_bins)-1)])
         v_observable  = TVectorD(len(a_observable),a_observable)
@@ -1111,24 +1113,24 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_data_lo_allunc = TVectorD(len(data_lo_allunc), array('d',[data_lo_allunc[i] for i in range(len(data_lo_allunc))]))
 
 
-    g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
-    g_ggH_powheg.SetFillStyle(3254);
-    g_ggH_powheg.SetFillColor(ROOT.kAzure+2)
-    g_ggH_powheg.SetLineColor(ROOT.kAzure+2)
-    g_ggH_powheg.SetLineWidth(2)
-    g_ggH_powheg.SetMarkerColor(ROOT.kAzure+2)
-
-    g_ggH_powhegBorder = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
-    g_ggH_powhegBorder.SetFillStyle(0)
-    g_ggH_powhegBorder.SetFillColor(ROOT.kAzure+2)
-    g_ggH_powhegBorder.SetLineColor(ROOT.kAzure+2)
-    g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
-
-    g_ggH_powhege0 = TGraphAsymmErrors(v_observable,v_ggH_powheg,v_dobservable,v_dobservable,v_zeros,v_zeros)
-    g_ggH_powhege0.SetFillStyle(3254);
-    g_ggH_powhege0.SetFillColor(ROOT.kAzure+2)
-    g_ggH_powhege0.SetLineColor(ROOT.kAzure+2)
-    g_ggH_powhege0.SetMarkerColor(ROOT.kAzure+2)
+    # g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
+    # g_ggH_powheg.SetFillStyle(3254);
+    # g_ggH_powheg.SetFillColor(ROOT.kAzure+2)
+    # g_ggH_powheg.SetLineColor(ROOT.kAzure+2)
+    # g_ggH_powheg.SetLineWidth(2)
+    # g_ggH_powheg.SetMarkerColor(ROOT.kAzure+2)
+    #
+    # g_ggH_powhegBorder = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
+    # g_ggH_powhegBorder.SetFillStyle(0)
+    # g_ggH_powhegBorder.SetFillColor(ROOT.kAzure+2)
+    # g_ggH_powhegBorder.SetLineColor(ROOT.kAzure+2)
+    # g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
+    #
+    # g_ggH_powhege0 = TGraphAsymmErrors(v_observable,v_ggH_powheg,v_dobservable,v_dobservable,v_zeros,v_zeros)
+    # g_ggH_powhege0.SetFillStyle(3254);
+    # g_ggH_powhege0.SetFillColor(ROOT.kAzure+2)
+    # g_ggH_powhege0.SetLineColor(ROOT.kAzure+2)
+    # g_ggH_powhege0.SetMarkerColor(ROOT.kAzure+2)
 
     if (obsName.startswith("mass4l")):
 
@@ -1156,14 +1158,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ggH_powheg.SetLineWidth(2)
         g_ggH_powheg.SetMarkerColor(ROOT.kAzure+2)
 
+
         g_ggH_powhegBorder = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
         g_ggH_powhegBorder.SetFillStyle(0)
         g_ggH_powhegBorder.SetFillColor(ROOT.kAzure+2)
         g_ggH_powhegBorder.SetLineColor(ROOT.kAzure+2)
         g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
-        h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",4, 0, 4)
-        for i in range(4):
+        # h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",4, 0, 4)
+        h_ggH_powheg = TH1D("h_ggH_powheg","h_ggH_powheg",nBins-1, 0, nBins-1)
+        for i in range(nBins-1):
             h_ggH_powheg.SetBinContent(i+1,v_ggH_powheg[i])
     else:
         g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
@@ -1225,7 +1229,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                     h_ggH_ACbis = TH1D("h_ggH_ACbis","h_ggH_ACbis",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
                     for i in range(nBins-1):
                         h_ggH_ACbis.SetBinContent(i+1,v_ggH_ACbis[i])
-
     h_ggH_powheg.SetLineColor(ROOT.kAzure+2)
     h_ggH_powheg.SetLineWidth(2)
 
@@ -1287,6 +1290,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
             for i in range(nBins-1):
                 h_ggH_minloHJ.SetBinContent(i+1,v_ggH_minloHJ[i])
+
 
     h_ggH_minloHJ.SetLineColor(ROOT.kOrange+2)
     h_ggH_minloHJ.SetLineWidth(2)
@@ -1468,8 +1472,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_powhegBorder.SetLineColor(ROOT.kAzure+2)
         g_ratio_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
-        h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",4, 0, 4)
-        for i in range(4):
+        h_ratio_powheg = TH1D("h_ratio_powheg","h_ratio_powheg",nBins-1, 0, nBins-1)
+        for i in range(nBins-1):
             h_ratio_powheg.SetBinContent(i+1,v_ratio_powheg[i])
     else:
         g_ratio_powheg = TGraphAsymmErrors(v_observable_1,v_ratio_powheg,v_dobservable_1,v_dobservable_1,v_ratio_powheg_lo,v_ratio_powheg_hi)
@@ -1550,8 +1554,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_minloHJBorder.SetLineColor(ROOT.kOrange+2)
         g_ratio_minloHJBorder.SetMarkerColor(ROOT.kOrange+2)
 
-        h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",4, 0, 4)
-        for i in range(4):
+        h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",nBins-1, 0, nBins-1)
+        for i in range(nBins-1):
             h_ratio_minloHJ.SetBinContent(i+1,v_ratio_minloHJ[i])
     elif acFlag: # We keep the same names as in the last else (just to reduce entropy with if statements)
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
@@ -1645,6 +1649,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     g_data_allunc.SetMarkerStyle(20)
     g_data_allunc.SetMarkerSize(1.2)
 
+
     if (obsName=="pT4l"):
         label="p_{T}(H)"
         unit="GeV"
@@ -1657,7 +1662,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif (obsName=="nJets" or obsName=="njets_pt30_eta4p7"):
         label = "N(jets)"
         unit = ""
-    elif (obsName=="njets_pt30_eta2p5"):
+    elif (obsName=="njets_pt30_eta4p7"):
         label = "N(jets)"
         unit = ""
     elif (obsName=="pTj1"):
@@ -1719,13 +1724,24 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif obsName=="DL1":
         label = "D_{#Lambda 1}^{dec}"
         unit = ""
+    elif obsName=="DL1Zg":
+        label = "D_{#Lambda 1Zg}^{dec}"
+        unit = ""
+    elif obsName=="njets_pt30_eta4p7_pT4l":
+        label = "N_{j}"
+        label_2nd = "p_{T}(H)"
+        unit = ""
+        unit_2nd = "GeV"
     else:
         label = obsName
+        label_2nd = ""
         unit = ""
+        unit_2nd = ""
 
     c = TCanvas("c",obsName, 1400, 1400)
     if(opt.SETLOG): c.SetLogy()
-    if (not obsName.startswith("mass4l")): c.SetBottomMargin(0.35)
+    # if (not obsName.startswith("mass4l")):
+    c.SetBottomMargin(0.35)
     c.SetRightMargin(0.04)
     c.SetTopMargin(0.07)
     c.SetLeftMargin(0.18)
@@ -1773,9 +1789,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif (obsName=="Dcp"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         elif (obsName=="D0hp"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         elif (obsName=="DL1"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
+        elif (obsName=="DL1Zg"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
     else:
-        if (obsName.startswith("mass4l")) or doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
+        if doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
         if doubleDiff: dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
         elif (obsName=="massZ2"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="massZ1"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
@@ -1783,7 +1800,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif (obsName=="Dcp"): dummy.SetMaximum(2.0*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="D0hp"): dummy.SetMaximum(2.5*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi))) #AT
         elif (obsName=="DL1"): dummy.SetMaximum(2.8*max(max(a_data),(max(a_ggH_powheg))))
-	else: dummy.SetMaximum(1.5*(max(max(a_ggH_powheg),(max(a_data)+max(a_data_hi)))))
+        elif (obsName=="DL1Zg"): dummy.SetMaximum(2.8*max(max(a_data),(max(a_ggH_powheg))))
+	else: dummy.SetMaximum(1.7*(max(max(a_ggH_powheg),(max(a_data)+max(a_data_hi)))))
     if (opt.SETLOG):
         dummy.SetMinimum(0.0601*max(min(a_data),(min(a_ggH_powheg))))
         if (obsName.startswith("pTj1")): dummy.SetMinimum(0.0801*max(min(a_data),(min(a_ggH_powheg))))
@@ -1794,12 +1812,12 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     dummy.SetMarkerSize(0)
     dummy.GetXaxis().SetLabelSize(0.0)
     dummy.GetYaxis().SetLabelSize(0.04)
-    if (opt.SETLOG and (obsName.startswith('njets') or obsName.startswith('pTj1'))):
+    if (opt.SETLOG and (obsName.startswith('njets') or obsName.startswith('pTj1')) and not doubleDiff):
         dummy.SetMaximum(200.0*max(max(a_data),(max(a_ggH_powheg))))
         dummy.GetXaxis().SetTitle("")
     else:
         dummy.GetXaxis().SetTitle("")
-    if (obsName.startswith('njets')):
+    if (obsName.startswith('njets') and not doubleDiff):
         dummy.GetXaxis().SetTitle('')
         dummy.GetXaxis().SetLabelSize(0.0)
         dummy.GetXaxis().SetBinLabel(1,'')
@@ -1807,12 +1825,14 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         dummy.GetXaxis().SetBinLabel(3,'')
         dummy.GetXaxis().SetBinLabel(4,'')
     if (obsName.startswith("mass4l")):
-        dummy.GetXaxis().SetLabelSize(0.08)
+        dummy.GetXaxis().SetLabelSize(0.0)
         dummy.GetXaxis().SetBinLabel(1,'4l')
         dummy.GetXaxis().SetBinLabel(2,'2e2#mu')
         dummy.GetXaxis().SetBinLabel(3,'4#mu')
         dummy.GetXaxis().SetBinLabel(4,'4e')
     if doubleDiff:
+        if opt.SETLOG:
+            dummy.SetMaximum(1000000.0*max(max(a_data),(max(a_ggH_powheg))))
         dummy.GetXaxis().SetLabelSize(0.08)
         dummy.GetXaxis().SetTitle('')
         for i in range(1,nBins-1):
@@ -1824,24 +1844,24 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         # dummy.GetXaxis().SetBinLabel(5,'')
 
     dummy.GetXaxis().SetTitleSize(0.0)
+    # dummy.GetXaxis().SetRangeUser(-3.14,3.14)
 
     if (label=="inclusive"):
         dummy.GetYaxis().SetTitle("#sigma_{fid} (fb)")
-    elif (unit==''):
-        dummy.GetYaxis().SetTitle("d#sigma_{fid }/d"+label+" (fb)")
     elif doubleDiff:
         if unit==unit_2nd:
             dummy.GetYaxis().SetTitle("d^{2}#sigma_{fid }/d"+label+"d"+label_2nd+" (fb/"+unit+"^{2})")
         else:
             dummy.GetYaxis().SetTitle("d^{2}#sigma_{fid }/d"+label+"d"+label_2nd+" (fb/"+unit+unit_2nd+")")
         dummy.GetYaxis().SetTitleSize(0.04)
+    elif (unit==''):
+        dummy.GetYaxis().SetTitle("d#sigma_{fid }/d"+label+" (fb)")
     else:
         dummy.GetYaxis().SetTitle("d#sigma_{fid }/d"+label+" (fb/"+unit+")")
-    if (obsName.startswith('njets')):
+    if (obsName.startswith('njets') and not doubleDiff):
         dummy.GetYaxis().SetTitle("#sigma_{fid} (fb)")
 
-    dummy.GetYaxis().SetTitleOffset(1.4)
-    #dummy.GetYaxis().SetTitleOffset(1.8)
+    dummy.GetYaxis().SetTitleOffset(1.2)
     dummy.Draw("hist")
 
     h_XH.SetFillColor(kGreen-8)
@@ -1862,13 +1882,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG + JHUGen) + XH", "lf")
     else:
         legend . AddEntry(g_ggH_powheg , "SM (POWHEG + JHUGen + Pythia)", "lf")
-        if (obsName=="D0m"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa3=1 + Pythia)", "lf")
-        if (obsName=="Dcp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa3=0.5 + Pythia)", "lf")
-        if (obsName=="Dint"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa2=0.5 + Pythia)", "lf")
-        if (obsName=="D0hp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen fa2=1 + Pythia)", "lf")
+        if (obsName=="D0m"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a3}=1 + Pythia)", "lf")
+        if (obsName=="Dcp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a3}=0.5 + Pythia)", "lf")
+        if (obsName=="Dint"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=0.5 + Pythia)", "lf")
+        if (obsName=="D0hp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=1 + Pythia)", "lf")
         if (obsName=="DL1"):
-            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen faL1=1 + Pythia)", "lf")
-            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen faL1=0.5 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}=0.5 + Pythia)", "lf")
+        if (obsName=="DL1Zg"):
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Z#gamma}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Z#gamma}=0.5 + Pythia)", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
     if not acFlag: legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen)", "f")
     legend . AddEntry(dummy, "(LHCHWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
@@ -1963,118 +1986,118 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
     dummy.Draw("axissame")
 
-    if (not obsName.startswith("mass4l")):
-        pad = TPad("pad", "pad", 0.0, 0.0, 1.0, 1.0)
-        pad.SetTopMargin(0.65)
-        pad.SetRightMargin(0.04)
-        pad.SetLeftMargin(0.18)
-        pad.SetFillColor(0)
-        pad.SetGridy(1)
-        pad.SetFillStyle(0)
-        pad.Draw()
-        pad.cd(0)
+    # if (not obsName.startswith("mass4l")):
+    pad = TPad("pad", "pad", 0.0, 0.0, 1.0, 1.0)
+    pad.SetTopMargin(0.65)
+    pad.SetRightMargin(0.04)
+    pad.SetLeftMargin(0.18)
+    pad.SetFillColor(0)
+    pad.SetGridy(1)
+    pad.SetFillStyle(0)
+    pad.Draw()
+    pad.cd(0)
 
-        if (obsName.startswith("mass4l")):
-            dummy2 = TH1D("dummy2","dummy2", 4, 0, 4)
-            for i in range(1,5):
+    if (obsName.startswith("mass4l")):
+        dummy2 = TH1D("dummy2","dummy2", 4, 0, 4)
+        for i in range(1,5):
+            dummy2.SetBinContent(i,1.02)
+        dummy2.GetXaxis().SetLabelSize(0.06)
+        dummy2.GetXaxis().SetBinLabel(1,'4l')
+        dummy2.GetXaxis().SetBinLabel(2,'2e2#mu')
+        dummy2.GetXaxis().SetBinLabel(3,'4#mu')
+        dummy2.GetXaxis().SetBinLabel(4,'4e')
+    elif doubleDiff:
+        dummy2 = TH1D("dummy2","dummy2", nBins-1, 0, nBins-1)
+        for i in range(1,nBins-1):
+            dummy2.SetBinContent(i,1.02)
+        dummy2.GetXaxis().SetTitle("")
+        dummy2.GetXaxis().SetLabelSize(0.035)
+        for i in range(1,nBins):
+            dummy2.GetXaxis().SetBinLabel(i,'Bin '+str(i-1))
+            # dummy2.GetXaxis().SetBinLabel(1,'0')
+            # dummy2.GetXaxis().SetBinLabel(2,'1')
+            # dummy2.GetXaxis().SetBinLabel(3,'2')
+            # dummy2.GetXaxis().SetBinLabel(4,'3')
+            # dummy2.GetXaxis().SetBinLabel(5,'4')
+    else:
+        if ("jet" in obsName and (not obsName.startswith("njets"))):
+            dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[1])), float(obs_bins[1]), float(obs_bins[nBins-1]))
+            for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[1]))):
                 dummy2.SetBinContent(i,1.02)
-            dummy2.GetXaxis().SetLabelSize(0.08)
-            dummy2.GetXaxis().SetBinLabel(1,'4l')
-            dummy2.GetXaxis().SetBinLabel(2,'2e2#mu')
-            dummy2.GetXaxis().SetBinLabel(3,'4#mu')
-            dummy2.GetXaxis().SetBinLabel(4,'4e')
-        elif doubleDiff:
-            dummy2 = TH1D("dummy2","dummy2", nBins-1, 0, nBins-1)
-            for i in range(1,nBins-1):
-                dummy2.SetBinContent(i,1.02)
-            dummy2.GetXaxis().SetTitle("")
-            dummy2.GetXaxis().SetLabelSize(0.08)
-            for i in range(1,nBins):
-                dummy2.GetXaxis().SetBinLabel(i,'Bin '+str(i-1))
-                # dummy2.GetXaxis().SetBinLabel(1,'0')
-                # dummy2.GetXaxis().SetBinLabel(2,'1')
-                # dummy2.GetXaxis().SetBinLabel(3,'2')
-                # dummy2.GetXaxis().SetBinLabel(4,'3')
-                # dummy2.GetXaxis().SetBinLabel(5,'4')
         else:
-            if ("jet" in obsName and (not obsName.startswith("njets"))):
-                dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[1])), float(obs_bins[1]), float(obs_bins[nBins-1]))
-                for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[1]))):
-                    dummy2.SetBinContent(i,1.02)
+            if (obsName=="pT4l"):
+                dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
             else:
-                if (obsName=="pT4l"):
-                    dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
-                else:
-                    dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
-                for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[0]))):
-                    dummy2.SetBinContent(i,1.02)
-        if doubleDiff:dummy2.GetXaxis().SetLabelSize(0.08)
-        else: dummy2.GetXaxis().SetLabelSize(0.04)
+                dummy2 = TH1D("dummy2","dummy2", int(float(obs_bins[nBins-1])-float(obs_bins[0])), float(obs_bins[0]), float(obs_bins[nBins-1]))
+            for i in range(int(float(obs_bins[nBins-1])-float(obs_bins[0]))):
+                dummy2.SetBinContent(i,1.02)
+        dummy2.GetXaxis().SetLabelSize(0.04)
 
-        dummy2.SetLineColor(0)
-        dummy2.SetMarkerColor(0)
-        dummy2.SetLineWidth(0)
-        dummy2.SetMarkerSize(0)
-        if (obsName.startswith('njets')):
-            dummy2.GetXaxis().SetTitle(label)
-            dummy2.GetXaxis().SetLabelSize(0.08)
-            dummy2.GetXaxis().SetBinLabel(1,'0')
-            dummy2.GetXaxis().SetBinLabel(2,'1')
-            dummy2.GetXaxis().SetBinLabel(3,'2')
-            dummy2.GetXaxis().SetBinLabel(4,' 3')
-            dummy2.GetXaxis().SetBinLabel(5,'#geq 4')
-        elif (label=="inclusive"):
-            dummy2.GetXaxis().SetTitle("")
-        elif (unit==""):
-            dummy2.GetXaxis().SetTitle(label)
-        elif doubleDiff:
-            dummy2.GetXaxis().SetTitle("")
-        else:
-            dummy2.GetXaxis().SetTitle(label+" ("+unit+")")
+    dummy2.SetLineColor(0)
+    dummy2.SetMarkerColor(0)
+    dummy2.SetLineWidth(0)
+    dummy2.SetMarkerSize(0)
+    if (obsName.startswith('njets') and not doubleDiff):
+        dummy2.GetXaxis().SetTitle(label)
+        dummy2.GetXaxis().SetLabelSize(0.08)
+        dummy2.GetXaxis().SetBinLabel(1,'0')
+        dummy2.GetXaxis().SetBinLabel(2,'1')
+        dummy2.GetXaxis().SetBinLabel(3,'2')
+        dummy2.GetXaxis().SetBinLabel(4,' 3')
+        dummy2.GetXaxis().SetBinLabel(5,'#geq 4')
+    elif (label=="inclusive"):
+        dummy2.GetXaxis().SetTitle("")
+    elif doubleDiff:
+        dummy2.GetXaxis().SetTitle("")
+    elif (unit==""):
+        dummy2.GetXaxis().SetTitle(label)
+    else:
+        dummy2.GetXaxis().SetTitle(label+" ("+unit+")")
 
-        dummy2.GetYaxis().SetLabelSize(0.03)
-        dummy2.GetYaxis().SetNdivisions(10);
-        if (obsName.startswith("pTj1")): dummy2.GetYaxis().SetNdivisions(8);
-        dummy2.GetXaxis().SetNdivisions(510)
-        ratiomax=1.0
-        for i in range(len(data_hi)):
-          if ((data[i]+data_hi[i])/ggH_minloHJ[i]>ratiomax): ratiomax=(data[i]+data_hi[i])/ggH_minloHJ[i]
-        dummy2.SetMaximum(ratiomax*1.1)
-        if (obsName=="pT4l"):
-            dummy2.SetMaximum(ratiomax*1.04)
-            dummy2.GetYaxis().SetNdivisions(508)
-        dummy2.SetMinimum(0.0)
-        dummy2.Draw("hist")
-        dummy2.GetYaxis().CenterTitle()
-        dummy2.GetYaxis().SetTitleSize(0.04)
-        dummy2.GetYaxis().SetTitleOffset(1.5)
-        dummy2.GetYaxis().SetTitleSize(0.03)
-        dummy2.GetYaxis().SetTitleOffset(2.0)
-        if acFlag: dummy2.GetYaxis().SetTitle('Ratio to SM')
-        else: dummy2.GetYaxis().SetTitle('Ratio to NNLOPS')
+    dummy2.GetYaxis().SetLabelSize(0.03)
+    dummy2.GetYaxis().SetNdivisions(10);
+    if (obsName.startswith("pTj1")): dummy2.GetYaxis().SetNdivisions(8);
+    dummy2.GetXaxis().SetNdivisions(510)
+    ratiomax=1.0
+    for i in range(len(data_hi)):
+      if ((data[i]+data_hi[i])/ggH_minloHJ[i]>ratiomax): ratiomax=(data[i]+data_hi[i])/ggH_minloHJ[i]
+    dummy2.SetMaximum(ratiomax*1.1)
+    if (obsName=="pT4l"):
+        dummy2.SetMaximum(ratiomax*1.04)
+        dummy2.GetYaxis().SetNdivisions(508)
+    dummy2.SetMinimum(0.0)
+    dummy2.Draw("hist")
+    dummy2.GetYaxis().CenterTitle()
+    dummy2.GetYaxis().SetTitleSize(0.04)
+    dummy2.GetYaxis().SetTitleOffset(1.5)
+    dummy2.GetYaxis().SetTitleSize(0.03)
+    dummy2.GetYaxis().SetTitleOffset(2.0)
+    if acFlag: dummy2.GetYaxis().SetTitle('Ratio to SM')
+    else: dummy2.GetYaxis().SetTitle('Ratio to NNLOPS')
 
 
-        h_ratio_powheg.Draw("histsame")
-        h_ratio_minloHJ.Draw("histsame")
-        if acFlagBis: h_ratioBis_minloHJ.Draw("histsame")
+    h_ratio_powheg.Draw("histsame")
+    h_ratio_minloHJ.Draw("histsame")
+    if acFlagBis: h_ratioBis_minloHJ.Draw("histsame")
 
-        g_ratio_minloHJ.Draw("5same")
-        g_ratio_minloHJBorder.Draw("5same")
-        if acFlagBis:
-            g_ratioBis_minloHJ.Draw("5same")
-            g_ratioBis_minloHJBorder.Draw("5same")
-        #g_ratio_minloHJe0.Draw("epsame")
+    g_ratio_minloHJ.Draw("5same")
+    g_ratio_minloHJBorder.Draw("5same")
+    if acFlagBis:
+        g_ratioBis_minloHJ.Draw("5same")
+        g_ratioBis_minloHJBorder.Draw("5same")
+    #g_ratio_minloHJe0.Draw("epsame")
 
-        g_ratio_powheg.Draw("5same")
-        g_ratio_powhegBorder.Draw("5same")
-        #g_ratio_powhege0.Draw("epsame")
+    g_ratio_powheg.Draw("5same")
+    g_ratio_powhegBorder.Draw("5same")
+    #g_ratio_powhege0.Draw("epsame")
 
-        g_ratio_data.Draw("psameZ0")
-        g_ratio_sys.Draw("psameZ0")
-        g_ratio_datae0.Draw("psame")
+    g_ratio_data.Draw("psameZ0")
+    g_ratio_sys.Draw("psameZ0")
+    g_ratio_datae0.Draw("psame")
 
-        dummy2.GetYaxis().SetRangeUser(0,3)
-        dummy2.Draw("axissame")
+    dummy2.GetYaxis().SetRangeUser(0,3)
+    # dummy2.GetXaxis().SetRangeUser(-3.14,3.14)
+    dummy2.Draw("axissame")
 
     if (obsName=="pT4l"):
         box = TPaveText(240,-0.4,260,-0.1)
@@ -2170,12 +2193,21 @@ elif obs_name == 'DL1':
     acFlagBis = True
     acSample = '0L1'
     acSampleBis = '0L1f05ph0'
+elif obs_name == 'DL1Zg':
+    acFlag = True
+    acFlagBis = True
+    acSample = '0L1Zg'
+    acSampleBis = '0L1Zgf05ph0'
 else:
     acFlag = False
     acFlagBis = False
 
 if not doubleDiff:
-    if float(obs_bins[len(obs_bins)-1])>300.0:
+    if obs_name == 'TBjmax' or obs_name == 'mjj':
+        obs_bins[len(obs_bins)-1]='500.0'
+    elif obs_name == 'absdetajj':
+        obs_bins[0]='-1.0'
+    elif float(obs_bins[len(obs_bins)-1])>300.0:
         obs_bins[len(obs_bins)-1]='250.0'
     if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
         obs_bins[len(obs_bins)-1]='5'

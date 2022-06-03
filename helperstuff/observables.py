@@ -115,8 +115,8 @@ observables = {
     'obs_gen': 'GENmassZ1',
     'obs_gen_2nd': 'GENmassZ2'},
 'TCjmax vs pT4l':
-    {'obs_reco_2nd': 'TCjmax',
-    'obs_gen_2nd': 'GENTCjmax',
-    'obs_reco': 'ZZPt',
-    'obs_gen': 'GENpT4l'},
+    {'obs_reco_2nd': 'ZZPt',
+    'obs_gen_2nd': 'GENpT4l',
+    'obs_reco': 'TCjmax',
+    'obs_gen': 'GENTCjmax'},
 }
