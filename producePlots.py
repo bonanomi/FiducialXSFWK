@@ -2168,7 +2168,6 @@ if 'vs' in opt.OBSNAME:
     obs_name_tmp = opt.OBSNAME.split(' vs ')
     obs_name = obs_name_tmp[0]+'_'+obs_name_tmp[1]
 
-
 _temp = __import__('inputs_sig_extrap_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 obs_bins = _temp.observableBins
 print(obs_bins)

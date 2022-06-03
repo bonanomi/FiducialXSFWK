@@ -181,7 +181,6 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             low_2nd = str(observableBins[i][2]).replace('.','p').replace('-','m')
             high_2nd = str(observableBins[i][3]).replace('.','p').replace('-','m')
             boundaries = low+'_'+high+'_'+low_2nd+'_'+high_2nd
-
         else:
             low = str(observableBins[i]).replace('.','p').replace('-','m')
             high = str(observableBins[i+1]).replace('.','p').replace('-','m')
@@ -232,6 +231,18 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             processCmd(cmd_fit_tmp)
             cmds.append(cmd_fit_tmp)
 
+    if obsName == 'mass4l_zzfloating':
+        for i in range(nBins):
+            POI = 'zz_norm_%d' %i
+            POI_xs = 'r_smH_%s_%d' %(fitName, i)
+            POI_n = 'r_smH_%d' %i
+            cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
+            cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=100 --saveToys --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
+            cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+
+            print(cmd_fit_tmp)
+            processCmd(cmd_fit_tmp)
+
     #Stat-only
     for i in range(nBins):
         POI = 'r_smH_%s_%d' %(fitName, i)
@@ -257,6 +268,18 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
                 print(cmd_fit_tmp)
                 processCmd(cmd_fit_tmp)
                 cmds.append(cmd_fit_tmp)
+
+        if obsName == 'mass4l_zzfloating':
+            for i in range(nBins):
+                POI = 'zz_norm_%d' %i
+                POI_xs = 'r_smH_%s_%d' %(fitName, i)
+                POI_n = 'r_smH_%d' %i
+                cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
+                cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=100 --saveToys --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
+                cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+
+                print(cmd_fit_tmp)
+                processCmd(cmd_fit_tmp)
 
 def runFiducialXS():
     # variable for double-differential measurements and obsName

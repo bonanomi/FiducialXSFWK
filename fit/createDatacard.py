@@ -1,32 +1,5 @@
 import os,sys
 
-# def fixJes(jesnp):
-#      # Cases where jes are '-' or single value
-#      if (len(jesnp)==1) | ('/' not in jesnp):
-#          return jesnp
-#      else:
-#          jesnp_tmp = jesnp.split('/')
-#          jesnp_tmp_dn = jesnp_tmp[0]
-#          jesnp_tmp_up = jesnp_tmp[1]
-#          if ((jesnp_tmp_dn=='1.0') & (jesnp_tmp_up!='1.0')):
-#              return jesnp_tmp_up
-#          elif ((jesnp_tmp_dn!='1.0') & (jesnp_tmp_up=='1.0')):
-#              return jesnp_tmp_up
-#          elif (float(jesnp_tmp_dn) > float(jesnp_tmp_up)):
-#              '''
-#                 if 1.X/0.X cases
-#                 return a single NP (symmetric) corresponding to largest variation
-#                 return the variation always as 1.X
-#              '''
-#              if((float(jesnp_tmp_dn)-1) > (1-float(jesnp_tmp_up))):
-#                  return jesnp_tmp_dn
-#              else:
-#                  return str(1+(1-float(jesnp_tmp_up)))
-#          else:
-#              '''
-#                 if dn/up: correct jes, use it
-#              '''
-#              return jesnp
 
 def fixJes(jesnp):
      # Cases where jes are '-' or single value
@@ -633,7 +606,7 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
             # file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
 
             for i in range(nBins+2): # Signal + out + fake
-                file.write(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
+                file.write(fixJes(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
 
             # Bkgs
             file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')

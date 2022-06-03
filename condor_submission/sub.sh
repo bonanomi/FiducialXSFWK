@@ -2,8 +2,8 @@
 # $1 -> true or false to unblind
 
 declare -a obs=(
-# "mass4l noJES"
-# "mass4l_zzfloating noJES"
+"mass4l noJES"
+"mass4l_zzfloating noJES"
 # "njets_pt30_eta4p7 JES"
 # "pT4l noJES"
 # "pT4l_kL noJES"
@@ -25,17 +25,17 @@ declare -a obs=(
 "pTHjj JES"
 # "TCjmax JES"
 # "TBjmax JES"
-# "D0m noJES"
-# "Dcp noJES"
-# "D0hp noJES"
-# "Dint noJES"
-# "DL1 noJES"
-# "DL1Zg noJES"
-# "rapidity4l vs pT4l noJES"
+"D0m noJES"
+"Dcp noJES"
+"D0hp noJES"
+"Dint noJES"
+"DL1 noJES"
+"DL1Zg noJES"
+"rapidity4l vs pT4l noJES"
 # "njets_pt30_eta4p7 vs pT4l JES"
 # "pTj1 vs pTj2 JES"
 # "pT4l vs pTHj JES"
-# "massZ1 vs massZ2 noJES"
+"massZ1 vs massZ2 noJES"
 # "TCjmax vs pT4l JES"
 )
 source /opt/exp_soft/cms/t3/t3setup
