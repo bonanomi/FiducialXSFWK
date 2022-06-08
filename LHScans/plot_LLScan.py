@@ -271,6 +271,7 @@ if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins
 if obsName.startswith("mass4l"): nBins = nBins + 3 #in case of mass4l len(obs_bins)=1, we need to add +3 for cross section in the three different final states
 if obsName == 'mass4l_zzfloating': nBins += 1 #Add a bin for floating bkg
 if v4_flag: nBins = (len(obs_bins)-1)*2
+if v4_flag and doubleDiff: nBins = len(obs_bins)*2
 if 'kL' in obsName: nBins = 1
 
 for i in range(nBins):
@@ -735,9 +736,41 @@ for i in range(nBins):
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
         elif obsName.startswith("mass4l"):
             latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
-        elif doubleDiff:
+        elif doubleDiff and not v4_flag:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin][0])+' < '+label+' < '+str(obs_bins[_bin][1]))
             latex2.DrawLatex(0.55,0.60, str(obs_bins[_bin][2])+' < '+label_2nd+' < '+str(obs_bins[_bin][3]))
+        elif doubleDiff and v4_flag:
+            if _bin == 0:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[0][0])+' < '+label+' < '+str(obs_bins[0][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[0][2])+' < '+label_2nd+' < '+str(obs_bins[0][3]))
+            if _bin == 1:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[0][0])+' < '+label+' < '+str(obs_bins[0][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[0][2])+' < '+label_2nd+' < '+str(obs_bins[0][3]))
+            if _bin == 2:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[1][0])+' < '+label+' < '+str(obs_bins[1][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[1][2])+' < '+label_2nd+' < '+str(obs_bins[1][3]))
+            if _bin == 3:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[1][0])+' < '+label+' < '+str(obs_bins[1][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[1][2])+' < '+label_2nd+' < '+str(obs_bins[1][3]))
+            if _bin == 4:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[2][0])+' < '+label+' < '+str(obs_bins[2][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[2][2])+' < '+label_2nd+' < '+str(obs_bins[2][3]))
+            if _bin == 5:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[3][0])+' < '+label+' < '+str(obs_bins[3][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[3][2])+' < '+label_2nd+' < '+str(obs_bins[3][3]))
+            if _bin == 6:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[3][0])+' < '+label+' < '+str(obs_bins[3][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[3][2])+' < '+label_2nd+' < '+str(obs_bins[3][3]))
+            if _bin == 7:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[4][0])+' < '+label+' < '+str(obs_bins[4][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[4][2])+' < '+label_2nd+' < '+str(obs_bins[4][3]))
+            if _bin == 8:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[5][0])+' < '+label+' < '+str(obs_bins[5][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[5][2])+' < '+label_2nd+' < '+str(obs_bins[5][3]))
+            if _bin == 9:
+                latex2.DrawLatex(0.55,0.65, str(obs_bins[5][0])+' < '+label+' < '+str(obs_bins[5][1]))
+                latex2.DrawLatex(0.55,0.60, str(obs_bins[5][2])+' < '+label_2nd+' < '+str(obs_bins[5][3]))
+
         elif 'kL' in obsName:
             latex2.DrawLatex(0.55,0.60, '')
         elif v4_flag:

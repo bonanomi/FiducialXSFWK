@@ -88,21 +88,11 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if (obsName.startswith("mass4l")):
         if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
-        # modelNames = _temp.modelNames
-        # asimovDataModelName = _temp.asimovDataModelName
         resultsXS = _temp.resultsXS
-        # modelIndUncert = _temp.modelIndUncert
         if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v2'+floatfix, globals(), locals(), ['resultsXS'], -1)
         else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v2'+floatfix, globals(), locals(), ['resultsXS'], -1)
-        # modelNames_v2 = _temp.modelNames
-        # asimovDataModelName_v2 = _temp.asimovDataModelName
         resultsXS_v2 = _temp.resultsXS
-        # modelIndUncert_v2 = _temp.modelIndUncert
     else:
-        # _temp = __import__('resultsXS_'+obsName+'_v3'+floatfix, globals(), locals(), ['modelNames', 'asimovDataModelName', 'resultsXS', 'modelIndUncert'], -1)
-        # modelNames = _temp.modelNames
-        # asimovDataModelName = _temp.asimovDataModelName
-        # modelIndUncert = _temp.modelIndUncert
         if (opt.UNBLIND): _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
         resultsXS = _temp.resultsXS
@@ -1704,6 +1694,11 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif (obsName.startswith("mass4l")):
         label = "inclusive"
         unit = ""
+    elif obsName=='pTj1_pTj2':
+        label = "p_{T}(j1)"
+        unit = "GeV"
+        label_2nd = "p_{T}(j2)"
+        unit_2nd = "GeV"
     elif obsName=='massZ1_massZ2':
         label = "m(Z_{1})"
         unit = "GeV"
@@ -1861,7 +1856,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if (obsName.startswith('njets') and not doubleDiff):
         dummy.GetYaxis().SetTitle("#sigma_{fid} (fb)")
 
-    dummy.GetYaxis().SetTitleOffset(1.2)
+    dummy.GetYaxis().SetTitleOffset(1.6)
     dummy.Draw("hist")
 
     h_XH.SetFillColor(kGreen-8)

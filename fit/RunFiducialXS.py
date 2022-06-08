@@ -194,6 +194,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         cmd_t2w += "--PO 'map=.*/%s:%s[1.0,0.0,3.0]' " %(process, POI)
 
     print(cmd_t2w)
+    cmds.append(cmd_t2w)
     processCmd(cmd_t2w)
 
     cmd = 'cp hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root ../combine_files/SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root'
@@ -335,6 +336,8 @@ def runFiducialXS():
         PhysicalModels = ['v4','v3']
     elif 'kL' in obsName:
         PhysicalModels = ['kLambda']
+    elif obsName == 'massZ1_massZ2':
+        PhysicalModels = ['v4','v3']
     else:
         PhysicalModels = ['v3']
 

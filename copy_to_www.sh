@@ -7,15 +7,15 @@ if [[ $# -eq 0 ]] ; then
 fi
 
 # path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation" #ReReco
-path="/eos/user/a/atarabin/www/fiducial/run2_UL" #UL
+path="/eos/user/a/atarabin/www/fiducial/run2_UL_cardsValidation" #UL
 
 /opt/exp_soft/cms/t3/eos-login -init -username atarabin
 
 cd coefficients
 source /opt/exp_soft/llr/root/vv6.20.06-el7-gcc9-py37/etc/init.sh
-python RunPlotCoefficients.py --obsName "${1}" --year 'Full'
+# python RunPlotCoefficients.py --obsName "${1}" --year 'Full'
 cd ../fit
-python RunPlotCorrelation.py --obsName "${1}" --year 'Full'
+# python RunPlotCorrelation.py --obsName "${1}" --year 'Full'
 cd ..
 
 if [ -d "$path/${1}" ]; then

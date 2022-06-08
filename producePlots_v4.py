@@ -2208,7 +2208,7 @@ else:
 
 print('obs_bins', obs_bins)
 for c in ['4l', '2e2mu']:
-    if doubleDiff: plotXS(obs_name, obs_bins, obs_bins_boundaries, c)
+    if doubleDiff: plotXS(obs_name, obs_bins, c, obs_bins_boundaries)
     # else: plotXS(obs_name, obs_bins)
     else: plotXS(obs_name, obs_bins, c)
 sys.path.remove('./inputs')
