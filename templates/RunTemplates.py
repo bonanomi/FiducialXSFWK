@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os, sys
 import numpy as np
 import pandas as pd
-import uproot3 as uproot
+import uproot#3 as uproot
 from math import sqrt, log
 import itertools
 import optparse
@@ -126,7 +126,7 @@ def add_leadjet(pt,eta):
 
 # Rapidity
 def rapidity(p, eta):
-    return np.log((np.sqrt(125*125 + p*p*np.cosh(eta)*np.cosh(eta))+p*np.sinh(eta))/np.sqrt(125*125+p*p))
+    return np.abs(np.log((np.sqrt(125*125 + p*p*np.cosh(eta)*np.cosh(eta))+p*np.sinh(eta))/np.sqrt(125*125+p*p)))
 def add_rapidity(df):
     df['ZZy'] = rapidity(df['ZZPt'], df['ZZEta'])
     return df
