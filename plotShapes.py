@@ -484,6 +484,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     else:
         dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
+
     dummy.SetMinimum(0.0)
     dummy.Draw()
 
@@ -666,7 +667,6 @@ sys.path.remove("inputs")
 
 if obsName.startswith("mass4l"):
     PhysicalModels = ['v2','v3']
-    #PhysicalModels = ['v3']
 elif obsName == 'D0m' or obsName == 'Dcp' or obsName == 'D0hp' or obsName == 'Dint' or obsName == 'DL1' or obsName == 'DL1Zg' or obsName == 'costhetaZ1' or obsName == 'costhetaZ2'or obsName == 'costhetastar' or obsName == 'phi' or obsName == 'phistar' or obsName == 'massZ1' or obsName == 'massZ2':
     PhysicalModels = ['v4','v3']
 elif 'kL' in obsName:

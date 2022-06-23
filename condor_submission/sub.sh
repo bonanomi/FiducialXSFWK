@@ -5,16 +5,16 @@ declare -a obs=(
 "mass4l noJES"
 "mass4l_zzfloating noJES"
 # "njets_pt30_eta4p7 JES"
-"pT4l noJES"
-"pT4l_kL noJES"
-"rapidity4l noJES"
-"costhetaZ1 noJES"
-"costhetaZ2 noJES"
-"phi noJES"
-"phistar noJES"
-"costhetastar noJES"
-"massZ1 noJES"
-"massZ2 noJES"
+# "pT4l noJES"
+# "pT4l_kL noJES"
+# "rapidity4l noJES"
+# "costhetaZ1 noJES"
+# "costhetaZ2 noJES"
+# "phi noJES"
+# "phistar noJES"
+# "costhetastar noJES"
+# "massZ1 noJES"
+# "massZ2 noJES"
 # "pTj1 JES"
 # "pTHj JES"
 # "mHj JES"
@@ -22,7 +22,7 @@ declare -a obs=(
 # "mjj JES"
 # "absdetajj JES"
 # "dphijj JES"
-# "pTHjj JES"
+"pTHjj JES"
 # "TCjmax JES"
 # "TBjmax JES"
 "D0m noJES"
@@ -113,8 +113,8 @@ for i in "${!obs[@]}"; do
     LLscanv4="python plot_LLScan.py --obsName 'DL1' --year 'Full' --v4"
     impactsv4="python impacts.py --obsName 'DL1' --year 'Full' --physicsModel 'v4'"
   elif [ $name_folder == DL1Zg ]; then
-    CoeffAC="python RunCoefficients.py --obsName 'DL1Zg' --year '2016' --AC_onlyAcc --AC_hypothesis '0L1'"
-    CoeffACbis="python RunCoefficients.py --obsName 'DL1Zg' --year '2016' --AC_onlyAcc --AC_hypothesis '0L1f05ph0'"
+    CoeffAC="python RunCoefficients.py --obsName 'DL1Zg' --year '2017' --AC_onlyAcc --AC_hypothesis '0L1Zg'"
+    CoeffACbis="python RunCoefficients.py --obsName 'DL1Zg' --year '2017' --AC_onlyAcc --AC_hypothesis '0L1Zgf05ph0'"
     plotsv4="python producePlots_v4.py --obsName 'DL1Zg' --year 'Full'"
     LLscanv4="python plot_LLScan.py --obsName 'DL1Zg' --year 'Full' --v4"
     impactsv4="python impacts.py --obsName 'DL1Zg' --year 'Full' --physicsModel 'v4'"
@@ -180,8 +180,10 @@ for i in "${!obs[@]}"; do
   sed -i "s/FIFTH/$impactsv4/g" batchScript.sh
 
 
-  if [ $name_folder == mass4l_zzfloating ]; then
-    zzfloating="--m4lLower 105 --m4lUpper 160"
+  # if [ $name_folder == mass4l_zzfloating ]; then
+  #   zzfloating="--m4lLower 105 --m4lUpper 160"
+  if [ $name_folder == pT4l_kL ]; then
+    zzfloating="--m4lLower 105 --m4lUpper 140"
   else
     zzfloating="--m4lLower 105 --m4lUpper 160" #All measurements between [105,160]
   fi

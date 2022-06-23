@@ -109,7 +109,7 @@ extrap_inc_wrongfrac = {}
 extrap_binfrac_wrongfrac = {}
 nBins = len(obs_bins)
 if not doubleDiff: nBins = len(obs_bins)-1 #In case of 1D measurement the number of bins is -1 the length of obs_bins(=bin boundaries)
-for channel in ['2e2mu', '4e', '4mu']:
+for channel in ['2e2mu', '4e', '4mu']:#, '4l']:
     for genBin in range(nBins):
         for recoBin in range(nBins):
             fig,axs = plt.subplots(2, 3, figsize=(30,10), dpi=80)
@@ -217,25 +217,35 @@ for channel in ['2e2mu', '4e', '4mu']:
 
             if opt.NNLOPS:
                 continue
-            diff = [(extrap_acc[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] - acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]) / acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = (1+diff) * acc[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
+            # diff = [(extrap_acc[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] - acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]) / acc[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = (1+diff) * acc[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
+            #
+            # diff = [(extrap_eff[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_eff['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * eff[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            #
+            # diff = [(extrap_outinratio[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_outinratio['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * outinratio[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            #
+            # diff = [(extrap_inc_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_inc_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * inc_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            #
+            # diff = [(extrap_binfrac_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] if binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]>0 else 0 for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
+            # diff = np.mean(diff)
+            # extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-            diff = [(extrap_eff[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / eff[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_eff['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * eff[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = acc[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
 
-            diff = [(extrap_outinratio[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / outinratio[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_outinratio['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * outinratio[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_eff['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = eff[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-            diff = [(extrap_inc_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / inc_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_inc_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * inc_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_outinratio['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = outinratio[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-            diff = [(extrap_binfrac_wrongfrac[pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] - binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]) / binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] if binfrac_wrongfrac[125][pMode+'125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]>0 else 0 for pMode in ['ggH', 'VBFH', 'ZH', 'WH']]
-            diff = np.mean(diff)
-            extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = (1+diff) * binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+            extrap_inc_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = inc_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
+
+            extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
 # if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
 # else: obs_name_dic = obs_name
@@ -247,6 +257,7 @@ else:
     with open('../inputs/inputs_sig_extrap_'+obsName+'_'+str(opt.YEAR)+'.py', 'w') as f:
         f.write('observableBins = '+str(observableBins)+' \n')
         f.write('acc = '+str(extrap_acc)+' \n')
+        # f.write('err_acc = '+str(err_acc[125])+' \n')
         f.write('eff = '+str(extrap_eff)+' \n')
         f.write('err_eff = '+str(err_eff[125])+' \n')
         f.write('outinratio = '+str(extrap_outinratio)+' \n')

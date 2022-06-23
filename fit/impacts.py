@@ -92,7 +92,7 @@ def impactPlots():
     if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
     # if '_' in obsName and obsName!='mass4l_zzfloating': nBins = len(observableBins)+1
 
-    _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta2p5': 'NJ'}
+    _obsName = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
     if obsName in _obsName:
         obsName_poi = _obsName[obsName]
     else:

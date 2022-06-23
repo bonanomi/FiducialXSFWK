@@ -52,20 +52,44 @@ cp coefficients/matrix_nonfid/2017/nonFid_2017_${1}_* $path/${1}/.
 cp coefficients/matrix_nonfid/2018/nonFid_2018_${1}_* $path/${1}/.
 
 # Move datacards
-cp datacard/datacard_2016/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2016/.
-cp datacard/datacard_2017/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2017/.
-cp datacard/datacard_2018/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/datacard_2018/.
-cp datacard/hzz4l_*_13TeV_xs_${1}_bin*_v* $path/${1}/.
+if [ ${1} = "njets_pt30_eta4p7" ]; then
+  obs_datacards="NJ"
+elif [ ${1} = "pT4l" ]; then
+  obs_datacards="PTH"
+elif [ ${1} = "rapidity4l" ]; then
+  obs_datacards="YH"
+elif [ ${1} = "pTj1" ]; then
+  obs_datacards="PTJET"
+else
+  obs_datacards=${1}
+fi
+
+cp datacard/datacard_2016/hzz4l_*_13TeV_xs_${obs_datacards}_bin*_* $path/${1}/datacard_2016/.
+cp datacard/datacard_2017/hzz4l_*_13TeV_xs_${obs_datacards}_bin*_* $path/${1}/datacard_2017/.
+cp datacard/datacard_2018/hzz4l_*_13TeV_xs_${obs_datacards}_bin*_* $path/${1}/datacard_2018/.
 # Move ws
-cp datacard/datacard_2016/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2016/.
-cp datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2017/.
-cp datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${1}_v* $path/${1}/datacard_2018/.
+if [ ${1} = "pT4l_kL" ]; then
+  cp datacard/datacard_2016/hzz4l_*_13TeV_xs_SM_125_${obs_datacards}_kLambda* $path/${1}/datacard_2016/.
+  cp datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${obs_datacards}_kLambda* $path/${1}/datacard_2017/.
+  cp datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${obs_datacards}_kLambda* $path/${1}/datacard_2018/.
+  cp datacard/hzz4l_all_13TeV_xs_${1}_bin_kLambda* $path/${1}/.
+else
+  cp datacard/datacard_2016/hzz4l_*_13TeV_xs_SM_125_${obs_datacards}_v* $path/${1}/datacard_2016/.
+  cp datacard/datacard_2017/hzz4l_*_13TeV_xs_SM_125_${obs_datacards}_v* $path/${1}/datacard_2017/.
+  cp datacard/datacard_2018/hzz4l_*_13TeV_xs_SM_125_${obs_datacards}_v* $path/${1}/datacard_2018/.
+  cp datacard/hzz4l_all_13TeV_xs_${1}_bin_v* $path/${1}/.
+fi
 
 cp plots/${1}/asimov/${1}_unfoldwith* $path/${1}/.
 cp plots/${1}/asimov/corr_${1}_*.png $path/${1}/.
 cp plots/${1}/asimov/model/* $path/${1}/.
-cp impacts/${1}/impacts_*_${1}_*_asimov* $path/${1}/.
-cp LHScans/plots/lhscan_compare_${1}_* $path/${1}/.
+if [ ${1} = "pT4l_kL" ]; then
+  cp impacts/${1}/impacts_v3_kappa_lambda* $path/${1}/.
+  cp LHScans/plots/lhscan_compare_${1}_kappa* $path/${1}/.
+else
+  cp impacts/${1}/impacts_*_${1}_*_asimov* $path/${1}/.
+  cp LHScans/plots/lhscan_compare_${1}_r* $path/${1}/.
+fi
 
 cp fit/commands_${1}.py $path/${1}/.
-cp impacts/commands_impacts_${1}_v* $path/${1}/.
+cp impacts/${1}/commands_impacts_${1}_v* $path/${1}/.

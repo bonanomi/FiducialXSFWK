@@ -74,6 +74,7 @@ def exp_xsec():
             XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            print 'Bin ', obsBin, '\t SigmaBin', obsBin, channel, ' = ', XH_fs
             XH[obsBin]+=XH_fs
         # else:
         #     XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+'4l']*acc['ggH125_4l_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -85,6 +86,7 @@ def exp_xsec():
 
         _obsxsec = XH[obsBin]
 
+        print '\n'
         print 'Bin ', obsBin, '\t SigmaBin', obsBin, ' = ', _obsxsec
         xs['SigmaBin'+str(obsBin)] = _obsxsec
 

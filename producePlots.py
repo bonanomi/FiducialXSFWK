@@ -69,10 +69,12 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if(opt.YEAR=='Full'):
         _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
+        acc_aMC = _temp.acc
+        acc_QCD = _temp.acc
     else:
         _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
         acc_NNLOPS = _temp.acc
-
+        acc_aMC = _temp.acc
     if(acFlag):
         _temp = __import__('inputs_sig_ACggH_'+acSample+'_'+obsName+'_Full', globals(), locals(), ['acc'], -1)
         acc_AC = _temp.acc
@@ -135,11 +137,19 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
         pdfunc_ggH_nnlops = _temp.pdfUncert
         qcdunc_ggH_nnlops = _temp.qcdUncert
+
+        _temp = __import__('accUnc_'+obsName+'_aMCNLO', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
+        pdfunc_ggH_amcnlo = _temp.pdfUncert
+        qcdunc_ggH_amcnlo = _temp.qcdUncert
     else:
         _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
         pdfunc_ggH_nnlops = _temp.pdfUncert
         qcdunc_ggH_nnlops = _temp.qcdUncert
 
+        _temp = __import__('accUnc_'+obsName+'_aMCNLO', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
+        pdfunc_ggH_amcnlo = _temp.pdfUncert
+        qcdunc_ggH_amcnlo = _temp.qcdUncert
+        
     # cross sections
     ggH_powheg = []
     ggH_powheg_unc_hi = []
@@ -162,6 +172,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     ggH_powheg_NLOunc_lo = []
     ggH_minloHJ_NLOunc_hi = []
     ggH_minloHJ_NLOunc_lo = []
+    ggH_aMC = []
+    ggH_aMC_NNLOunc_hi = []
+    ggH_aMC_NNLOunc_lo = []
     # AC predictions
     if(acFlag):
         ggH_AC = []
@@ -261,6 +274,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         ggH_powheg_NNLOunc_lo.append(0.0)
         ggH_minloHJ_NNLOunc_hi.append(0.0)
         ggH_minloHJ_NNLOunc_lo.append(0.0)
+        ggH_aMC.append(0.0)
+        ggH_aMC_NNLOunc_hi.append(0.0)
+        ggH_aMC_NNLOunc_lo.append(0.0)
         # ggH_HRes_NNLOunc_hi.append(0.0)
         # ggH_HRes_NNLOunc_lo.append(0.0)
         # NLO theory unc
@@ -419,6 +435,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             ggH_powheg[obsBin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             #ggH_minloHJ[obsBin]+=ggH_xsBR*acc_ggH_powheg['ggH_powheg_JHUgen_125_'+channel+'_'+obsName+'_genbin'+str(obsBin)]
             ggH_minloHJ[obsBin]+=ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            ggH_aMC[obsBin]+=ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             # AC
             if(acFlag):
                 ggH_AC[obsBin]+=ggH_xsBR*acc_AC['ggH'+acSample+'_M125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -436,6 +453,11 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             total_NNLOunc_fs_minloHJ_hi +=  (unc_acc*(XH_fs+ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
             total_NNLOunc_fs_minloHJ_lo +=  (unc_acc*(XH_fs+ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
 
+            total_aMCunc_fs_minloHJ_hi =  (unc_br*(XH_fs+ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_aMCunc_fs_minloHJ_lo =  (unc_br*(XH_fs+ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_aMCunc_fs_minloHJ_hi +=  (unc_acc*(XH_fs+ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_aMCunc_fs_minloHJ_lo +=  (unc_acc*(XH_fs+ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+
             # NLO and NNLO are the same at this point
             total_NLOunc_fs_powheg_hi = total_NNLOunc_fs_powheg_hi
             total_NLOunc_fs_powheg_lo = total_NNLOunc_fs_powheg_lo
@@ -449,12 +471,12 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                     total_NLOunc_fs_ACbis_lo =  (unc_br*(XH_ACbis_fs+ggH_xsBR*acc_ACbis['ggH'+acSampleBis+'_M125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
                     total_NLOunc_fs_ACbis_hi +=  (unc_acc*(XH_ACbis_fs+ggH_xsBR*acc_ACbis['ggH'+acSampleBis+'_M125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
                     total_NLOunc_fs_ACbis_lo +=  (unc_acc*(XH_ACbis_fs+ggH_xsBR*acc_ACbis['ggH'+acSampleBis+'_M125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
-            #total_NLOunc_fs_powheg_hi = 0.0
-            #total_NLOunc_fs_powheg_lo = 0.0
 
             total_NLOunc_fs_minloHJ_hi = total_NNLOunc_fs_minloHJ_hi
             total_NLOunc_fs_minloHJ_lo = total_NNLOunc_fs_minloHJ_lo
 
+            total_aMCunc_fs_minloHJ_hi = total_aMCunc_fs_minloHJ_hi
+            total_aMCunc_fs_minloHJ_lo = total_aMCunc_fs_minloHJ_lo
 
             # add ggH qcd uncertainties (uncorrelated with anything else)
             #NNLO
@@ -466,6 +488,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             total_NNLOunc_fs_minloHJ_hi += XH_qcdunc_fs
             total_NNLOunc_fs_minloHJ_lo += XH_qcdunc_fs
+
+            total_aMCunc_fs_minloHJ_hi += XH_qcdunc_fs
+            total_aMCunc_fs_minloHJ_lo += XH_qcdunc_fs
+
             if (obsName.startswith("mass4l")):
                 total_NNLOunc_fs_minloHJ_hi += (unc_qcd_ggH_hi
                                                 *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
@@ -477,6 +503,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                 total_NNLOunc_fs_minloHJ_lo += (qcdunc_ggH_nnlops["ggH125_NNLOPS_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
                                                 *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
 
+                total_aMCunc_fs_minloHJ_hi += (qcdunc_ggH_amcnlo["ggH125_aMCNLO_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerUp']
+                                                *ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                total_aMCunc_fs_minloHJ_lo += (qcdunc_ggH_amcnlo["ggH125_aMCNLO_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
+                                                *ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             #NLO
             total_NLOunc_fs_powheg_hi += XH_qcdunc_fs
             total_NLOunc_fs_powheg_lo += XH_qcdunc_fs
@@ -573,12 +603,25 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                                           *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                           -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
 
+
+            total_aMCunc_fs_minloHJ_hi += XH_qqpdfunc_fs
+            total_aMCunc_fs_minloHJ_lo += XH_qqpdfunc_fs
+            total_aMCunc_fs_minloHJ_hi += (pdfunc_ggH_amcnlo["ggH125_aMCNLO_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerUp']
+                                          *ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                                          -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+            total_aMCunc_fs_minloHJ_lo += (pdfunc_ggH_amcnlo["ggH125_aMCNLO_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
+                                          *ggH_xsBR*acc_aMC['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                                          -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+
+
             # finally total uncertainty (different final states are correlated)
             # NNLO
             ggH_powheg_NNLOunc_hi[obsBin]+=sqrt(total_NNLOunc_fs_powheg_hi)
             ggH_powheg_NNLOunc_lo[obsBin]+=sqrt(total_NNLOunc_fs_powheg_lo)
             ggH_minloHJ_NNLOunc_hi[obsBin]+=sqrt(total_NNLOunc_fs_minloHJ_hi)
             ggH_minloHJ_NNLOunc_lo[obsBin]+=sqrt(total_NNLOunc_fs_minloHJ_lo)
+            ggH_aMC_NNLOunc_hi[obsBin]+=sqrt(total_aMCunc_fs_minloHJ_hi)
+            ggH_aMC_NNLOunc_lo[obsBin]+=sqrt(total_aMCunc_fs_minloHJ_lo)
             # NLO
             ggH_powheg_NLOunc_hi[obsBin]+=sqrt(total_NLOunc_fs_powheg_hi)
             ggH_powheg_NLOunc_lo[obsBin]+=sqrt(total_NLOunc_fs_powheg_lo)
@@ -596,6 +639,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             ggH_AC[obsBin]+=XH_AC[obsBin]
             if(acFlagBis): ggH_ACbis[obsBin]+=XH_ACbis[obsBin]
         ggH_minloHJ[obsBin]+=XH[obsBin]
+        ggH_aMC[obsBin]+=XH[obsBin]
 
         if (opt.UNBLIND):
             data[obsBin] = resultsXS[datamodel+"_"+obsName+"_genbin"+str(obsBin)]["central"]
@@ -882,6 +926,17 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         print 'a_ggH_minloHJ_hi',a_ggH_minloHJ_unc_hi
         print 'a_ggH_minloHJ_lo',a_ggH_minloHJ_unc_lo
 
+        a_ggH_aMC = array('d',[ggH_aMC[i] for i in range(len(ggH_aMC))])
+        v_ggH_aMC = TVectorD(len(a_ggH_aMC),a_ggH_aMC)
+        a_ggH_aMC_unc_hi =  array('d',[ggH_aMC_NNLOunc_hi[i] for i in range(len(ggH_aMC_NNLOunc_hi))])
+        a_ggH_aMC_unc_lo =  array('d',[ggH_aMC_NNLOunc_lo[i] for i in range(len(ggH_aMC_NNLOunc_lo))])
+        v_ggH_aMC_unc_hi = TVectorD(len(a_ggH_aMC_unc_hi),a_ggH_aMC_unc_hi)
+        v_ggH_aMC_unc_lo = TVectorD(len(a_ggH_aMC_unc_lo),a_ggH_aMC_unc_lo)
+
+        print 'a_ggH_aMC',a_ggH_aMC
+        print 'a_ggH_aMC_hi',a_ggH_aMC_unc_hi
+        print 'a_ggH_aMC_lo',a_ggH_aMC_unc_lo
+
 
         '''
         a_ggH_HRes = array('d',[ggH_HRes[i] for i in range(len(ggH_HRes))])
@@ -1022,13 +1077,18 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
         a_observable_1  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))+min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
         v_observable_1  = TVectorD(len(a_observable_1),a_observable_1)
-        a_dobservable_1 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        a_dobservable_1 = array('d',[0.05*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
         v_dobservable_1 = TVectorD(len(a_dobservable_1),a_dobservable_1)
 
-        a_observable_2  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))-min(offset,0.25*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
+        a_observable_2  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))-min(offset,0.34*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
         v_observable_2  = TVectorD(len(a_observable_2),a_observable_2)
-        a_dobservable_2 = array('d',[0.125*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        a_dobservable_2 = array('d',[0.05*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
         v_dobservable_2 = TVectorD(len(a_dobservable_2),a_dobservable_2)
+
+        a_observable_3  = array('d',[(0.5*(float(obs_bins[i])+float(obs_bins[i+1]))-min(offset,0.13*(float(obs_bins[i+1])-float(obs_bins[i])))) for i in range(len(obs_bins)-1)])
+        v_observable_3  = TVectorD(len(a_observable_3),a_observable_3)
+        a_dobservable_3 = array('d',[0.05*(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(obs_bins)-1)])
+        v_dobservable_3 = TVectorD(len(a_dobservable_3),a_dobservable_3)
 
         a_zeros = array('d',[0.0 for i in range(len(obs_bins)-1)])
         v_zeros = TVectorD(len(a_zeros),a_zeros)
@@ -1064,6 +1124,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_ggH_minloHJ_unc_hi = TVectorD(len(a_ggH_minloHJ_unc_hi),a_ggH_minloHJ_unc_hi)
         v_ggH_minloHJ_unc_lo = TVectorD(len(a_ggH_minloHJ_unc_lo),a_ggH_minloHJ_unc_lo)
 
+        a_ggH_aMC = array('d',[ggH_aMC[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_aMC))])
+        v_ggH_aMC = TVectorD(len(a_ggH_aMC),a_ggH_aMC)
+        a_ggH_aMC_unc_hi =  array('d',[ggH_aMC_NNLOunc_hi[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_aMC_NNLOunc_hi))])
+        a_ggH_aMC_unc_lo =  array('d',[ggH_aMC_NNLOunc_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_aMC_NNLOunc_lo))])
+        v_ggH_aMC_unc_hi = TVectorD(len(a_ggH_aMC_unc_hi),a_ggH_aMC_unc_hi)
+        v_ggH_aMC_unc_lo = TVectorD(len(a_ggH_aMC_unc_lo),a_ggH_aMC_unc_lo)
+
+        print 'a_ggH_aMC',a_ggH_aMC
+        print 'a_ggH_aMC_hi',a_ggH_aMC_unc_hi
+        print 'a_ggH_aMC_lo',a_ggH_aMC_unc_lo
         '''
         a_ggH_HRes = array('d',[ggH_HRes[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(ggH_HRes))])
         v_ggH_HRes = TVectorD(len(a_ggH_HRes),a_ggH_HRes)
@@ -1182,16 +1252,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         if acFlag:
             g_ggH_AC = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_AC.SetFillStyle(3254);
-            g_ggH_AC.SetFillColor(ROOT.kRed+2)
-            g_ggH_AC.SetLineColor(ROOT.kRed+2)
+            g_ggH_AC.SetFillColor(ROOT.kPink+2)
+            g_ggH_AC.SetLineColor(ROOT.kPink+2)
             g_ggH_AC.SetLineWidth(2)
-            g_ggH_AC.SetMarkerColor(ROOT.kRed+2)
+            g_ggH_AC.SetMarkerColor(ROOT.kPink+2)
 
             g_ggH_ACBorder = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_ACBorder.SetFillStyle(0)
-            g_ggH_ACBorder.SetFillColor(ROOT.kRed+2)
-            g_ggH_ACBorder.SetLineColor(ROOT.kRed+2)
-            g_ggH_ACBorder.SetMarkerColor(ROOT.kRed+2)
+            g_ggH_ACBorder.SetFillColor(ROOT.kPink+2)
+            g_ggH_ACBorder.SetLineColor(ROOT.kPink+2)
+            g_ggH_ACBorder.SetMarkerColor(ROOT.kPink+2)
 
             if acFlagBis:
                 g_ggH_ACbis = TGraphAsymmErrors(v_observable_2,v_ggH_ACbis,v_dobservable_2,v_dobservable_2,v_ggH_ACbis_unc_lo,v_ggH_ACbis_unc_hi)
@@ -1230,7 +1300,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     h_ggH_powheg.SetLineWidth(2)
 
     if acFlag:
-        h_ggH_AC.SetLineColor(ROOT.kRed+2)
+        h_ggH_AC.SetLineColor(ROOT.kPink+2)
         h_ggH_AC.SetLineWidth(2)
         if acFlagBis:
             h_ggH_ACbis.SetLineColor(ROOT.kViolet+2)
@@ -1249,12 +1319,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     g_ggH_minloHJBorder.SetFillColor(ROOT.kOrange+2)
     g_ggH_minloHJBorder.SetLineColor(ROOT.kOrange+2)
     g_ggH_minloHJBorder.SetMarkerColor(ROOT.kOrange+2)
-
-    g_ggH_minloHJe0 = TGraphAsymmErrors(v_observable,v_ggH_minloHJ,v_dobservable,v_dobservable,v_zeros,v_zeros)
-    g_ggH_minloHJe0.SetFillStyle(3245);
-    g_ggH_minloHJe0.SetFillColor(ROOT.kOrange+2)
-    g_ggH_minloHJe0.SetLineColor(ROOT.kOrange+2)
-    g_ggH_minloHJe0.SetMarkerColor(ROOT.kOrange+2)
 
     if (obsName.startswith("mass4l")):
         h_ggH_minloHJ = TH1D("h_ggH_minloHJ","h_ggH_minloHJ",4, 0, 4)
@@ -1292,6 +1356,53 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     h_ggH_minloHJ.SetLineWidth(2)
 
 
+    g_ggH_aMC = TGraphAsymmErrors(v_observable_3,v_ggH_aMC,v_dobservable_3,v_dobservable_3,v_ggH_aMC_unc_lo,v_ggH_aMC_unc_hi)
+    g_ggH_aMC.SetFillStyle(3245);
+    g_ggH_aMC.SetFillColor(ROOT.kPink+2)
+    g_ggH_aMC.SetLineColor(ROOT.kPink+2)
+    g_ggH_aMC.SetLineWidth(2)
+    g_ggH_aMC.SetMarkerColor(ROOT.kPink+2)
+
+    g_ggH_aMCBorder = TGraphAsymmErrors(v_observable_3,v_ggH_aMC,v_dobservable_3,v_dobservable_3,v_ggH_aMC_unc_lo,v_ggH_aMC_unc_hi)
+    g_ggH_aMCBorder.SetFillStyle(0)
+    g_ggH_aMCBorder.SetFillColor(ROOT.kPink+2)
+    g_ggH_aMCBorder.SetLineColor(ROOT.kPink+2)
+    g_ggH_aMCBorder.SetMarkerColor(ROOT.kPink+2)
+
+    if (obsName.startswith("mass4l")):
+        h_ggH_aMC = TH1D("h_ggH_aMC","h_ggH_aMC",4, 0, 4)
+        for i in range(4):
+            h_ggH_aMC.SetBinContent(i+1,v_ggH_aMC[i])
+    elif doubleDiff:
+        h_ggH_aMC = TH1D("h_ggH_aMC","h_ggH_aMC",nBins-1, 0, nBins-1)
+        for i in range(nBins-1):
+            h_ggH_aMC.SetBinContent(i+1,v_ggH_aMC[i])
+
+    g_ggH_aMC = TGraphAsymmErrors(v_observable_3,v_ggH_aMC,v_dobservable_3,v_dobservable_3,v_ggH_aMC_unc_lo,v_ggH_aMC_unc_hi)
+    g_ggH_aMC.SetFillStyle(3245);
+    g_ggH_aMC.SetFillColor(ROOT.kPink+2)
+    g_ggH_aMC.SetLineColor(ROOT.kPink+2)
+    g_ggH_aMC.SetLineWidth(2)
+    g_ggH_aMC.SetMarkerColor(ROOT.kPink+2)
+
+    g_ggH_aMCBorder = TGraphAsymmErrors(v_observable_3,v_ggH_aMC,v_dobservable_3,v_dobservable_3,v_ggH_aMC_unc_lo,v_ggH_aMC_unc_hi)
+    g_ggH_aMCBorder.SetFillStyle(0)
+    g_ggH_aMCBorder.SetFillColor(ROOT.kPink+2)
+    g_ggH_aMCBorder.SetLineColor(ROOT.kPink+2)
+    g_ggH_aMCBorder.SetMarkerColor(ROOT.kPink+2)
+
+    if (not obsName.startswith("mass4l") and not doubleDiff):
+        if ("jet" in obsName and (not obsName.startswith("njets"))):
+            h_ggH_aMC = TH1D("h_ggH_aMC","h_ggH_aMC",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
+            for i in range(1,nBins-1):
+                h_ggH_aMC.SetBinContent(i,v_ggH_aMC[i])
+        else:
+            h_ggH_aMC = TH1D("h_ggH_aMC","h_ggH_aMC",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
+            for i in range(nBins-1):
+                h_ggH_aMC.SetBinContent(i+1,v_ggH_aMC[i])
+
+    h_ggH_aMC.SetLineColor(ROOT.kPink+2)
+    h_ggH_aMC.SetLineWidth(2)
 
     '''
     g_ggH_HRes = TGraphAsymmErrors(v_observable,v_ggH_HRes,v_dobservable,v_dobservable,v_ggH_HRes_unc_lo,v_ggH_HRes_unc_hi)
@@ -1332,6 +1443,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_ratio_minloHJ = TVectorD(len(ggH_minloHJ), array('d',[ggH_minloHJ[i]/ggH_minloHJ[i] for i in range(len(ggH_minloHJ))]))
         v_ratio_minloHJ_hi = TVectorD(len(ggH_minloHJ), array('d',[ggH_minloHJ_NNLOunc_hi[i]/ggH_minloHJ[i] for i in range(len(ggH_minloHJ))]))
         v_ratio_minloHJ_lo = TVectorD(len(ggH_minloHJ), array('d',[ggH_minloHJ_NNLOunc_lo[i]/ggH_minloHJ[i] for i in range(len(ggH_minloHJ))]))
+
+        v_ratio_aMC = TVectorD(len(ggH_aMC), array('d',[ggH_aMC[i]/ggH_minloHJ[i] for i in range(len(ggH_aMC))]))
+        v_ratio_aMC_hi = TVectorD(len(ggH_aMC), array('d',[ggH_aMC_NNLOunc_hi[i]/ggH_minloHJ[i] for i in range(len(ggH_aMC))]))
+        v_ratio_aMC_lo = TVectorD(len(ggH_aMC), array('d',[ggH_aMC_NNLOunc_lo[i]/ggH_minloHJ[i] for i in range(len(ggH_aMC))]))
 
         v_ratio_powheg = TVectorD(len(ggH_powheg), array('d',[ggH_powheg[i]/ggH_minloHJ[i] for i in range(len(ggH_powheg))]))
         v_ratio_powheg_hi = TVectorD(len(ggH_powheg), array('d',[ggH_powheg_NLOunc_hi[i]/ggH_minloHJ[i] for i in range(len(ggH_powheg))]))
@@ -1412,23 +1527,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ratio_datae0.SetMarkerSize(1.4)
 
         g_ratio_sys = TGraphAsymmErrors(v_observable,v_ratio_data,v_zeros,v_zeros,v_ratio_sys_lo,v_ratio_sys_hi)
-        g_ratio_sys.SetMarkerColor(ROOT.kRed+2)
-        g_ratio_sys.SetLineColor(ROOT.kRed+2)
-        g_ratio_sys.SetFillColor(ROOT.kRed+2)
+        g_ratio_sys.SetMarkerColor(ROOT.kPink+2)
+        g_ratio_sys.SetLineColor(ROOT.kPink+2)
+        g_ratio_sys.SetFillColor(ROOT.kPink+2)
         g_ratio_sys.SetLineWidth(5)
-
-        # g_ratio_powheg = TGraphAsymmErrors(v_observable_1,v_ratio_powheg,v_dobservable_1,v_dobservable_1,v_ratio_powheg_lo,v_ratio_powheg_hi)
-        # g_ratio_powheg.SetFillStyle(3254);
-        # g_ratio_powheg.SetFillColor(ROOT.kAzure+2)
-        # g_ratio_powheg.SetLineColor(ROOT.kAzure+2)
-        # g_ratio_powheg.SetLineWidth(2)
-        # g_ratio_powheg.SetMarkerColor(ROOT.kAzure+2)
-        #
-        # g_ratio_powhegBorder = TGraphAsymmErrors(v_observable_1,v_ratio_powheg,v_dobservable_1,v_dobservable_1,v_ratio_powheg_lo,v_ratio_powheg_hi)
-        # g_ratio_powhegBorder.SetFillStyle(0);
-        # g_ratio_powhegBorder.SetFillColor(ROOT.kAzure+2)
-        # g_ratio_powhegBorder.SetLineColor(ROOT.kAzure+2)
-        # g_ratio_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
         g_ratio_powhege0 = TGraphAsymmErrors(v_observable,v_ratio_powheg,v_dobservable,v_dobservable,v_zeros,v_zeros)
         g_ratio_powhege0.SetFillStyle(3254);
@@ -1497,26 +1599,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     h_ratio_powheg.SetLineColor(ROOT.kAzure+2)
     h_ratio_powheg.SetLineWidth(2)
 
-    # g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_minloHJ,v_dobservable_2,v_dobservable_2,v_ratio_minloHJ_lo,v_ratio_minloHJ_hi)
-    # g_ratio_minloHJ.SetFillStyle(3245);
-    # g_ratio_minloHJ.SetFillColor(ROOT.kOrange+2)
-    # g_ratio_minloHJ.SetLineColor(ROOT.kOrange+2)
-    # g_ratio_minloHJ.SetLineWidth(2)
-    # g_ratio_minloHJ.SetMarkerColor(ROOT.kOrange+2)
-    #
-    # g_ratio_minloHJBorder = TGraphAsymmErrors(v_observable_2,v_ratio_minloHJ,v_dobservable_2,v_dobservable_2,v_ratio_minloHJ_lo,v_ratio_minloHJ_hi)
-    # g_ratio_minloHJBorder.SetFillStyle(0);
-    # g_ratio_minloHJBorder.SetFillColor(ROOT.kOrange+2)
-    # g_ratio_minloHJBorder.SetLineColor(ROOT.kOrange+2)
-    # g_ratio_minloHJBorder.SetMarkerColor(ROOT.kOrange+2)
-
-    # g_ratio_minloHJe0 = TGraphAsymmErrors(v_observable,v_ratio_minloHJ,v_dobservable,v_dobservable,v_zeros,v_zeros)
-    # g_ratio_minloHJe0.SetFillStyle(3245);
-    # g_ratio_minloHJe0.SetFillColor(ROOT.kOrange+2)
-    # g_ratio_minloHJe0.SetLineColor(ROOT.kOrange+2)
-    # g_ratio_minloHJe0.SetLineWidth(2)
-    # g_ratio_minloHJe0.SetMarkerColor(ROOT.kOrange+2)
-
     if (obsName.startswith("mass4l")):
 
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_minloHJ,v_dobservable_2,v_dobservable_2,v_ratio_minloHJ_lo,v_ratio_minloHJ_hi)
@@ -1556,16 +1638,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif acFlag: # We keep the same names as in the last else (just to reduce entropy with if statements)
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
         g_ratio_minloHJ.SetFillStyle(3245);
-        g_ratio_minloHJ.SetFillColor(ROOT.kRed+2)
-        g_ratio_minloHJ.SetLineColor(ROOT.kRed+2)
+        g_ratio_minloHJ.SetFillColor(ROOT.kPink+2)
+        g_ratio_minloHJ.SetLineColor(ROOT.kPink+2)
         g_ratio_minloHJ.SetLineWidth(2)
-        g_ratio_minloHJ.SetMarkerColor(ROOT.kRed+2)
+        g_ratio_minloHJ.SetMarkerColor(ROOT.kPink+2)
 
         g_ratio_minloHJBorder = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
         g_ratio_minloHJBorder.SetFillStyle(0);
-        g_ratio_minloHJBorder.SetFillColor(ROOT.kRed+2)
-        g_ratio_minloHJBorder.SetLineColor(ROOT.kRed+2)
-        g_ratio_minloHJBorder.SetMarkerColor(ROOT.kRed+2)
+        g_ratio_minloHJBorder.SetFillColor(ROOT.kPink+2)
+        g_ratio_minloHJBorder.SetLineColor(ROOT.kPink+2)
+        g_ratio_minloHJBorder.SetMarkerColor(ROOT.kPink+2)
 
         if acFlagBis:
             g_ratioBis_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_ACbis,v_dobservable_2,v_dobservable_2,v_ratio_ACbis_lo,v_ratio_ACbis_hi)
@@ -1616,9 +1698,34 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             for i in range(nBins-1):
                 h_ratio_minloHJ.SetBinContent(i+1,v_ratio_minloHJ[i])
 
-    if not acFlag: h_ratio_minloHJ.SetLineColor(ROOT.kOrange+2)
+        g_ratio_aMC = TGraphAsymmErrors(v_observable_3,v_ratio_aMC,v_dobservable_3,v_dobservable_3,v_ratio_aMC_lo,v_ratio_aMC_hi)
+        g_ratio_aMC.SetFillStyle(3245);
+        g_ratio_aMC.SetFillColor(ROOT.kPink+2)
+        g_ratio_aMC.SetLineColor(ROOT.kPink+2)
+        g_ratio_aMC.SetLineWidth(2)
+        g_ratio_aMC.SetMarkerColor(ROOT.kPink+2)
+
+        g_ratio_aMCBorder = TGraphAsymmErrors(v_observable_3,v_ratio_aMC,v_dobservable_3,v_dobservable_3,v_ratio_aMC_lo,v_ratio_aMC_hi)
+        g_ratio_aMCBorder.SetFillStyle(0);
+        g_ratio_aMCBorder.SetFillColor(ROOT.kPink+2)
+        g_ratio_aMCBorder.SetLineColor(ROOT.kPink+2)
+        g_ratio_aMCBorder.SetMarkerColor(ROOT.kPink+2)
+
+        if ("jet" in obsName and (not obsName.startswith("njets"))):
+            h_ratio_aMC = TH1D("h_ratio_aMC","h_ratio_aMC",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
+            for i in range(1,nBins-1):
+                h_ratio_aMC.SetBinContent(i,v_ratio_aMC[i])
+        else:
+            h_ratio_aMC = TH1D("h_ratio_aMC","h_ratio_aMC",nBins-1, array('d',[float(obs_bins[i]) for i in range(len(obs_bins))]) )
+            for i in range(nBins-1):
+                h_ratio_aMC.SetBinContent(i+1,v_ratio_aMC[i])
+
+    if not acFlag: 
+        h_ratio_minloHJ.SetLineColor(ROOT.kOrange+2)
+        h_ratio_aMC.SetLineColor(ROOT.kPink+2)
     else:
-        h_ratio_minloHJ.SetLineColor(ROOT.kRed+2)
+        h_ratio_minloHJ.SetLineColor(ROOT.kPink+2)
+        h_ratio_aMC.SetLineColor(ROOT.kPink+2)
         if acFlagBis:
             h_ratioBis_minloHJ.SetLineColor(ROOT.kViolet+2)
             h_ratioBis_minloHJ.SetLineWidth(2)
@@ -1858,6 +1965,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     legend . AddEntry(g_systematics,"Systematic uncertainty","l")
     # legend . AddEntry(g_modeldep,"Model dependence","f")
     if not acFlag:
+        legend . AddEntry(g_ggH_aMC , "gg#rightarrowH (aMC@NLO + JHUGen) + XH", "lf")
         legend . AddEntry(g_ggH_minloHJ , "gg#rightarrowH (NNLOPS + JHUGen) + XH", "lf")
         legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG + JHUGen) + XH", "lf")
     else:
@@ -1884,7 +1992,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         h_ggH_AC.Draw("histsame")
         if acFlagBis:
             h_ggH_ACbis.Draw("histsame")
-    else: h_ggH_minloHJ.Draw("histsame")
+    else: 
+        h_ggH_minloHJ.Draw("histsame")
+        h_ggH_aMC.Draw("histsame")
     g_ggH_powheg.Draw("5same")
     g_ggH_powhegBorder.Draw("5same")
     #g_ggH_powhege0.Draw("epsame")
@@ -1897,10 +2007,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     else:
         g_ggH_minloHJ.Draw("5same")
         g_ggH_minloHJBorder.Draw("5same")
-    #g_ggH_minloHJe0.Draw("epsame")
 
-    #g_XH.Draw("2same")
-    #g_XH.Draw("fsame")
+        g_ggH_aMC.Draw("5same")
+        g_ggH_aMCBorder.Draw("5same")
+
     if not acFlag: h_XH.Draw("histsame")
     # g_modeldep.Draw("2same0")
     # g_modeldep.Draw("psame")
@@ -1913,11 +2023,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     latex2.SetTextSize(0.5*c.GetTopMargin())
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
-    # print opt.LUMISCALE
-    # if (not opt.LUMISCALE=="1.0"):
-    #     lumi = round(137.1*float(opt.LUMISCALE),1)
-    #     latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
-    # else:
+
     if(opt.YEAR=='2016'):
         latex2.DrawLatex(0.92, 0.95,"36.3 fb^{-1} (13 TeV)")
     if(opt.YEAR=='2017'):
@@ -2056,10 +2162,13 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
         h_ratio_powheg.Draw("histsame")
         h_ratio_minloHJ.Draw("histsame")
+        h_ratio_aMC.Draw("histsame")
         if acFlagBis: h_ratioBis_minloHJ.Draw("histsame")
 
         g_ratio_minloHJ.Draw("5same")
         g_ratio_minloHJBorder.Draw("5same")
+        g_ratio_aMC.Draw("5same")
+        g_ratio_aMCBorder.Draw("5same")
         if acFlagBis:
             g_ratioBis_minloHJ.Draw("5same")
             g_ratioBis_minloHJBorder.Draw("5same")

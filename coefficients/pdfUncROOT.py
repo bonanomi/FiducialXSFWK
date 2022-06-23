@@ -133,7 +133,7 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
         cutnoth4l_gen  = "(!"+cuth4l_gen+")"
 
         shortname = sample_shortnames[Sample]
-        processBin = shortname+'_'+channel+'_'+opt.OBSNAME+'_genbin'+str(genbin)
+        processBin = shortname+'_'+channel+'_'+output_name+'_genbin'+str(genbin)
 
         # GEN level
         Histos[processBin+"fs"] = TH1D(processBin+"fs", processBin+"fs", 100, -1, 10000)
@@ -243,10 +243,14 @@ m4l_high = opt.UPPER_BOUND
 obs_bins, doubleDiff = binning(opt.OBSNAME)
 if doubleDiff:
     obs_name = opt.OBSNAME.split(' vs ')[0]
-    obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
+    obs_name_2nd_out = opt.OBSNAME.split(' vs ')[1]
     obs_name_2d = opt.OBSNAME
 else:
     obs_name = opt.OBSNAME
+
+output_name = obs_name
+if doubleDiff: output_name += '_'+obs_name_2nd_out
+print output_name
 
 _temp = __import__('observables', globals(), locals(), ['observables'], -1)
 observables = _temp.observables
@@ -259,7 +263,6 @@ if doubleDiff:
 else:
     obs_reco = observables[obs_name]['obs_reco']
     obs_gen = observables[obs_name]['obs_gen']
-
 
 Tree = {}
 sample_shortnames = {}
@@ -288,25 +291,12 @@ for chan in chans:
         else:
             getunc(chan, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, genbin)
 
-if (obs_reco.startswith("njets")):
-    for chan in chans:
-        for genbin in range(len(obs_bins)-2): # last bin is >=3
-            for Sample in List:
-                shortname = sample_shortnames[Sample]
-                processBin = shortname+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin)
-                processBinPlus1 = shortname+'_'+chan+'_'+obs_reco+'_genbin'+str(genbin+1)
-                acceptance[processBin] = acceptance[processBin]-acceptance[processBinPlus1]
-                qcdUncert[processBin]['uncerUp'] = sqrt(qcdUncert[processBin]['uncerUp']*qcdUncert[processBin]['uncerUp']+qcdUncert[processBinPlus1]['uncerUp']*qcdUncert[processBinPlus1]['uncerUp'])
-                qcdUncert[processBin]['uncerDn'] = sqrt(qcdUncert[processBin]['uncerDn']*qcdUncert[processBin]['uncerDn']+qcdUncert[processBinPlus1]['uncerDn']*qcdUncert[processBinPlus1]['uncerDn'])
-
 if opt.NNLOPS:
     nnlops = "_NNLOPS"
 else:
     nnlops = ""
 
-output_name = obs_name
-if doubleDiff: output_name += '_'+obs_name_2d
-with open('../inputs/accUnc_'+opt.OBSNAME+nnlops+'.py', 'w') as f:
+with open('../inputs/accUnc_'+output_name+nnlops+'.py', 'w') as f:
     #f.write('acc = '+str(acceptance)+' \n')
     f.write('qcdUncert = '+str(qcdUncert)+' \n')
     f.write('pdfUncert = '+str(pdfUncert)+' \n')

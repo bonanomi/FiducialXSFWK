@@ -102,7 +102,10 @@ def prepareTrees(year):
         #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
         # else:
         if opt.AC==True or opt.AC_ONLYACC==True:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
+            if year == '2016post':
+                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
+            else:
+                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root' #[:-4] is to cut 'post' from year
         else:
             fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
@@ -207,7 +210,10 @@ def generators(year):
         #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
         # else:
         if opt.AC==True or opt.AC_ONLYACC==True:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
+            if year == '2016post':
+                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
+            else:
+                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root' #[:-4] is to cut 'post' from year
         else:
             fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname

@@ -6,7 +6,7 @@ import optparse, os, sys
 from binning import binning
 from tabulate import tabulate
 
-print 'Welcome in RunJES!'
+print 'Welcome in PrintJES!'
 
 
 def parseOptions():
@@ -65,6 +65,7 @@ if not os.path.exists('tables/'+obsname_out):
 if doubleDiff: nBins = len(obs_bins)
 else: nBins = len(obs_bins)-1
 
+
 # Tables with numerical values
 tables = {}
 inclusiveJES = {}
@@ -78,50 +79,50 @@ for fState in ['2e2mu', '4e', '4mu']:
             # nominal_incl += evts['signal_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # up_incl += evts['signal_jesup_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # dn_incl += evts['signal_jesdn_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-            table.append(['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin),
-                          evts_noWeight['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['signal_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['signal_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['signal_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['signal_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          JESNP['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
+            table.append(['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin),
+                          evts_noWeight['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['signal_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['signal_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['signal_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['signal_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          JESNP['signal_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)]])
 
             # nominal_incl += evts['qqzz_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # up_incl += evts['qqzz_jesup_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # dn_incl += evts['qqzz_jesdn_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-            table.append(['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin),
-                          evts_noWeight['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['qqzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['qqzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['qqzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['qqzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          JESNP['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
+            table.append(['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin),
+                          evts_noWeight['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['qqzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['qqzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['qqzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['qqzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          JESNP['qqzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)]])
 
             # nominal_incl += evts['ggzz_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # up_incl += evts['ggzz_jesup_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # dn_incl += evts['ggzz_jesdn_'+jesName+'_'+year+'_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-            table.append(['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin),
-                          evts_noWeight['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['ggzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['ggzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['ggzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['ggzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          JESNP['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
+            table.append(['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin),
+                          evts_noWeight['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['ggzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['ggzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['ggzz_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['ggzz_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          JESNP['ggzz_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)]])
 
             # nominal_incl += evts['ZX_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # up_incl += evts['ZX_jesup_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
             # dn_incl += evts['ZX_jesdn_'+fState+'_'+obsname_out+'_recobin'+str(recobin)]
-            table.append(['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin),
-                          evts_noWeight['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['ZX_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts_noWeight['ZX_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['ZX_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          evts['ZX_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)],
-                          JESNP['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out+'_recobin'+str(recobin)]])
+            table.append(['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin),
+                          evts_noWeight['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['ZX_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts_noWeight['ZX_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['ZX_jesup_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          evts['ZX_jesdn_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)],
+                          JESNP['ZX_'+jesName+'_'+fState+'_'+str(year)+'_'+obsname_out.replace('pT4l', 'ZZPt')+'_recobin'+str(recobin)]])
 
         # table.append(['INCLUSIVE', nominal_incl, up_incl, dn_incl, str(round(dn_incl/nominal_incl,3))+'/'+str(round(up_incl/nominal_incl,3))])
         table.append([])
