@@ -29,6 +29,7 @@ def parseOptions():
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
     parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
+    parser.add_option('',   '--uncBand',  dest='UNC_BANDS',  action='store_true',default=False,   help='Draw uncertainty bands')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -352,7 +353,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     ##### ------------------------ Data ------------------------ #####
     CMS_channel = w.cat("CMS_channel")
-    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(30))
+    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(35))
 
     if (fstate=="4l"):
         datacut = ''
@@ -366,7 +367,15 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
-        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))
+        if opt.UNC_BANDS:
+            r = sim.fitTo(data, RooFit.Save(True))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kGreen-3,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kAzure-2,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 1))
+            sim.plotOn(mass,RooFit.LineColor(kViolet), RooFit.FillColor(kYellow), RooFit.Components(comp_zx+","+comp_zz), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 1, False), RooFit.DrawOption("L"))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))
     else:
         datacut = ''
         for year in ["1", "2", "3"]:
@@ -378,7 +387,12 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
-        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))#, RooFit.VisualizeError(r, 1))
+        if opt.UNC_BANDS:
+            r = sim.fitTo(data, RooFit.Save(True))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kGreen-3,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kAzure-2,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 1))
+            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))#, RooFit.VisualizeError(r, 1))
 
     ##### ------------------------ Shapes ------------------------ #####
     if (fstate!="4l"):
@@ -438,6 +452,14 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     sim.plotOn(mass, RooFit.LineColor(kAzure-3), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kViolet), RooFit.Components(comp_zx+","+comp_zz), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kViolet+2), RooFit.Components(comp_zx), RooFit.ProjWData(data,True))
+
+    if opt.UNC_BANDS:
+        sim.plotOn(mass, RooFit.LineColor(kGreen+2), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kGreen+2,0.3)), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid+","+comp_out), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+        sim.plotOn(mass, RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kOrange-3,0.3)), RooFit.LineStyle(2), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+        sim.plotOn(mass, RooFit.LineColor(kAzure-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kAzure-3,0.3)), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+        sim.plotOn(mass, RooFit.LineColor(kViolet), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kViolet-2,0.3)), RooFit.Components(comp_zx+","+comp_zz), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+        sim.plotOn(mass, RooFit.LineColor(kViolet+2), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kViolet+2,0.3)), RooFit.Components(comp_zx), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
+
     data.plotOn(mass)
 
 
@@ -458,19 +480,11 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy.GetYaxis().SetTitle("Events / (1.83 GeV)")
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} [GeV]")
     if (opt.UNBLIND):
-        # dummy.SetMaximum(max(1.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        else: dummy.SetMaximum(max(0.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
+        dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
     else:
-        # if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        # elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        # else: dummy.SetMaximum(max(0.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        # if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
         dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
-        #dummy.SetMaximum(0.5*max(n_trueH_asimov[fstate],n_zz_asimov[fstate],2.5))
+
     dummy.SetMinimum(0.0)
     dummy.Draw()
 
@@ -660,9 +674,11 @@ elif 'kL' in obsName:
 else:
     PhysicalModels = ['v3']
 
-
+nBins = len(observableBins)
+if not doubleDiff: nBins = nBins-1
+print nBins
 fStates = ["4e","4mu","2e2mu","4l"]
 for fState in fStates:
-    for recobin in range(len(observableBins)-1):
+    for recobin in range(nBins):
         for physicalModel in PhysicalModels:
             plotAsimov_sim(opt.UNFOLD, physicalModel, obsName, fState, observableBins, recobin)

@@ -138,3 +138,22 @@ dmypy.json
 cython_debug/
 
 .DS_Store
+
+# Fiducial measurements inputs
+*.*
+*/*.*
+inputs/inputs_*
+inputs/xsec_*
+inputs/acc*
+combine_files/*
+combine_files
+datacard
+datacard/*
+templates/201*
+templates/plots/*
+coefficients/JES/JESNP*
+LHScans/results*
+fit/commands*
+fit/*.txt
+impacts
+pvalues/*
