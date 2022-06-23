@@ -18,6 +18,15 @@ scramv1 b clean; scramv1 b
 
 The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder. Please copy them in `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python` before running the scipts in `fit`.
 
+## Set Up
+For all the imports in the various scripts to work properly, set up the working environment with:
+
+```
+cmsenv
+export PYTHONPATH="${PYTHONPATH}:<PATH_TO>/FiducialXSFWK/inputs"
+export PYTHONPATH="${PYTHONPATH}:<PATH_TO>/FiducialXSFWK/helperstuff"
+```
+
 ## Workflow
 A schematic representation of the framework's worflow is given in the two following sketches:
 
