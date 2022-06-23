@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
-import uproot3 as uproot
+import uproot #3 as uproot
 from math import sqrt, log
 import sys,os
 import optparse
@@ -12,7 +12,6 @@ import math
 import ROOT
 import json
 
-# sys.path.append('../inputs/')
 from observables import observables
 from binning import binning
 from paths import path
