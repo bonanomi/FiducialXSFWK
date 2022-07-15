@@ -40,7 +40,7 @@ def parseOptions():
     parser.add_option('',   '--AC_hypothesis', dest='AC_HYP',  type='string',default='',   help='Name of the AC hypothesis, e.g. 0M, 0PM')
     # The following option are used in case of interpolation to calculate acceptance at 125.38 GeV
     parser.add_option('',   '--interpolation', action='store_true', dest='INTER', default=False, help='Calculate acceptances at 124 and 126 GeV')
-    parser.add_option('',   '--hypothesis', dest='HYP',  type='string',default='', help='specify mass value: 4(124) or 6(126)')
+    parser.add_option('',   '--hypothesis', dest='HYP',  type='string',default='', help='specify mass value: 24(124) or 26(126)')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()

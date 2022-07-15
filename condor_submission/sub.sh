@@ -160,7 +160,7 @@ for i in "${!obs[@]}"; do
     plotsv4="python producePlots_v4.py --obsName 'phistar' --year 'Full'"
     LLscanv4="python plot_LLScan.py --obsName 'phistar' --year 'Full' --v4"
     impactsv4="python impacts.py --obsName 'phistar' --year 'Full' --physicsModel 'v4'"
-  elif [ $name_folder == massZ1_massZ2 ]: then
+  elif [ $name_folder == massZ1_massZ2 ]; then
     CoeffAC=""
     CoeffACbis=""
     plotsv4="python producePlots_v4.py --obsName 'massZ1 vs massZ2' --year 'Full'"

@@ -126,7 +126,7 @@ def add_leadjet(pt,eta):
 
 # Rapidity
 def rapidity(p, eta):
-    return np.log((np.sqrt(125*125 + p*p*np.cosh(eta)*np.cosh(eta))+p*np.sinh(eta))/np.sqrt(125*125+p*p))
+    return np.abs(np.log((np.sqrt(125*125 + p*p*np.cosh(eta)*np.cosh(eta))+p*np.sinh(eta))/np.sqrt(125*125+p*p)))
 def add_rapidity(df):
     df['ZZy'] = rapidity(df['ZZPt'], df['ZZEta'])
     return df

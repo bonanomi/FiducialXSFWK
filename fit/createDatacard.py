@@ -132,12 +132,15 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # ZX
     ZX = {}
     ZX['2016_2e2mu'] = '0.756295/1.25114'
+    # ZX['2016_2e2mu'] = '0.65679/1.35490'
     ZX['2016_4e'] = '0.598182/1.43059'
     ZX['2016_4mu'] = '0.694678/1.30555'
     ZX['2017_2e2mu'] = '0.765736/1.236385'
+    # ZX['2017_2e2mu'] = '0.67255/1.33289'
     ZX['2017_4e'] = '0.646521/1.36398'
     ZX['2017_4mu'] = '0.694063/1.30623'
     ZX['2018_2e2mu'] = '0.7660052/1.235647'
+    # ZX['2018_2e2mu'] = '0.67620/1.32818'
     ZX['2018_4e'] = '0.650486/1.35893'
     ZX['2018_4mu'] = '0.69554/1.30465'
 
@@ -203,11 +206,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         file.write('zz_norm_'+str(obsBin)+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+str(obsBin)])+' ['+str(expected_yield['ZZ_'+str(obsBin)]-100)+','+str(expected_yield['ZZ_'+str(obsBin)]+100)+']\n')
 
     # norm_fake
-    file.write('norm_nonResH lnU ')
+    # file.write('norm_nonResH lnU ')
+    # # for i in range(nBins+1): # Signal + OutsideAcceptance
     # for i in range(nBins+1): # Signal + OutsideAcceptance
-    for i in range(nBins+1): # Signal + OutsideAcceptance
-        file.write('- ')
-    file.write('10.0 - - -    # [/10,*10]\n')
+    #     file.write('- ')
+    # file.write('10.0 - - -    # [/10,*10]\n')
 
     if yearSetting == 'Full':
         if zzfloating:

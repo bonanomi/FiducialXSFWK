@@ -616,19 +616,51 @@ for i in range(nBins):
     if (opt.UNBLIND):
         if 'kL' in obsName:
             fname = inputPath + "higgsCombine_"+obsName+".MultiDimFit.mH125.38.root"
+            if plot.TFileIsGood(fname):
+                goodFile = TFile(fname)
+            else:
+                print('File is not good')
+                break
+            limit = goodFile.Get('limit')
+            kappa_lambda = []
+            for entry in limit:
+                kappa_lambda.append(entry.kappa_lambda)
+            print(kappa_lambda)
+            obs_nom = []
+            obs_nom.append(kappa_lambda[0])
+            obs_nom.append(kappa_lambda[2]-kappa_lambda[0])
+            obs_nom.append(kappa_lambda[0]-kappa_lambda[1])
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.root"
-        obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
-        obs_nom = obs_scan['val']
-        obs_2sig = obs_scan['val_2sig']
+            obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+            obs_nom = obs_scan['val']
+            obs_2sig = obs_scan['val_2sig']
 
         if 'kL' in obsName:
             fname = inputPath + "higgsCombine_"+obsName+"_NoSys.MultiDimFit.mH125.38.root"
+            if plot.TFileIsGood(fname):
+                goodFile = TFile(fname)
+            else:
+                print('File is not good')
+                break
+            limit = goodFile.Get('limit')
+            kappa_lambda = []
+            for entry in limit:
+                kappa_lambda.append(entry.kappa_lambda)
+            print kappa_lambda
+            obs_nom_stat = []
+            obs_nom_stat.append(kappa_lambda[0])
+            obs_nom_stat.append(kappa_lambda[2]-kappa_lambda[0])
+            obs_nom_stat.append(kappa_lambda[0]-kappa_lambda[1])
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+"_NoSys.MultiDimFit.mH125.38.root"
-        obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
-        obs_nom_stat = obs_scan_stat['val']
-        obs_2sig_stat = obs_scan_stat['val_2sig']
+            obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+            obs_nom_stat = obs_scan_stat['val']
+            obs_2sig_stat = obs_scan_stat['val_2sig']
+
+        print '------------------------------------------------------'
+        print obs_nom[0], obs_nom[1], obs_nom[2], obs_nom_stat[1], obs_nom_stat[2]
+        print '------------------------------------------------------'
         obs_up_sys = np.sqrt(obs_nom[1]**2 - obs_nom_stat[1]**2)
         obs_do_sys = np.sqrt(abs(obs_nom[2])**2 - abs(obs_nom_stat[2])**2)
 
@@ -647,6 +679,7 @@ for i in range(nBins):
         if opt.UNBLIND:
             obs_nom = list(obs_nom)
             obs_nom_stat = list(obs_nom_stat)
+            print '---------------->', obs_nom[0], xsec['SigmaBin'+str(i)]
             obs_nom[0] *= xsec['SigmaBin'+str(i)]
             obs_nom[1] *= xsec['SigmaBin'+str(i)]
             obs_nom[2] *= xsec['SigmaBin'+str(i)]
@@ -812,7 +845,68 @@ for i in range(nBins):
     c.Update()
 
     if(opt.UNBLIND):
-        if not obsName.startswith("mass4l"):
+        if v4_flag:
+            if _bin==0:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin0'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin0_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==1:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin0'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin0_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==2:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin1'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin1_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==3:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin1'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin1_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==4:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin2'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin2_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==5:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin2'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin2_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==6:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin3'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin3_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==7:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin3'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin3_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==8:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin4'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin4_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==9:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin4'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin4_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==10:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin5'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin5_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==11:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin5'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin5_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==12:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin6'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin6_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==13:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin6'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin6_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==14:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin7'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin7_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==15:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin7'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin7_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==16:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin8'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin8_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==17:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin8'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin8_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==18:
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin9'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_2e2mu_genbin5_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+            elif _bin==19:
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin9'] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
+                resultsXS_data_v4['SM_125_'+obsName+'_4l_genbin5_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
+        elif not obsName.startswith("mass4l"):
             resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)] = {"uncerDn": -1.0*abs(obs_nom[2]), "uncerUp": obs_nom[1], "central": obs_nom[0]}
             resultsXS_data['SM_125_'+obsName+'_genbin'+str(i)+'_statOnly'] = {"uncerDn": -1.0*abs(obs_nom_stat[2]), "uncerUp": obs_nom_stat[1], "central": obs_nom[0]}
         else:
@@ -912,8 +1006,12 @@ for i in range(nBins):
     c.SaveAs("plots/lhscan_compare_"+obsName+"_"+poi+".png")
 
 if v4_flag:
-    with open('resultsXS_LHScan_expected_'+obsName+'_v4.py', 'w') as f:
-        f.write('resultsXS = '+str(resultsXS_asimov_v4)+' \n')
+    if opt.UNBLIND:
+        with open('resultsXS_LHScan_observed_'+obsName+'_v4.py', 'w') as f:
+            f.write('resultsXS = '+str(resultsXS_data_v4)+' \n')
+    else:
+        with open('resultsXS_LHScan_expected_'+obsName+'_v4.py', 'w') as f:
+            f.write('resultsXS = '+str(resultsXS_asimov_v4)+' \n')
 else:
     with open('resultsXS_LHScan_expected_'+obsName+'_v3.py', 'w') as f:
         f.write('resultsXS = '+str(resultsXS_asimov)+' \n')
@@ -921,7 +1019,7 @@ else:
         with open('resultsXS_LHScan_expected_'+obsName+'_v2.py', 'w') as f:
             f.write('resultsXS = '+str(resultsXS_asimov_v2)+' \n')
 
-if(opt.UNBLIND):
+if(opt.UNBLIND) and not v4_flag:
     with open('resultsXS_LHScan_observed_'+obsName+'_v3.py', 'w') as f:
         f.write('resultsXS = '+str(resultsXS_data)+' \n')
     if obsName.startswith("mass4l"):

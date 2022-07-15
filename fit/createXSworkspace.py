@@ -458,17 +458,17 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         for fState in ['4e','4mu', '2e2mu']:
             fidxs[fState] = 0; fidxs_ggH[fState] = 0; fidxs_xH[fState] = 0
 
-            fidxs[fState] += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs[fState] += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs[fState] += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs[fState] += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs[fState] += higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs[fState] += higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs[fState] += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs[fState] += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs[fState] += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
 
-            fidxs_ggH[fState] += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs_xH[fState] += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs_xH[fState] += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs_xH[fState] += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            fidxs_xH[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs_ggH[fState] += higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs_xH[fState] += higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs_xH[fState] += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs_xH[fState] += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            fidxs_xH[fState] += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
 
         ggHName = 'ggH_' + _obsName[obsName]
         ggHName = ggHName+'_'+_binName
@@ -487,8 +487,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             _prodMode = prodMode
             if prodMode == 'VBFH':
                 _prodMode = 'VBF'
-            xheff += higgs_xs[_prodMode+'_125.0']*eff[prodMode+"125_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]*acc[prodMode+'125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            sumxsec += higgs_xs[_prodMode+'_125.0']
+            xheff += higgs_xs[_prodMode+'_125.38']*eff[prodMode+"125_"+channel+"_"+obsName+"_genbin"+str(genbin)+"_"+recobin]*acc[prodMode+'125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            sumxsec += higgs_xs[_prodMode+'_125.38']
         fideff_xH[genbin] = xheff/sumxsec
         xheff = 0.0
 
@@ -513,17 +513,18 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             # In these models the xsec is left floting, being directly the POI
             trueH_norm[genbin] = ROOT.RooFormulaVar(processName+"_norm","@0*@1", ROOT.RooArgList(fideff_var[genbin], lumi) );
             if channel == '2e2mu':
-                rBin_channel['2e2mu'+str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), 1.0, 0.0, 10.0)
+                fidxs = 0
+                fidxs += higgs_xs['ggH_125.38']*higgs4l_br['125.38_2e2mu']*acc['ggH125_2e2mu_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                fidxs += higgs_xs['VBF_125.38']*higgs4l_br['125.38_2e2mu']*acc['VBFH125_2e2mu_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                fidxs += higgs_xs['WH_125.38']*higgs4l_br['125.38_2e2mu']*acc['WH125_2e2mu_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                fidxs += higgs_xs['ZH_125.38']*higgs4l_br['125.38_2e2mu']*acc['ZH125_2e2mu_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                fidxs += higgs_xs['ttH_125.38']*higgs4l_br['125.38_2e2mu']*acc['ttH125_2e2mu_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+                rBin_channel['2e2mu'+str(genbin)] = ROOT.RooRealVar("r"+channel+"Bin"+str(genbin),"r"+channel+"Bin"+str(genbin), fidxs, 0.0, 10.0)
                 trueH_norm_final[genbin] = ROOT.RooFormulaVar(processName+"_"+recobin+"_final","@0*@1*@2", ROOT.RooArgList(rBin_channel['2e2mu'+str(genbin)], fideff_var[genbin],lumi))
             else: #4e+4mu
                 fidxs = {}
                 for fState in ['4e','4mu']:
                     fidxs[fState] = 0
-                    # fidxs[fState] += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                    # fidxs[fState] += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                    # fidxs[fState] += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                    # fidxs[fState] += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-                    # fidxs[fState] += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                     fidxs[fState] += higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                     fidxs[fState] += higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
                     fidxs[fState] += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
@@ -558,6 +559,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
 
             C1i_ttH = [0.0530525859571, 0.0472618825815, 0.0392337055167, 0.0278818345971, 0.0141882242091]
             C1i_VH = [0.0165863149378, 0.012328663897, 0.00774755197694, 0.0034957241269, 0.00024199147094]
+            C1i_VBF = [0.0066, 0.0066, 0.0064, 0.0058, 0.0055]
             for genbin in range(nBins):
                 C1_ggH[str(genbin)] = ROOT.RooRealVar("C1_ggH_"+str(genbin), "C1_ggH_"+str(genbin), 0.0066, 0.0066, 0.0066)
 
@@ -565,7 +567,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
 
                 C1_VH[str(genbin)] = ROOT.RooRealVar("C1_VH_"+str(genbin), "C1_VH_"+str(genbin), C1i_VH[genbin], C1i_VH[genbin], C1i_VH[genbin])
 
-                C1_VBFH[str(genbin)] = ROOT.RooRealVar("C1_VBFH_"+str(genbin), "C1_VBFH_"+str(genbin), 0.0063, 0.0063, 0.0063)
+                C1_VBFH[str(genbin)] = ROOT.RooRealVar("C1_VBFH_"+str(genbin), "C1_VBFH_"+str(genbin), C1i_VBF[genbin],C1i_VBF[genbin],C1i_VBF[genbin])
 
                 # hzz4l
                 C1_HZZ[str(genbin)] = ROOT.RooRealVar("C1_HZZ_"+str(genbin), "C1_HZZ_"+str(genbin), 0.0083, 0.0083, 0.0083)
@@ -587,24 +589,24 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
                 scale_VH[str(genbin)] = ROOT.RooFormulaVar("scale_VH_"+str(genbin), "scale_VH_"+str(genbin),"@0*@1", ROOT.RooArgList(mu_VH[str(genbin)],mu_BR[str(genbin)]))
                 scale_ttH[str(genbin)] = ROOT.RooFormulaVar("scale_ttH_"+str(genbin), "scale_ttH_"+str(genbin),"@0*@1", ROOT.RooArgList(mu_ttH[str(genbin)],mu_BR[str(genbin)]))
 
-                fidxs_ggH[str(genbin)] = ROOT.RooRealVar("fidxs_ggH_"+str(genbin), "fidxs_ggH_"+str(genbin), 1.0*higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_ggH[str(genbin)] = ROOT.RooRealVar("fidxs_ggH_"+str(genbin), "fidxs_ggH_"+str(genbin), 1.0*higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 fidxs_ggH[str(genbin)].setConstant(True)
-                fidxs_VBFH[str(genbin)] = ROOT.RooRealVar("fidxs_VBFH_"+str(genbin), "fidxs_VBFH_"+str(genbin), 1.000*higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_VBFH[str(genbin)] = ROOT.RooRealVar("fidxs_VBFH_"+str(genbin), "fidxs_VBFH_"+str(genbin), 1.000*higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 fidxs_VBFH[str(genbin)].setConstant(True)
-                fidxs_WH[str(genbin)] = ROOT.RooRealVar("fidxs_WH_"+str(genbin), "fidxs_WH_"+str(genbin), 1.000*higgs_xs['WH_125.0']*higgs4l_br['125.0_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_WH[str(genbin)] = ROOT.RooRealVar("fidxs_WH_"+str(genbin), "fidxs_WH_"+str(genbin), 1.000*higgs_xs['WH_125.38']*higgs4l_br['125.38_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 fidxs_WH[str(genbin)].setConstant(True)
-                fidxs_ZH[str(genbin)] = ROOT.RooRealVar("fidxs_ZH_"+str(genbin), "fidxs_ZH_"+str(genbin), 1.000*higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_ZH[str(genbin)] = ROOT.RooRealVar("fidxs_ZH_"+str(genbin), "fidxs_ZH_"+str(genbin), 1.000*higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 fidxs_ZH[str(genbin)].setConstant(True)
-                fidxs_ttH[str(genbin)] = ROOT.RooRealVar("fidxs_ttH_"+str(genbin), "fidxs_ttH_"+str(genbin), 1.000*higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                fidxs_ttH[str(genbin)] = ROOT.RooRealVar("fidxs_ttH_"+str(genbin), "fidxs_ttH_"+str(genbin), 1.000*higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
                 fidxs_ttH[str(genbin)].setConstant(True)
 
                 fidxs_fl[str(genbin)] = ROOT.RooFormulaVar("fidxs_fl_"+str(genbin), "fidxs_fl_"+str(genbin), "(@0*@5+@1*@6+(@2+@3)*@7+@4*@8)", ROOT.RooArgList(fidxs_ggH[str(genbin)], fidxs_VBFH[str(genbin)], fidxs_WH[str(genbin)], fidxs_ZH[str(genbin)], fidxs_ttH[str(genbin)], scale_ggH[str(genbin)], scale_VBFH[str(genbin)], scale_VH[str(genbin)], scale_ttH[str(genbin)]))
 
-                print('ggH Bin', genbin, higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
-                print('VBF Bin', genbin, higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
-                print('WH Bin', genbin, higgs_xs['WH_125.0']*higgs4l_br['125.0_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
-                print('ZH Bin', genbin, higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
-                print('ttH Bin', genbin, higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('ggH Bin', genbin, higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('VBF Bin', genbin, higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('WH Bin', genbin, higgs_xs['WH_125.38']*higgs4l_br['125.38_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('ZH Bin', genbin, higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
+                print('ttH Bin', genbin, higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)])
 
                 # Set name of the process according to conventions for combination
                 if observableBins[genbin+1] > 1000:
@@ -731,10 +733,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+".root"
         template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+".root"
         template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+".root"
-    if obsName == 'rapidity4l':
-        template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
-        template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
-        template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
+    # if obsName == 'rapidity4l':
+    #     template_qqzzName = "XSBackground_qqzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
+    #     template_ggzzName = "XSBackground_ggzz_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
+    #     template_zjetsName = "XSBackground_ZJetsCR_"+channel+"_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+".root"
 
     # if (not obsName=="mass4l"):
     #     template_zjetsName = "/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/templates/"+year+"/"+obsName+"/XSBackground_ZJetsCR_AllChans_"+obsName+"_"+obsBin_low+"_"+obsBin_high+".root"
@@ -756,7 +758,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     if decimal[obsName] and doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+"_"+str(obsBin_2nd_low)+"_"+str(obsBin_2nd_high))
     elif decimal[obsName]: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
-    elif doubleDiff: ggzzTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
+    elif doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     # if obsName == 'rapidity4l': ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     # elif doubleDiff: ggzzTemplate = ggzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print 'ggZZ bins',ggzzTemplate.GetNbinsX(),ggzzTemplate.GetBinLowEdge(1),ggzzTemplate.GetBinLowEdge(ggzzTemplate.GetNbinsX()+1)
@@ -765,7 +767,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     if decimal[obsName] and doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high)+"_"+str(obsBin_2nd_low)+"_"+str(obsBin_2nd_high))
     elif decimal[obsName]: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     elif not doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high)))
-    elif doubleDiff: zjetsTemplate = qqzzTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
+    elif doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     # if obsName == 'rapidity4l': zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(obsBin_low)+"_"+str(obsBin_high))
     # elif doubleDiff: zjetsTemplate = zjetsTempFile.Get("m4l_"+obsName+"_"+str(trunc(obsBin_low))+"_"+str(trunc(obsBin_high))+"_"+str(trunc(obsBin_2nd_low))+"_"+str(trunc(obsBin_2nd_high)))
     print 'zjets bins',zjetsTemplate.GetNbinsX(),zjetsTemplate.GetBinLowEdge(1),zjetsTemplate.GetBinLowEdge(zjetsTemplate.GetNbinsX()+1)

@@ -1067,7 +1067,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
         a_XH = array('d',[XH[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(XH))])
         v_XH = TVectorD(len(a_XH),a_XH)
-
         a_XH_hi = array('d',[XH_unc[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(XH_unc))])
         a_XH_lo = array('d',[XH_unc[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(XH_unc))])
         v_XH_hi = TVectorD(len(a_XH_hi),a_XH_hi)
@@ -1080,19 +1079,19 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         a_data_lo = array('d',[data_lo[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_lo))])
         v_data_lo = TVectorD(len(a_data_lo),a_data_lo)
 
-        a_data_hi2 = array('d',[data_hi2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_hi2))])
-        v_data_hi2 = TVectorD(len(a_data_hi2),a_data_hi2)
-        a_data_lo2 = array('d',[data_lo2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_lo2))])
-        v_data_lo2 = TVectorD(len(a_data_lo2),a_data_lo2)
+        # a_data_hi2 = array('d',[data_hi2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_hi2))])
+        # v_data_hi2 = TVectorD(len(a_data_hi2),a_data_hi2)
+        # a_data_lo2 = array('d',[data_lo2[i]/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(data_lo2))])
+        # v_data_lo2 = TVectorD(len(a_data_lo2),a_data_lo2)
         a_systematics_hi = array('d',[(systematics_hi[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_hi))])
         v_systematics_hi = TVectorD(len(a_systematics_hi),a_systematics_hi)
         a_systematics_lo = array('d',[(systematics_lo[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_lo))])
         v_systematics_lo = TVectorD(len(a_systematics_lo),a_systematics_lo)
 
-        a_systematics_hi2 = array('d',[(systematics_hi2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_hi2))])
-        v_systematics_hi2 = TVectorD(len(a_systematics_hi2),a_systematics_hi2)
-        a_systematics_lo2 = array('d',[(systematics_lo2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_lo2))])
-        v_systematics_lo2 = TVectorD(len(a_systematics_lo2),a_systematics_lo2)
+        # a_systematics_hi2 = array('d',[(systematics_hi2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_hi2))])
+        # v_systematics_hi2 = TVectorD(len(a_systematics_hi2),a_systematics_hi2)
+        # a_systematics_lo2 = array('d',[(systematics_lo2[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(systematics_lo2))])
+        # v_systematics_lo2 = TVectorD(len(a_systematics_lo2),a_systematics_lo2)
 
         a_modeldep_hi = array('d',[(modeldep_hi[i])/(float(obs_bins[i+1])-float(obs_bins[i])) for i in range(len(modeldep_hi))])
         v_modeldep_hi = TVectorD(len(a_modeldep_hi),a_modeldep_hi)
@@ -1102,6 +1101,19 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_data_hi_allunc = TVectorD(len(data_hi_allunc), array('d',[data_hi_allunc[i] for i in range(len(data_hi_allunc))]))
         v_data_lo_allunc = TVectorD(len(data_lo_allunc), array('d',[data_lo_allunc[i] for i in range(len(data_lo_allunc))]))
 
+    if jetFlag:
+        v_ggH_powheg[0] = v_ggH_powheg[0] * (obs_bins[1]-obs_bins[0])
+        v_ggH_powheg_unc_hi[0] = v_ggH_powheg_unc_hi[0] * (obs_bins[1]-obs_bins[0])
+        v_ggH_powheg_unc_lo[0] = v_ggH_powheg_unc_lo[0] * (obs_bins[1]-obs_bins[0])
+        v_ggH_minloHJ[0] = v_ggH_minloHJ[0] * (obs_bins[1]-obs_bins[0])
+        v_ggH_minloHJ_unc_hi[0] = v_ggH_minloHJ_unc_hi[0] * (obs_bins[1]-obs_bins[0])
+        v_ggH_minloHJ_unc_lo[0] = v_ggH_minloHJ_unc_lo[0] * (obs_bins[1]-obs_bins[0])
+        v_XH[0] = v_XH[0] * (obs_bins[1]-obs_bins[0])
+        v_XH_hi[0] = v_XH_hi[0] * (obs_bins[1]-obs_bins[0])
+        v_XH_lo[0] = v_XH_lo[0] * (obs_bins[1]-obs_bins[0])
+        v_data[0] = v_data[0] * (obs_bins[1]-obs_bins[0])
+        v_data_hi[0] = v_data_hi[0] * (obs_bins[1]-obs_bins[0])
+        a_data_lo[0] = a_data_lo[0] * (obs_bins[1]-obs_bins[0])
 
     # g_ggH_powheg = TGraphAsymmErrors(v_observable_1,v_ggH_powheg,v_dobservable_1,v_dobservable_1,v_ggH_powheg_unc_lo,v_ggH_powheg_unc_hi)
     # g_ggH_powheg.SetFillStyle(3254);
@@ -1641,40 +1653,22 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
 
     if (obsName=="pT4l"):
-        label="p_{T}(H)"
+        label="p_{T}^{H}"
         unit="GeV"
     elif (obsName=="massZ2"):
-        label = "m(Z_{2})"
+        label = "m_{Z2}"
         unit = "GeV"
     elif (obsName=="massZ1"):
-        label = "m(Z_{1})"
+        label = "m_{Z1}"
         unit = "GeV"
-    elif (obsName=="nJets" or obsName=="njets_pt30_eta4p7"):
-        label = "N(jets)"
-        unit = ""
     elif (obsName=="njets_pt30_eta4p7"):
-        label = "N(jets)"
+        label = "N_{jets}"
         unit = ""
     elif (obsName=="pTj1"):
-        label = "p_{T}(jet)"
+        label = "p_{T}^{j1}"
         unit = "GeV"
-    elif (obsName=="pTj1jet_pt30_eta2p5"):
-        label = "p_{T}(jet)"
-        unit = "GeV"
-    elif (obsName=="absrapidity_leadingjet_pt30_eta4p7"):
-        label = "|y(jet)|"
-        unit = ""
-    elif (obsName=="absrapidity_leadingjet_pt30_eta2p5"):
-        label = "|y(jet)| |#eta|<2.5"
-        unit = ""
-    elif (obsName=="absdeltarapidity_hleadingjet_pt30_eta4p7"):
-        label = "|y(H)-y(jet)|"
-        unit = ""
-    elif (obsName=="absdeltarapidity_hleadingjet_pt30_eta2p5"):
-        label = "|y(H)-y(jet)| |#eta|<2.5"
-        unit = ""
     elif (obsName=="rapidity4l"):
-        label = "|y(H)|"
+        label = "|y_H|"
         unit = ""
     elif (obsName=="costhetastar"):
         label = "|cos#theta*|"
@@ -1695,14 +1689,14 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         label = "inclusive"
         unit = ""
     elif obsName=='pTj1_pTj2':
-        label = "p_{T}(j1)"
+        label = "p_{T}^{j1}"
         unit = "GeV"
-        label_2nd = "p_{T}(j2)"
+        label_2nd = "p_{T}^{j2}"
         unit_2nd = "GeV"
     elif obsName=='massZ1_massZ2':
-        label = "m(Z_{1})"
+        label = "m_{Z1}"
         unit = "GeV"
-        label_2nd = "m(Z_{2})"
+        label_2nd = "m_{Z2}"
         unit_2nd = "GeV"
     elif obsName=="D0m":
         label = "D_{0-}^{dec}"
@@ -1723,10 +1717,31 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         label = "D_{#Lambda 1Zg}^{dec}"
         unit = ""
     elif obsName=="njets_pt30_eta4p7_pT4l":
-        label = "N_{j}"
-        label_2nd = "p_{T}(H)"
+        label = "N_{jets}"
+        label_2nd = "p_{T}^{H}"
         unit = ""
         unit_2nd = "GeV"
+    elif obsName=="absdetajj":
+        label = "|#Delta#eta_{jj}|"
+        unit = ""
+    elif obsName=="pTHj":
+        label = "p_{T}^{Hj}"
+        unit = "GeV"
+    elif obsName=="pTHjj":
+        label = "p_{T}^{Hjj}"
+        unit = "GeV"
+    elif obsName=="mjj":
+        label = "m_{jj}"
+        unit = "GeV"
+    elif obsName=="mHj":
+        label = "m_{Hj}"
+        unit = "GeV"
+    elif obsName=="TCjmax":
+        label = "T_{C}^{max}"
+        unit = "GeV"
+    elif obsName=="TBjmax":
+        label = "T_{B}^{max}"
+        unit = "GeV"
     else:
         label = obsName
         label_2nd = ""
@@ -1785,6 +1800,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif (obsName=="D0hp"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         elif (obsName=="DL1"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
         elif (obsName=="DL1Zg"): dummy.SetMaximum(1100*max(max(a_data),(max(a_ggH_powheg))))
+        elif obsName=="TCjmax" or obs_name == 'TBjmax': dummy.SetMaximum(100*max(max(a_data),(max(a_ggH_powheg))))
         else: dummy.SetMaximum(55.0*max(max(a_data),(max(a_ggH_powheg))))
     else:
         if doubleDiff: dummy.SetMaximum(1.6*(max(max(a_data),(max(a_ggH_powheg)))+max(a_data_hi)))
@@ -1839,7 +1855,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         # dummy.GetXaxis().SetBinLabel(5,'')
 
     dummy.GetXaxis().SetTitleSize(0.0)
-    # dummy.GetXaxis().SetRangeUser(-3.14,3.14)
+    # dummy.GetXaxis().SetRangeUser(-5,250)
 
     if (label=="inclusive"):
         dummy.GetYaxis().SetTitle("#sigma_{fid} (fb)")
@@ -1856,11 +1872,15 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if (obsName.startswith('njets') and not doubleDiff):
         dummy.GetYaxis().SetTitle("#sigma_{fid} (fb)")
 
-    dummy.GetYaxis().SetTitleOffset(1.6)
+    if doubleDiff:
+        dummy.GetYaxis().SetTitleOffset(1.6)
+    else:
+        dummy.GetYaxis().SetTitleOffset(1.3)
     dummy.Draw("hist")
 
     h_XH.SetFillColor(kGreen-8)
-    h_XH.SetFillStyle(3344)
+    # h_XH.SetFillStyle(3344)
+    h_XH.SetFillStyle(3001)
 
     legend = TLegend(.28,.65,.85,.90)
     #legend . SetNColumns(2)
@@ -1895,6 +1915,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     legend.SetFillColor(0);
     legend.SetLineColor(0);
     legend.Draw()
+
 
 
     h_ggH_powheg.Draw("histsame")
@@ -1976,6 +1997,21 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         latex2.SetTextAlign(31) # align right
         latex2.SetTextAngle(90)
         latex2.DrawLatex(0.92, 0.77,"#frac{1}{50} #sigma(p_{T}(H) > 200 GeV)")
+
+
+    if jetFlag:
+        l = TLine(obs_bins[1], 0, obs_bins[1], v_ggH_powheg[0]+2);
+        l.SetLineWidth(2);
+        l.SetLineColor(kBlack);
+        l.Draw();
+
+        dummy.GetXaxis().SetRangeUser(0,upLim)
+
+        a = dummy.GetXaxis()
+        a.SetNdivisions(Ndivisions)
+        # a.ChangeLabel(2,-1,-1,-1,-1,-1,"-#pi")
+        # a.ChangeLabel(-1,-1,-1,-1,-1,-1,"#pi")
+        dummy.Draw("axissame")
 
 
 
@@ -2064,7 +2100,6 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     dummy2.Draw("hist")
     dummy2.GetYaxis().CenterTitle()
     dummy2.GetYaxis().SetTitleSize(0.04)
-    dummy2.GetYaxis().SetTitleOffset(1.5)
     dummy2.GetYaxis().SetTitleSize(0.03)
     dummy2.GetYaxis().SetTitleOffset(2.0)
     if acFlag: dummy2.GetYaxis().SetTitle('Ratio to SM')
@@ -2091,7 +2126,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     g_ratio_datae0.Draw("psame")
 
     dummy2.GetYaxis().SetRangeUser(0,3)
-    # dummy2.GetXaxis().SetRangeUser(-3.14,3.14)
+    # dummy2.GetXaxis().SetRangeUser(-5,250)
     dummy2.Draw("axissame")
 
     if (obsName=="pT4l"):
@@ -2100,6 +2135,35 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         box.SetFillColor(0)
         box.AddText("   ")
         box.Draw("same")
+
+    if jetFlag:
+        l2 = TLine(obs_bins[1], 0, obs_bins[1], 3);
+        l2.SetLineWidth(2);
+        l2.SetLineColor(kBlack);
+        l2.Draw();
+
+        dummy2.GetXaxis().SetRangeUser(0,upLim)
+
+        # t2 = TText(6,-0.5,"N_{jets}=0")
+        # t2.SetTextSize(0.04)
+        # t2.SetTextFont(42)
+        # t2.SetTextAlign(21)
+        # t2.Draw()
+
+        t2 = TLatex()
+        t2.SetTextSize(0.04)
+        t2.SetTextFont(42)
+        t2.SetTextAlign(21)
+        t2.SetTextAngle(30)
+        t2.DrawLatex(-1,-0.9,"0-jet PS")
+
+        a2 = dummy2.GetXaxis()
+        a2.SetNdivisions(Ndivisions)
+        a2.ChangeLabel(1,-1,-1,-1,-1,-1," ")
+        # a.ChangeLabel(-1,-1,-1,-1,-1,-1,"#pi")
+        dummy2.Draw("axissame")
+
+
 
     #if (opt.SETLOG): set_log = '_HResTESTlogscale'
     #else: set_log = 'HResTEST'
@@ -2170,38 +2234,59 @@ print(obs_bins)
 if obs_name == 'D0m':
     acFlag = True
     acFlagBis = False
+    jetFlag = False
     acSample = '0M'
 elif obs_name == 'Dcp':
     acFlag = True
     acFlagBis = False
+    jetFlag = False
     acSample = '0Mf05ph0'
 elif obs_name == 'D0hp':
     acFlag = True
     acFlagBis = False
+    jetFlag = False
     acSample = '0PH'
 elif obs_name == 'Dint':
     acFlag = True
     acFlagBis = False
+    jetFlag = False
     acSample = '0PHf05ph0'
 elif obs_name == 'DL1':
     acFlag = True
     acFlagBis = True
+    jetFlag = False
     acSample = '0L1'
     acSampleBis = '0L1f05ph0'
 elif obs_name == 'DL1Zg':
     acFlag = True
     acFlagBis = True
+    jetFlag = False
     acSample = '0L1Zg'
     acSampleBis = '0L1Zgf05ph0'
+elif obs_name == 'TCjmax':
+    acFlag = False
+    acFlagBis = False
+    jetFlag = True
+    upLim = 150
+    Ndivisions = -10
+elif obs_name == 'TBjmax':
+    acFlag = False
+    acFlagBis = False
+    jetFlag = True
+    upLim = 500
+    Ndivisions = -10
 else:
     acFlag = False
     acFlagBis = False
+    jetFlag = False
 
 if not doubleDiff:
     if obs_name == 'TBjmax' or obs_name == 'mjj':
         obs_bins[len(obs_bins)-1]='500.0'
     elif obs_name == 'absdetajj':
         obs_bins[0]='-1.0'
+    elif jetFlag:
+        obs_bins[len(obs_bins)-1]=str(upLim)
     elif float(obs_bins[len(obs_bins)-1])>300.0:
         obs_bins[len(obs_bins)-1]='250.0'
     if (opt.OBSNAME=="nJets" or opt.OBSNAME.startswith("njets")):
