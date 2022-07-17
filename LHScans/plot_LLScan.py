@@ -582,6 +582,13 @@ for i in range(nBins):
         exp_nom.append(kappa_lambda[0])
         exp_nom.append(kappa_lambda[2]-kappa_lambda[0])
         exp_nom.append(kappa_lambda[0]-kappa_lambda[1])
+
+        fname = inputPath + "higgsCombine_pT4l_kL_grid.MultiDimFit.mH125.38.123456.root"
+        obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+        obs_2sig = obs_scan['val_2sig']
+        print '------------------------------------------------------'
+        print 'EXPECTED 95% CL exclusion:', obs_2sig[0]+obs_2sig[1], obs_2sig[0]+obs_2sig[2]
+        print '------------------------------------------------------'
     else:
         fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.123456.root"
         # print(fname)
@@ -630,6 +637,13 @@ for i in range(nBins):
             obs_nom.append(kappa_lambda[0])
             obs_nom.append(kappa_lambda[2]-kappa_lambda[0])
             obs_nom.append(kappa_lambda[0]-kappa_lambda[1])
+
+            fname = inputPath + "higgsCombine_pT4l_kL_grid.MultiDimFit.mH125.38.root"
+            obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+            obs_2sig = obs_scan['val_2sig']
+            print '------------------------------------------------------'
+            print 'OBSERVED 95% CL exclusion:', obs_2sig[0]+obs_2sig[1], obs_2sig[0]+obs_2sig[2]
+            print '------------------------------------------------------'
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.root"
             obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
@@ -658,9 +672,6 @@ for i in range(nBins):
             obs_nom_stat = obs_scan_stat['val']
             obs_2sig_stat = obs_scan_stat['val_2sig']
 
-        print '------------------------------------------------------'
-        print obs_nom[0], obs_nom[1], obs_nom[2], obs_nom_stat[1], obs_nom_stat[2]
-        print '------------------------------------------------------'
         obs_up_sys = np.sqrt(obs_nom[1]**2 - obs_nom_stat[1]**2)
         obs_do_sys = np.sqrt(abs(obs_nom[2])**2 - abs(obs_nom_stat[2])**2)
 
