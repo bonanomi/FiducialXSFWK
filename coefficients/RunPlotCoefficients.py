@@ -155,9 +155,13 @@ def matrix(obs_bins, obs_name, label):
                         plt.axvline(x=12, color='grey', linewidth=0.5, ls='dotted')
 
                 #Final steps
-                plt.title('%s - %s - %s' %(year, signal, fState), loc = 'left', fontweight = 'bold')
-                plt.savefig('matrix_eff/%s/eff_%s_%s_%s_%s.png' %(year, year, obs_name, signal, fState), bbox_inches='tight')
-                plt.savefig('matrix_eff/%s/eff_%s_%s_%s_%s.pdf' %(year, year, obs_name, signal, fState), bbox_inches='tight')
+                if signal == 'SM_125':
+                    signal_output = 'SM_125_38'
+                else:
+                    signal_output = signal
+                plt.title('%s - %s - %s' %(year, signal_output, fState), loc = 'left', fontweight = 'bold')
+                plt.savefig('matrix_eff/%s/eff_%s_%s_%s_%s.png' %(year, year, obs_name, signal_output, fState), bbox_inches='tight')
+                plt.savefig('matrix_eff/%s/eff_%s_%s_%s_%s.pdf' %(year, year, obs_name, signal_output, fState), bbox_inches='tight')
                 plt.tight_layout()
                 plt.close()
 
@@ -220,7 +224,7 @@ def nonFid(obs_bins, obs_name, label):
                 tick.tick1line.set_markersize(0)
             if not doubleDiff: plt.setp(plt.gca().get_xticklabels(), ha="right",rotation = 25, rotation_mode="anchor") # Rotate xticks
             elif doubleDiff: plt.setp(plt.gca().get_xticklabels(), ha="right",rotation = 40, rotation_mode="anchor") # Rotate xticks
-            plt.yticks(obs_bins_label_y_medium, ['ggH', 'VBF', 'WH', 'ZH', 'ttH', 'SM_125'])
+            plt.yticks(obs_bins_label_y_medium, ['ggH', 'VBF', 'WH', 'ZH', 'ttH', 'SM_125_38'])
             for tick in plt.gca().get_yaxis().get_major_ticks(): # Remove central tick
                 tick.tick1line.set_markersize(0)
             plt.xlim(0,bin_max)

@@ -99,6 +99,11 @@ for m in mass_points:
     err_outinratio[m] = _temp.err_outinratio
     inc_wrongfrac[m] = _temp.inc_wrongfrac
     binfrac_wrongfrac[m] = _temp.binfrac_wrongfrac
+#aMC
+if opt.YEAR == 'Full':
+    _temp = __import__('inputs_sig_'+obsName+'_aMC', globals(), locals(), inputs+['observableBins'])
+    acc_aMC = _temp.acc
+
 sys.path.remove('../inputs')
 
 spline = {}
@@ -247,6 +252,9 @@ for channel in ['2e2mu', '4e', '4mu']:#, '4l']:
 
             extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
+        if opt.YEAR == 'Full':
+            diff = (extrap_acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] - acc[125]['ggH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]) / acc[125]['ggH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
+            extrap_acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = (1+diff) * acc_aMC['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
 # if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
 # else: obs_name_dic = obs_name
 if opt.NNLOPS:

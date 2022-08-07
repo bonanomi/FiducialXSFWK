@@ -281,9 +281,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             for i in range(nBins):
                 POI = 'zz_norm_%d' %i
                 POI_xs = 'r_smH_%s_%d' %(fitName, i)
-                POI_n = 'r_smH_%d' %i
+                POI_n = 'zz_norm_%d' %i
                 cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s' %(obsName, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
-                if not opt.UNBLIND: cmd = cmd + '.123456'
+                if not opt.UNBLIND: cmd_fit = cmd_fit + '.123456'
                 cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
                 if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
                 cmd_fit_tmp = cmd_fit + '-P %s --redefineSignalPOI %s' %(POI, POI)
@@ -291,6 +291,8 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
                 print(cmd_fit_tmp)
                 processCmd(cmd_fit_tmp)
                 cmds.append(cmd_fit_tmp)
+
+
 
         # if obsName == 'mass4l_zzfloating':
         #     for i in range(nBins):
@@ -497,6 +499,27 @@ def runFiducialXS():
                 print cmd+'\n'
                 output = processCmd(cmd)
                 cmds.append(cmd)
+
+                # zz_norm
+                cmd = 'combine -n _'+obsName+'_zz_norm_0_'+channel+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P zz_norm_0_'+channel+' --floatOtherPOIs=1 --saveWorkspace --redefineSignalPOI zz_norm_0_'+channel+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --saveInactivePOI=1'
+
+                if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
+                print cmd, '\n'
+                output = processCmd(cmd)
+                cmds.append(cmd)
+                # Stat-only
+                cmd = 'combine -n _'+obsName+'_zz_norm_0_'+channel+'_NoSys'
+                # if(not opt.UNBLIND): cmd = cmd + '_exp'
+                cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_zz_norm_0_'+channel+'.MultiDimFit.mH125.38'
+                if(not opt.UNBLIND): cmd = cmd + '.123456'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P zz_norm_0_'+channel+' --floatOtherPOIs=1 --saveWorkspace --redefineSignalPOI zz_norm_0_'+channel+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
+                else: cmd = cmd + ' --freezeParameters MH'
+                if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
+                print cmd+'\n'
+                output = processCmd(cmd)
+                cmds.append(cmd)
+
 
         if physicalModel == 'v4':
             for obsBin in range(nBins):

@@ -203,7 +203,14 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     if zzfloating:
         # rateParam qqZZ floating
-        file.write('zz_norm_'+str(obsBin)+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+str(obsBin)])+' ['+str(expected_yield['ZZ_'+str(obsBin)]-100)+','+str(expected_yield['ZZ_'+str(obsBin)]+100)+']\n')
+        if physicalModel == 'v3':
+            file.write('zz_norm_'+str(obsBin)+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+str(obsBin)])+' ['+str(expected_yield['ZZ_'+str(obsBin)]-100)+','+str(expected_yield['ZZ_'+str(obsBin)]+100)+']\n')
+        elif physicalModel == 'v2':
+            if channel == '2e2mu':
+                min_range = 0
+            else:
+                min_range = expected_yield['ZZ_'+channel]-100
+            file.write('zz_norm_'+str(obsBin)+'_'+channel+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+channel])+' ['+str(min_range)+','+str(expected_yield['ZZ_'+channel]+100)+']\n')
 
     # norm_fake
     # file.write('norm_nonResH lnU ')

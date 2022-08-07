@@ -157,6 +157,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
 
     print os.getcwd()
     massParaMap = readParam('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'_update.txt')
+    # massParaMap = readParam('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/param/sim_massParam_ggH_105140_'+channel+'_'+year+'_update.txt')
 
     CMS_zz4l_mean_m_sig = ROOT.RooRealVar("CMS_zz4l_mean_m_sig","CMS_zz4l_mean_m_sig",-10,10)
     CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
@@ -574,6 +575,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
 
                 C1_VH[str(genbin)] = ROOT.RooRealVar("C1_VH_"+str(genbin), "C1_VH_"+str(genbin), C1i_VH[genbin], C1i_VH[genbin], C1i_VH[genbin])
 
+                # C1_VBFH[str(genbin)] = ROOT.RooRealVar("C1_VBFH_"+str(genbin), "C1_VBFH_"+str(genbin), 0.0063, 0.0063, 0.0063)
                 C1_VBFH[str(genbin)] = ROOT.RooRealVar("C1_VBFH_"+str(genbin), "C1_VBFH_"+str(genbin), C1i_VBF[genbin],C1i_VBF[genbin],C1i_VBF[genbin])
 
                 # hzz4l
@@ -711,10 +713,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     else:
         OutsideAcceptance_norm = ROOT.RooFormulaVar("out_trueH_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
 
-    frac_qqzz = fractionsBackground['qqzz_'+channel+'_'+obsName+'_'+recobin]
+    if physicalModel == 'v2':
+        v2_flag = '_v2'
+    else:
+        v2_flag = ''
+    frac_qqzz = fractionsBackground['qqzz_'+channel+'_'+obsName+'_'+recobin+v2_flag]
     frac_qqzz_var  = ROOT.RooRealVar("frac_qqzz_"+recobin+"_"+channel+"_"+year,"frac_qqzz_"+recobin+"_"+channel+"_"+year, frac_qqzz);
 
-    frac_ggzz = fractionsBackground['ggzz_'+channel+'_'+obsName+'_'+recobin]
+    frac_ggzz = fractionsBackground['ggzz_'+channel+'_'+obsName+'_'+recobin+v2_flag]
     frac_ggzz_var = ROOT.RooRealVar("frac_ggzz_"+recobin+"_"+channel+"_"+year,"frac_ggzz_"+recobin+"_"+channel+"_"+year, frac_ggzz);
 
     frac_zjets = fractionsBackground['ZJetsCR_'+channel+'_'+obsName+'_'+recobin]

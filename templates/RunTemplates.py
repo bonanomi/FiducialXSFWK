@@ -388,6 +388,19 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                         # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
                         len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
                         yield_bkg['ZZ_'+str(i)] = len_tot
+                        #### 2e2mu ####
+                        df_2016_qqzz = df_irr[2016]['qqzz'][(df_irr[2016]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['qqzz'][var] >= bin_low) & (df_irr[2016]['qqzz'][var] < bin_high) & (df_irr[2016]['qqzz']['FinState'] == f)].copy()
+                        df_2017_qqzz = df_irr[2017]['qqzz'][(df_irr[2017]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['qqzz'][var] >= bin_low) & (df_irr[2017]['qqzz'][var] < bin_high) & (df_irr[2017]['qqzz']['FinState'] == f)].copy()
+                        df_2018_qqzz = df_irr[2018]['qqzz'][(df_irr[2018]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['qqzz'][var] >= bin_low) & (df_irr[2018]['qqzz'][var] < bin_high) & (df_irr[2018]['qqzz']['FinState'] == f)].copy()
+                        df_2016_ggzz = df_irr[2016]['ggzz'][(df_irr[2016]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['ggzz'][var] >= bin_low) & (df_irr[2016]['ggzz'][var] < bin_high) & (df_irr[2016]['ggzz']['FinState'] == f)].copy()
+                        df_2017_ggzz = df_irr[2017]['ggzz'][(df_irr[2017]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['ggzz'][var] >= bin_low) & (df_irr[2017]['ggzz'][var] < bin_high) & (df_irr[2017]['ggzz']['FinState'] == f)].copy()
+                        df_2018_ggzz = df_irr[2018]['ggzz'][(df_irr[2018]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['ggzz'][var] >= bin_low) & (df_irr[2018]['ggzz'][var] < bin_high) & (df_irr[2018]['ggzz']['FinState'] == f)].copy()
+                        df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
+                                        df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
+                                        df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
+                        # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
+                        # len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
+                        yield_bkg['ZZ_'+f] = df['weight'].sum()
 
                     df = df_irr[year][bkg][sel].copy()
                     len_bin = df['weight'].sum() # Number of bkg events in bin i
@@ -395,6 +408,8 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                         fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = 0.0
                     else:
                         fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)] = float(len_bin/len_tot)
+                    if 'zzfloating' in obs_name:
+                        fractionBkg[bkg+'_'+f+'_'+var_string+'_recobin'+str(i)+'_v2'] = float(len_bin/yield_bkg['ZZ_'+f])
                     # ------
                     sel = sel_bin_low & sel_bin_high & sel_fstate
                     if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high

@@ -1855,7 +1855,8 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     dummy.Draw("hist")
 
     h_XH.SetFillColor(kGreen-8)
-    h_XH.SetFillStyle(3344)
+    # h_XH.SetFillStyle(3344)
+    h_XH.SetFillStyle(3001)
 
     legend = TLegend(.28,.65,.85,.90)
     #legend . SetNColumns(2)
@@ -1868,8 +1869,8 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     legend . AddEntry(g_systematics,"Systematic uncertainty","l")
     # legend . AddEntry(g_modeldep,"Model dependence","f")
     if not acFlag:
-        legend . AddEntry(g_ggH_minloHJ , "gg#rightarrowH (NNLOPS + JHUGen) + XH", "lf")
-        legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG + JHUGen) + XH", "lf")
+        legend . AddEntry(g_ggH_minloHJ , "gg#rightarrowH (NNLOPS + JHUGen + Pythia) + XH", "lf")
+        legend . AddEntry(g_ggH_powheg , "gg#rightarrowH (POWHEG + JHUGen + Pythia) + XH", "lf")
     else:
         legend . AddEntry(g_ggH_powheg , "SM (POWHEG + JHUGen + Pythia)", "lf")
         if (obsName=="D0m"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a3}=1 + Pythia)", "lf")
@@ -1883,12 +1884,13 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
             legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Zg}=1 + Pythia)", "lf")
             legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Zg}=0.5 + Pythia)", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
-    if not acFlag: legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen)", "f")
+    if not acFlag: legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen + Pythia)", "f")
     legend . AddEntry(dummy, "(LHCHWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
 
-    legend.SetShadowColor(0);
-    legend.SetFillColor(0);
-    legend.SetLineColor(0);
+    legend.SetShadowColor(0)
+    legend.SetFillColor(0)
+    legend.SetLineColor(0)
+    legend.SetTextSize(0.022)
     legend.Draw()
 
 
@@ -1938,7 +1940,7 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     if(opt.YEAR=='2018'):
         latex2.DrawLatex(0.92, 0.95,"59.7 fb^{-1} (13 TeV)")
     if(opt.YEAR=='Full'):
-        latex2.DrawLatex(0.92, 0.95,"137 fb^{-1} (13 TeV)")
+        latex2.DrawLatex(0.92, 0.95,"138 fb^{-1} (13 TeV)")
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
