@@ -149,9 +149,9 @@ def dataframes(year):
     elif year == '2016post':
         lumi = 16.81
     elif year == '2017':
-        lumi = 41.5
+        lumi = 41.48
     else:
-        lumi = 59.7
+        lumi = 59.83
     d_df_bkg = {}
     d_bkg = prepareTrees(year)
     gen_bkg = generators(year)

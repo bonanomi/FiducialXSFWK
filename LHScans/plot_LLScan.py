@@ -46,13 +46,12 @@ def read(scan, param, files, ycut):
     graph.Sort()
     plot.RemoveGraphXDuplicates(graph)
     plot.RemoveGraphYAbove(graph, ycut)
-    #graph.Print()
+    # graph.Print()
     return graph
 
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
-
 
 def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
@@ -173,11 +172,11 @@ if opt.V4:
 year = opt.YEAR
 
 if year == '2016':
-    _lumi = '36.3'
+    _lumi = '36.33'
 elif year == '2017':
-    _lumi = '41.5'
+    _lumi = '41.48'
 elif year == '2018':
-    _lumi = '59.7'
+    _lumi = '59.83'
 else:
     _lumi = '138'
 
@@ -525,8 +524,8 @@ for i in range(nBins):
     elif 'mass4l' in obsName:
         if _bin == 0: xtitle = "#sigma_{bin 0}"
         elif _bin == 1: xtitle = "#sigma_{2e2mu}"
-        elif _bin == 2: xtitle = "#sigma_{4e}"
-        elif _bin == 3: xtitle = "#sigma_{4mu}"
+        elif _bin == 2: xtitle = "#sigma_{4mu}"
+        elif _bin == 3: xtitle = "#sigma_{4e}"
         elif _bin == 4: xtitle = "ZZ_{norm}"
         elif _bin == 5: xtitle = "ZZ_{norm}^{4e}"
         elif _bin == 6: xtitle = "ZZ_{norm}^{4mu}"
@@ -640,7 +639,7 @@ for i in range(nBins):
         # exp_2sig_stat = exp_scan_stat['val_2sig']
 
     exp_up_sys = np.sqrt(exp_nom[1]**2 - exp_nom_stat[1]**2)
-    exp_do_sys = np.sqrt(abs(exp_nom[2])**2 - abs(exp_nom_stat[2])**2)
+    exp_do_sys = np.sqrt(exp_nom[2]**2 - exp_nom_stat[2]**2)
 
     if (opt.UNBLIND):
         if 'kL' in obsName:
@@ -669,6 +668,7 @@ for i in range(nBins):
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.root"
             obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+            print obs_scan
             obs_nom = obs_scan['val']
             obs_2sig = obs_scan['val_2sig']
 
@@ -695,7 +695,7 @@ for i in range(nBins):
             obs_2sig_stat = obs_scan_stat['val_2sig']
 
         obs_up_sys = np.sqrt(obs_nom[1]**2 - obs_nom_stat[1]**2)
-        obs_do_sys = np.sqrt(abs(obs_nom[2])**2 - abs(obs_nom_stat[2])**2)
+        obs_do_sys = np.sqrt(obs_nom[2]**2 - obs_nom_stat[2]**2)
 
     #For v3 model we multiply by the expected th xs
     if 'smH' in _obs_bin:
@@ -751,8 +751,8 @@ for i in range(nBins):
     elif 'mass4l' in obsName:
         if _bin == 0: exp_fit = 'Exp. #sigma_{0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 1: exp_fit = 'Exp. #sigma_{2e2mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 2: exp_fit = 'Exp. #sigma_{4e} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
-        if _bin == 3: exp_fit = 'Exp. #sigma_{4mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 2: exp_fit = 'Exp. #sigma_{4mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 3: exp_fit = 'Exp. #sigma_{4e} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 4: exp_fit = 'Exp. ZZ_{norm} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 5: exp_fit = 'Exp. ZZ_{norm}^{4e} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 6: exp_fit = 'Exp. ZZ_{norm}^{4mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)

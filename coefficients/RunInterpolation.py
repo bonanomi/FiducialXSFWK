@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import mplhep as hep
-import optparse,sys
+import optparse,sys,os
 
 # sys.path.append('../inputs/')
 from observables import observables
@@ -252,16 +252,20 @@ for channel in ['2e2mu', '4e', '4mu']:#, '4l']:
 
             extrap_binfrac_wrongfrac['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)] = binfrac_wrongfrac[125]['ttH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(recoBin)]
 
-        if opt.YEAR == 'Full':
+        if opt.YEAR == 'Full' and not opt.NNLOPS:
             diff = (extrap_acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] - acc[125]['ggH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]) / acc[125]['ggH125_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
             extrap_acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)] = (1+diff) * acc_aMC['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(genBin)+'_recobin'+str(genBin)]
 # if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
 # else: obs_name_dic = obs_name
 if opt.NNLOPS:
+    if (os.path.exists('../inputs/inputs_sig_extrap_'+obsName+'_NNLOPS_'+str(opt.YEAR)+'_ORIG.py')):
+        os.system('rm ../inputs/inputs_sig_extrap_'+obsName+'_NNLOPS_'+str(opt.YEAR)+'_ORIG.py')
     with open('../inputs/inputs_sig_extrap_'+obsName+'_NNLOPS_'+str(opt.YEAR)+'.py', 'w') as f:
         f.write('observableBins = '+str(observableBins)+' \n')
         f.write('acc = '+str(extrap_acc))
 else:
+    if (os.path.exists('../inputs/inputs_sig_extrap_'+obsName+'_'+str(opt.YEAR)+'_ORIG.py')):
+        os.system('rm ../inputs/inputs_sig_extrap_'+obsName+'_'+str(opt.YEAR)+'_ORIG.py')
     with open('../inputs/inputs_sig_extrap_'+obsName+'_'+str(opt.YEAR)+'.py', 'w') as f:
         f.write('observableBins = '+str(observableBins)+' \n')
         f.write('acc = '+str(extrap_acc)+' \n')

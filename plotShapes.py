@@ -172,7 +172,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         n_zz_asimov["4l_"+year] = 0.0
 
     fStates = ['4mu','4e','2e2mu']
-    for year in ["1", "2", "3"]:
+    for year in years:
         for fState in fStates:
             for bin in range(nBins):
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)

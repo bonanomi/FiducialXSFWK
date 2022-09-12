@@ -281,11 +281,11 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
 # Set up data frames
 def dataframes(year, doubleDiff):
     if year == '2016post':
-        lumi = 36.33
+        lumi = 36.31
     elif year == '2017':
-        lumi = 41.5
+        lumi = 41.48
     elif year == '2018':
-        lumi = 59.7
+        lumi = 59.83
     d_df_sig = {}
     d_df_sig_failed = {}
     d_sig, d_sig_failed = prepareTrees(year)

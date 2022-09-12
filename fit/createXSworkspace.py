@@ -171,7 +171,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         # CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
         # CMS_zz4l_sigma_m_sig = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig","CMS_zz4l_sigma_m_sig",-10,10)
         # CMS_zz4l_sigma_e_sig = ROOT.RooRealVar("CMS_zz4l_sigma_e_sig","CMS_zz4l_sigma_e_sig",-10,10)
-        lumi = ROOT.RooRealVar("lumi_132018","lumi_132018", 59.7)
+        lumi = ROOT.RooRealVar("lumi_132018","lumi_132018", 59.83)
         if (channel=='2e2mu'):
             # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
             # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
@@ -232,7 +232,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         # CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
         # CMS_zz4l_sigma_m_sig = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig","CMS_zz4l_sigma_m_sig",-10,10)
         # CMS_zz4l_sigma_e_sig = ROOT.RooRealVar("CMS_zz4l_sigma_e_sig","CMS_zz4l_sigma_e_sig",-10,10)
-        lumi = ROOT.RooRealVar("lumi_132017","lumi_132017", 41.5)
+        lumi = ROOT.RooRealVar("lumi_132017","lumi_132017", 41.48)
         if (channel=='2e2mu'):
             # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
             # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
@@ -295,7 +295,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         # CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
         # CMS_zz4l_sigma_m_sig = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig","CMS_zz4l_sigma_m_sig",-10,10)
         # CMS_zz4l_sigma_e_sig = ROOT.RooRealVar("CMS_zz4l_sigma_e_sig","CMS_zz4l_sigma_e_sig",-10,10)
-        lumi = ROOT.RooRealVar("lumi_132016","lumi_132016", 35.9)
+        lumi = ROOT.RooRealVar("lumi_132016","lumi_132016", 36.31)
         if (channel=='2e2mu'):
             # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
             # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
@@ -441,7 +441,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         print "model name is ", modelName
 
         _effName = "eff_hzz_"+sig_name+"_"+_obsName[obsName]+"_13TeV_"+_binName
-        _effName = _effName + '_hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel
+        _effName = _effName + '_hzz_' + _obsName[obsName] + '_' + _recobin + '_cat' + channel + '_' + year
 
         fideff_var[genbin] = ROOT.RooRealVar(_effName, _effName, fideff[genbin]);
 
@@ -713,7 +713,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     else:
         OutsideAcceptance_norm = ROOT.RooFormulaVar("out_trueH_norm",OutsideAcceptance_norm_func,OutsideAcceptance_norm_args)
 
-    if physicalModel == 'v2':
+    if physicalModel == 'v2' and obsName == 'mass4l_zzfloating':
         v2_flag = '_v2'
     else:
         v2_flag = ''
