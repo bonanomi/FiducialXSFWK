@@ -180,6 +180,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
                 # print (fState+"_"+year+"Bin"+str(bin))
                 # print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
                 # print (trueH_asimov[fState+"_"+year+"Bin"+str(bin)].getVal())
+                # print ()
 
             zjets_asimov[fState+"_"+year] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_bkg_zjets")
             ggzz_asimov[fState+"_"+year] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_bkg_ggzz")
@@ -648,7 +649,7 @@ print observableBins
 sys.path.remove("inputs")
 
 if obsName.startswith("mass4l"):
-    PhysicalModels = ['v2','v3']
+    PhysicalModels = ['v3']
 elif obsName == 'D0m' or obsName == 'Dcp' or obsName == 'D0hp' or obsName == 'Dint' or obsName == 'DL1' or obsName == 'DL1Zg' or obsName == 'costhetaZ1' or obsName == 'costhetaZ2'or obsName == 'costhetastar' or obsName == 'phi' or obsName == 'phistar' or obsName == 'massZ1' or obsName == 'massZ2':
     PhysicalModels = ['v4','v3']
 elif 'kL' in obsName:

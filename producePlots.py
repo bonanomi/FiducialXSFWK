@@ -130,6 +130,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         pdfunc_ggH_nnlops = _temp.pdfUncert
         qcdunc_ggH_nnlops = _temp.qcdUncert
     else:
+        #for discriminats open POWHEG. It will not be used. Just to
         _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
         pdfunc_ggH_nnlops = _temp.pdfUncert
         qcdunc_ggH_nnlops = _temp.qcdUncert
@@ -1343,32 +1344,37 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
         if acFlag:
+            if obsName == 'D0m' or obsName == 'D0hp' or obsName == 'DL1' or obsName == 'DL1Zg':
+                color = ROOT.kRed+2
+                color_2nd = ROOT.kViolet+2
+            else:
+                color = ROOT.kViolet+2
             g_ggH_AC = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_AC.SetFillStyle(3254);
-            g_ggH_AC.SetFillColor(ROOT.kRed+2)
-            g_ggH_AC.SetLineColor(ROOT.kRed+2)
+            g_ggH_AC.SetFillColor(color)
+            g_ggH_AC.SetLineColor(color)
             g_ggH_AC.SetLineWidth(2)
-            g_ggH_AC.SetMarkerColor(ROOT.kRed+2)
+            g_ggH_AC.SetMarkerColor(color)
 
             g_ggH_ACBorder = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_ACBorder.SetFillStyle(0)
-            g_ggH_ACBorder.SetFillColor(ROOT.kRed+2)
-            g_ggH_ACBorder.SetLineColor(ROOT.kRed+2)
-            g_ggH_ACBorder.SetMarkerColor(ROOT.kRed+2)
+            g_ggH_ACBorder.SetFillColor(color)
+            g_ggH_ACBorder.SetLineColor(color)
+            g_ggH_ACBorder.SetMarkerColor(color)
 
             if acFlagBis:
                 g_ggH_ACbis = TGraphAsymmErrors(v_observable_2,v_ggH_ACbis,v_dobservable_2,v_dobservable_2,v_ggH_ACbis_unc_lo,v_ggH_ACbis_unc_hi)
                 g_ggH_ACbis.SetFillStyle(3254);
-                g_ggH_ACbis.SetFillColor(ROOT.kViolet+2)
-                g_ggH_ACbis.SetLineColor(ROOT.kViolet+2)
+                g_ggH_ACbis.SetFillColor(color_2nd)
+                g_ggH_ACbis.SetLineColor(color_2nd)
                 g_ggH_ACbis.SetLineWidth(2)
-                g_ggH_ACbis.SetMarkerColor(ROOT.kViolet+2)
+                g_ggH_ACbis.SetMarkerColor(color_2nd)
 
                 g_ggH_ACbisBorder = TGraphAsymmErrors(v_observable_2,v_ggH_ACbis,v_dobservable_2,v_dobservable_2,v_ggH_ACbis_unc_lo,v_ggH_ACbis_unc_hi)
                 g_ggH_ACbisBorder.SetFillStyle(0)
-                g_ggH_ACbisBorder.SetFillColor(ROOT.kViolet+2)
-                g_ggH_ACbisBorder.SetLineColor(ROOT.kViolet+2)
-                g_ggH_ACbisBorder.SetMarkerColor(ROOT.kViolet+2)
+                g_ggH_ACbisBorder.SetFillColor(color_2nd)
+                g_ggH_ACbisBorder.SetLineColor(color_2nd)
+                g_ggH_ACbisBorder.SetMarkerColor(color_2nd)
 
 
         if ("jet" in obsName and (not obsName.startswith("njets"))) :
@@ -1392,10 +1398,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     h_ggH_powheg.SetLineWidth(2)
 
     if acFlag:
-        h_ggH_AC.SetLineColor(ROOT.kRed+2)
+        h_ggH_AC.SetLineColor(color)
         h_ggH_AC.SetLineWidth(2)
         if acFlagBis:
-            h_ggH_ACbis.SetLineColor(ROOT.kViolet+2)
+            h_ggH_ACbis.SetLineColor(color_2nd)
             h_ggH_ACbis.SetLineWidth(2)
 
 
@@ -1807,30 +1813,30 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif acFlag: # We keep the same names as in the last else (just to reduce entropy with if statements)
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
         g_ratio_minloHJ.SetFillStyle(3245);
-        g_ratio_minloHJ.SetFillColor(ROOT.kRed+2)
-        g_ratio_minloHJ.SetLineColor(ROOT.kRed+2)
+        g_ratio_minloHJ.SetFillColor(color)
+        g_ratio_minloHJ.SetLineColor(color)
         g_ratio_minloHJ.SetLineWidth(2)
-        g_ratio_minloHJ.SetMarkerColor(ROOT.kRed+2)
+        g_ratio_minloHJ.SetMarkerColor(color)
 
         g_ratio_minloHJBorder = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
         g_ratio_minloHJBorder.SetFillStyle(0);
-        g_ratio_minloHJBorder.SetFillColor(ROOT.kRed+2)
-        g_ratio_minloHJBorder.SetLineColor(ROOT.kRed+2)
-        g_ratio_minloHJBorder.SetMarkerColor(ROOT.kRed+2)
+        g_ratio_minloHJBorder.SetFillColor(color)
+        g_ratio_minloHJBorder.SetLineColor(color)
+        g_ratio_minloHJBorder.SetMarkerColor(color)
 
         if acFlagBis:
             g_ratioBis_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_ACbis,v_dobservable_2,v_dobservable_2,v_ratio_ACbis_lo,v_ratio_ACbis_hi)
             g_ratioBis_minloHJ.SetFillStyle(3245);
-            g_ratioBis_minloHJ.SetFillColor(ROOT.kViolet+2)
-            g_ratioBis_minloHJ.SetLineColor(ROOT.kViolet+2)
+            g_ratioBis_minloHJ.SetFillColor(color_2nd)
+            g_ratioBis_minloHJ.SetLineColor(color_2nd)
             g_ratioBis_minloHJ.SetLineWidth(2)
-            g_ratioBis_minloHJ.SetMarkerColor(ROOT.kViolet+2)
+            g_ratioBis_minloHJ.SetMarkerColor(color_2nd)
 
             g_ratioBis_minloHJBorder = TGraphAsymmErrors(v_observable_2,v_ratio_ACbis,v_dobservable_2,v_dobservable_2,v_ratio_ACbis_lo,v_ratio_ACbis_hi)
             g_ratioBis_minloHJBorder.SetFillStyle(0);
-            g_ratioBis_minloHJBorder.SetFillColor(ROOT.kViolet+2)
-            g_ratioBis_minloHJBorder.SetLineColor(ROOT.kViolet+2)
-            g_ratioBis_minloHJBorder.SetMarkerColor(ROOT.kViolet+2)
+            g_ratioBis_minloHJBorder.SetFillColor(color_2nd)
+            g_ratioBis_minloHJBorder.SetLineColor(color_2nd)
+            g_ratioBis_minloHJBorder.SetMarkerColor(color_2nd)
 
         if ("jet" in obsName and (not obsName.startswith("njets"))):
             h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
@@ -1894,9 +1900,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         h_ratio_aMC.SetLineColor(ROOT.kPink+5)
         h_ratio_aMC.SetLineWidth(2)
     else:
-        h_ratio_minloHJ.SetLineColor(ROOT.kRed+2)
+        h_ratio_minloHJ.SetLineColor(color)
         if acFlagBis:
-            h_ratioBis_minloHJ.SetLineColor(ROOT.kViolet+2)
+            h_ratioBis_minloHJ.SetLineColor(color_2nd)
             h_ratioBis_minloHJ.SetLineWidth(2)
     h_ratio_minloHJ.SetLineWidth(2)
 
@@ -1999,10 +2005,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         label = "D_{int}^{dec}"
         unit = ""
     elif obsName=="DL1":
-        label = "D_{#Lambda 1}^{dec}"
+        label = "D_{#Lambda1}^{dec}"
         unit = ""
     elif obsName=="DL1Zg":
-        label = "D_{#Lambda 1Zg}^{dec}"
+        label = "D_{#Lambda1}^{Z#gamma,dec}"
         unit = ""
     elif obsName=="njets_pt30_eta4p7_pT4l":
         label = "N_{jets}"
@@ -2202,11 +2208,11 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         if (obsName=="Dint"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=0.5 + Pythia)", "lf")
         if (obsName=="D0hp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=1 + Pythia)", "lf")
         if (obsName=="DL1"):
-            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}=1 + Pythia)", "lf")
-            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}=0.5 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda1}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda1}=0.5 + Pythia)", "lf")
         if (obsName=="DL1Zg"):
-            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Z#gamma}=1 + Pythia)", "lf")
-            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Z#gamma}=0.5 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda1}^{Z#gamma}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda1}^{Z#gamma}=0.5 + Pythia)", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
     if not acFlag: legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen + Pythia)", "f")
     legend . AddEntry(dummy, "(LHCHWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
@@ -2217,6 +2223,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if obsName == 'pTj2':
         legend.SetTextSize(0.021)
     legend.SetLineColor(0)
+    legend.SetHeader("Constrained ZZ background normalisation")
     legend.Draw()
 
 
@@ -2275,17 +2282,21 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
-    latex2.DrawLatex(0.19, 0.94, "CMS #bf{#it{Preliminary}}") #AT Tolta scritta CMS
+    latex2.DrawLatex(0.19, 0.94, "CMS") #AT Tolta scritta CMS
     latex2.SetTextSize(0.6*c.GetTopMargin())
     latex2.SetTextFont(52)
     latex2.SetTextAlign(11)
     #latex2.DrawLatex(0.28, 0.945, "Unpublished")
-    #latex2.DrawLatex(0.30, 0.94, "Preliminary")
+    # latex2.DrawLatex(0.30, 0.94, "Preliminary")
 
     latex2.SetTextSize(0.4*c.GetTopMargin())
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
     #latex2.DrawLatex(0.55, 0.67,"N^{3}LO #sigma_{gg#rightarrowH}^{total}")
+
+    if obsName != 'mass4l' and obsName != 'mass4l_zzfloating':
+        latex2.SetTextSize(0.022)
+        latex2.DrawLatex(0.93, 0.87,"p-value(POWHEG): "+pvalues[obsName])
 
     if ("2p5" in obsName):
         latex2.SetTextSize(0.4*c.GetTopMargin())
@@ -2296,7 +2307,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         latex2.SetTextSize(0.4*c.GetTopMargin())
         latex2.SetTextFont(42)
         latex2.SetTextAlign(31) # align right
-        latex2.DrawLatex(0.92, 0.61,"p_{T}(jet) > 30 GeV, |#eta(jet)| < 4.7")
+        latex2.DrawLatex(0.93, 0.62,"p_{T}(jet) > 30 GeV, |#eta(jet)| < 4.7")
 
     if (obsName=="pT4l"):
         # latex2.SetTextSize(0.35*c.GetTopMargin())
@@ -2366,21 +2377,23 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         latex2.SetTextFont(42)
         latex2.SetTextAlign(31) # align right
         latex2.SetTextAngle(0)
-        latex2.DrawLatex(0.3, 0.64,"N_{jet} = 0")
-        latex2.DrawLatex(0.5, 0.60,"N_{jet} = 1")
-        latex2.DrawLatex(0.8, 0.54,"N_{jet} > 1")
+        latex2.DrawLatex(0.3, 0.64,"N_{jets} = 0")
+        latex2.DrawLatex(0.5, 0.60,"N_{jets} = 1")
+        latex2.DrawLatex(0.8, 0.54,"N_{jets} > 1")
     elif obsName =='TCjmax_pT4l':
         latex2.SetTextSize(0.30*c.GetTopMargin())
         latex2.SetTextFont(42)
         latex2.SetTextAlign(31) # align right
         latex2.SetTextAngle(0)
-        latex2.DrawLatex(0.3, 0.64,"N_{jet} = 0")
+        # latex2.DrawLatex(0.42, 0.64,"N_{jets} = 0 #cup T_{C}^{max} #in [0,15]")
+        latex2.DrawLatex(0.42, 0.63,"0-jet|_{T_{C}^{max}}")
         latex2.DrawLatex(0.64, 0.62,"T_{C}^{max} #in")
         latex2.DrawLatex(0.69, 0.59,"[15,25] GeV")
         latex2.DrawLatex(0.77, 0.60,"T_{C}^{max} #in")
         latex2.DrawLatex(0.82, 0.57,"[25,40] GeV")
         latex2.DrawLatex(0.89, 0.60,"T_{C}^{max} #in")
         latex2.DrawLatex(0.95, 0.57,"[40,350] GeV")
+
 
     if jetFlag and not doubleDiff:
         l = TLine(obs_bins[1], 0, obs_bins[1], v_ggH_powheg[0]+2);
@@ -2465,7 +2478,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if obsName == 'rapidity4l_pT4l' or obsName == 'njets_pt30_eta4p7_pT4l' or obsName == 'TCjmax_pT4l': pad.SetBottomMargin(0.18)
     pad.SetLeftMargin(0.18)
     pad.SetFillColor(0)
-    pad.SetGridy(1)
+    # pad.SetGridy(1)
     pad.SetFillStyle(0)
     pad.Draw()
     pad.cd(0)
@@ -2493,7 +2506,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
         else:
             for i in range(1,nBins):
-                dummy2.GetXaxis().SetBinLabel(i,'Bin '+str(i-1))
+                dummy2.GetXaxis().SetBinLabel(i,'Bin '+str(i))
                 # dummy2.GetXaxis().SetBinLabel(1,'0')
                 # dummy2.GetXaxis().SetBinLabel(2,'1')
                 # dummy2.GetXaxis().SetBinLabel(3,'2')
@@ -2531,6 +2544,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         if obsName == 'rapidity4l_pT4l' or obsName == 'njets_pt30_eta4p7_pT4l' or obsName == 'TCjmax_pT4l':
             dummy2.GetXaxis().SetTitle(label_2nd+" ("+unit_2nd+")")
             dummy2.GetXaxis().SetTitleOffset(2)
+            dummy2.GetXaxis().SetTitleSize(0.045)
+        else:
+            dummy2.GetXaxis().SetTitle(""+label+" vs " + label_2nd)
         dummy2.GetXaxis().SetTitleSize(0.045)
     elif (unit==""):
         dummy2.GetXaxis().SetTitle(label)
@@ -2552,7 +2568,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     elif obsName=="pTj2":
         dummy2.GetYaxis().SetNdivisions(506)
     else:
-        dummy2.GetYaxis().SetNdivisions(508);
+        dummy2.GetYaxis().SetNdivisions(508)
     dummy2.GetXaxis().SetNdivisions(510)
     dummy2.SetMaximum(maxYscale)
     # dummy2.SetMinimum(0.0)
@@ -2604,10 +2620,20 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         dummy2.GetYaxis().SetRangeUser(0.,1.6)
     elif obsName == 'DL1':
         dummy2.GetYaxis().SetRangeUser(0.,3.)
+    elif obsName == 'DL1Zg':
+        dummy2.GetYaxis().SetRangeUser(0.,2.5)
     # else:
     #     dummy2.GetYaxis().SetRangeUser(0.4,1.85)
     # dummy2.GetXaxis().SetRangeUser(-5,250)
     dummy2.Draw("axissame")
+
+    vlines = []
+    for b in range(1,len(obs_bins)-1):
+        vlines.append(TLine(obs_bins[b], dummy2.GetMinimum(), obs_bins[b], dummy2.GetMaximum()))
+        vlines[len(vlines)-1].SetLineWidth(1);
+        vlines[len(vlines)-1].SetLineStyle(2);
+        vlines[len(vlines)-1].SetLineColor(kGray);
+        vlines[len(vlines)-1].Draw();
 
     if (obsName=="pT4l"):
         box = TPaveText(240,-0.4,260,-0.1)
@@ -2649,13 +2675,16 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif obsName == 'absdetajj':
             t2.DrawLatex(-1.7,-0.6,"#sigma(N_{jets}#leq 1)")
         elif obsName == 'TCjmax':
-            t2.DrawLatex(-4.,-0.7,"#sigma(N_{jets}= 0)")
+            # t2.DrawLatex(-4.,-0.7,"#sigma(N_{jets}= 0)")
+            t2.DrawLatex(-4.,-0.8,"#sigma(0-jet|T_{C}^{max})")
         elif obsName == 'pTj1':
             t2.DrawLatex(-4.,-0.6,"#sigma(N_{jets}= 0)")
         elif 'j2' in obsName or 'jj' in obsName:
             t2.DrawLatex(3,-0.8,"#sigma(N_{jets}#leq 1)")
         elif obsName == 'mHj':
             t2.DrawLatex(-12.,-0.65,"#sigma(N_{jets}= 0)")
+        elif obsName == 'TBjmax':
+            t2.DrawLatex(-4.,-0.7,"#sigma(0-jet|T_{B}^{max})")
         else:
             t2.DrawLatex(-3.,-0.8,"#sigma(N_{jets}= 0)")
 
@@ -2927,6 +2956,41 @@ else:
     for ibin in range(len(obs_bins_boundaries)):
         if obs_bins_boundaries[ibin][3] == 1300: obs_bins_boundaries[ibin][3] = 350
     obs_bins = [i for i in range(len(obs_bins)+1)]
+
+pvalues = {
+'njets_pt30_eta4p7': '0.48',
+'pT4l': '0.30',
+'rapidity4l': '0.85',
+'costhetaZ1': '0.24',
+'costhetaZ2': '0.24',
+'phi': '1.0',
+'phistar': '0.23',
+'costhetastar': '0.47',
+'massZ1': '0.65',
+'massZ2': '0.25',
+'pTj1': '0.85',
+'pTHj': '0.07',
+'mHj': '0.35',
+'pTj2': '0.7',
+'mjj': '0.97',
+'absdetajj': '0.92',
+'dphijj': '0.23',
+'pTHjj': '0.98',
+'TCjmax': '0.78',
+'TBjmax': '0.57',
+'D0m': '0.78',
+'Dcp': '0.18',
+'D0hp': '0.09',
+'Dint': '0.09',
+'DL1': '0.87',
+'DL1Zg': '0.07',
+'rapidity4l_pT4l': '0.49',
+'njets_pt30_eta4p7_pT4l': '0.08',
+'pTj1_pTj2': '0.42',
+'pT4l_pTHj': '0.10',
+'massZ1_massZ2': '0.13',
+'TCjmax_pT4l': '0.68',
+}
 
 print('obs_bins', obs_bins)
 if doubleDiff: plotXS(obs_name, obs_bins, obs_bins_boundaries)

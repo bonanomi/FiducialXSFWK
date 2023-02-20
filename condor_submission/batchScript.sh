@@ -32,9 +32,11 @@ cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/inputs/h
 
 cd coefficients
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunCoefficients.py .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/RunCoefficients_aMC.py .
 python RunCoefficients.py --obsName 'VAR' --year 'Full' ZZFLOATING
 python RunCoefficients.py --obsName 'VAR' --year 'Full' --interpolation --hypothesis '24' ZZFLOATING
 python RunCoefficients.py --obsName 'VAR' --year 'Full' --interpolation --hypothesis '26' ZZFLOATING
+python RunCoefficients_aMC.py --obsName 'VAR'
 FIRST ZZFLOATING
 SECOND ZZFLOATING
 
@@ -63,8 +65,11 @@ if [ $jes == true ];then
 fi
 
 cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncROOT.py .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncNNLOPS.py .
+cp /home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/coefficients/pdfUncaMC.py .
 python pdfUncROOT.py --obsName 'VAR' ZZFLOATING
-python pdfUncROOT.py --obsName 'VAR' --nnlops ZZFLOATING
+python pdfUncNNLOPS.py --obsName 'VAR'
+python pdfUncaMC.py --obsName 'VAR'
 # python pdfUncertainty.py --obsName 'VAR' --year 'Full' --nnlops
 cd ../inputs
 # sed "s/ggH125/ggH125_NNLOPS/g" accUnc_OBS.py > accUnc_OBS_NNLOPS.py #FIXME: This is temporary!

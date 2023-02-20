@@ -1343,32 +1343,37 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         g_ggH_powhegBorder.SetMarkerColor(ROOT.kAzure+2)
 
         if acFlag:
+            if obsName == 'D0m' or obsName == 'D0hp' or obsName == 'DL1' or obsName == 'DL1Zg':
+                color = ROOT.kRed+2
+                color_2nd = ROOT.kViolet+2
+            else:
+                color = ROOT.kViolet+2
             g_ggH_AC = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_AC.SetFillStyle(3254);
-            g_ggH_AC.SetFillColor(ROOT.kRed+2)
-            g_ggH_AC.SetLineColor(ROOT.kRed+2)
+            g_ggH_AC.SetFillColor(color)
+            g_ggH_AC.SetLineColor(color)
             g_ggH_AC.SetLineWidth(2)
-            g_ggH_AC.SetMarkerColor(ROOT.kRed+2)
+            g_ggH_AC.SetMarkerColor(color)
 
             g_ggH_ACBorder = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_ACBorder.SetFillStyle(0)
-            g_ggH_ACBorder.SetFillColor(ROOT.kRed+2)
-            g_ggH_ACBorder.SetLineColor(ROOT.kRed+2)
-            g_ggH_ACBorder.SetMarkerColor(ROOT.kRed+2)
+            g_ggH_ACBorder.SetFillColor(color)
+            g_ggH_ACBorder.SetLineColor(color)
+            g_ggH_ACBorder.SetMarkerColor(color)
 
             if acFlagBis:
                 g_ggH_ACbis = TGraphAsymmErrors(v_observable_2,v_ggH_ACbis,v_dobservable_2,v_dobservable_2,v_ggH_ACbis_unc_lo,v_ggH_ACbis_unc_hi)
                 g_ggH_ACbis.SetFillStyle(3254);
-                g_ggH_ACbis.SetFillColor(ROOT.kViolet+2)
-                g_ggH_ACbis.SetLineColor(ROOT.kViolet+2)
+                g_ggH_ACbis.SetFillColor(color_2nd)
+                g_ggH_ACbis.SetLineColor(color_2nd)
                 g_ggH_ACbis.SetLineWidth(2)
-                g_ggH_ACbis.SetMarkerColor(ROOT.kViolet+2)
+                g_ggH_ACbis.SetMarkerColor(color_2nd)
 
                 g_ggH_ACbisBorder = TGraphAsymmErrors(v_observable_2,v_ggH_ACbis,v_dobservable_2,v_dobservable_2,v_ggH_ACbis_unc_lo,v_ggH_ACbis_unc_hi)
                 g_ggH_ACbisBorder.SetFillStyle(0)
-                g_ggH_ACbisBorder.SetFillColor(ROOT.kViolet+2)
-                g_ggH_ACbisBorder.SetLineColor(ROOT.kViolet+2)
-                g_ggH_ACbisBorder.SetMarkerColor(ROOT.kViolet+2)
+                g_ggH_ACbisBorder.SetFillColor(color_2nd)
+                g_ggH_ACbisBorder.SetLineColor(color_2nd)
+                g_ggH_ACbisBorder.SetMarkerColor(color_2nd)
 
 
         if ("jet" in obsName and (not obsName.startswith("njets"))) :
@@ -1393,10 +1398,10 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     h_ggH_powheg.SetLineWidth(2)
 
     if acFlag:
-        h_ggH_AC.SetLineColor(ROOT.kRed+2)
+        h_ggH_AC.SetLineColor(color)
         h_ggH_AC.SetLineWidth(2)
         if acFlagBis:
-            h_ggH_ACbis.SetLineColor(ROOT.kViolet+2)
+            h_ggH_ACbis.SetLineColor(color_2nd)
             h_ggH_ACbis.SetLineWidth(2)
 
 
@@ -1801,30 +1806,30 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     elif acFlag: # We keep the same names as in the last else (just to reduce entropy with if statements)
         g_ratio_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
         g_ratio_minloHJ.SetFillStyle(3245);
-        g_ratio_minloHJ.SetFillColor(ROOT.kRed+2)
-        g_ratio_minloHJ.SetLineColor(ROOT.kRed+2)
+        g_ratio_minloHJ.SetFillColor(color)
+        g_ratio_minloHJ.SetLineColor(color)
         g_ratio_minloHJ.SetLineWidth(2)
-        g_ratio_minloHJ.SetMarkerColor(ROOT.kRed+2)
+        g_ratio_minloHJ.SetMarkerColor(color)
 
         g_ratio_minloHJBorder = TGraphAsymmErrors(v_observable_2,v_ratio_AC,v_dobservable_2,v_dobservable_2,v_ratio_AC_lo,v_ratio_AC_hi)
         g_ratio_minloHJBorder.SetFillStyle(0);
-        g_ratio_minloHJBorder.SetFillColor(ROOT.kRed+2)
-        g_ratio_minloHJBorder.SetLineColor(ROOT.kRed+2)
-        g_ratio_minloHJBorder.SetMarkerColor(ROOT.kRed+2)
+        g_ratio_minloHJBorder.SetFillColor(color)
+        g_ratio_minloHJBorder.SetLineColor(color)
+        g_ratio_minloHJBorder.SetMarkerColor(color)
 
         if acFlagBis:
             g_ratioBis_minloHJ = TGraphAsymmErrors(v_observable_2,v_ratio_ACbis,v_dobservable_2,v_dobservable_2,v_ratio_ACbis_lo,v_ratio_ACbis_hi)
             g_ratioBis_minloHJ.SetFillStyle(3245);
-            g_ratioBis_minloHJ.SetFillColor(ROOT.kViolet+2)
-            g_ratioBis_minloHJ.SetLineColor(ROOT.kViolet+2)
+            g_ratioBis_minloHJ.SetFillColor(color_2nd)
+            g_ratioBis_minloHJ.SetLineColor(color_2nd)
             g_ratioBis_minloHJ.SetLineWidth(2)
-            g_ratioBis_minloHJ.SetMarkerColor(ROOT.kViolet+2)
+            g_ratioBis_minloHJ.SetMarkerColor(color_2nd)
 
             g_ratioBis_minloHJBorder = TGraphAsymmErrors(v_observable_2,v_ratio_ACbis,v_dobservable_2,v_dobservable_2,v_ratio_ACbis_lo,v_ratio_ACbis_hi)
             g_ratioBis_minloHJBorder.SetFillStyle(0);
-            g_ratioBis_minloHJBorder.SetFillColor(ROOT.kViolet+2)
-            g_ratioBis_minloHJBorder.SetLineColor(ROOT.kViolet+2)
-            g_ratioBis_minloHJBorder.SetMarkerColor(ROOT.kViolet+2)
+            g_ratioBis_minloHJBorder.SetFillColor(color_2nd)
+            g_ratioBis_minloHJBorder.SetLineColor(color_2nd)
+            g_ratioBis_minloHJBorder.SetMarkerColor(color_2nd)
 
         if ("jet" in obsName and (not obsName.startswith("njets"))):
             h_ratio_minloHJ = TH1D("h_ratio_minloHJ","h_ratio_minloHJ",nBins-2, array('d',[float(obs_bins[i]) for i in range(1,len(obs_bins))]) )
@@ -1883,9 +1888,9 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         h_ratio_aMC.SetLineColor(ROOT.kPink+5)
         h_ratio_aMC.SetLineWidth(2)
     else:
-        h_ratio_minloHJ.SetLineColor(ROOT.kRed+2)
+        h_ratio_minloHJ.SetLineColor(color)
         if acFlagBis:
-            h_ratioBis_minloHJ.SetLineColor(ROOT.kViolet+2)
+            h_ratioBis_minloHJ.SetLineColor(color_2nd)
             h_ratioBis_minloHJ.SetLineWidth(2)
     h_ratio_minloHJ.SetLineWidth(2)
 
@@ -1945,10 +1950,10 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         label = "D_{int}^{dec}"
         unit = ""
     elif obsName=="DL1":
-        label = "D_{#Lambda 1}^{dec}"
+        label = "D_{#Lambda1}^{dec}"
         unit = ""
     elif obsName=="DL1Zg":
-        label = "D_{#Lambda 1Z#gamma}^{dec}"
+        label = "D_{#Lambda1}^{Z#gamma,dec}"
         unit = ""
     else:
         label = obsName
@@ -2110,11 +2115,11 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         if (obsName=="Dint"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=0.5 + Pythia)", "lf")
         if (obsName=="D0hp"): legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{a2}=1 + Pythia)", "lf")
         if (obsName=="DL1"):
-            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}=1 + Pythia)", "lf")
-            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}=0.5 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda1}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda1}=0.5 + Pythia)", "lf")
         if (obsName=="DL1Zg"):
-            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Z#gamma}=1 + Pythia)", "lf")
-            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda 1}^{Z#gamma}=0.5 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_AC , "AC (POWHEG + JHUGen f_{#Lambda1}^{Z#gamma}=1 + Pythia)", "lf")
+            legend . AddEntry(g_ggH_ACbis , "AC (POWHEG + JHUGen f_{#Lambda1}^{Z#gamma}=0.5 + Pythia)", "lf")
     #legend . AddEntry(g_XH , "XH = VBF + VH + ttH", "l")
     if not acFlag: legend . AddEntry(h_XH , "XH = VBF + VH + ttH (POWHEG + JHUGen + Pythia)", "f")
     legend . AddEntry(dummy, "(LHCHWG YR4, m_{H}="+opt.THEORYMASS+" GeV)", "")
@@ -2180,17 +2185,21 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
     latex2.SetTextSize(0.7*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
-    latex2.DrawLatex(0.19, 0.94, "CMS #bf{#it{Preliminary}}") #AT Tolta scritta CMS
+    latex2.DrawLatex(0.19, 0.94, "CMS")
     latex2.SetTextSize(0.6*c.GetTopMargin())
     latex2.SetTextFont(52)
     latex2.SetTextAlign(11)
     #latex2.DrawLatex(0.28, 0.945, "Unpublished")
-    #latex2.DrawLatex(0.30, 0.94, "Preliminary")
+    # latex2.DrawLatex(0.30, 0.94, "Preliminary")
 
     latex2.SetTextSize(0.4*c.GetTopMargin())
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
     #latex2.DrawLatex(0.55, 0.67,"N^{3}LO #sigma_{gg#rightarrowH}^{total}")
+
+    if obsName != 'mass4l' and obsName != 'mass4l_zzfloating':
+        latex2.SetTextSize(0.022)
+        latex2.DrawLatex(0.93, 0.87,"p-value(POWHEG): "+pvalues[obsName+'_'+chan])
 
     if ("2p5" in obsName):
         latex2.SetTextSize(0.4*c.GetTopMargin())
@@ -2220,7 +2229,7 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
         pad.SetRightMargin(0.04)
         pad.SetLeftMargin(0.18)
         pad.SetFillColor(0)
-        pad.SetGridy(1)
+        # pad.SetGridy(1)
         pad.SetFillStyle(0)
         pad.Draw()
         pad.cd(0)
@@ -2351,6 +2360,14 @@ def plotXS(obsName, obs_bins, chan, obs_bins_boundaries = False):
             dummy2.GetYaxis().SetRangeUser(0.,3)
         dummy2.Draw("axissame")
 
+    vlines = []
+    for b in range(1,len(obs_bins)-1):
+        vlines.append(TLine(obs_bins[b], dummy2.GetMinimum(), obs_bins[b], dummy2.GetMaximum()))
+        vlines[len(vlines)-1].SetLineWidth(1);
+        vlines[len(vlines)-1].SetLineStyle(2);
+        vlines[len(vlines)-1].SetLineColor(kGray);
+        vlines[len(vlines)-1].Draw();
+
     if (obsName=="pT4l"):
         box = TPaveText(240,-0.4,260,-0.1)
         box.SetLineColor(0)
@@ -2462,6 +2479,37 @@ if not doubleDiff:
 else:
     obs_bins_boundaries = obs_bins
     obs_bins = [i for i in range(len(obs_bins)+1)]
+
+
+pvalues = {
+'costhetaZ1_4l': '0.34',
+'costhetaZ2_4l': '0.35',
+'phi_4l': '0.99',
+'phistar_4l': '0.12',
+'costhetastar_4l': '0.65',
+'massZ1_4l': '0.32',
+'massZ2_4l': '0.95',
+'D0m_4l': '0.84',
+'Dcp_4l': '0.54',
+'D0hp_4l': '0.68',
+'Dint_4l': '0.30',
+'DL1_4l': '0.80',
+'DL1Zg_4l': '0.33',
+'costhetaZ1_2e2mu': '0.52',
+'costhetaZ2_2e2mu': '0.72',
+'phi_2e2mu': '0.99',
+'phistar_2e2mu': '0.27',
+'costhetastar_2e2mu': '0.33',
+'massZ1_2e2mu': '0.90',
+'massZ2_2e2mu': '0.16',
+'D0m_2e2mu': '0.92',
+'Dcp_2e2mu': '0.39',
+'D0hp_2e2mu': '0.08',
+'Dint_2e2mu': '0.05',
+'DL1_2e2mu': '1.00',
+'DL1Zg_2e2mu': '0.30',
+
+}
 
 print('obs_bins', obs_bins)
 for c in ['4l', '2e2mu']:

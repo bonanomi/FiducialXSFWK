@@ -188,7 +188,7 @@ if(obsName == 'mass4l'): label = 'm_{4l}'
 elif(obsName == 'mass4l_zzfloating'): label = 'm_{4l}'
 elif(obsName == 'njets_pt30_eta4p7'): label = 'N_{jet}, pT>30 GeV, |#eta|<4.7'
 elif(obsName == 'pT4l'): label = 'p_{T}^{H} (GeV)'
-elif(obsName == 'pT4l_kL'): label = 'k_{#lambda}'
+elif(obsName == 'pT4l_kL'): label = '#kappa_{#lambda}'
 elif(obsName == 'rapidity4l'): label = '|y_{H}|'
 elif(obsName == 'costhetaZ1'): label = 'cos(#theta_{1})'
 elif(obsName == 'costhetaZ2'): label = 'cos(#theta_{2})'
@@ -205,8 +205,8 @@ elif(obsName == 'mjj'): label = 'm_{jj} (GeV)'
 elif(obsName == 'absdetajj'): label = '|#Delta#Eta_{jj}|'
 elif(obsName == 'dphijj'): label = '|#Delta#Phi_{jj}|'
 elif(obsName == 'pTHjj'): label = 'p_{T}^{Hjj} (GeV)'
-elif(obsName == 'TCjmax'): label = '#mathscr{T}_{#mathscr{C},{j}}'
-elif(obsName == 'TBjmax'): label = '#mathscr{T}_{#mathscr{B},{j}}'
+elif(obsName == 'TCjmax'): label = 'TCjmax'
+elif(obsName == 'TBjmax'): label = 'TBjmax'
 elif(obsName == 'D0m'): label = 'D_{0m}'
 elif(obsName == 'Dcp'): label = 'D_{cp}'
 elif(obsName == 'D0hp'): label = 'D_{0h^{+}}'
@@ -480,6 +480,12 @@ for i in range(nBins):
     c.cd()
     gStyle.SetOptTitle(0)
 
+    if obsName == 'mass4l':
+        x = np.array(graphs[0].GetX()) * 2.86
+        y = np.array(graphs[0].GetY())
+        for entry in range(graphs[0].GetN()):
+            graphs[0].SetPoint(entry, x[entry], y[entry])
+
     graphs[0].SetLineColor(colors[0])
     graphs[0].SetLineWidth(3)
     graphs[0].Sort()
@@ -494,6 +500,10 @@ for i in range(nBins):
     if maxi < graphs[0].GetXaxis().GetXmax():
         maxi = graphs[0].GetXaxis().GetXmax()
     maxY = 8.
+
+    if obsName == 'mass4l':
+        mini = 2.1
+        maxi = 3.7
 
     graphs[0].Draw("AC")
     if v4_flag:
@@ -520,9 +530,9 @@ for i in range(nBins):
         elif _bin == 20: xtitle = "#sigma_{bin 2e2mu 10}"
         elif _bin == 21: xtitle = "#sigma_{bin 4l 10}"
     elif 'kL' in obsName:
-        xtitle = "k_{#lambda}"
+        xtitle = "#kappa_{#lambda}"
     elif 'mass4l' in obsName:
-        if _bin == 0: xtitle = "#sigma_{bin 0}"
+        if _bin == 0: xtitle = "#sigma_{incl} (fb)"
         elif _bin == 1: xtitle = "#sigma_{2e2mu}"
         elif _bin == 2: xtitle = "#sigma_{4mu}"
         elif _bin == 3: xtitle = "#sigma_{4e}"
@@ -535,9 +545,9 @@ for i in range(nBins):
     graphs[0].GetXaxis().SetTitle(xtitle)
     graphs[0].GetYaxis().SetTitle("-2#Delta ln L")
     graphs[0].GetYaxis().SetTitleOffset(0.9)
-    graphs[0].GetXaxis().SetTitleOffset(0.85)
-    graphs[0].GetXaxis().SetTitleSize(0.05)
-    graphs[0].GetYaxis().SetTitleSize(0.05)
+    graphs[0].GetXaxis().SetTitleOffset(0.72)
+    graphs[0].GetXaxis().SetTitleSize(0.059)
+    graphs[0].GetYaxis().SetTitleSize(0.059)
 
     graphs[0].GetYaxis().SetRangeUser(0,maxY)
     graphs[0].GetXaxis().SetRangeUser(mini,maxi)
@@ -559,22 +569,28 @@ for i in range(nBins):
         graphs[ig].SetTitle(titles[ig])
         graphs[ig].Sort()
 
+        if obsName == 'mass4l':
+            x = np.array(graphs[ig].GetX()) * 2.86
+            y = np.array(graphs[ig].GetY())
+            for entry in range(graphs[ig].GetN()):
+                graphs[ig].SetPoint(entry, x[entry], y[entry])
+
         graphs[ig].Draw("CSAME")
 
     lineone = TLine(mini,1,maxi,1)
-    linetwo = TLine(mini,4.0,maxi,4.0)
+    linetwo = TLine(mini,3.85,maxi,3.85)
     lineone.SetLineColor(15)#kGray+1)
     linetwo.SetLineColor(15)#kGray+1)
     lineone.Draw("SAME")
     linetwo.Draw("SAME")
 
-    leg = TLegend(0.65,0.85,0.9,0.75)
+    leg = TLegend(0.62,0.88,0.9,0.72)
     leg.SetLineColor(0)
     leg.SetLineStyle(0)
     leg.SetLineWidth(0)
     #leg.SetFillStyle(0)
     leg.SetShadowColor(10)
-    leg.SetTextSize(0.030)
+    leg.SetTextSize(0.034)
     leg.SetTextFont(42)
     for ip in range(0, len(graphs)):
         leg.AddEntry(graphs[ip], titles[ip], "l")
@@ -612,7 +628,7 @@ for i in range(nBins):
         print '------------------------------------------------------'
     else:
         fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.123456.root"
-        # print(fname)
+        print('STAT+SYST')
         exp_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         exp_nom = exp_scan['val']
         # exp_2sig = exp_scan['val_2sig']
@@ -634,6 +650,7 @@ for i in range(nBins):
         exp_nom_stat.append(kappa_lambda[0]-kappa_lambda[1])
     else:
         fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+"_NoSys.MultiDimFit.mH125.38.123456.root"
+        print('STAT-ONLY')
         exp_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         exp_nom_stat = exp_scan_stat['val']
         # exp_2sig_stat = exp_scan_stat['val_2sig']
@@ -667,8 +684,9 @@ for i in range(nBins):
             print '------------------------------------------------------'
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.root"
+            print('STAT+SYST')
             obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
-            print obs_scan
+            # print obs_scan
             obs_nom = obs_scan['val']
             obs_2sig = obs_scan['val_2sig']
 
@@ -690,6 +708,7 @@ for i in range(nBins):
             obs_nom_stat.append(kappa_lambda[0]-kappa_lambda[1])
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+"_NoSys.MultiDimFit.mH125.38.root"
+            print('STAT-ONLY')
             obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
             obs_nom_stat = obs_scan_stat['val']
             obs_2sig_stat = obs_scan_stat['val_2sig']
@@ -712,7 +731,6 @@ for i in range(nBins):
         if opt.UNBLIND:
             obs_nom = list(obs_nom)
             obs_nom_stat = list(obs_nom_stat)
-            print '---------------->', obs_nom[0], xsec['SigmaBin'+str(i)]
             obs_nom[0] *= xsec['SigmaBin'+str(i)]
             obs_nom[1] *= xsec['SigmaBin'+str(i)]
             obs_nom[2] *= xsec['SigmaBin'+str(i)]
@@ -722,9 +740,9 @@ for i in range(nBins):
             obs_do_sys *= xsec['SigmaBin'+str(i)]
 
     if(opt.UNBLIND):
-        Text3 = TPaveText(0.18, 0.81,0.4,0.9,'brNDC')
+        Text3 = TPaveText(0.15, 0.81,0.4,0.9,'brNDC')
     else:
-    	Text3 = TPaveText(0.18, 0.76,0.4,0.84,'bfNDC')
+    	Text3 = TPaveText(0.15, 0.76,0.4,0.84,'bfNDC')
     if v4_flag:
         if _bin == 0: exp_fit = 'Exp. #sigma_{2e2mu, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 1: exp_fit = 'Exp. #sigma_{4l, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
@@ -749,7 +767,7 @@ for i in range(nBins):
         if _bin == 20: exp_fit = 'Exp. #sigma_{2e2mu, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 21: exp_fit = 'Exp. #sigma_{4l, 10} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     elif 'mass4l' in obsName:
-        if _bin == 0: exp_fit = 'Exp. #sigma_{0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        if _bin == 0: exp_fit = 'Exp. #sigma_{incl} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 1: exp_fit = 'Exp. #sigma_{2e2mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 2: exp_fit = 'Exp. #sigma_{4mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 3: exp_fit = 'Exp. #sigma_{4e} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
@@ -758,11 +776,11 @@ for i in range(nBins):
         if _bin == 6: exp_fit = 'Exp. ZZ_{norm}^{4mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 7: exp_fit = 'Exp. ZZ_{norm}^{2e2mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     elif 'kL' in obsName:
-        exp_fit = 'Exp. k_{#lambda} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
+        exp_fit = 'Exp. #kappa_{#lambda} = %.1f^{#plus %.1f}_{#minus %.1f} (stat)^{#plus %.1f}_{#minus %.1f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     else:
         exp_fit = 'Exp. #sigma_{%d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
     Text3.SetTextAlign(12);
-    Text3.SetTextSize(0.036)
+    Text3.SetTextSize(0.038)
     Text3.AddText(exp_fit)
     Text3.SetFillStyle(0)
     Text3.SetLineStyle(0)
@@ -770,11 +788,11 @@ for i in range(nBins):
     Text3.Draw()
 
     if(opt.UNBLIND):
-        Text4 = TPaveText(0.18, 0.71,0.4,0.8,'brNDC')
+        Text4 = TPaveText(0.15, 0.71,0.4,0.8,'brNDC')
         if 'kL' in obsName:
-            obs_fit = 'Obs. k_{#lambda} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
+            obs_fit = 'Obs. #kappa_{#lambda} = %.1f^{#plus %.1f}_{#minus %.1f} (stat)^{#plus %.1f}_{#minus %.1f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
         elif 'mass4l' in obsName:
-            if _bin == 0: obs_fit = 'Obs. #sigma_{0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
+            if _bin == 0: obs_fit = 'Obs. #sigma_{incl} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
             if _bin == 1: obs_fit = 'Obs. #sigma_{2e2mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
             if _bin == 2: obs_fit = 'Obs. #sigma_{4e} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
             if _bin == 3: obs_fit = 'Obs. #sigma_{4mu} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
@@ -785,7 +803,7 @@ for i in range(nBins):
         else:
             obs_fit = 'Obs. #sigma_{bin, %d} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (_bin, obs_nom[0], obs_nom_stat[1], abs(obs_nom_stat[2]), obs_up_sys, obs_do_sys)
         Text4.SetTextAlign(12);
-        Text4.SetTextSize(0.036)
+        Text4.SetTextSize(0.038)
         Text4.AddText(obs_fit)
         Text4.SetFillStyle(0)
         Text4.SetLineStyle(0)
@@ -795,7 +813,7 @@ for i in range(nBins):
     Text = TPaveText(0.58, 0.88,0.93,0.95,'brNDC')
     #Text.SetNDC()
     Text.SetTextAlign(31);
-    Text.SetTextSize(0.03)
+    Text.SetTextSize(0.5*c.GetTopMargin())
     leftText = "CMS"
     re = "#bf{%s fb^{-1} (13 TeV)}" %(_lumi)
     Text.AddText(re)
@@ -803,6 +821,15 @@ for i in range(nBins):
     Text.SetLineStyle(0)
     Text.SetBorderSize(0)
     Text.Draw()
+
+    latex2 = TLatex()
+    latex2.SetNDC()
+    latex2.SetTextSize(0.6*c.GetTopMargin())
+    latex2.SetTextFont(52)
+    latex2.SetTextAlign(11)
+    #latex2.DrawLatex(0.28, 0.945, "Unpublished")
+    # latex2.DrawLatex(0.25, 0.915, "Preliminary")
+
 
     Text2 = TPaveText(0.25, 0.88,0.15,0.95,'brNDC')
     Text2.SetTextAlign(31);
@@ -822,7 +849,7 @@ for i in range(nBins):
         if ('pTj1' in obsName) and not doubleDiff:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin])+' < '+label+' < '+str(obs_bins[_bin+1]))
         elif obsName.startswith("mass4l"):
-            latex2.DrawLatex(0.55,0.65, str(obs_bins[0])+' < '+label+' < '+str(obs_bins[1]))
+            latex2.DrawLatex(0.55,0.65, '')
         elif doubleDiff and not v4_flag:
             latex2.DrawLatex(0.55,0.65, str(obs_bins[_bin][0])+' < '+label+' < '+str(obs_bins[_bin][1]))
             latex2.DrawLatex(0.55,0.60, str(obs_bins[_bin][2])+' < '+label_2nd+' < '+str(obs_bins[_bin][3]))
@@ -888,7 +915,7 @@ for i in range(nBins):
     else:
         latex2.DrawLatex(0.45,0.65, str(_bin)+' jet(s)')
     latex2.DrawLatex(0.91,0.22, "#scale[0.7]{#color[12]{68% CL}}")
-    latex2.DrawLatex(0.91,0.52, "#scale[0.7]{#color[12]{95% CL}}")
+    latex2.DrawLatex(0.91,0.50, "#scale[0.7]{#color[12]{95% CL}}")
 
     graphs[0].GetYaxis().SetRangeUser(0,maxY)
     graphs[0].GetXaxis().SetRangeUser(mini,maxi)
