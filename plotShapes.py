@@ -457,7 +457,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy.GetYaxis().SetTitle("Events / (1.83 GeV)")
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} [GeV]")
     if (opt.UNBLIND):
-        dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        dummy.SetMaximum(max(0.8*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
     else:
         # if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         # elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
@@ -492,19 +492,27 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy_zx.SetLineColor(kViolet+2)
     dummy_zx.SetLineWidth(2)
 
-    if opt.UPPER_BOUND == 160: legend = TLegend(.60,.41,.93,.89)
-    else: legend = TLegend(.20,.41,.53,.89)
+    # if opt.UPPER_BOUND == 160: legend = TLegend(.60,.41,.93,.89)
+    # else: legend = TLegend(.20,.41,.53,.89)
+    legend = TLegend(.60,.60,.93,.89)
     # legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     if (not opt.UNBLIND):
        legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     else:
        legend.AddEntry(dummy_data,"Data","ep")
-    legend.AddEntry(dummy_fid,"N_{fid.}^{fit} = %.2f (exp. = %.2f)"%(n_trueH_modelfit[fstate],n_trueH_asimov[fstate]), "l")
-    legend.AddEntry(dummy_other,"N_{other fid.}^{fit} = %.2f (exp = %.2f)"%(n_trueH_otherfid_modelfit[fstate],n_trueH_otherfid_asimov[fstate]), "l")
-    legend.AddEntry(dummy_out, "N_{out}^{fit} = %.2f (exp. = %.2f)"%(n_out_trueH_modelfit[fstate],n_out_trueH_asimov[fstate]), "l")
-    legend.AddEntry(dummy_fake, "N_{wrong}^{fit} = %.2f (exp. = %.2f)"%(n_fakeH_modelfit[fstate],n_fakeH_asimov[fstate]), "l")
-    legend.AddEntry(dummy_zz, "N_{ZZ}^{fit} = %.2f (exp. = %.2f)"%(n_zz_modelfit[fstate],n_zz_asimov[fstate]), "l")
-    legend.AddEntry(dummy_zx, "N_{Z+X}^{fit} = %.2f (exp. = %.2f)"%(n_zjets_modelfit[fstate],n_zjets_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_fid,"N_{fid.}^{fit} = %.2f (exp. = %.2f)"%(n_trueH_modelfit[fstate],n_trueH_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_other,"N_{other fid.}^{fit} = %.2f (exp = %.2f)"%(n_trueH_otherfid_modelfit[fstate],n_trueH_otherfid_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_out, "N_{out}^{fit} = %.2f (exp. = %.2f)"%(n_out_trueH_modelfit[fstate],n_out_trueH_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_fake, "N_{wrong}^{fit} = %.2f (exp. = %.2f)"%(n_fakeH_modelfit[fstate],n_fakeH_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_zz, "N_{ZZ}^{fit} = %.2f (exp. = %.2f)"%(n_zz_modelfit[fstate],n_zz_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_zx, "N_{Z+X}^{fit} = %.2f (exp. = %.2f)"%(n_zjets_modelfit[fstate],n_zjets_asimov[fstate]), "l")
+
+    legend.AddEntry(dummy_fid,"N_{fid}", "l")
+    legend.AddEntry(dummy_out, "N_{nonfid}", "l")
+    legend.AddEntry(dummy_fake, "N_{nonres}", "l")
+    legend.AddEntry(dummy_zz, "N_{ZZ}", "l")
+    legend.AddEntry(dummy_zx, "N_{ZX}", "l")
+
     # print('qqZZ', fstate, n_qqzz_modelfit[fstate])
     # print('ggZZ', fstate, n_ggzz_modelfit[fstate])
 
@@ -523,6 +531,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     legend.SetShadowColor(0);
     legend.SetFillColor(0);
     legend.SetLineColor(0);
+    legend.SetNColumns(2);
+    legend.SetTextSize(0.045);
     legend.Draw()
 
     mass.Draw("same")
@@ -601,7 +611,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     latex2.SetTextSize(0.8*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
-    # latex2.DrawLatex(0.19, 0.95, "CMS")
+    latex2.DrawLatex(0.16, 0.94, "CMS")
     latex2.SetTextSize(0.6*c.GetTopMargin())
     latex2.SetTextFont(52)
     latex2.SetTextAlign(11)

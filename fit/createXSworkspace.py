@@ -564,6 +564,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             dZH = {}
 
             kappa_lambda = ROOT.RooRealVar("kappa_lambda", "kappa_lambda", 1.0, -10.0, 20.0)
+            kappa_lambda_fake = ROOT.RooRealVar("kappa_lambda_fake", "kappa_lambda_fake", 1.0)
+            kappa_lambda_fake.setConstant(True)
 
             C1i_ttH = [0.0530525859571, 0.0472618825815, 0.0392337055167, 0.0278818345971, 0.0141882242091]
             C1i_VH = [0.0165863149378, 0.012328663897, 0.00774755197694, 0.0034957241269, 0.00024199147094]
@@ -586,9 +588,9 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
                 #Define dZH constant variable
                 dZH[str(genbin)] = ROOT.RooRealVar("dZH_"+str(genbin), "dZH_"+str(genbin), -1.536e-3, -1.536e-3, -1.536e-3)
 
-                mu_ggH[str(genbin)] = ROOT.RooFormulaVar("XSscal_ggH_"+str(genbin), "XSscal_ggH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_ggH[str(genbin)],dZH[str(genbin)]))
-                mu_VBFH[str(genbin)] = ROOT.RooFormulaVar("XSscal_VBFH_"+str(genbin), "XSscal_VBFH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_VBFH[str(genbin)],dZH[str(genbin)]))
-                mu_VH [str(genbin)]= ROOT.RooFormulaVar("XSscal_VH_"+str(genbin), "XSscal_VH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_VH[str(genbin)],dZH[str(genbin)]))
+                mu_ggH[str(genbin)] = ROOT.RooFormulaVar("XSscal_ggH_"+str(genbin), "XSscal_ggH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda_fake, C1_ggH[str(genbin)],dZH[str(genbin)]))
+                mu_VBFH[str(genbin)] = ROOT.RooFormulaVar("XSscal_VBFH_"+str(genbin), "XSscal_VBFH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda_fake, C1_VBFH[str(genbin)],dZH[str(genbin)]))
+                mu_VH [str(genbin)]= ROOT.RooFormulaVar("XSscal_VH_"+str(genbin), "XSscal_VH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda_fake, C1_VH[str(genbin)],dZH[str(genbin)]))
                 mu_ttH[str(genbin)] = ROOT.RooFormulaVar("XSscal_ttH_"+str(genbin), "XSscal_ttH_"+str(genbin), "(1+@0*@1+@2)/((1-(@0*@0-1)*@2)*(1+@1+@2))", ROOT.RooArgList(kappa_lambda, C1_ttH[str(genbin)],dZH[str(genbin)]))
 
                 mu_BR[str(genbin)] = ROOT.RooFormulaVar("BRscal_hzz_"+str(genbin), "BRscal_hzz_"+str(genbin), "(1+(((@0-1)*(@1-@2))/(1+(@0-1)*@2)))", ROOT.RooArgList(kappa_lambda, C1_HZZ[str(genbin)], C1_tot[str(genbin)]))

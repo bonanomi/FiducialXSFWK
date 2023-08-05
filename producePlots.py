@@ -1346,9 +1346,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         if acFlag:
             if obsName == 'D0m' or obsName == 'D0hp' or obsName == 'DL1' or obsName == 'DL1Zg':
                 color = ROOT.kRed+2
-                color_2nd = ROOT.kViolet+2
+                color_2nd = ROOT.kGreen+3
             else:
-                color = ROOT.kViolet+2
+                color = ROOT.kGreen+3
             g_ggH_AC = TGraphAsymmErrors(v_observable_2,v_ggH_AC,v_dobservable_2,v_dobservable_2,v_ggH_AC_unc_lo,v_ggH_AC_unc_hi)
             g_ggH_AC.SetFillStyle(3254);
             g_ggH_AC.SetFillColor(color)
@@ -2223,7 +2223,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     if obsName == 'pTj2':
         legend.SetTextSize(0.021)
     legend.SetLineColor(0)
-    legend.SetHeader("Constrained ZZ background normalisation")
+    # legend.SetHeader("Constrained ZZ background normalisation")
     legend.Draw()
 
 
@@ -2684,7 +2684,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         elif obsName == 'mHj':
             t2.DrawLatex(-12.,-0.65,"#sigma(N_{jets}= 0)")
         elif obsName == 'TBjmax':
-            t2.DrawLatex(-4.,-0.7,"#sigma(0-jet|T_{B}^{max})")
+            t2.DrawLatex(-4.,-0.9,"#sigma(0-jet|T_{B}^{max})")
         else:
             t2.DrawLatex(-3.,-0.8,"#sigma(N_{jets}= 0)")
 

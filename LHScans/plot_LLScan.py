@@ -125,7 +125,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
         "other_2sig" : other_2sig
     }
 
-yvals = [1., 4.]
+yvals = [1., 3.84]
 
 obsName = opt.OBSNAME
 
@@ -710,6 +710,7 @@ for i in range(nBins):
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+"_NoSys.MultiDimFit.mH125.38.root"
             print('STAT-ONLY')
             obs_scan_stat = BuildScan('scan', poi, [fname], 2, yvals, 7.)
+            print('---------------------------------', obs_scan_stat)
             obs_nom_stat = obs_scan_stat['val']
             obs_2sig_stat = obs_scan_stat['val_2sig']
 

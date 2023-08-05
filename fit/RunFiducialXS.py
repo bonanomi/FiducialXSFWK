@@ -217,7 +217,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         #     nPoints = 50
         else:
             upScanRange = 4
-            nPoints = 500
+            nPoints = 100
         POI = 'r_smH_%s_%d' %(fitName, i)
         POI_n = 'r_smH_%d' %i
         cmd_fit = 'combine -n _%s_%s -M MultiDimFit %s ' %(obsName, POI_n, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
@@ -267,7 +267,7 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         #     nPoints = 50
         else:
             upScanRange = 4
-            nPoints = 500
+            nPoints = 100
         POI = 'r_smH_%s_%d' %(fitName, i)
         POI_n = 'r_smH_%d' %i
         cmd_fit = 'combine -n _%s_%s_NoSys -M MultiDimFit %s' %(obsName, POI_n, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
