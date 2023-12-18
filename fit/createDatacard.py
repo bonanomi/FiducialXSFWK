@@ -1,7 +1,9 @@
 import os,sys
 
 
-def fixJes(jesnp):
+def fixJes(jesnp, jes_evts_noWeight):
+    if jes_evts_noWeight <= 50:
+        return '-'
      # Cases where jes are '-' or single value
     if (len(jesnp)==1) | ('/' not in jesnp):
         return jesnp
@@ -86,6 +88,8 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
         _temp = __import__('JESNP_'+obsName, globals(), locals(), ['JESNP'], -1)
         jesnp = _temp.JESNP
+        _temp = __import__('JESNP_evts_'+obsName, globals(), locals(), ['evts_noWeight'], -1)
+        jes_evts_noWeight = _temp.evts_noWeight
         sys.path.remove('../coefficients/JES')
     sys.path.remove('../inputs')
 
@@ -132,12 +136,15 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     # ZX
     ZX = {}
     ZX['2016_2e2mu'] = '0.756295/1.25114'
+    # ZX['2016_2e2mu'] = '0.65679/1.35490'
     ZX['2016_4e'] = '0.598182/1.43059'
     ZX['2016_4mu'] = '0.694678/1.30555'
     ZX['2017_2e2mu'] = '0.765736/1.236385'
+    # ZX['2017_2e2mu'] = '0.67255/1.33289'
     ZX['2017_4e'] = '0.646521/1.36398'
     ZX['2017_4mu'] = '0.694063/1.30623'
     ZX['2018_2e2mu'] = '0.7660052/1.235647'
+    # ZX['2018_2e2mu'] = '0.67620/1.32818'
     ZX['2018_4e'] = '0.650486/1.35893'
     ZX['2018_4mu'] = '0.69554/1.30465'
 
@@ -200,47 +207,54 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
     if zzfloating:
         # rateParam qqZZ floating
-        file.write('zz_norm_'+str(obsBin)+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+str(obsBin)])+' ['+str(expected_yield['ZZ_'+str(obsBin)]-100)+','+str(expected_yield['ZZ_'+str(obsBin)]+100)+']\n')
+        if physicalModel == 'v3':
+            file.write('zz_norm_'+str(obsBin)+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+str(obsBin)])+' ['+str(expected_yield['ZZ_'+str(obsBin)]-100)+','+str(expected_yield['ZZ_'+str(obsBin)]+100)+']\n')
+        elif physicalModel == 'v2':
+            if channel == '2e2mu':
+                min_range = 0
+            else:
+                min_range = expected_yield['ZZ_'+channel]-100
+            file.write('zz_norm_'+str(obsBin)+'_'+channel+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+channel])+' ['+str(min_range)+','+str(expected_yield['ZZ_'+channel]+100)+']\n')
 
     # norm_fake
-    file.write('norm_nonResH lnU ')
+    # file.write('norm_nonResH lnU ')
+    # # for i in range(nBins+1): # Signal + OutsideAcceptance
     # for i in range(nBins+1): # Signal + OutsideAcceptance
-    for i in range(nBins+1): # Signal + OutsideAcceptance
-        file.write('- ')
-    file.write('10.0 - - -    # [/10,*10]\n')
+    #     file.write('- ')
+    # file.write('10.0 - - -    # [/10,*10]\n')
 
     if yearSetting == 'Full':
         if zzfloating:
             # lumi_uncorrelated
-            file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
+            file.write('lumi_13TeV_'+year+' lnN ')
             for i in range(nBins+2): # signals + out + fake
                 file.write(lumi[year]+' ')
             file.write('- - -\n') # qqzz + ggzz + ZX
             # lumi_correlated_16_17_18
-            file.write('lumi_13TeV_correlated_16_17_18 lnN ')
+            file.write('lumi_13TeV_correlated lnN ')
             for i in range(nBins+2): # signals + out + fake
                 file.write(lumi_corr_16_17_18[year]+' ')
             file.write('- - -\n') # qqzz + ggzz + ZX
             # lumi_correlated_17_18
             if year == '2017' or year == '2018':
-                file.write('lumi_13TeV_correlated_17_18 lnN ')
+                file.write('lumi_13TeV_1718 lnN ')
                 for i in range(nBins+2): # signals + out + fake
                     file.write(lumi_corr_17_18[year]+' ')
                 file.write('- - -\n') # qqzz + ggzz + ZX
         else:
             # lumi_uncorrelated
-            file.write('lumi_13TeV_'+year+'_uncorrelated lnN ')
+            file.write('lumi_13TeV_'+year+' lnN ')
             for i in range(nBins+4): # All except ZX
                 file.write(lumi[year]+' ')
             file.write('-\n') # ZX
             # lumi_correlated_16_17_18
-            file.write('lumi_13TeV_correlated_16_17_18 lnN ')
+            file.write('lumi_13TeV_correlated lnN ')
             for i in range(nBins+4): # All except ZX
                 file.write(lumi_corr_16_17_18[year]+' ')
             file.write('-\n') # ZX
             # lumi_correlated_17_18
             if year == '2017' or year == '2018':
-                file.write('lumi_13TeV_correlated_17_18 lnN ')
+                file.write('lumi_13TeV_1718 lnN ')
                 for i in range(nBins+4): # All except ZX
                     file.write(lumi_corr_17_18[year]+' ')
                 file.write('-\n') # ZX
@@ -280,12 +294,18 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write(ZX[year+'_'+channel]+'\n')
 
     # Param
+    # if(channelNumber != 2):
+    #     file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
+    #     file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.03 [-1,1]\n')
+    # if(channelNumber != 1):
+    #     file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
+    #     file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.1 [-1,1]\n')
     if(channelNumber != 2):
-        file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
-        file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.03 [-1,1]\n')
+        file.write('CMS_zz4l_mean_m_sig param 0.0 1.0\n')
+        file.write('CMS_zz4l_sigma_m_sig param 0.0 0.03 [-1,1]\n')
     if(channelNumber != 1):
-        file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
-        file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.1 [-1,1]\n')
+        file.write('CMS_zz4l_mean_e_sig param 0.0 1.0\n')
+        file.write('CMS_zz4l_sigma_e_sig param 0.0 0.1 [-1,1]\n')
 
     file.write('CMS_zz4l_n_sig_'+str(channelNumber)+'_'+year+' param 0.0 0.05\n')
 
@@ -318,10 +338,14 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
 
             file.write('CMS_scale_j_'+jesName+' lnN ')
             for i in range(nBins+2): # Signals + out + fake
-                file.write(str(fixJes(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
-            file.write(str(fixJes(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
-            file.write(str(fixJes(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
-            file.write(str(fixJes(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+'\n')
+                file.write(str(fixJes(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)],
+                                      jes_evts_noWeight['signal_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)],
+                                  jes_evts_noWeight['qqzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)],
+                                  jes_evts_noWeight['ggzz_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+' ')
+            file.write(str(fixJes(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)],
+                                  jes_evts_noWeight['ZX_'+jesNames[index]+'_'+channel+'_'+year+'_'+obsName.replace('pT4l', 'ZZPt')+'_recobin'+str(obsBin)]))+'\n')
         # file.write('CMS_scale_j_ZX lnN ')
         # for i in range(nBins+4): # All except ZX
         #     file.write('- ')
@@ -534,90 +558,4 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
     # Lepton efficiency
     if channel == '4mu' or channel == '2e2mu':
         file.write('CMS_eff_m lnN ')
-        # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+4): # All except ZX
-            file.write(eff_mu[year+'_'+channel]+' ')
-        file.write('-\n') # ZX
-    if channel == '4e' or channel == '2e2mu':
-        file.write('CMS_eff_e lnN ')
-        # for i in range(nBins+4): # All except ZX
-        for i in range(2*nBins+4): # All except ZX
-            file.write(eff_e[year+'_'+channel]+' ')
-        file.write('-\n') # ZX
-
-    # ZX
-    file.write('CMS_hzz'+channel+'_Zjets_'+year+' lnN ')
-    # for i in range(nBins+4): # All except ZX
-    for i in range(2*nBins+4): # All except ZX
-        file.write('- ')
-    file.write(ZX[year+'_'+channel]+'\n')
-
-    # Param
-    if(channelNumber != 2):
-        file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
-        file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.2 [-1,1]\n')
-    if(channelNumber != 1):
-        file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
-        file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.2 [-1,1]\n')
-
-    file.write('CMS_zz4l_n_sig_'+str(channelNumber)+'_'+year+' param 0.0 0.05\n')
-
-    # Theoretical
-    file.write('QCDscale_ggVV lnN ')
-    # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(2*nBins+3): # All except ZX
-        file.write('- ')
-    file.write('1.039/0.961 -\n')
-    file.write('QCDscale_VV lnN ')
-    # for i in range(nBins+2): # Signal + out + fake
-    for i in range(2*nBins+2):
-        file.write('- ')
-    file.write('1.0325/0.958 - -\n')
-    file.write('pdf_gg lnN ')
-    # for i in range(nBins+3): # Signal + out + fake + qqzz
-    for i in range(2*nBins+3): # All except ZX
-        file.write('- ')
-    file.write('1.032/0.968 -\n')
-    file.write('pdf_qqbar lnN ')
-    # for i in range(nBins+2): # Signal + out + fake
-    for i in range(2*nBins+2): # All except ZX
-        file.write('- ')
-    file.write('1.031/0.966 - -\n')
-    file.write('kfactor_ggzz lnN ')
-    # for i in range(nBins+3): # Signal + out + fake  + bkg_qqzz
-    for i in range(2*nBins+3): # Signal + out + fake  + bkg_qqzz
-        file.write('- ')
-    file.write('1.1 -\n')
-
-    # # ZX
-    # file.write('CMS_zjets_bkgdcompo_'+str(year)+' lnN ')
-    # for i in range(nBins+4): # All except ZX
-    #     file.write('- ')
-    # file.write('1.32\n')
-
-    # JES
-    if jes == True:
-        for index,jesName in enumerate(jesNames_datacard):
-            file.write('CMS_scale_j_'+jesName+' lnN ')
-
-            # for i in range(nBins): # Signals
-            #     file.write(str(jesnp['fiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(i)+'_recobin'+str(obsBin)])+' ')
-            # file.write(str(jesnp['nonFiducial_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-            # file.write(str(jesnp['nonResonant_'+jesNames[index]+'_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])+' ')
-
-            for i in range(nBins+2): # Signal + out + fake
-                file.write(fixJes(str(jesnp['signal_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)]))+' ')
-
-            # Bkgs
-            file.write(str(jesnp['qqzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ggzz_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+' ')
-            file.write(str(jesnp['ZX_'+jesNames[index]+'_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+'\n')
-            #file.write('JES param 0.0 1.0\n')
-        # file.write('CMS_scale_j_ZX lnN ')
-        # for i in range(nBins+4): # All except ZX
-        #     file.write('- ')
-        # file.write(str(jesnp['ZX_'+channel+'_'+str(year)+'_'+obsName+'_recobin'+str(obsBin)])+'\n')
-
-    file.close()
-
-    print(os.getcwd())
+        # for i in range(nBins+4)

@@ -29,7 +29,7 @@ def parseOptions():
     parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.38',   help='Mass value for theory prediction')
     parser.add_option('',   '--fixMass',  dest='FIXMASS',  type='string',default='125.0',   help='Fix mass, default is a string "125.09" or can be changed to another string, e.g."125.6" or "False"')
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
-    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
+    parser.add_option('',   '--obsBins',  dest='OBSBINS',  type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|200|100|", use the defalut if empty string')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='fix the fractions of 4e and 4mu when extracting the results, default is False')
     # action options - "only"
@@ -122,7 +122,6 @@ def produceDatacards(obsName, observableBins, ModelName, physicalmodel):
 def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e', '4mu', '2e2mu']):
     os.chdir('../datacard')
     card_name = 'hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
-
     cmd_combCards = 'combineCards.py '
 
     nBins = len(observableBins)
@@ -152,18 +151,21 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
     cmd_addNuis = ''
     if opt.YEAR == 'Full':
         if obsName == 'mass4l_zzfloating': # Remove bkg theo nuisances in case of zz floating
-            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 lumi_13TeV_2016_uncorrelated lumi_13TeV_2017_uncorrelated lumi_13TeV_2018_uncorrelated lumi_13TeV_correlated_16_17_18 lumi_13TeV_correlated_17_18 norm_nonResH CMS_zz4l_sigma_e_sig_2017 CMS_zz4l_sigma_e_sig_2016 CMS_zz4l_sigma_m_sig_2018 CMS_zz4l_sigma_m_sig_2017 CMS_zz4l_sigma_m_sig_2016 CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_mean_e_sig_2016 CMS_zz4l_mean_e_sig_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_mean_m_sig_2018 CMS_zz4l_mean_m_sig_2016 CMS_zz4l_mean_m_sig_2017 CMS_zz4l_sigma_e_sig_2018 CMS_zz4l_mean_e_sig_2018'
+            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 lumi_13TeV_correlated lumi_13TeV_1718 CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_n_sig_2_2016 CMS_zz4l_n_sig_2_2017 CMS_zz4l_n_sig_2_2018 CMS_zz4l_n_sig_1_2016 CMS_zz4l_n_sig_1_2017 CMS_zz4l_n_sig_1_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
         else:
-            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2016_uncorrelated lumi_13TeV_2017_uncorrelated lumi_13TeV_2018_uncorrelated lumi_13TeV_correlated_16_17_18 lumi_13TeV_correlated_17_18 norm_nonResH pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig_2017 CMS_zz4l_sigma_e_sig_2016 CMS_zz4l_sigma_m_sig_2018 CMS_zz4l_sigma_m_sig_2017 CMS_zz4l_sigma_m_sig_2016 CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_mean_e_sig_2016 CMS_zz4l_mean_e_sig_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_mean_m_sig_2018 CMS_zz4l_mean_m_sig_2016 CMS_zz4l_mean_m_sig_2017 CMS_zz4l_sigma_e_sig_2018 CMS_zz4l_mean_e_sig_2018'
+            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 lumi_13TeV_correlated lumi_13TeV_1718 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_n_sig_2_2016 CMS_zz4l_n_sig_2_2017 CMS_zz4l_n_sig_2_2018 CMS_zz4l_n_sig_1_2016 CMS_zz4l_n_sig_1_2017 CMS_zz4l_n_sig_1_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
         if JES:
-            cmd_addNuis += ' CMS_scale_j_Abs CMS_scale_j_Abs_2016 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2016 CMS_scale_j_EC2 CMS_scale_j_EC2_2016 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2016 CMS_scale_j_RelBal CMS_scale_j_RelSample_2016 CMS_scale_j_Abs CMS_scale_j_Abs_2017 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2017 CMS_scale_j_EC2 CMS_scale_j_EC2_2017 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2017 CMS_scale_j_RelBal CMS_scale_j_RelSample_2017 CMS_scale_j_Abs CMS_scale_j_Abs_2018 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2018 CMS_scale_j_EC2 CMS_scale_j_EC2_2018 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2018 CMS_scale_j_RelBal CMS_scale_j_RelSample_2018'
+            if obsName == 'TBjmax': #For TBjmax some JES unc are all zero
+                cmd_addNuis += ' CMS_scale_j_Abs CMS_scale_j_Abs_2016 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2016 CMS_scale_j_EC2 CMS_scale_j_EC2_2016 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_RelBal CMS_scale_j_RelSample_2016 CMS_scale_j_Abs_2017 CMS_scale_j_BBEC1_2017 CMS_scale_j_EC2_2017 CMS_scale_j_HF_2017 CMS_scale_j_RelSample_2017 CMS_scale_j_Abs_2018 CMS_scale_j_BBEC1_2018 CMS_scale_j_EC2_2018 CMS_scale_j_RelSample_2018'
+            else:
+                cmd_addNuis += ' CMS_scale_j_Abs CMS_scale_j_Abs_2016 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2016 CMS_scale_j_EC2 CMS_scale_j_EC2_2016 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2016 CMS_scale_j_RelBal CMS_scale_j_RelSample_2016 CMS_scale_j_Abs_2017 CMS_scale_j_BBEC1_2017 CMS_scale_j_EC2_2017 CMS_scale_j_HF_2017 CMS_scale_j_RelSample_2017 CMS_scale_j_Abs_2018 CMS_scale_j_BBEC1_2018 CMS_scale_j_EC2_2018 CMS_scale_j_HF_2018 CMS_scale_j_RelSample_2018'
     else:
         if obsName == 'mass4l_zzfloating':
-            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' lumi_13TeV_'+str(opt.YEAR)+' norm_nonResH CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_m_sig_'+str(opt.YEAR)+' CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig_'+str(opt.YEAR)+' CMS_zz4l_mean_m_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)
+            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' lumi_13TeV_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
         else:
-            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_'+str(opt.YEAR)+' norm_nonResH pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_m_sig_'+str(opt.YEAR)+' CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig_'+str(opt.YEAR)+' CMS_zz4l_mean_m_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)
+            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_'+str(opt.YEAR)+' pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
         if JES:
-            cmd_addNuis += ' CMS_scale_j_Abs CMS_scale_j_Abs_'+str(opt.YEAR)+' CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_'+str(opt.YEAR)+' CMS_scale_j_EC2 CMS_scale_j_EC2_'+str(opt.YEAR)+' CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_'+str(opt.YEAR)+' CMS_scale_j_RelBal CMS_scale_j_RelSample_'+str(opt.YEAR)
+            cmd_addNuis += ' CMS_scale_j_Abs CMS_scale_j_Abs_'+str(opt.YEAR)+' CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_'+str(opt.YEAR)+' CMS_scale_j_EC2 CMS_scale_j_EC2_'+str(opt.YEAR)+' CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_'+str(opt.YEAR)+' CMS_scale_j_RelBal CMS_scale_j_RelSample_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
     cmd_addNuis += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
 
     processCmd(cmd_combCards)
@@ -207,16 +209,26 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
     # cmd_fit = 'combine -n _%s_Fit -M MultiDimFit %s ' %(fitName, card_name.replace('txt', 'root'))
     # cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=singles --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
     for i in range(nBins):
+        if obsName == 'dphijj' and i == 4:
+            upScanRange = 5
+            nPoints = 200
+        # elif obsName == 'phistar':
+        #     upScanRange = 2.5
+        #     nPoints = 50
+        else:
+            upScanRange = 4
+            nPoints = 100
         POI = 'r_smH_%s_%d' %(fitName, i)
         POI_n = 'r_smH_%d' %i
         cmd_fit = 'combine -n _%s_%s -M MultiDimFit %s ' %(obsName, POI_n, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-        cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --cminDefaultMinimizerStrategy 0 '
+        cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points='+str(nPoints)+' --cminDefaultMinimizerStrategy 0 '
         if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI)
-        cmd_fit_tmp = cmd_fit + '-P %s --setParameterRanges %s=0.0,2.5 --redefineSignalPOI %s' %(POI, POI, POI)
+        cmd_fit_tmp = cmd_fit + '-P %s --setParameterRanges %s=0.0,%i --redefineSignalPOI %s' %(POI, POI, upScanRange, POI)
 
         print(cmd_fit_tmp)
         processCmd(cmd_fit_tmp)
         cmds.append(cmd_fit_tmp)
+
 
     if obsName == 'mass4l_zzfloating':
         for i in range(nBins):
@@ -232,28 +244,37 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             processCmd(cmd_fit_tmp)
             cmds.append(cmd_fit_tmp)
 
-    if obsName == 'mass4l_zzfloating':
-        for i in range(nBins):
-            POI = 'zz_norm_%d' %i
-            POI_xs = 'r_smH_%s_%d' %(fitName, i)
-            POI_n = 'r_smH_%d' %i
-            cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-            cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --saveToys --cminDefaultMinimizerStrategy 0 '
-            if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
-            cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
-
-            print(cmd_fit_tmp)
-            processCmd(cmd_fit_tmp)
+    # if obsName == 'mass4l_zzfloating':
+    #     for i in range(nBins):
+    #         POI = 'zz_norm_%d' %i
+    #         POI_xs = 'r_smH_%s_%d' %(fitName, i)
+    #         POI_n = 'r_smH_%d' %i
+    #         cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
+    #         cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --cminDefaultMinimizerStrategy 0 '
+    #         if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
+    #         cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+    #
+    #         print(cmd_fit_tmp)
+    #         processCmd(cmd_fit_tmp)
 
     #Stat-only
     for i in range(nBins):
+        if obsName == 'dphijj' and i == 4:
+            upScanRange = 5
+            nPoints = 200
+        # elif obsName == 'phistar':
+        #     upScanRange = 2.5
+        #     nPoints = 50
+        else:
+            upScanRange = 4
+            nPoints = 100
         POI = 'r_smH_%s_%d' %(fitName, i)
         POI_n = 'r_smH_%d' %i
         cmd_fit = 'combine -n _%s_%s_NoSys -M MultiDimFit %s' %(obsName, POI_n, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
         if not opt.UNBLIND: cmd_fit = cmd_fit + '.123456'
-        cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
+        cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points='+str(nPoints)+' --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
         if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI)
-        cmd_fit_tmp = cmd_fit + '-P %s --setParameterRanges %s=0.0,2.5 --redefineSignalPOI %s' %(POI, POI, POI)
+        cmd_fit_tmp = cmd_fit + '-P %s --setParameterRanges %s=0.0,%i --redefineSignalPOI %s' %(POI, POI, upScanRange, POI)
 
         print cmd_fit_tmp
         processCmd(cmd_fit_tmp)
@@ -263,9 +284,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             for i in range(nBins):
                 POI = 'zz_norm_%d' %i
                 POI_xs = 'r_smH_%s_%d' %(fitName, i)
-                POI_n = 'r_smH_%d' %i
+                POI_n = 'zz_norm_%d' %i
                 cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s' %(obsName, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
-                if not opt.UNBLIND: cmd = cmd + '.123456'
+                if not opt.UNBLIND: cmd_fit = cmd_fit + '.123456'
                 cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
                 if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
                 cmd_fit_tmp = cmd_fit + '-P %s --redefineSignalPOI %s' %(POI, POI)
@@ -274,18 +295,20 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
                 processCmd(cmd_fit_tmp)
                 cmds.append(cmd_fit_tmp)
 
-        if obsName == 'mass4l_zzfloating':
-            for i in range(nBins):
-                POI = 'zz_norm_%d' %i
-                POI_xs = 'r_smH_%s_%d' %(fitName, i)
-                POI_n = 'r_smH_%d' %i
-                cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s' %(obsName, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
-                if not opt.UNBLIND: cmd = cmd + '.123456'
-                cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --saveToys --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
-                cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
 
-                print(cmd_fit_tmp)
-                processCmd(cmd_fit_tmp)
+
+        # if obsName == 'mass4l_zzfloating':
+        #     for i in range(nBins):
+        #         POI = 'zz_norm_%d' %i
+        #         POI_xs = 'r_smH_%s_%d' %(fitName, i)
+        #         POI_n = 'r_smH_%d' %i
+        #         cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s' %(obsName, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
+        #         if not opt.UNBLIND: cmd = cmd + '.123456'
+        #         cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 -t -1 --setParameters '
+        #         cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+        #
+        #         print(cmd_fit_tmp)
+        #         processCmd(cmd_fit_tmp)
 
 def runFiducialXS():
     # variable for double-differential measurements and obsName
@@ -338,7 +361,7 @@ def runFiducialXS():
     if obsName.startswith("mass4l"):
         PhysicalModels = ['v2','v3']
     elif obsName == 'D0m' or obsName == 'Dcp' or obsName == 'D0hp' or obsName == 'Dint' or obsName == 'DL1' or obsName == 'DL1Zg' or obsName == 'costhetaZ1' or obsName == 'costhetaZ2'or obsName == 'costhetastar' or obsName == 'phi' or obsName == 'phistar' or obsName == 'massZ1' or obsName == 'massZ2':
-        PhysicalModels = ['v4','v3']
+        PhysicalModels = ['v4', 'v3']
     elif 'kL' in obsName:
         PhysicalModels = ['kLambda']
     elif obsName == 'massZ1_massZ2':
@@ -382,7 +405,7 @@ def runFiducialXS():
             os.chdir(_fit_dir)
 
         # Combine 3 years
-    	# we go back from datacard_Y to datacard folder
+        # we go back from datacard_Y to datacard folder
         os.chdir('../datacard/')
         print 'Current directory: datacard'
         if (opt.YEAR == 'Full'):
@@ -391,11 +414,11 @@ def runFiducialXS():
             processCmd(cmd,1)
             cmds.append(cmd)
             if obsName == 'mass4l_zzfloating': # Remove bkg theo nuisances in case of zz floating
-                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 lumi_13TeV_2016_uncorrelated lumi_13TeV_2017_uncorrelated lumi_13TeV_2018_uncorrelated lumi_13TeV_correlated_16_17_18 lumi_13TeV_correlated_17_18 norm_nonResH CMS_zz4l_sigma_e_sig_2017 CMS_zz4l_sigma_e_sig_2016 CMS_zz4l_sigma_m_sig_2018 CMS_zz4l_sigma_m_sig_2017 CMS_zz4l_sigma_m_sig_2016 CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_mean_e_sig_2016 CMS_zz4l_mean_e_sig_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_mean_m_sig_2018 CMS_zz4l_mean_m_sig_2016 CMS_zz4l_mean_m_sig_2017 CMS_zz4l_sigma_e_sig_2018 CMS_zz4l_mean_e_sig_2018'
+                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 lumi_13TeV_correlated lumi_13TeV_1718 CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_n_sig_2_2016 CMS_zz4l_n_sig_2_2017 CMS_zz4l_n_sig_2_2018 CMS_zz4l_n_sig_1_2016 CMS_zz4l_n_sig_1_2017 CMS_zz4l_n_sig_1_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
             else:
-                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2016_uncorrelated lumi_13TeV_2017_uncorrelated lumi_13TeV_2018_uncorrelated lumi_13TeV_correlated_16_17_18 lumi_13TeV_correlated_17_18 norm_nonResH pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig_2017 CMS_zz4l_sigma_e_sig_2016 CMS_zz4l_sigma_m_sig_2018 CMS_zz4l_sigma_m_sig_2017 CMS_zz4l_sigma_m_sig_2016 CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_mean_e_sig_2016 CMS_zz4l_mean_e_sig_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_mean_m_sig_2018 CMS_zz4l_mean_m_sig_2016 CMS_zz4l_mean_m_sig_2017 CMS_zz4l_sigma_e_sig_2018 CMS_zz4l_mean_e_sig_2018'
+                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 lumi_13TeV_correlated lumi_13TeV_1718 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_n_sig_2_2016 CMS_zz4l_n_sig_2_2017 CMS_zz4l_n_sig_2_2018 CMS_zz4l_n_sig_1_2016 CMS_zz4l_n_sig_1_2017 CMS_zz4l_n_sig_1_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
             if JES:
-                cmd += ' CMS_scale_j_Abs CMS_scale_j_Abs_2016 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2016 CMS_scale_j_EC2 CMS_scale_j_EC2_2016 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2016 CMS_scale_j_RelBal CMS_scale_j_RelSample_2016 CMS_scale_j_Abs CMS_scale_j_Abs_2017 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2017 CMS_scale_j_EC2 CMS_scale_j_EC2_2017 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2017 CMS_scale_j_RelBal CMS_scale_j_RelSample_2017 CMS_scale_j_Abs CMS_scale_j_Abs_2018 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2018 CMS_scale_j_EC2 CMS_scale_j_EC2_2018 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2018 CMS_scale_j_RelBal CMS_scale_j_RelSample_2018'
+                cmd += ' CMS_scale_j_Abs CMS_scale_j_Abs_2016 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2016 CMS_scale_j_EC2 CMS_scale_j_EC2_2016 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2016 CMS_scale_j_RelBal CMS_scale_j_RelSample_2016 CMS_scale_j_Abs CMS_scale_j_Abs_2017 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2017 CMS_scale_j_EC2 CMS_scale_j_EC2_2017 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2017 CMS_scale_j_RelBal CMS_scale_j_RelSample_2017 CMS_scale_j_Abs CMS_scale_j_Abs_2018 CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_2018 CMS_scale_j_EC2 CMS_scale_j_EC2_2018 CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_2018 CMS_scale_j_RelBal CMS_scale_j_RelSample_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
             cmd += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
@@ -410,11 +433,11 @@ def runFiducialXS():
             processCmd(cmd,1)
             cmds.append(cmd)
             if obsName == 'mass4l_zzfloating':
-                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' lumi_13TeV_'+str(opt.YEAR)+' norm_nonResH CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_m_sig_'+str(opt.YEAR)+' CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig_'+str(opt.YEAR)+' CMS_zz4l_mean_m_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)
+                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' lumi_13TeV_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
             else:
-                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_'+str(opt.YEAR)+' norm_nonResH pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_m_sig_'+str(opt.YEAR)+' CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig_'+str(opt.YEAR)+' CMS_zz4l_mean_m_sig_'+str(opt.YEAR)+' CMS_zz4l_sigma_e_sig_'+str(opt.YEAR)
+                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_'+str(opt.YEAR)+' CMS_hzz4e_Zjets_'+str(opt.YEAR)+' CMS_hzz4mu_Zjets_'+str(opt.YEAR)+' QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_'+str(opt.YEAR)+' pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
             if JES:
-                cmd += ' CMS_scale_j_Abs CMS_scale_j_Abs_'+str(opt.YEAR)+' CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_'+str(opt.YEAR)+' CMS_scale_j_EC2 CMS_scale_j_EC2_'+str(opt.YEAR)+' CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_'+str(opt.YEAR)+' CMS_scale_j_RelBal CMS_scale_j_RelSample_'+str(opt.YEAR)
+                cmd += ' CMS_scale_j_Abs CMS_scale_j_Abs_'+str(opt.YEAR)+' CMS_scale_j_BBEC1 CMS_scale_j_BBEC1_'+str(opt.YEAR)+' CMS_scale_j_EC2 CMS_scale_j_EC2_'+str(opt.YEAR)+' CMS_scale_j_FlavQCD CMS_scale_j_HF CMS_scale_j_HF_'+str(opt.YEAR)+' CMS_scale_j_RelBal CMS_scale_j_RelSample_'+str(opt.YEAR)+' CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
             cmd += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             processCmd(cmd,1)
             cmds.append(cmd)
@@ -449,7 +472,7 @@ def runFiducialXS():
         processCmd(cmd,1)
         cmds.append(cmd)
 
-    	# From datacard directory to combine_files, to store fit results
+        # From datacard directory to combine_files, to store fit results
         os.chdir('../combine_files/')
         print 'Current directory: combine_files'
         # nBins = len(observableBins)
@@ -472,13 +495,35 @@ def runFiducialXS():
                 # if(not opt.UNBLIND): cmd = cmd + '_exp'
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r'+channel+'Bin0.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
-                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
                 if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
                 print cmd+'\n'
                 output = processCmd(cmd)
                 cmds.append(cmd)
+
+                # zz_norm
+                if obsName == 'mass4l_zzfloating':
+                    cmd = 'combine -n _'+obsName+'_zz_norm_0_'+channel+' -M MultiDimFit SM_125_all_13TeV_xs_'+obsName+'_bin_v2.root -m 125.38 --freezeParameters MH -P zz_norm_0_'+channel+' --floatOtherPOIs=1 --saveWorkspace --redefineSignalPOI zz_norm_0_'+channel+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --saveInactivePOI=1'
+
+                    if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
+                    print cmd, '\n'
+                    output = processCmd(cmd)
+                    cmds.append(cmd)
+                    # Stat-only
+                    cmd = 'combine -n _'+obsName+'_zz_norm_0_'+channel+'_NoSys'
+                    # if(not opt.UNBLIND): cmd = cmd + '_exp'
+                    cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_zz_norm_0_'+channel+'.MultiDimFit.mH125.38'
+                    if(not opt.UNBLIND): cmd = cmd + '.123456'
+                    cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P zz_norm_0_'+channel+' --floatOtherPOIs=1 --saveWorkspace --redefineSignalPOI zz_norm_0_'+channel+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
+                    if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
+                    else: cmd = cmd + ' --freezeParameters MH'
+                    if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys'
+                    print cmd+'\n'
+                    output = processCmd(cmd)
+                    cmds.append(cmd)
+
 
         if physicalModel == 'v4':
             for obsBin in range(nBins):
@@ -657,7 +702,6 @@ def runFiducialXS():
             cmd = 'combine SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root -n _'+obsName+'_grid -M MultiDimFit --algo=grid --points=250 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --freezeParameters MH,r --saveWorkspace --setParameterRanges kappa_lambda=-10,20:r=1,1 --cminDefaultMinimizerStrategy 0 --robustFit 1'
             if(not opt.UNBLIND):
                 cmd = cmd + ' -t -1 --saveToys --setParameters kappa_lambda=1.0,r=1.0'
-
             output = processCmd(cmd)
             cmds.append(cmd)
             print(cmd)
@@ -678,7 +722,6 @@ def runFiducialXS():
             cmd = 'combine higgsCombine_'+obsName+'_grid.MultiDimFit.mH125.38'
             if(not opt.UNBLIND): cmd += '.123456'
             cmd += '.root -n _'+obsName+'_NoSys_grid -M MultiDimFit -w w --snapshotName "MultiDimFit" --algo=grid --points=250 -P kappa_lambda --redefineSignalPOIs kappa_lambda -m 125.38 --saveWorkspace --setParameterRanges kappa_lambda=-10,20:r=1,1 --cminDefaultMinimizerStrategy 0 --robustFit 1 --freezeNuisanceGroups nuis'
-
             if (opt.YEAR == 'Full'): cmd += ' --freezeParameters MH,r'
             else: cmd += ' --freezeParameters MH'
             if(not opt.UNBLIND):

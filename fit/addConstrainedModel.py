@@ -60,7 +60,7 @@ binfrac_wrongfrac = _temp.binfrac_wrongfrac
 _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs4l_br','higgs_xs'], -1)
 higgs4l_br = _temp.higgs4l_br
 higgs_xs = _temp.higgs_xs
-higgs4l_br['125.0_4l'] = higgs4l_br['125.0_2e2mu']+higgs4l_br['125.0_4e']+higgs4l_br['125.0_4mu']
+higgs4l_br['125.38_4l'] = higgs4l_br['125.38_2e2mu']+higgs4l_br['125.38_4e']+higgs4l_br['125.38_4mu']
 
 # if (obsName=="mass4l"): fStates = ['4e','4mu','2e2mu','4l'] #AT Mi sembra che 4l non venga usato
 if (obsName=="mass4l"): fStates = ['4e','4mu','2e2mu']
@@ -87,11 +87,11 @@ for fState in fStates:
         ttHxs_allgen=0.0
 
         for genbin in range(lenObsBins):
-            ggHxs_allgen += higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            VBFxs_allgen += higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            WHxs_allgen += higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            ZHxs_allgen += higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            ttHxs_allgen += higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            ggHxs_allgen += higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            VBFxs_allgen += higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            WHxs_allgen += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            ZHxs_allgen += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            ttHxs_allgen += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
 
         outin_SM = ggHxs_allgen*fout_ggH/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
         outin_SM += VBFxs_allgen*fout_VBF/(ggHxs_allgen+VBFxs_allgen+WHxs_allgen+ZHxs_allgen+ttHxs_allgen)
@@ -102,12 +102,12 @@ for fState in fStates:
         for genbin in range(lenObsBins):
 
             print 'ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)
-            ggHxs = higgs_xs['ggH_125.0']*higgs4l_br['125.0_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            ggHxs = higgs_xs['ggH_125.38']*higgs4l_br['125.38_'+fState]*acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             #ggHxs = acc['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            VBFxs = higgs_xs['VBF_125.0']*higgs4l_br['125.0_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            WHxs = higgs_xs['WH_125.0']*higgs4l_br['125.0_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            ZHxs = higgs_xs['ZH_125.0']*higgs4l_br['125.0_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-            ttHxs = higgs_xs['ttH_125.0']*higgs4l_br['125.0_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            VBFxs = higgs_xs['VBF_125.38']*higgs4l_br['125.38_'+fState]*acc['VBFH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            WHxs = higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            ZHxs = higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
+            ttHxs = higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
 
             effsm = ggHxs/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)*max(eff['ggH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)],0.0)
             #effsm = ggHxs/(ggHxs+VBFxs+WHxs+ZHxs+ttHxs)*max(eff['ggH_HRes_125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(recobin)],0.0)

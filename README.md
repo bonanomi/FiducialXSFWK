@@ -14,9 +14,15 @@ cd HiggsAnalysis/CombinedLimit
 git fetch origin
 git checkout v8.1.0
 scramv1 b clean; scramv1 b
+cd ../..
 ```
-
-The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder. Please copy them in `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python` before running the scipts in `fit`.
+Once that is done, combine is properly installed. The fiducial framework should be properly set up:
+```
+git clone https://github.com/AlessandroTarabini/FiducialXSFWK.git
+cd FiducialXSFWK
+source ./env
+```
+The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder. Please copy them in `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python` before running the scripts in `fit`.
 
 ## Set Up
 For all the imports in the various scripts to work properly, set up the working environment with:

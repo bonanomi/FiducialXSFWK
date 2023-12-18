@@ -212,8 +212,8 @@ def getunc(channel, List, m4l_bins, m4l_low, m4l_high, obs_reco, obs_gen, obs_bi
                     if (i==5 or i==7 or i==11 or i==14 or i==15 or i==16 or i==17 or i==19 or i==21 or i==22 or i==23 or i==25): continue
                     ratio = Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
                     print(i,'ratio',ratio)
-                    if abs(ratio)>1.4: print('---------- ALERT !!!! ------- Uncertainty larger than 0.30 for weight = ', i)
-                    if abs(ratio)>1.: continue
+                    if abs(ratio)>1.4: print('---------- ALERT !!!! ------- Uncertainty larger than 0.40 for weight = ', i)
+                    if abs(ratio)>1: continue
                     if (ratio>qcderrup): qcderrup = ratio#Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
                     if (ratio<qcderrdn): qcderrdn = ratio#Histos[processBin+"fid"+str(i)].Integral()/Histos[processBin+"fid0"].Integral()
 
