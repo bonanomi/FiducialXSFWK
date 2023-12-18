@@ -477,7 +477,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             fidxs_xH[fState] += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             fidxs_xH[fState] += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             fidxs_xH[fState] += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-      
+
         ggHName = 'ggH_' + _obsName[obsName]
         ggHName = ggHName+'_'+_binName
         ggH_shape[genbin] = ggH.Clone();

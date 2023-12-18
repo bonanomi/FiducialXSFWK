@@ -244,18 +244,18 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
             processCmd(cmd_fit_tmp)
             cmds.append(cmd_fit_tmp)
 
-    if obsName == 'mass4l_zzfloating':
-        for i in range(nBins):
-            POI = 'zz_norm_%d' %i
-            POI_xs = 'r_smH_%s_%d' %(fitName, i)
-            POI_n = 'r_smH_%d' %i
-            cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
-            cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --saveToys --cminDefaultMinimizerStrategy 0 '
-            if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
-            cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
-
-            print(cmd_fit_tmp)
-            processCmd(cmd_fit_tmp)
+    # if obsName == 'mass4l_zzfloating':
+    #     for i in range(nBins):
+    #         POI = 'zz_norm_%d' %i
+    #         POI_xs = 'r_smH_%s_%d' %(fitName, i)
+    #         POI_n = 'r_smH_%d' %i
+    #         cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
+    #         cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --cminDefaultMinimizerStrategy 0 '
+    #         if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
+    #         cmd_fit_tmp = cmd_fit + '%s=1 -P %s --redefineSignalPOI %s' %(POI_xs, POI, POI)
+    #
+    #         print(cmd_fit_tmp)
+    #         processCmd(cmd_fit_tmp)
 
     # if obsName == 'mass4l_zzfloating':
     #     for i in range(nBins):
@@ -416,7 +416,7 @@ def runFiducialXS():
             os.chdir(_fit_dir)
 
         # Combine 3 years
-    	# we go back from datacard_Y to datacard folder
+        # we go back from datacard_Y to datacard folder
         os.chdir('../datacard/')
         print 'Current directory: datacard'
         if (opt.YEAR == 'Full'):
@@ -483,7 +483,7 @@ def runFiducialXS():
         processCmd(cmd,1)
         cmds.append(cmd)
 
-    	# From datacard directory to combine_files, to store fit results
+        # From datacard directory to combine_files, to store fit results
         os.chdir('../combine_files/')
         print 'Current directory: combine_files'
         # nBins = len(observableBins)
