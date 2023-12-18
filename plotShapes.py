@@ -29,7 +29,6 @@ def parseOptions():
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
     parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
-    parser.add_option('',   '--uncBand',  dest='UNC_BANDS',  action='store_true',default=False,   help='Draw uncertainty bands')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -105,8 +104,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         lumi = '138'
         years = ["1", "2", "3"]
 
-    nBins = len(observableBins)
-    if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
+    # nBins = len(observableBins)
+    # if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"} # 4l is dummy, won't be used
     run = {"2016":"1", "2017":"2", "2018":"3", "Full": "2"}
@@ -122,7 +121,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     if(not opt.UNBLIND):
-    	theorymass = theorymass + '.123456'
+        theorymass = theorymass + '.123456'
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
     elif physicalModel == 'kLambda':
@@ -173,14 +172,15 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         n_zz_asimov["4l_"+year] = 0.0
 
     fStates = ['4mu','4e','2e2mu']
-    for year in ["1", "2", "3"]:
+    for year in years:
         for fState in fStates:
             for bin in range(nBins):
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                 trueH_asimov[fState+"_"+year+"Bin"+str(bin)] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                print (fState+"_"+year+"Bin"+str(bin))
-                print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                print (trueH_asimov[fState+"_"+year+"Bin"+str(bin)].getVal())
+                # print (fState+"_"+year+"Bin"+str(bin))
+                # print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
+                # print (trueH_asimov[fState+"_"+year+"Bin"+str(bin)].getVal())
+                # print ()
 
             zjets_asimov[fState+"_"+year] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_bkg_zjets")
             ggzz_asimov[fState+"_"+year] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_bkg_ggzz")
@@ -286,9 +286,9 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
             for bin in range(nBins):
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                 trueH_modelfit[fState+"_"+year+"Bin"+str(bin)] = w_modelfit.function("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                print (fState+"_"+year+"Bin"+str(bin))
-                print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                print (trueH_modelfit[fState+"_"+year+"Bin"+str(bin)].getVal())
+                # print (fState+"_"+year+"Bin"+str(bin))
+                # print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
+                # print (trueH_modelfit[fState+"_"+year+"Bin"+str(bin)].getVal())
 
             zjets_modelfit[fState+"_"+year] = w_modelfit.function("n_exp_final_bin"+bin_name+"_proc_bkg_zjets")
             ggzz_modelfit[fState+"_"+year] = w_modelfit.function("n_exp_final_bin"+bin_name+"_proc_bkg_ggzz")
@@ -353,7 +353,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     ##### ------------------------ Data ------------------------ #####
     CMS_channel = w.cat("CMS_channel")
-    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(35))
+    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(30))
 
     if (fstate=="4l"):
         datacut = ''
@@ -367,15 +367,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
-        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))
-        if opt.UNC_BANDS:
-            r = sim.fitTo(data, RooFit.Save(True))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kGreen-3,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kAzure-2,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 1))
-            sim.plotOn(mass,RooFit.LineColor(kViolet), RooFit.FillColor(kYellow), RooFit.Components(comp_zx+","+comp_zz), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 1, False), RooFit.DrawOption("L"))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))
+        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
     else:
         datacut = ''
         for year in ["1", "2", "3"]:
@@ -387,12 +379,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
-        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))#, RooFit.VisualizeError(r, 1))
-        if opt.UNC_BANDS:
-            r = sim.fitTo(data, RooFit.Save(True))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kGreen-3,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kAzure-2,0.5)), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 1))
-            sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.LineWidth(2), RooFit.ProjWData(data,True))#, RooFit.VisualizeError(r, 1))
+        sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
 
     ##### ------------------------ Shapes ------------------------ #####
     if (fstate!="4l"):
@@ -445,21 +432,11 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_zz = comp_zz.rstrip(',')
         comp_zx = comp_zx.rstrip(',')
 
-    print(comp_zx)
-
     sim.plotOn(mass, RooFit.LineColor(kGreen+2), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid+","+comp_out), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kOrange-3), RooFit.LineStyle(2), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kAzure-3), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kViolet), RooFit.Components(comp_zx+","+comp_zz), RooFit.ProjWData(data,True))
     sim.plotOn(mass, RooFit.LineColor(kViolet+2), RooFit.Components(comp_zx), RooFit.ProjWData(data,True))
-
-    if opt.UNC_BANDS:
-        sim.plotOn(mass, RooFit.LineColor(kGreen+2), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kGreen+2,0.3)), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid+","+comp_out), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-        sim.plotOn(mass, RooFit.LineColor(kOrange-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kOrange-3,0.3)), RooFit.LineStyle(2), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake+","+comp_otherfid), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-        sim.plotOn(mass, RooFit.LineColor(kAzure-3), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kAzure-3,0.3)), RooFit.Components(comp_zx+","+comp_zz+","+comp_fake), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-        sim.plotOn(mass, RooFit.LineColor(kViolet), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kViolet-2,0.3)), RooFit.Components(comp_zx+","+comp_zz), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-        sim.plotOn(mass, RooFit.LineColor(kViolet+2), RooFit.FillColor(ROOT.TColor.GetColorTransparent(kViolet+2,0.3)), RooFit.Components(comp_zx), RooFit.ProjWData(data,True), RooFit.VisualizeError(r, 2))
-
     data.plotOn(mass)
 
 
@@ -480,11 +457,15 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy.GetYaxis().SetTitle("Events / (1.83 GeV)")
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} [GeV]")
     if (opt.UNBLIND):
-        dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        dummy.SetMaximum(max(0.8*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
     else:
+        # if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # else: dummy.SetMaximum(max(0.5*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
         dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         if (obsName=="massZ2" and recobin==0): dummy.SetMaximum(max(3.0*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),3.5))
-
+        #dummy.SetMaximum(0.5*max(n_trueH_asimov[fstate],n_zz_asimov[fstate],2.5))
     dummy.SetMinimum(0.0)
     dummy.Draw()
 
@@ -511,19 +492,27 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy_zx.SetLineColor(kViolet+2)
     dummy_zx.SetLineWidth(2)
 
-    if opt.UPPER_BOUND == 160: legend = TLegend(.60,.41,.93,.89)
-    else: legend = TLegend(.20,.41,.53,.89)
+    # if opt.UPPER_BOUND == 160: legend = TLegend(.60,.41,.93,.89)
+    # else: legend = TLegend(.20,.41,.53,.89)
+    legend = TLegend(.60,.60,.93,.89)
     # legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     if (not opt.UNBLIND):
        legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     else:
        legend.AddEntry(dummy_data,"Data","ep")
-    legend.AddEntry(dummy_fid,"N_{fid.}^{fit} = %.2f (exp. = %.2f)"%(n_trueH_modelfit[fstate],n_trueH_asimov[fstate]), "l")
-    legend.AddEntry(dummy_other,"N_{other fid.}^{fit} = %.2f (exp = %.2f)"%(n_trueH_otherfid_modelfit[fstate],n_trueH_otherfid_asimov[fstate]), "l")
-    legend.AddEntry(dummy_out, "N_{out}^{fit} = %.2f (exp. = %.2f)"%(n_out_trueH_modelfit[fstate],n_out_trueH_asimov[fstate]), "l")
-    legend.AddEntry(dummy_fake, "N_{wrong}^{fit} = %.2f (exp. = %.2f)"%(n_fakeH_modelfit[fstate],n_fakeH_asimov[fstate]), "l")
-    legend.AddEntry(dummy_zz, "N_{ZZ}^{fit} = %.2f (exp. = %.2f)"%(n_zz_modelfit[fstate],n_zz_asimov[fstate]), "l")
-    legend.AddEntry(dummy_zx, "N_{Z+X}^{fit} = %.2f (exp. = %.2f)"%(n_zjets_modelfit[fstate],n_zjets_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_fid,"N_{fid.}^{fit} = %.2f (exp. = %.2f)"%(n_trueH_modelfit[fstate],n_trueH_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_other,"N_{other fid.}^{fit} = %.2f (exp = %.2f)"%(n_trueH_otherfid_modelfit[fstate],n_trueH_otherfid_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_out, "N_{out}^{fit} = %.2f (exp. = %.2f)"%(n_out_trueH_modelfit[fstate],n_out_trueH_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_fake, "N_{wrong}^{fit} = %.2f (exp. = %.2f)"%(n_fakeH_modelfit[fstate],n_fakeH_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_zz, "N_{ZZ}^{fit} = %.2f (exp. = %.2f)"%(n_zz_modelfit[fstate],n_zz_asimov[fstate]), "l")
+    # legend.AddEntry(dummy_zx, "N_{Z+X}^{fit} = %.2f (exp. = %.2f)"%(n_zjets_modelfit[fstate],n_zjets_asimov[fstate]), "l")
+
+    legend.AddEntry(dummy_fid,"N_{fid}", "l")
+    legend.AddEntry(dummy_out, "N_{nonfid}", "l")
+    legend.AddEntry(dummy_fake, "N_{nonres}", "l")
+    legend.AddEntry(dummy_zz, "N_{ZZ}", "l")
+    legend.AddEntry(dummy_zx, "N_{ZX}", "l")
+
     # print('qqZZ', fstate, n_qqzz_modelfit[fstate])
     # print('ggZZ', fstate, n_ggzz_modelfit[fstate])
 
@@ -542,6 +531,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     legend.SetShadowColor(0);
     legend.SetFillColor(0);
     legend.SetLineColor(0);
+    legend.SetNColumns(2);
+    legend.SetTextSize(0.045);
     legend.Draw()
 
     mass.Draw("same")
@@ -620,15 +611,14 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     latex2.SetTextSize(0.8*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right
-    # latex2.DrawLatex(0.19, 0.95, "CMS")
+    latex2.DrawLatex(0.16, 0.94, "CMS")
     latex2.SetTextSize(0.6*c.GetTopMargin())
     latex2.SetTextFont(52)
     latex2.SetTextAlign(11)
     # latex2.DrawLatex(0.30, 0.95, "Preliminary")
     latex2.SetTextFont(42)
     latex2.SetTextSize(0.45*c.GetTopMargin())
-    #latex2.DrawLatex(0.20,0.85, observableBins[recobin]+" "+unit+" < "+label+" < "+observableBins[recobin+1]+" "+unit+"    Unfolding model: "+modelName.replace("_"," ")+" GeV")
-    if (obsName!='mass4l' and obsName!='mass4l_zzfloating'): latex2.DrawLatex(0.65,0.85, str(observableBins[recobin])+" "+unit+" < "+label+" < "+str(observableBins[recobin+1])+" "+unit)
+    # if (obsName!='mass4l' and obsName!='mass4l_zzfloating'): latex2.DrawLatex(0.65,0.85, str(observableBins[recobin])+" "+unit+" < "+label+" < "+str(observableBins[recobin+1])+" "+unit)
 
     checkDir("plots")
     checkDir("plots/"+obsName)
@@ -638,11 +628,13 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         checkDir("plots/"+obsName+"/asimov/model")
         c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
         c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
+        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".root")
     else:
         checkDir("plots/"+obsName+"/data")
         checkDir("plots/"+obsName+"/data/model")
         c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
         c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
+        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".root")
 
 
 
@@ -663,10 +655,11 @@ else:
 sys.path.append("inputs")
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
 observableBins = _temp.observableBins
+print observableBins
 sys.path.remove("inputs")
 
 if obsName.startswith("mass4l"):
-    PhysicalModels = ['v2','v3']
+    PhysicalModels = ['v3']
 elif obsName == 'D0m' or obsName == 'Dcp' or obsName == 'D0hp' or obsName == 'Dint' or obsName == 'DL1' or obsName == 'DL1Zg' or obsName == 'costhetaZ1' or obsName == 'costhetaZ2'or obsName == 'costhetastar' or obsName == 'phi' or obsName == 'phistar' or obsName == 'massZ1' or obsName == 'massZ2':
     PhysicalModels = ['v4','v3']
 elif 'kL' in obsName:
@@ -674,8 +667,9 @@ elif 'kL' in obsName:
 else:
     PhysicalModels = ['v3']
 
+
 nBins = len(observableBins)
-if not doubleDiff: nBins = nBins-1
+if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 print nBins
 fStates = ["4e","4mu","2e2mu","4l"]
 for fState in fStates:

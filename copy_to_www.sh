@@ -7,7 +7,7 @@ if [[ $# -eq 0 ]] ; then
 fi
 
 # path="/eos/user/a/atarabin/www/fiducial/run2_cardsValidation" #ReReco
-path="/eos/user/a/atarabin/www/fiducial/run2_UL" #UL
+path="/eos/user/a/atarabin/www/fiducial/run2_UL_cardsValidation" #UL
 
 /opt/exp_soft/cms/t3/eos-login -init -username atarabin
 

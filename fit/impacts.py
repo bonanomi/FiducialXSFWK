@@ -10,8 +10,6 @@ import json
 sys.path.append('../inputs/')
 
 from higgs_xsbr_13TeV import *
-from createXSworkspace import createXSworkspace
-from createDatacard import createDatacard
 
 def parseOptions():
 

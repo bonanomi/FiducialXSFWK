@@ -77,7 +77,7 @@ def tb(pt,eta,phi,mass,H):
     for i in range(len(pt)):
         theJet = ROOT.TLorentzVector()
         theJet.SetPtEtaPhiM(pt[i],eta[i],phi[i],mass[i]);
-        _TBj = sqrt(theJet.Pt()**2 + theJet.M()**2)*math.exp(-1*(theJet.Rapidity() - H.Rapidity()));
+        _TBj = sqrt(theJet.Pt()**2 + theJet.M()**2)*math.exp(-1*abs(theJet.Rapidity() - H.Rapidity()));
         if _TBj > _TBjmax: _TBjmax = _TBj
     return _TBjmax
 
