@@ -60,7 +60,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 //   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
   // bool _passedFullSelection, passedFiducialSelection_bbf;
   bool _passedFullSelection;
-  int _event;
+
   // Bool_t passedFiducial;
 
 //   vector<float> *GENlep_pt = 0;
@@ -70,7 +70,6 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 //   vector<float> *GENlep_id = 0;
 //   vector<Short_t> *GENlep_Hindex = 0;
   TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
-  TBranch *event = T->Branch("event",&_event,"event/I");
 
   // if(process=="signal" || process=="AC"){ // Bkgs don't store gen-level information
 //     T->SetBranchAddress("GENlep_pt",&GENlep_pt);
@@ -131,8 +130,6 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
       }
 
       passedFullSelection->Fill();
-      event->Fill();
-      _event += 1;
     }
 
     if (t_failed) continue; // From now on reco-only variables
