@@ -1,4 +1,5 @@
 import uproot
+import numpy as np
 import awkward as ak
 from collections import defaultdict
 
@@ -70,43 +71,68 @@ class Skimmer:
     def _set_out_name(self):
         fname = f"{self.process}{self.h_mass}_reducedTree_{self.data_type}_{self.year}_skimmed.root"
         return fname
+    
+    @property
+    def _get_events(self):
+        events = np.random.randint(low=0, high=13158, size=5000)
+        
+#         with uproot.open(f"{self.fname}") as f:
+#             events = f["Events/event"].array(library = "np")
 
-    def _get_branches(self, b_in):
+        return events
+    
+    def _get_branches(self, b_in, tree):
         with uproot.open(f"{self.fname}") as f:
-            branches = f["Events"].arrays(b_in)
+            branches = f[tree].arrays(b_in)
+            
         return branches
 
     def _branches_to_array(self, b_in):
-        inputs = [branches[i] for i in branches.fields]
+        inputs = [b_in[i] for i in b_in.fields]
         single_branch = ak.concatenate([ak.singletons(arr) for arr in inputs], axis=1)
 
         return single_branch
 
-    @property
-    def _set_branches_and_types(self):
+    def _set_branches_and_types(self, tree):
         d_vals = defaultdict(list)
         d_types = defaultdict(list)
-
-        branches = self._get_branches(self.b_to_read)
+        
+        branches = self._get_branches(self.b_to_read, tree)
 
         for b_read, b_write in zip(self.b_to_read, self.b_to_dump):
             d_types[b_write] = branches[b_read].type
             d_vals[b_write]  = branches[b_read]
-
+            
         for b_read, b_write in zip(self.b_array_to_read, self.b_array_to_dump):
-            branches_array = self._get_branches(b_read)
+            branches_array = self._get_branches(b_read, tree)
             b_array = self._branches_to_array(branches_array)
             d_types[b_write] = b_array.type
             d_vals[b_write]  = b_array
 
         return dict(d_vals), dict(d_types)
+    
+    def _failed_events(self, d_vals, d_types):
+        pass_events = self._get_events
+        sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals['EventNumber'])])
+        
+        for d in d_vals:
+            d_vals[d] = d_vals[d][sel]
+            d_types[d] = d_vals[d].type
+
+        return dict(d_vals), dict(d_types)
 
     def skim(self):
-        d_vals, d_types = self._set_branches_and_types
-
+        d_vals_pass, d_types_pass = self._set_branches_and_types("Events")
+        d_vals_fail, d_types_fail = self._set_branches_and_types("AllEvents")
+        
+        d_vals_fail, d_types_fail = self._failed_events(d_vals_fail, d_types_fail)
+        
         with uproot.recreate(f"{self.out_name}") as fout:
-            fout.mktree("candTree", d_types)
-            fout["candTree"].extend(d_vals)
+            fout.mktree("candTree", d_types_pass)
+            fout["candTree"].extend(d_vals_pass)
+
+            fout.mktree("candTree_fail", d_types_fail)
+            fout["candTree_fail"].extend(d_vals_fail)
 
 if __name__ == "__main__":
     skimmer = Skimmer("ggH", "125", "2018", "MC")
