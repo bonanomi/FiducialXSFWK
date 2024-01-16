@@ -116,8 +116,6 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 //     T->SetBranchAddress("ExtraLepLepId",&ExtraLepLepId);
 //   }
 
-  _event = 0;
-
   Long64_t nentries = T->GetEntries();
   for (Long64_t i=0;i<nentries;i++) {
     T->GetEntry(i);
@@ -296,10 +294,11 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   //   // Deactivate all branches
     oldtree_failed->SetBranchStatus("*",0);
   //   // Activate some branches only: our skim
-  //   oldtree_failed->SetBranchStatus("event",1);
+    oldtree_failed->SetBranchStatus("event",1);
   //   oldtree_failed->SetBranchStatus("xsec",1);
-  //   oldtree_failed->SetBranchStatus("puWeight",1);
+    oldtree_failed->SetBranchStatus("puWeight",1);
     oldtree_failed->SetBranchStatus("genWeight",1);
+    oldtree_failed->SetBranchStatus("overallEventWeight", 1);
     oldtree_failed->SetBranchStatus("passedFiducial",1);
     oldtree_failed->SetBranchStatus("FidDressedLeps_pt",1);
     oldtree_failed->SetBranchStatus("FidDressedLeps_eta",1);

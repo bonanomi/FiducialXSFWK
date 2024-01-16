@@ -1,3 +1,7 @@
+# python3 nano_skimmer.py
+# ./nano_skimmer.py
+# Requires awkward > 1.4
+
 import uproot
 import numpy as np
 import awkward as ak
@@ -98,11 +102,9 @@ class Skimmer:
         '''
            Util function that gets the list of events passing
            the ZZ reconstruction (i.e. events in the `Events` TTree).
-        '''
-        events = np.random.randint(low=0, high=13158, size=5000)
-        
-#         with uproot.open(f"{self.fname}") as f:
-#             events = f["Events/event"].array(library = "np")
+        '''        
+        with uproot.open(f"{self.fname}") as f:
+            events = f["Events/event"].array(library = "np")
 
         return events
     
@@ -114,7 +116,7 @@ class Skimmer:
            are skipped.
         '''
         if tree == "AllEvents" and drop_zzcands:
-            b_read = list(set(self.b_to_read).difference(self.b_z_cands))
+            b_read = list(set(self.b_to_read).difference(self.b_zz_cands))
         else:
             b_read = b_in
 
@@ -159,7 +161,7 @@ class Skimmer:
         branches = self._get_branches(self.b_to_read, tree, True)
 
         for b_read, b_write in zip(self.b_to_read, self.b_to_dump):
-            if tree == "AllEvents" and b_read in self.b_z_cands: continue
+            if tree == "AllEvents" and b_read in self.b_zz_cands: continue
             d_types[b_write] = branches[b_read].type
             d_vals[b_write]  = branches[b_read]
             
@@ -178,11 +180,17 @@ class Skimmer:
            they pass the ZZ candidate selection.
         '''
         pass_events = self._get_events
+        print(f"Will remove {len(pass_events)} events (passing ZZ selection) ")
+        print(f"from the {len(d_vals['EventNumber'])} total events")
         sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals['EventNumber'])])
         
         for d in d_vals:
             d_vals[d] = d_vals[d][sel]
             d_types[d] = d_vals[d].type
+
+        print(f"After filtering, the cand_failed TTree ")
+        print(f"has {len(d_vals['EventNumber'])} events")
+
 
         return dict(d_vals), dict(d_types)
 
