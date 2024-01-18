@@ -233,6 +233,10 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   oldtree->SetBranchStatus("ZZCand_Z2mass",1);
   oldtree->SetBranchStatus("ZZCand_Z1flav",1);
   oldtree->SetBranchStatus("ZZCand_Z2flav",1);
+  oldtree->SetBranchStatus("ZZCand_Z1l1Idx",1);
+  oldtree->SetBranchStatus("ZZCand_Z1l2Idx",1);
+  oldtree->SetBranchStatus("ZZCand_Z2l1Idx",1);
+  oldtree->SetBranchStatus("ZZCand_Z2l2Idx",1);
   // oldtree->SetBranchStatus("ZZCand_pt",1);
   // oldtree->SetBranchStatus("ZZCand_eta",1);
   // oldtree->SetBranchStatus("ZZCand_phi",1);
@@ -285,15 +289,18 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     oldtree->SetBranchStatus("FidZZ_rapidity",1);
     oldtree->SetBranchStatus("FidZ_DauPdgId",1);
     oldtree->SetBranchStatus("FidZ_MomPdgId",1);
+    // Counters of Z and GENLeps in the event
+    oldtree->SetBranchStatus("nFidZ",1);
+    oldtree->SetBranchStatus("nFidDressedLeps",1);
   }
   if(prod_mode == "ggH125") oldtree->SetBranchStatus("ggH_NNLOPS_Weight",1); // Additional entry for the weight in case of ggH
 
-  // //skim oldtree_failed for signal only
+  //skim oldtree_failed for signal only
   if(process=="signal" || process=="AC"){
-  //   //// candTree_failed
-  //   // Deactivate all branches
+    // candTree_failed
+    // Deactivate all branches
     oldtree_failed->SetBranchStatus("*",0);
-  //   // Activate some branches only: our skim
+    // Activate some branches only: our skim
     oldtree_failed->SetBranchStatus("event",1);
   //   oldtree_failed->SetBranchStatus("xsec",1);
     oldtree_failed->SetBranchStatus("puWeight",1);
@@ -320,6 +327,9 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     oldtree_failed->SetBranchStatus("FidZ_DauPdgId",1);
     oldtree_failed->SetBranchStatus("FidZ_MomPdgId",1);
     if(prod_mode == "ggH125") oldtree_failed->SetBranchStatus("ggH_NNLOPS_Weight",1); // Additional entry for the weight in case of ggH
+    // Counters of Z and GENLeps in the event
+    oldtree_failed->SetBranchStatus("nFidZ",1);
+    oldtree_failed->SetBranchStatus("nFidDressedLeps",1);
   }
 
   // Copy branches in the new file

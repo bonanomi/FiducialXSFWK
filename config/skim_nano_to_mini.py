@@ -33,8 +33,16 @@ branches_map = {
     "FidZ_DauPdgId": "GENZ_DaughtersId",
     "FidZ_MomPdgId": "GENZ_MomId",
     "ggH_NNLOPS_Weight": "ggH_NNLOPS_weight",
+    "passedFiducial": "passedFiducial",
+    "passedFullSelection": "passedFullSelection",
+    "genWeight": "genHEPMCweight",
+    # Counters, good for xchecks
+    "nFidZ": "nFidZ",
+    "nFidDressedLeps": "nFidDressedLeps",
 }
-branches_to_array = {"GENlep_Hindex": ["FidZZ_Z1l1Idx","FidZZ_Z1l2Idx","FidZZ_Z2l1Idx","FidZZ_Z2l2Idx"]}
+
+branches_to_array = {"GENlep_Hindex": ["FidZZ_Z1l1Idx","FidZZ_Z1l2Idx","FidZZ_Z2l1Idx","FidZZ_Z2l2Idx"],
+                     "lep_Hindex": ["ZZCand_Z1l1Idx", "ZZCand_Z1l2Idx", "ZZCand_Z2l1Idx", "ZZCand_Z2l2Idx"]}
 
 class Skimmer:
     '''
@@ -64,20 +72,26 @@ class Skimmer:
         
         print(f"Set up skimmer for {self.fname}")
         print(f"Will create skimmed file: {self.out_name}")
-        
+
+        if "ggH" not in self.process:
+            branches_map.pop("ggH_NNLOPS_Weight")
+ 
         self.b_to_read = list(branches_map.keys())
         self.b_to_dump = list(branches_map.values())
-        self.b_zz_cands = [b for b in self.b_to_read if 'ZZCand' in b]
+        self.b_zz_cands = [b for b in self.b_to_read if "ZZCand" in b]
         
-        print(f"Will read the following branches: {self.b_to_read}")
-        print(f"Will dump them into: {self.b_to_dump}")
+        print(f"Will read the following branches: ")
+        print(*enumerate(self.b_to_read), sep="\n")
+        print(f"Will dump them into: ")
+        print(*enumerate(self.b_to_dump), sep="\n")
 
         self.b_array_to_dump = list(branches_to_array.keys())
         self.b_array_to_read = list(branches_to_array.values())
 
-        print(f"Will read the following branches: {self.b_array_to_read}")
-        print(f"Will dump them into: {self.b_array_to_dump}")
-
+        print(f"Will read the following branches: ")
+        print(*enumerate(self.b_array_to_read), sep="\n")
+        print(f"Will dump them into: ")
+        print(*enumerate(self.b_array_to_dump), sep="\n")
         
     @property
     def _set_fname(self):
@@ -104,7 +118,7 @@ class Skimmer:
            the ZZ reconstruction (i.e. events in the `Events` TTree).
         '''        
         with uproot.open(f"{self.fname}") as f:
-            events = f["Events/event"].array(library = "np")
+            events = f["Events/event"].array(library="np")
 
         return events
     
@@ -142,7 +156,13 @@ class Skimmer:
            The branches parsed in this way are the ones specified in
            the `branches_to_array` dictionary.
         '''
-        inputs = [b_in[i] for i in b_in.fields]
+        # TODO: Find a more elegant way for this
+        # TODO: Ideally based on ak.type
+        if "FidZZ" in b_in.fields[0]:
+            inputs = [b_in[i] for i in b_in.fields]
+        else:
+            inputs = [ak.Array(ak.flatten(b_in[i])) for i in b_in.fields]
+
         single_branch = ak.concatenate([ak.singletons(arr) for arr in inputs], axis=1)
 
         return single_branch
@@ -164,8 +184,10 @@ class Skimmer:
             if tree == "AllEvents" and b_read in self.b_zz_cands: continue
             d_types[b_write] = branches[b_read].type
             d_vals[b_write]  = branches[b_read]
-            
+
         for b_read, b_write in zip(self.b_array_to_read, self.b_array_to_dump):
+            if ((tree == "AllEvents") and ("GEN" not in b_write)):
+                continue
             branches_array = self._get_branches(b_read, tree)
             b_array = self._branches_to_array(branches_array)
             d_types[b_write] = b_array.type
@@ -182,7 +204,7 @@ class Skimmer:
         pass_events = self._get_events
         print(f"Will remove {len(pass_events)} events (passing ZZ selection) ")
         print(f"from the {len(d_vals['EventNumber'])} total events")
-        sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals['EventNumber'])])
+        sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals["EventNumber"])])
         
         for d in d_vals:
             d_vals[d] = d_vals[d][sel]
@@ -190,7 +212,6 @@ class Skimmer:
 
         print(f"After filtering, the cand_failed TTree ")
         print(f"has {len(d_vals['EventNumber'])} events")
-
 
         return dict(d_vals), dict(d_types)
 
