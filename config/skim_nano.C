@@ -237,6 +237,8 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   oldtree->SetBranchStatus("ZZCand_Z1l2Idx",1);
   oldtree->SetBranchStatus("ZZCand_Z2l1Idx",1);
   oldtree->SetBranchStatus("ZZCand_Z2l2Idx",1);
+  oldtree->SetBranchStatus("lep_genindex",1);
+  oldtree->SetBranchStatus("lep_Hindex",1);
   // oldtree->SetBranchStatus("ZZCand_pt",1);
   // oldtree->SetBranchStatus("ZZCand_eta",1);
   // oldtree->SetBranchStatus("ZZCand_phi",1);
@@ -260,7 +262,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   }
 
   oldtree->SetBranchStatus("puWeight",1);
-  oldtree->SetBranchStatus("genWeight",1); // TODO: Check if this is genHEPMCweight
+  oldtree->SetBranchStatus("Generator_weight",1); // TODO: Check if this is genHEPMCweight
   // if(year!="2016") oldtree->SetBranchStatus("genHEPMCweight_NNLO",1);
   oldtree->SetBranchStatus("overallEventWeight",1);
   // TODO: Not available in Nano02Apr2020
@@ -304,7 +306,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     oldtree_failed->SetBranchStatus("event",1);
   //   oldtree_failed->SetBranchStatus("xsec",1);
     oldtree_failed->SetBranchStatus("puWeight",1);
-    oldtree_failed->SetBranchStatus("genWeight",1);
+    oldtree_failed->SetBranchStatus("Generator_weight",1);
     oldtree_failed->SetBranchStatus("overallEventWeight", 1);
     oldtree_failed->SetBranchStatus("passedFiducial",1);
     oldtree_failed->SetBranchStatus("FidDressedLeps_pt",1);

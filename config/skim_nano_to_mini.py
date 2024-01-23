@@ -35,14 +35,15 @@ branches_map = {
     "ggH_NNLOPS_Weight": "ggH_NNLOPS_weight",
     "passedFiducial": "passedFiducial",
     "passedFullSelection": "passedFullSelection",
-    "genWeight": "genHEPMCweight",
+    "Generator_weight": "genHEPMCweight",
     # Counters, good for xchecks
     "nFidZ": "nFidZ",
     "nFidDressedLeps": "nFidDressedLeps",
+    "lep_genindex": "lep_genindex",
+    "lep_Hindex": "lep_Hindex",
 }
 
-branches_to_array = {"GENlep_Hindex": ["FidZZ_Z1l1Idx","FidZZ_Z1l2Idx","FidZZ_Z2l1Idx","FidZZ_Z2l2Idx"],
-                     "lep_Hindex": ["ZZCand_Z1l1Idx", "ZZCand_Z1l2Idx", "ZZCand_Z2l1Idx", "ZZCand_Z2l2Idx"]}
+branches_to_array = {"GENlep_Hindex": ["FidZZ_Z1l1Idx","FidZZ_Z1l2Idx","FidZZ_Z2l1Idx","FidZZ_Z2l2Idx"]}
 
 class Skimmer:
     '''
@@ -79,7 +80,9 @@ class Skimmer:
         self.b_to_read = list(branches_map.keys())
         self.b_to_dump = list(branches_map.values())
         self.b_zz_cands = [b for b in self.b_to_read if "ZZCand" in b]
-        
+        self.b_zz_cands = self.b_zz_cands + ["lep_Hindex", "lep_genindex"]
+
+        print(self.b_zz_cands)
         print(f"Will read the following branches: ")
         print(*enumerate(self.b_to_read), sep="\n")
         print(f"Will dump them into: ")
@@ -92,6 +95,7 @@ class Skimmer:
         print(*enumerate(self.b_array_to_read), sep="\n")
         print(f"Will dump them into: ")
         print(*enumerate(self.b_array_to_dump), sep="\n")
+
         
     @property
     def _set_fname(self):

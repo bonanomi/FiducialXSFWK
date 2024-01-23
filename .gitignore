@@ -1,7 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*$py.class
+# *.py[cod]
+# *$py.class
 
 # C extensions
 *.so
@@ -46,7 +46,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
+# *.py,cover
 .hypothesis/
 .pytest_cache/
 cover/
@@ -140,8 +140,8 @@ cython_debug/
 .DS_Store
 
 # Fiducial measurements inputs
-*.*
-*/*.*
+# *.*
+# */*.*
 inputs/inputs_*
 inputs/xsec_*
 inputs/acc*
