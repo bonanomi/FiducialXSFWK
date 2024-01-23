@@ -39,8 +39,10 @@ branches_map = {
     # Counters, good for xchecks
     "nFidZ": "nFidZ",
     "nFidDressedLeps": "nFidDressedLeps",
+    # Added by add_lepindex.py
     "lep_genindex": "lep_genindex",
     "lep_Hindex": "lep_Hindex",
+    "Counter": "Counter"
 }
 
 branches_to_array = {"GENlep_Hindex": ["FidZZ_Z1l1Idx","FidZZ_Z1l2Idx","FidZZ_Z2l1Idx","FidZZ_Z2l2Idx"]}

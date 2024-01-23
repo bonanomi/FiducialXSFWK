@@ -111,6 +111,23 @@ def getLeptons(aCand, event) :
     leps = list(electrons) + list(muons)
     return [leps[i] for i in idxs]
 
+def get_counters(filename):
+    f = ROOT.TFile.Open(filename)
+
+    runs = f.Runs
+    nRuns = runs.GetEntries()
+    iRun = 0
+    genEventCount = 0
+    genEventSumw = 0.
+
+    while iRun < nRuns and runs.GetEntry(iRun) :
+        genEventCount += runs.genEventCount
+        genEventSumw += runs.genEventSumw
+        iRun +=1
+    print ("gen=", genEventCount, "sumw=", genEventSumw)
+
+    return genEventSumw
+
 def get_p4(filename):
     iEntry = 0
 
@@ -257,6 +274,12 @@ def add_branches(filename, lep_genindex, lep_hindex):
     d_types['lep_Hindex'] = ak.Array(lep_hindex).type
     d_vals['lep_Hindex'] = ak.Array(lep_hindex)
 
+    d_vals['Counter'] = ak.ones_like(d_vals['event'])*genEventSumw
+    d_types['Counter'] = d_vals['Counter'].type
+
+    d_vals_all['Counter'] = ak.ones_like(d_vals_all['event'])*genEventSumw
+    d_types_all['Counter'] = d_vals_all['Counter'].type
+
     return d_vals, d_types, d_vals_all, d_types_all
 
 if __name__=="main":
@@ -266,6 +289,7 @@ if __name__=="main":
     reco_leps, gen_leps = get_p4(filename)
     lep_genindex = gen_reco_matching(reco_leps, gen_leps)
     lep_hindex = get_h_indices(reco_leps, gen_leps)
+    genEventSumw = get_counters(filename)
 
     d_vals, d_types, d_vals_all, d_types_all = add_branches(filename, lep_genindex, lep_hindex)
 

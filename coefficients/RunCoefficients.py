@@ -120,7 +120,14 @@ def xsecs(year):
     xsec_sig = {}
     d_sig, d_sig_failed = prepareTrees(year)
     for signal in signals_original:
-        xsec_sig[signal] = d_sig[signal].pandas.df('xsec').xsec[0]
+        total_weight = d_sig[signal].pandas.df('overallEventWeight').overallEventWeight
+        puweight = d_sig[signal].pandas.df('PUWeight').PUWeight
+        genweight = d_sig[signal].pandas.df('genHEPMCweight').genHEPMCweight
+        if 'ggH' in signal:
+            nnlops = d_sig[signal].pandas.df('ggH_NNLOPS_weight').ggH_NNLOPS_weight
+        # TODO: Add SFs when available
+        xsec = total_weight/(puweight*genweight*nnlops)
+        xsec_sig[signal] = xsec[0]
     return xsec_sig
 
 
@@ -206,9 +213,6 @@ def generators(year):
             fname = eos_path_sig + 'AC%s_MELA' %year
         else:
             fname = eos_path_sig + '%s_MELA' %year
-        # if signal == 'VBFH125' and year == 2017:
-        #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
-        # else:
         if opt.AC==True or opt.AC_ONLYACC==True:
             if year == '2016post':
                 fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
@@ -217,9 +221,7 @@ def generators(year):
         else:
             fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
         print fname
-        input_file = ROOT.TFile(fname)
-        hCounters = input_file.Get("Counters")
-        gen_sig[signal] = hCounters.GetBinContent(40)
+        gen_sig[signal] = uproot.open(fname)["candTree/Counter"].array()[0]
     return gen_sig
 
 

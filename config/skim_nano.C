@@ -135,56 +135,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 //     // Reco-rapidity
 //     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
 //     ZZy->Fill();
-
-//     if(process=="signal" || process=="AC"){
-//       // GEN matching
-//       for(unsigned int i=0;i<LepPt->size();i++){
-//         _lep_genindex.push_back(-1);
-//       }
-//       for(unsigned int i = 0; i < LepPt->size(); i++) {
-//           double minDr=9999.0;
-//           TLorentzVector reco, gen;
-//           reco.SetPtEtaPhiM(LepPt->at(i),LepEta->at(i),LepPhi->at(i),mass_lep(LepLepId->at(i)));
-//           for (unsigned int j = 0; j < GENlep_id->size(); j++) {
-//               if (GENlep_id->at(j)!=LepLepId->at(i)) continue;
-//               gen.SetPtEtaPhiM(GENlep_pt->at(j),GENlep_eta->at(j),GENlep_phi->at(j),GENlep_mass->at(j));
-//               double thisDr = deltaR(reco.Eta(),reco.Phi(),gen.Eta(),gen.Phi());
-//               // double thisDr = reco.DeltaR(gen);
-//               if (thisDr<minDr && thisDr<0.5) {
-//                   _lep_genindex[i]=j;
-//                   minDr=thisDr;
-//               }
-//           } // all gen leptons
-//       } // all reco leptons
-//       lep_genindex->Fill();
-//       _lep_genindex.clear();
-
-
-//       for(unsigned int i=0;i<LepPt->size();i++){
-//         _lep_Hindex.push_back(-1);
-//       }
-//       float lead_Z1 = max(LepPt->at(0),LepPt->at(1));
-//       if(lead_Z1 == LepPt->at(0)){
-//         _lep_Hindex[0] = 0;
-//         _lep_Hindex[1] = 1;
-//       }
-//       else if(lead_Z1 == LepPt->at(1)){
-//         _lep_Hindex[0] = 1;
-//         _lep_Hindex[1] = 0;
-//       }
-//       float lead_Z2 = max(LepPt->at(2),LepPt->at(3));
-//       if(lead_Z2 == LepPt->at(2)){
-//         _lep_Hindex[2] = 2;
-//         _lep_Hindex[3] = 3;
-//       }
-//       else if(lead_Z2 == LepPt->at(3)){
-//         _lep_Hindex[2] = 3;
-//         _lep_Hindex[3] = 2;
-//       }
-//       lep_Hindex->Fill();
-//       _lep_Hindex.clear();
-//     }
-  } // End loop on all events
+  }
   T->Write("", TObject::kOverwrite);
   delete f;
   return;
@@ -224,10 +175,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   oldtree->SetBranchStatus("*",0);
   // Activate some branches only: our skim
   oldtree->SetBranchStatus("event",1);
-  // TODO: Do we have xsec in the nanoAOD processing?
-  // TODO: Either save it or add it in the new uproot skimmer
-  // TODO: Doesn't make sense not to save it IMHO
-  // oldtree->SetBranchStatus("xsec",1);
+  oldtree->SetBranchStatus("Counter",1);
   oldtree->SetBranchStatus("ZZCand_mass",1);
   oldtree->SetBranchStatus("ZZCand_Z1mass",1);
   oldtree->SetBranchStatus("ZZCand_Z2mass",1);
@@ -242,8 +190,6 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   // oldtree->SetBranchStatus("ZZCand_pt",1);
   // oldtree->SetBranchStatus("ZZCand_eta",1);
   // oldtree->SetBranchStatus("ZZCand_phi",1);
-  // TODO: Leptons are at ZZCand_Z1l1Idx, how do I access them?
-  // TODO: Was LepPt from the sorted leptons? If so, only in pT?
   // oldtree->SetBranchStatus("LepPt",1);
   // oldtree->SetBranchStatus("LepEta",1);
   // oldtree->SetBranchStatus("LepPhi",1);
@@ -262,7 +208,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   }
 
   oldtree->SetBranchStatus("puWeight",1);
-  oldtree->SetBranchStatus("Generator_weight",1); // TODO: Check if this is genHEPMCweight
+  oldtree->SetBranchStatus("Generator_weight",1);
   // if(year!="2016") oldtree->SetBranchStatus("genHEPMCweight_NNLO",1);
   oldtree->SetBranchStatus("overallEventWeight",1);
   // TODO: Not available in Nano02Apr2020
@@ -304,7 +250,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     oldtree_failed->SetBranchStatus("*",0);
     // Activate some branches only: our skim
     oldtree_failed->SetBranchStatus("event",1);
-  //   oldtree_failed->SetBranchStatus("xsec",1);
+    oldtree_failed->SetBranchStatus("Counter",1);
     oldtree_failed->SetBranchStatus("puWeight",1);
     oldtree_failed->SetBranchStatus("Generator_weight",1);
     oldtree_failed->SetBranchStatus("overallEventWeight", 1);
