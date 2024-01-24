@@ -28,16 +28,9 @@
 
 using namespace std;
 
-// float mass_lep(int flavour){
-//   if((abs(flavour)) == 11) return 0.0005109989461;
-//   else if ((abs(flavour)) == 13) return 0.1056583745;
-//   else if ((abs(flavour)) == 15) return 1.77686;
-//   return 0;
-// }
-
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
 void add(TString input_dir, TString year, TString prod_mode, TString process, bool t_failed=true, bool flag_tmp_2017=false){
-//   // Add additional branches
+  // Add additional branches
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
   TString new_full_path;
   if(process!="AC") new_full_path = Form("%s", new_name.Data());
@@ -53,68 +46,10 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
     T = (TTree*)f->Get("Events");
   }
   std::cout << T->GetName() << std::endl;
-//   // Gen-variables
-//   float GenLep1Pt,GenLep2Pt,GenLep3Pt,GenLep4Pt,GenLep1Eta,GenLep2Eta,GenLep3Eta,GenLep4Eta,GenLep1Phi,GenLep2Phi,GenLep3Phi,GenLep4Phi,GenZ1Flav,GenZ2Flav,
-//         GenZ1Mass,GenZ2Mass,GenLep1Iso,GenLep2Iso,GenLep3Iso,GenLep4Iso;
-//   Float_t GENmass4l,GENpT4l,GENeta4l,GENphi4l;
-//   Short_t GenLep1Id,GenLep2Id,GenLep3Id,GenLep4Id;
-  // bool _passedFullSelection, passedFiducialSelection_bbf;
+
   bool _passedFullSelection;
 
-  // Bool_t passedFiducial;
-
-//   vector<float> *GENlep_pt = 0;
-//   vector<float> *GENlep_eta = 0;
-//   vector<float> *GENlep_phi = 0;
-//   vector<float> *GENlep_mass = 0;
-//   vector<float> *GENlep_id = 0;
-//   vector<Short_t> *GENlep_Hindex = 0;
   TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
-
-  // if(process=="signal" || process=="AC"){ // Bkgs don't store gen-level information
-//     T->SetBranchAddress("GENlep_pt",&GENlep_pt);
-//     T->SetBranchAddress("GENlep_eta",&GENlep_eta);
-//     T->SetBranchAddress("GENlep_phi",&GENlep_phi);
-//     T->SetBranchAddress("GENlep_mass",&GENlep_mass);
-//     T->SetBranchAddress("GENlep_id",&GENlep_id);
-//     T->SetBranchAddress("GENmass4l",&GENmass4l);
-//     T->SetBranchAddress("GENpT4l",&GENpT4l);
-//     T->SetBranchAddress("GENeta4l",&GENeta4l);
-//     T->SetBranchAddress("GENphi4l",&GENphi4l);
-//     T->SetBranchAddress("GENlep_Hindex",&GENlep_Hindex);
-    // T->SetBranchAddress("passedFiducial",&passedFiducial);
-  // }
-
-//   // Reco-variables and Gen-Reco-matching variables
-//   float _ZZy,ZZPt,ZZEta,ZZPhi,ZZMass;
-//   vector<float> *LepPt = 0;
-//   vector<float> *LepPhi = 0;
-//   vector<float> *LepEta = 0;
-//   vector<int> *LepLepId = 0;
-//   vector<float> *ExtraLepPt = 0;
-//   vector<float> *ExtraLepEta = 0;
-//   vector<float> *ExtraLepPhi = 0;
-//   vector<int> *ExtraLepLepId = 0;
-//   vector<int> _lep_genindex, _lep_Hindex;
-
-//   TBranch *ZZy = T->Branch("ZZy",&_ZZy,"ZZy/F");
-//   TBranch *lep_genindex = T->Branch("lep_genindex",&_lep_genindex);
-//   TBranch *lep_Hindex = T->Branch("lep_Hindex",&_lep_Hindex);
-
-//   if (!t_failed) {
-//     T->SetBranchAddress("ZZMass",&ZZMass);
-//     T->SetBranchAddress("ZZPt",&ZZPt);
-//     T->SetBranchAddress("ZZEta",&ZZEta);
-//     T->SetBranchAddress("ZZPhi",&ZZPhi);
-//     T->SetBranchAddress("LepPt",&LepPt);
-//     T->SetBranchAddress("LepPhi",&LepPhi);
-//     T->SetBranchAddress("LepEta",&LepEta);
-//     T->SetBranchAddress("LepLepId",&LepLepId);
-//     T->SetBranchAddress("ExtraLepPt",&ExtraLepPt);
-//     T->SetBranchAddress("ExtraLepEta",&ExtraLepEta);
-//     T->SetBranchAddress("ExtraLepPhi",&ExtraLepPhi);
-//     T->SetBranchAddress("ExtraLepLepId",&ExtraLepLepId);
-//   }
 
   Long64_t nentries = T->GetEntries();
   for (Long64_t i=0;i<nentries;i++) {
@@ -130,12 +65,9 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
       passedFullSelection->Fill();
     }
 
-    if (t_failed) continue; // From now on reco-only variables
-
-//     // Reco-rapidity
-//     _ZZy = abs(log((sqrt(125*125 + ZZPt*ZZPt*cosh(ZZEta)*cosh(ZZEta))+ZZPt*sinh(ZZEta))/sqrt(125*125+ZZPt*ZZPt)));
-//     ZZy->Fill();
+    if (t_failed) continue;
   }
+
   T->Write("", TObject::kOverwrite);
   delete f;
   return;
@@ -187,17 +119,6 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   oldtree->SetBranchStatus("ZZCand_Z2l2Idx",1);
   oldtree->SetBranchStatus("lep_genindex",1);
   oldtree->SetBranchStatus("lep_Hindex",1);
-  // oldtree->SetBranchStatus("ZZCand_pt",1);
-  // oldtree->SetBranchStatus("ZZCand_eta",1);
-  // oldtree->SetBranchStatus("ZZCand_phi",1);
-  // oldtree->SetBranchStatus("LepPt",1);
-  // oldtree->SetBranchStatus("LepEta",1);
-  // oldtree->SetBranchStatus("LepPhi",1);
-  // oldtree->SetBranchStatus("LepLepId",1);
-  // oldtree->SetBranchStatus("ExtraLepPt",1);
-  // oldtree->SetBranchStatus("ExtraLepPhi",1);
-  // oldtree->SetBranchStatus("ExtraLepEta",1);
-  // oldtree->SetBranchStatus("ExtraLepLepId",1);
 
   if(process=="qqZZ") {
     oldtree->SetBranchStatus("KFactor_EW_qqZZ_Weight",1);

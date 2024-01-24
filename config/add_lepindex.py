@@ -10,7 +10,11 @@ import awkward as ak
 from collections import defaultdict
 
 class Object:
-    """Class that allows seeing a set branches plus possibly an index as an Object"""
+    '''
+       Class that allows seeing a set branches plus possibly an index as an Object.
+       Class taken from nanoAOD code:
+       https://github.com/cms-nanoAOD/nanoAOD-tools/blob/master/python/postprocessing/framework/datamodel.py
+    '''
 
     def __init__(self, event, prefix, index=None):
         self._event = event
@@ -79,6 +83,11 @@ class Object:
 
 
 class Collection:
+    '''
+       Class that creates a Collection of Objects.
+       Taken from:
+       https://github.com/cms-nanoAOD/nanoAOD-tools/blob/master/python/postprocessing/framework/datamodel.py
+    '''
     def __init__(self, event, prefix, lenVar=None):
         self._event = event
         self._prefix = prefix
@@ -103,19 +112,31 @@ class Collection:
     def __len__(self):
         return self._len
 
-# Get the four leptons of a ZZ or ZLL candidate
 def getLeptons(aCand, event) :
+    '''
+       Util function that gets the four leptons of a ZZ or ZLL candidate.
+       Function taken from:
+       https://github.com/CJLST/ZZAnalysis/blob/Run3/NanoAnalysis/python/tools.py#L33
+    '''
     idxs = [aCand.Z1l1Idx, aCand.Z1l2Idx, aCand.Z2l1Idx, aCand.Z2l2Idx]
     electrons = Collection(event, "Electron")
     muons = Collection(event, "Muon")
     leps = list(electrons) + list(muons)
     return [leps[i] for i in idxs]
 
-def get_counters(filename):
-    f = ROOT.TFile.Open(filename)
+def get_genEventSumw(input_file, maxEntriesPerSample=None):
+    '''
+       Util function to get the sum of weights per event.
+       Returns the sum of weights, similarly to what we
+       stored in Counters->GetBinContent(40) in the miniAODs.
+    '''
+    f = input_file
 
-    runs = f.Runs
+    runs  = f.Runs
+    event = f.Events
     nRuns = runs.GetEntries()
+    nEntries = event.GetEntries()
+
     iRun = 0
     genEventCount = 0
     genEventSumw = 0.
@@ -126,12 +147,24 @@ def get_counters(filename):
         iRun +=1
     print ("gen=", genEventCount, "sumw=", genEventSumw)
 
+    if maxEntriesPerSample is not None:
+        print(f"Scaling to {maxEntriesPerSample} entries")
+        if nEntries>maxEntriesPerSample :
+            genEventSumw = genEventSumw*maxEntriesPerSample/nEntries
+            nEntries=maxEntriesPerSample
+        print("    scaled to:", nEntries, "sumw=", genEventSumw)
+
     return genEventSumw
 
-def get_p4(filename):
+def get_p4(input_file):
+    '''
+       Util function that returns collections of gen-level
+       and reco-level leptons (returns their pt, eta, phi, mass)
+       that create ZZ candidates.
+    '''
     iEntry = 0
 
-    f = ROOT.TFile.Open(filename)
+    f = input_file
 
     event = f.Events
     event.SetBranchStatus("*", 0)
@@ -192,8 +225,11 @@ def get_p4(filename):
 
     return reco_leps, gen_leps
 
-
 def gen_reco_matching(reco_leps, gen_leps):
+    '''
+       Util function that performs reco-to-gen matching
+       for leptons that form ZZ candidates.       
+    '''
     leps_pt, leps_eta, leps_phi, leps_mass = reco_leps
     gen_leps_pt, gen_leps_eta, gen_leps_phi, gen_leps_mass = gen_leps
     
@@ -219,9 +255,12 @@ def gen_reco_matching(reco_leps, gen_leps):
 
     return ak.Array(lep_genindex)
 
-def get_h_indices(reco_leps, gen_leps):
+def get_h_indices(reco_leps):
+    '''
+       Util functions that returns the indices of
+       4 leptons creating the ZZ candidate.
+    '''
     leps_pt, leps_eta, leps_phi, leps_mass = reco_leps
-    gen_leps_pt, gen_leps_eta, gen_leps_phi, gen_leps_mass = gen_leps
 
     lep_hindex = []
     for i in range(len(leps_pt)):
@@ -250,6 +289,12 @@ def get_h_indices(reco_leps, gen_leps):
     return ak.Array(lep_hindex)
 
 def add_branches(filename, lep_genindex, lep_hindex):
+    '''
+       Function that takes a CJLST-processed nanoAOD
+       file and adds to the Events and AllEvents TTrees
+       the branches for lep_genindex, lep_Hindex and Counter
+       created by get_h_indices, gen_reco_matching, and get_genEventSumw.
+    '''
     with uproot.open(f"{filename}") as f:
         zz4l_branches = f['Events'].arrays()
         all_branches = f['AllEvents'].arrays()
@@ -286,10 +331,12 @@ if __name__=="main":
     filename = "ggH125_reducedTree_MC_2018.root"
     out_file = "ggH125_reducedTree_MC_2018_lepindex.root"
 
-    reco_leps, gen_leps = get_p4(filename)
+    f = ROOT.TFile.Open(filename)
+
+    reco_leps, gen_leps = get_p4(f)
+    genEventSumw = get_genEventSumw(f)
     lep_genindex = gen_reco_matching(reco_leps, gen_leps)
-    lep_hindex = get_h_indices(reco_leps, gen_leps)
-    genEventSumw = get_counters(filename)
+    lep_hindex = get_h_indices(reco_leps)
 
     d_vals, d_types, d_vals_all, d_types_all = add_branches(filename, lep_genindex, lep_hindex)
 

@@ -140,8 +140,8 @@ cython_debug/
 .DS_Store
 
 # Fiducial measurements inputs
-# *.*
-# */*.*
+*.root
+*/*.root
 inputs/inputs_*
 inputs/xsec_*
 inputs/acc*
