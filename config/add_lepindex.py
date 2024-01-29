@@ -219,6 +219,16 @@ def get_p4(input_file):
             gen_leps_eta.append(tuple(g_leps_eta))
             gen_leps_phi.append(tuple(g_leps_phi))
             gen_leps_mass.append(tuple(g_leps_mass))
+        else:
+            leps_pt.append((-1,-1,-1,-1))
+            leps_eta.append((-1,-1,-1,-1))
+            leps_phi.append((-1,-1,-1,-1))
+            leps_mass.append((-1,-1,-1,-1))
+
+            gen_leps_pt.append(tuple([-1,-1,-1,-1]))
+            gen_leps_eta.append(tuple([-1,-1,-1,-1]))
+            gen_leps_phi.append(tuple([-1,-1,-1,-1]))
+            gen_leps_mass.append(tuple([-1,-1,-1,-1]))
 
     reco_leps = [leps_pt, leps_eta, leps_phi, leps_mass]
     gen_leps  = [gen_leps_pt, gen_leps_eta, gen_leps_phi, gen_leps_mass]

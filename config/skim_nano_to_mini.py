@@ -127,6 +127,16 @@ class Skimmer:
             events = f["Events/event"].array(library="np")
 
         return events
+
+    @property
+    def _sel_events(self):
+        '''
+           Util function that returns a mask to select only ZZ candidates.
+        '''
+        with uproot.open(f"{self.fname}") as f:
+            has_zz = f["Events/bestCandIdx"].array(library="np")
+        sel = has_zz != -1
+        return sel
     
     def _get_branches(self, b_in, tree, drop_zzcands=False):
         '''
@@ -185,6 +195,7 @@ class Skimmer:
         d_types = defaultdict(list)
         
         branches = self._get_branches(self.b_to_read, tree, True)
+        if tree=="Events": branches = branches[self._sel_events]
 
         for b_read, b_write in zip(self.b_to_read, self.b_to_dump):
             if tree == "AllEvents" and b_read in self.b_zz_cands: continue
@@ -195,6 +206,7 @@ class Skimmer:
             if ((tree == "AllEvents") and ("GEN" not in b_write)):
                 continue
             branches_array = self._get_branches(b_read, tree)
+            if tree=="Events": branches_array = branches_array[self._sel_events]
             b_array = self._branches_to_array(branches_array)
             d_types[b_write] = b_array.type
             d_vals[b_write]  = b_array
@@ -208,6 +220,7 @@ class Skimmer:
            they pass the ZZ candidate selection.
         '''
         pass_events = self._get_events
+        pass_events = pass_events[self._sel_events]
         print(f"Will remove {len(pass_events)} events (passing ZZ selection) ")
         print(f"from the {len(d_vals['EventNumber'])} total events")
         sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals["EventNumber"])])

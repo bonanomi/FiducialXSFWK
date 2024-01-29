@@ -107,6 +107,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   oldtree->SetBranchStatus("*",0);
   // Activate some branches only: our skim
   oldtree->SetBranchStatus("event",1);
+  oldtree->SetBranchStatus("bestCandIdx",1);
   oldtree->SetBranchStatus("Counter",1);
   oldtree->SetBranchStatus("ZZCand_mass",1);
   oldtree->SetBranchStatus("ZZCand_Z1mass",1);
