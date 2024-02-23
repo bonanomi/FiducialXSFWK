@@ -90,7 +90,8 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
 
   input_dir = ".";
   // full_path = Form("%s/%s_MELA/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
-  full_path = Form("ZZ4lAnalysis.root");
+  full_path = Form("%s_reducedTree_MC_%s_lepindex.root", prod_mode.Data(), year.Data());
+  // full_path = Form("ZZ4lAnalysis.root");
   cout << full_path << endl;
 
   std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
