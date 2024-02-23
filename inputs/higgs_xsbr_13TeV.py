@@ -36,15 +36,6 @@ filtereff = {
 'ttH': 0.029658
 }
 
-# interim YR4
-#higgs_xs = {
-#'ggH_125.0' : 43920,
-#'VBF_125.0' : 3748,
-#'WH_125.0' : 1380.0,
-#'ZH_125.0' : 869.6,
-#'ttH_125.0' : 508.5,
-#}
-
 # YR 4
 higgs_xs = {
 'ggH_125.0' : 48580, # N3LO
@@ -64,3 +55,28 @@ higgs_xs = {
 'ZH_125.38' : 876.7,
 'ttH_125.38' : 503.3,
 }
+
+# Taken from : https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG136TeVxsec_extrap
+higgs_xs_136TeV = {
+'ggH_125.38' : 51960, # N3LO
+'VBF_125.38' : 4067,
+'WH_125.38' : 1442.0,
+'ZH_125.38' : 936.1,
+'ttH_125.38' : 563.8,
+}
+
+# TODO: Update to Run3 values
+unc_qcd = {
+    'VBF_125.38' : 0.002,
+    'WH_125.38' : 0.01,
+    'ZH_125.38' : 0.031,
+    'ttH_125.38': 0.0655
+}
+unc_pdf = {
+    'VBF_125.38' : 0.021,
+    'WH_125.38' : 0.023,
+    'ZH_125.38' : 0.025,
+    'ttH_125.38': 0.081
+}
+unc_acc = 0.02
+unc_br = 0.02

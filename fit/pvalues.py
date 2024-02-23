@@ -5,7 +5,7 @@ import os
 from itertools import product
 from scipy.stats import chi2
 
-th = __import__('higgs_xsbr', globals(), locals(), ['higgs_xs','higgs4l_br','unc_qcd','unc_pdf','unc_acc','unc_br'])
+th = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br','unc_qcd','unc_pdf','unc_acc','unc_br'])
 
 HCOMB_NAMES = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
 DECAY_OBS = ['D0m','Dcp','D0hp','Dint','DL1','DL1Zg','costhetaZ1','costhetaZ2','costhetastar','phi','phistar','massZ1','massZ2']
