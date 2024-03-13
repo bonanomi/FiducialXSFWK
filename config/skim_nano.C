@@ -82,7 +82,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
           prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
   else if(prod_mode.Contains("H12")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
   else process = "AC";
-  if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
+  // if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 
   cout << process << endl;
 
@@ -109,7 +109,6 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   // Activate some branches only: our skim
   oldtree->SetBranchStatus("event",1);
   oldtree->SetBranchStatus("bestCandIdx",1);
-  oldtree->SetBranchStatus("Counter",1);
   oldtree->SetBranchStatus("ZZCand_mass",1);
   oldtree->SetBranchStatus("ZZCand_Z1mass",1);
   oldtree->SetBranchStatus("ZZCand_Z2mass",1);
@@ -119,11 +118,13 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   oldtree->SetBranchStatus("ZZCand_Z1l2Idx",1);
   oldtree->SetBranchStatus("ZZCand_Z2l1Idx",1);
   oldtree->SetBranchStatus("ZZCand_Z2l2Idx",1);
-  oldtree->SetBranchStatus("lep_genindex",1);
-  oldtree->SetBranchStatus("lep_Hindex",1);
+  // Equivalent to Counters->GetBinContent(40) in Run2
+  // Now added to the tree by add_lepindex.py
+  // TODO: Find a smarter way to store only 1 number instead of one full branch. 
+  oldtree->SetBranchStatus("Counter",1);
 
   if(process=="qqZZ") {
-    oldtree->SetBranchStatus("KFactor_EW_qqZZ_Weight",1);
+    // oldtree->SetBranchStatus("KFactor_EW_qqZZ_Weight",1); // TODO : Why not present?
     oldtree->SetBranchStatus("KFactor_QCD_qqZZ_M_Weight",1);
   }
   if(process=="ggZZ") {
@@ -163,6 +164,9 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     // Counters of Z and GENLeps in the event
     oldtree->SetBranchStatus("nFidZ",1);
     oldtree->SetBranchStatus("nFidDressedLeps",1);
+    // Indices of the leptons that build H cand
+    oldtree->SetBranchStatus("lep_genindex",1);
+    oldtree->SetBranchStatus("lep_Hindex",1);
   }
   if(prod_mode == "ggH125") oldtree->SetBranchStatus("ggH_NNLOPS_Weight",1); // Additional entry for the weight in case of ggH
 

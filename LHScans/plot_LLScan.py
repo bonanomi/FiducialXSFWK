@@ -481,7 +481,7 @@ for i in range(nBins):
     gStyle.SetOptTitle(0)
 
     if obsName == 'mass4l':
-        x = np.array(graphs[0].GetX()) * 2.86
+        x = np.array(graphs[0].GetX())# * 2.86
         y = np.array(graphs[0].GetY())
         for entry in range(graphs[0].GetN()):
             graphs[0].SetPoint(entry, x[entry], y[entry])
@@ -570,7 +570,7 @@ for i in range(nBins):
         graphs[ig].Sort()
 
         if obsName == 'mass4l':
-            x = np.array(graphs[ig].GetX()) * 2.86
+            x = np.array(graphs[ig].GetX())# * 2.86
             y = np.array(graphs[ig].GetY())
             for entry in range(graphs[ig].GetN()):
                 graphs[ig].SetPoint(entry, x[entry], y[entry])

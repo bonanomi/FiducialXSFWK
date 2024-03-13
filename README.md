@@ -5,14 +5,14 @@ Standalone framework for fiducial differential cross section measurements using 
 A CMSSW working area with the latest version of [`combine`](https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/) is required:
 
 ```
-export SCRAM_ARCH=slc7_amd64_gcc700
+# cmssw-el7 (maybe needed)
 cmsrel CMSSW_10_2_13
 cd CMSSW_10_2_13/src
 cmsenv
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 git fetch origin
-git checkout v8.1.0
+git checkout v8.2.0
 scramv1 b clean; scramv1 b
 cd ../..
 ```
@@ -22,7 +22,8 @@ git clone https://github.com/AlessandroTarabini/FiducialXSFWK.git
 cd FiducialXSFWK
 source ./env
 ```
-The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder. Please copy them in `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python` before running the scripts in `fit`.
+The `PhysicsModel(s)` used in this analysis (cf. `fit/createDatacard.py`) can be found in the `models` folder and are copied automatically when `source ./env.sh` is called to `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python`.
+If when running `fit/RunFiducialXS.py` the fit crashes because the physics model is not found, you should check that the `HZZ4L_Fiducial*.py` files are present in your `$CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python` folder.
 
 ## Set Up
 For all the imports in the various scripts to work properly, set up the working environment with:
@@ -34,7 +35,7 @@ export PYTHONPATH="${PYTHONPATH}:<PATH_TO>/FiducialXSFWK/helperstuff"
 ```
 
 ## Workflow
-A schematic representation of the framework's worflow is given in the two following sketches:
+A schematic representation of the framework's workflow is given in the two following sketches:
 
 ![Preparation of the reduced trees and datacards](fig/FiducialXS_Workflow.001.png)
 ![Setting up the datacards and running the fits](fig/FiducialXS_Workflow.002.png)
@@ -53,3 +54,35 @@ Additional scripts are provided to plot negative log-likelihood scans and to pro
 
 5. [`LHScans`](https://github.com/bonanomi/FiducialXSFWK/tree/main/LHScans): Likelihood scans are plotted, best-fit values and the corresponding uncertainties are calculated using `plotLHScans_compare.py`.
 6. `producePlots.py`: Plot of unfolded differential xsec distributions.
+
+### Commands: a gentle introduction
+The frameworks picks up the variables to be used in a measurement and the binning to be used in the fit thanks to the dictionaries available in `helperstuff`.
+More in detail, to define a new measurement (or to understand what is used in a current measurement):
+
+* Define the variable name and the reco- and gen-level observables modifying the [`observables` `dict` in `helperstuff/observables.py`](https://github.com/bonanomi/FiducialXSFWK/blob/Run3/helperstuff/observables.py). The syntax is:
+	```
+	observables = {NAME: {"obs_reco": TBranch name, "obs_gen": TBranch name}}
+	```
+* Define the binning in [`helperstuff/binning.py`](https://github.com/bonanomi/FiducialXSFWK/blob/Run3/helperstuff/binning.py) following the conventions defined [here](https://github.com/bonanomi/FiducialXSFWK/issues/20) for 2D measurements (for 1D measurements the binning definition is intuitive).
+
+1. Skimming of the `TTrees`: TODO. Usually provided centrally
+
+2. **Creation of the templates**: in [`templates`](https://github.com/bonanomi/FiducialXSFWK/tree/Run3/templates) run (the framework detects automatically the binning and the observables to use):
+	```
+	python RunTemplates.py --obsName NAME (str) --year YEAR (str)
+	```
+
+3. **Computation of the coefficients**: in [`coefficients`](https://github.com/bonanomi/FiducialXSFWK/tree/Run3/coefficients) run (the framework detects automatically the binning and the observables to use):
+	```
+	python RunCoefficients.py --obsName NAME (str) --year YEAR (str)
+	```
+
+4. **Run the fits**: in [`fit`](https://github.com/bonanomi/FiducialXSFWK/tree/Run3/fit) run:
+	```
+	python RunFiducialXS.py --obsName NAME (str) --year YEAR (str) 
+	```
+
+5. **Plot the NLL scans**: in [`LHScans`](https://github.com/bonanomi/FiducialXSFWK/tree/Run3/LHScans):
+	```
+	python plot_LLScan.py --obsName NAME (str) --year YEAR (str)                                
+	```

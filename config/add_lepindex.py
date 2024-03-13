@@ -298,7 +298,7 @@ def get_h_indices(reco_leps):
         
     return ak.Array(lep_hindex)
 
-def add_branches(filename, lep_genindex, lep_hindex):
+def add_branches(filename, lep_genindex, lep_hindex, is_bkg):
     '''
        Function that takes a CJLST-processed nanoAOD
        file and adds to the Events and AllEvents TTrees
@@ -307,7 +307,8 @@ def add_branches(filename, lep_genindex, lep_hindex):
     '''
     with uproot.open(f"{filename}") as f:
         zz4l_branches = f['Events'].arrays()
-        all_branches = f['AllEvents'].arrays()
+        if not is_bkg:
+            all_branches = f['AllEvents'].arrays()
 
     d_vals = defaultdict(list)
     d_types = defaultdict(list)
@@ -319,21 +320,22 @@ def add_branches(filename, lep_genindex, lep_hindex):
         d_types[b] = zz4l_branches[b].type
         d_vals[b] = zz4l_branches[b]
 
-    for b in all_branches.fields:
-        d_types_all[b] = all_branches[b].type
-        d_vals_all[b] = all_branches[b]
-        
-    d_types['lep_genindex'] = ak.Array(lep_genindex).type
-    d_vals['lep_genindex'] = ak.Array(lep_genindex)
-
-    d_types['lep_Hindex'] = ak.Array(lep_hindex).type
-    d_vals['lep_Hindex'] = ak.Array(lep_hindex)
-
     d_vals['Counter'] = ak.ones_like(d_vals['event'])*genEventSumw
     d_types['Counter'] = d_vals['Counter'].type
 
-    d_vals_all['Counter'] = ak.ones_like(d_vals_all['event'])*genEventSumw
-    d_types_all['Counter'] = d_vals_all['Counter'].type
+    if not is_bkg:
+        for b in all_branches.fields:
+            d_types_all[b] = all_branches[b].type
+            d_vals_all[b] = all_branches[b]
+            
+        d_types['lep_genindex'] = ak.Array(lep_genindex).type
+        d_vals['lep_genindex'] = ak.Array(lep_genindex)
+
+        d_types['lep_Hindex'] = ak.Array(lep_hindex).type
+        d_vals['lep_Hindex'] = ak.Array(lep_hindex)
+
+        d_vals_all['Counter'] = ak.ones_like(d_vals_all['event'])*genEventSumw
+        d_types_all['Counter'] = d_vals_all['Counter'].type
 
     return d_vals, d_types, d_vals_all, d_types_all
 
@@ -341,18 +343,27 @@ if __name__=="main":
     filename = "ggH125_reducedTree_MC_2018.root"
     out_file = "ggH125_reducedTree_MC_2018_lepindex.root"
 
+    is_bkg = False
+    if "H12" not in filename:
+        is_bkg = True
+
     f = ROOT.TFile.Open(filename)
 
-    reco_leps, gen_leps = get_p4(f)
     genEventSumw = get_genEventSumw(f)
-    lep_genindex = gen_reco_matching(reco_leps, gen_leps)
-    lep_hindex = get_h_indices(reco_leps)
+    lep_genindex = None
+    lep_hindex = None
 
-    d_vals, d_types, d_vals_all, d_types_all = add_branches(filename, lep_genindex, lep_hindex)
+    if not is_bkg:
+        reco_leps, gen_leps = get_p4(f)
+        lep_genindex = gen_reco_matching(reco_leps, gen_leps)
+        lep_hindex = get_h_indices(reco_leps)
+
+    d_vals, d_types, d_vals_all, d_types_all = add_branches(filename, lep_genindex, lep_hindex, is_bkg)
 
     with uproot.recreate(f"{out_file}") as fout:
         fout.mktree("Events", d_types)
         fout["Events"].extend(d_vals)
 
-        fout.mktree("AllEvents", d_types_all)
-        fout["AllEvents"].extend(d_vals_all)
+        if not is_bkg:
+            fout.mktree("AllEvents", d_types_all)
+            fout["AllEvents"].extend(d_vals_all)

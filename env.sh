@@ -11,3 +11,4 @@ cd templates; mkdir 2016; mkdir 2017; mkdir 2018;
 cd $base_path;
 mkdir scripts;
 cd $base_path;
+cp ./model/*.py $CMSSW_VERSION/src/HiggsAnalysis/CombinedLimit/python
