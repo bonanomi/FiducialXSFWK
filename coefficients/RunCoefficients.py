@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
-import uproot #3 as uproot
+import uproot
 from math import sqrt, log
 import sys,os
 import optparse
@@ -66,9 +66,11 @@ def weight(df, fail, xsec, gen, lumi, additional = None):
     if(fail == False):
         # weight_reco = (df.overallEventWeight * df.L1prefiringWeight)
         if not opt.AC_ONLYACC: #AC samples are ReReco, there is no SFcorr for ReReco
-            weight_reco = np.sign(df.genHEPMCweight) * df.PUWeight * df.dataMCWeight * df.L1prefiringWeight * df.SFcorr
+            weight_reco = np.sign(df.genHEPMCweight)
+            # * df.PUWeight # * df.dataMCWeight * df.L1prefiringWeight * df.SFcorr
         else:
-            weight_reco = np.sign(df.genHEPMCweight) * df.PUWeight * df.dataMCWeight * df.L1prefiringWeight
+            weight_reco = np.sign(df.genHEPMCweight)
+            # * df.PUWeight # * df.dataMCWeight * df.L1prefiringWeight
         weight_histo_reco = weight_reco * coeff
     elif(fail == True):
         weight_reco = 0
@@ -78,15 +80,16 @@ def weight(df, fail, xsec, gen, lumi, additional = None):
     df['weight_reco'] = weight_reco #Powheg
     df['weight_histo_gen'] = weight_histo_gen #Powheg
     df['weight_histo_reco'] = weight_histo_reco #Powheg
-    if additional == 'ggH':
-        weight_gen_NNLOPS = weight_gen * df.ggH_NNLOPS_weight
-        weight_reco_NNLOPS = weight_reco * df.ggH_NNLOPS_weight
-        weight_histo_gen_NNLOPS = weight_histo_gen * df.ggH_NNLOPS_weight
-        weight_histo_reco_NNLOPS = weight_histo_reco * df.ggH_NNLOPS_weight
-        df['weight_gen_NNLOPS'] = weight_gen_NNLOPS #NNLOPS (only ggH)
-        df['weight_reco_NNLOPS'] = weight_reco_NNLOPS #NNLOPS (only ggH)
-        df['weight_histo_gen_NNLOPS'] = weight_histo_gen_NNLOPS #NNLOPS (only ggH)
-        df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
+    # TODO: Uncomment once ggH samples have NNLOPS weight included
+    # if additional == 'ggH':
+    #     weight_gen_NNLOPS = weight_gen * df.ggH_NNLOPS_weight
+    #     weight_reco_NNLOPS = weight_reco * df.ggH_NNLOPS_weight
+    #     weight_histo_gen_NNLOPS = weight_histo_gen * df.ggH_NNLOPS_weight
+    #     weight_histo_reco_NNLOPS = weight_histo_reco * df.ggH_NNLOPS_weight
+    #     df['weight_gen_NNLOPS'] = weight_gen_NNLOPS #NNLOPS (only ggH)
+    #     df['weight_reco_NNLOPS'] = weight_reco_NNLOPS #NNLOPS (only ggH)
+    #     df['weight_histo_gen_NNLOPS'] = weight_histo_gen_NNLOPS #NNLOPS (only ggH)
+    #     df['weight_histo_reco_NNLOPS'] = weight_histo_reco_NNLOPS #NNLOPS (only ggH)
     return df
 
 # Uproot to generate pandas
@@ -94,21 +97,7 @@ def prepareTrees(year):
     d_sig = {}
     d_sig_failed = {}
     for signal in signals_original:
-        if(opt.AC==True or opt.AC_ONLYACC==True):
-            fname = eos_path_sig + 'AC%s_MELA' %year
-        else:
-            fname = eos_path_sig + '%s_MELA' %year
-        # if signal == 'VBFH125' and year == 2017:
-        #     fname += '/'+signal+'ext/'+signal+'ext_reducedTree_MC_'+str(year)+'.root'
-        # else:
-        if opt.AC==True or opt.AC_ONLYACC==True:
-            if year == '2016post':
-                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
-            else:
-                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root' #[:-4] is to cut 'post' from year
-        else:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
-        print fname
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+signal+"/"+signal+"_reducedTree_MC_"+year+"_skimmed.root"
         d_sig[signal] = uproot.open(fname)[key]
         d_sig_failed[signal] = uproot.open(fname)[key_failed]
 
@@ -123,13 +112,13 @@ def xsecs(year):
         total_weight = d_sig[signal].pandas.df('overallEventWeight').overallEventWeight
         puweight = d_sig[signal].pandas.df('PUWeight').PUWeight
         genweight = d_sig[signal].pandas.df('genHEPMCweight').genHEPMCweight
-        if 'ggH' in signal:
+        if '_ggH' in signal:
             nnlops = d_sig[signal].pandas.df('ggH_NNLOPS_weight').ggH_NNLOPS_weight
-        # TODO: Add SFs when available
-        xsec = total_weight/(puweight*genweight*nnlops)
+            xsec = total_weight/(puweight*genweight*nnlops)
+        else:
+            xsec = total_weight/(puweight*genweight)
         xsec_sig[signal] = xsec[0]
-    return xsec_sig
-
+    return xsec_sig    
 
 def add_fin_state_reco(i, j):
     if abs(i) == 121 and abs(j) == 121:
@@ -150,18 +139,18 @@ def add_fin_state_reco(i, j):
 
 
 def add_fin_state_gen(lepId, Hindex, number):
-    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
+    if (int(Hindex[0])==99) | (int(Hindex[1])==99) | (int(Hindex[2])==99) | (int(Hindex[3])==99):
+    # if (int(Hindex[0])==-1) | (int(Hindex[1])==-1) | (int(Hindex[2])==-1) | (int(Hindex[3])==-1):
         return 'other'
-    if (abs(lepId[Hindex[0]])==11) & (abs(lepId[Hindex[2]])==11):
+    if (abs(int(lepId[Hindex[0]]))==11) & (abs(int(lepId[Hindex[2]]))==11):
         fin = '4e'
-    elif (abs(lepId[Hindex[0]])==13) & (abs(lepId[Hindex[2]])==13):
+    elif (abs(int(lepId[Hindex[0]]))==13) & (abs(int(lepId[Hindex[2]]))==13):
         fin = '4mu'
-    elif ((abs(lepId[Hindex[0]])==11) & (abs(lepId[Hindex[2]])==13)) | ((abs(lepId[Hindex[0]])==13) & (abs(lepId[Hindex[2]])==11)):
+    elif ((abs(int(lepId[Hindex[0]]))==11) & (abs(int(lepId[Hindex[2]]))==13)) | ((abs(int(lepId[Hindex[0]]))==13) & (abs(int(lepId[Hindex[2]]))==11)):
         fin = '2e2mu'
     else:
         fin = 'other'
     return fin
-
 
 def add_fin_state_gen_out(ZdauId,event):
     if (abs(ZdauId[0])==11) and (abs(ZdauId[1])==11):
@@ -188,39 +177,28 @@ def add_fin_state_gen_out_ZH(ZdauId,momId):
 
 
 def add_cuth4l_gen(momMomId,Hindex):
-    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
+    if (int(Hindex[0])==99) | (int(Hindex[1])==99) | (int(Hindex[2])==99) | (int(Hindex[3])==99):
+    # if (int(Hindex[0])==-1) | (int(Hindex[1])==-1) | (int(Hindex[2])==-1) | (int(Hindex[3])==-1):
         return False
-    if momMomId[Hindex[0]]==25 and momMomId[Hindex[1]]==25 and momMomId[Hindex[2]]==25 and momMomId[Hindex[3]]==25:
+    if int(momMomId[int(Hindex[0])])==25 and int(momMomId[int(Hindex[1])])==25 and int(momMomId[int(Hindex[2])])==25 and int(momMomId[int(Hindex[3])])==25:
         return True
     else:
         return False
 
-
 def add_cuth4l_reco(Hindex,genIndex,momMomId,momId):
-    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99):
+    if (Hindex[0]==99) | (Hindex[1]==99) | (Hindex[2]==99) | (Hindex[3]==99) | (int(Hindex[0])==-1) | (int(Hindex[1])==-1) | (int(Hindex[2])==-1) | (int(Hindex[3])==-1):
+    # if (int(Hindex[0])==-1) | (int(Hindex[1])==-1) | (int(Hindex[2])==-1) | (int(Hindex[3])==-1):
         return False
     if ((genIndex[Hindex[0]]>-0.5)*momMomId[max(0,genIndex[Hindex[0]])]==25) and ((genIndex[Hindex[0]]>-0.5)*momId[max(0,genIndex[Hindex[0]])]==23) and ((genIndex[Hindex[1]]>-0.5)*momMomId[max(0,genIndex[Hindex[1]])]==25) and ((genIndex[Hindex[1]]>-0.5)*momId[max(0,genIndex[Hindex[1]])]==23) and ((genIndex[Hindex[2]]>-0.5)*momMomId[max(0,genIndex[Hindex[2]])]==25) and ((genIndex[Hindex[2]]>-0.5)*momId[max(0,genIndex[Hindex[2]])]==23) and ((genIndex[Hindex[3]]>-0.5)*momMomId[max(0,genIndex[Hindex[3]])]==25) and ((genIndex[Hindex[3]]>-0.5)*momId[max(0,genIndex[Hindex[3]])]==23):
         return True
     else:
         return False
 
-
 # Get the "number" of MC events to divide the weights
 def generators(year):
     gen_sig = {}
     for signal in signals_original:
-        if(opt.AC==True or opt.AC_ONLYACC==True):
-            fname = eos_path_sig + 'AC%s_MELA' %year
-        else:
-            fname = eos_path_sig + '%s_MELA' %year
-        if opt.AC==True or opt.AC_ONLYACC==True:
-            if year == '2016post':
-                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year[:-4])+'.root' #[:-4] is to cut 'post' from year
-            else:
-                fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root' #[:-4] is to cut 'post' from year
-        else:
-            fname += '/'+signal+'/'+signal+'_reducedTree_MC_'+str(year)+'.root'
-        print fname
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+signal+"/"+signal+"_reducedTree_MC_"+year+"_skimmed.root"
         gen_sig[signal] = uproot.open(fname)["candTree/Counter"].array()[0]
     return gen_sig
 
@@ -228,14 +206,14 @@ def generators(year):
 def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2nd='None',obs_gen_2nd='None'):
     b_sig = ['EventNumber','GENmass4l', 'GENlep_id', 'GENlep_MomId',
              'GENlep_MomMomId', 'GENlep_Hindex', 'GENZ_DaughtersId',
-             'GENZ_MomId', 'passedFiducialSelection_bbf', 'PUWeight', 'genHEPMCweight']
+             'GENZ_MomId', 'passedFiducial', 'PUWeight', 'genHEPMCweight']
     if (obs_gen != 'GENmass4l'): b_sig.append(obs_gen)
     if (obs_gen_2nd!='None'): b_sig.append(obs_gen_2nd)
-    if 'ggH' in signal and not opt.AC_ONLYACC: b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
+    # if 'ggH' in signal and not opt.AC_ONLYACC: b_sig.append('ggH_NNLOPS_weight') #Additional entry for the weight in case of ggH
     if not fail:
-        b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'lep_genindex', 'lep_Hindex', 'overallEventWeight',
-                      'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
-        if not opt.AC_ONLYACC: b_sig.append('SFcorr') #AC samples are ReReco, there is no SFcorr for ReReco
+        b_sig.extend(['ZZMass', 'Z1Flav', 'Z2Flav', 'overallEventWeight', 'lep_genindex', 'lep_Hindex'])# 'lep_genindex', 'lep_Hindex',
+                      # 'L1prefiringWeight','dataMCWeight', 'trigEffWeight'])
+        # if not opt.AC_ONLYACC: b_sig.append('SFcorr') #AC samples are ReReco, there is no SFcorr for ReReco
         if (obs_reco!='ZZMass'): b_sig.append(obs_reco) #We need to include the if condition otherwise for mass4l ZZMass would be repeated twice
         if (obs_reco_2nd!='None'): b_sig.append(obs_reco_2nd)
 
@@ -247,9 +225,9 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df['lep_genindex'] = -1
         df['lep_Hindex'] = -1
         df['overallEventWeight'] = -1
-        df['L1prefiringWeight'] = -1
-        df['dataMCWeight'] = -1
-        df['trigEffWeight'] = -1
+        # df['L1prefiringWeight'] = -1
+        # df['dataMCWeight'] = -1
+        # df['trigEffWeight'] = -1
         if (obs_reco != 'ZZMass'): df[obs_reco] = -1
         if (obs_reco_2nd!='None'): df[obs_reco_2nd] = -1
     df['gen'] = gen
@@ -270,12 +248,13 @@ def createDataframe(d_sig,fail,gen,xsec,signal,lumi,obs_reco,obs_gen,obs_reco_2n
         df['cuth4l_reco'] = [add_cuth4l_reco(row[0],row[1],row[2],row[3]) for row in df[['lep_Hindex','lep_genindex','GENlep_MomMomId','GENlep_MomId']].values]
     elif fail:
         df['cuth4l_reco'] = False
+    df = weight(df, fail, xsec, gen, lumi)
     if not 'ggH' in signal:
         df = weight(df, fail, xsec, gen, lumi)
     else:
         df = weight(df, fail, xsec, gen, lumi, 'ggH')
-        df = df.drop(columns=['ggH_NNLOPS_weight'])
-
+        # TODO: Restore once NNLOPS weight is in ggH samples
+        # df = df.drop(columns=['ggH_NNLOPS_weight'])
     return df
 
 
@@ -287,6 +266,10 @@ def dataframes(year, doubleDiff):
         lumi = 41.48
     elif year == '2018':
         lumi = 59.83
+    elif year == '2022EE':
+        lumi = 26.6728
+    elif year == '2022':
+        lumi = 7.9804
     d_df_sig = {}
     d_df_sig_failed = {}
     d_sig, d_sig_failed = prepareTrees(year)
@@ -361,14 +344,15 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             datafr = d_sig_tot[year][signal]
             genweight = 'weight_gen'
             recoweight = 'weight_reco'
-        elif type=='full' or type=='ACggH':
+        elif type=='full' or type=='ACggH' or type=='run3':
             datafr = d_sig_full[signal]
             genweight = 'weight_gen'
             recoweight = 'weight_reco'
         elif type=='fullNNLOPS' and 'ggH' in signal:
             datafr = d_sig_full[signal]
-            genweight = 'weight_gen_NNLOPS'
-            recoweight = 'weight_reco_NNLOPS'
+            # TODO: Restore once NNLOPS weight is in ggH samples
+            genweight = 'weight_gen' # 'weight_gen_NNLOPS'
+            recoweight = 'weight_reco' # 'weight_reco_NNLOPS'
         elif type=='fullNNLOPS' and not 'ggH' in signal: # In case of fullNNLOPS we are interested in ggH125 only
             continue
 
@@ -393,7 +377,18 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             cutobs_reco &= (datafr[obs_reco_2nd] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd] < obs_reco_2nd_high)
             cutobs_gen &= (datafr[obs_gen_2nd] >= obs_gen_2nd_low) & (datafr[obs_gen_2nd] < obs_gen_2nd_high)
         #cutobs_gen &= (datafr['GENmassZ2'] < 60)
-
+        '''
+        if 'jet' in obs_name:
+            cutobs_reco_jesup = (datafr[obs_reco+'_jesup'] >= obs_reco_low) & (datafr[obs_reco+'_jesup'] < obs_reco_high)
+            cutobs_reco_jesdn = (datafr[obs_reco+'_jesdn'] >= obs_reco_low) & (datafr[obs_reco+'_jesdn'] < obs_reco_high)
+        if 'jet' in obs_name_2nd: # If it is not doubleDiff obs_reco_2nd = 'None', this if is valid only for doubleDiff
+            if 'cutobs_reco_jesup' in locals(): # If there is already cutobs_reco_jes* we need to add additional conditions (&=)
+                cutobs_reco_jesup &= (datafr[obs_reco_2nd+'_jesup'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesup'] < obs_reco_2nd_high)
+                cutobs_reco_jesdn &= (datafr[obs_reco_2nd+'_jesdn'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesdn'] < obs_reco_2nd_high)
+            else: # Otherwise it is a first declaration (=)
+                cutobs_reco_jesup = (datafr[obs_reco_2nd+'_jesup'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesup'] < obs_reco_2nd_high)
+                cutobs_reco_jesdn = (datafr[obs_reco_2nd+'_jesdn'] >= obs_reco_2nd_low) & (datafr[obs_reco_2nd+'_jesdn'] < obs_reco_2nd_high)
+        '''
         cutobs_gen_otherfid = ((datafr[obs_gen] >= obs_gen_lowest) & (datafr[obs_gen] < obs_gen_low)) | ((datafr[obs_gen] >= obs_gen_high) & (datafr[obs_gen] <= obs_gen_highest))
         if (obs_name=='Dcp'): cutobs_gen_otherfid = ((datafr[obs_gen] >= obs_gen_lowest) & (datafr[obs_gen] < obs_gen_low)) | ((datafr[obs_gen] >= obs_gen_high) & (datafr[obs_gen] <= obs_gen_highest))
         if doubleDiff:
@@ -405,8 +400,8 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
         cuth4l_reco = datafr['cuth4l_reco'] == True
         cutnoth4l_reco = datafr['cuth4l_reco'] == False
         passedFullSelection = datafr['FinState_reco'] != 'fail'
-        passedFiducialSelection = datafr['passedFiducialSelection_bbf'] == True
-        notPassedFiducialSelection = datafr['passedFiducialSelection_bbf'] == False
+        passedFiducialSelection = datafr['passedFiducial'] == True
+        notPassedFiducialSelection = datafr['passedFiducial'] == False
         if channel != '4l':
             cutm4l_reco = (datafr['ZZMass'] > m4l_low) & (datafr['ZZMass'] < m4l_high) & (datafr['FinState_reco'] == channel)
             cutchan_gen = datafr['FinState_gen'] == channel
@@ -446,13 +441,13 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             err_effrecotofid[processBin] = -1.0
 
         # --------------- outinratio ---------------
-        oir_num = datafr[cutm4l_reco & cutobs_reco & passedFullSelection &
-                                       cuth4l_reco & cutchan_gen_out & (notPassedFiducialSelection | cutnoth4l_gen | cutnotm4l_gen)][recoweight].sum()
-        oir_den_1 = datafr[cutm4l_reco & cutobs_reco & passedFullSelection &
-                                         cuth4l_reco & passedFiducialSelection & cuth4l_gen & cutm4l_gen &
+        oir_num = datafr[cutm4l_reco & cutobs_reco & passedFullSelection & cuth4l_reco &
+                                      cutchan_gen_out & (notPassedFiducialSelection | cutnoth4l_gen | cutnotm4l_gen)][recoweight].sum()
+        oir_den_1 = datafr[cutm4l_reco & cutobs_reco & passedFullSelection & cuth4l_reco &
+                                         passedFiducialSelection & cuth4l_gen & cutm4l_gen &
                                          cutchan_gen & cutobs_gen][recoweight].sum()
-        oir_den_2 = datafr[cutm4l_reco & cutobs_reco & passedFullSelection &
-                                         cuth4l_reco & passedFiducialSelection & cuth4l_gen & cutm4l_gen &
+        oir_den_2 = datafr[cutm4l_reco & cutobs_reco & passedFullSelection & cuth4l_reco &
+                                         passedFiducialSelection & cuth4l_gen & cutm4l_gen &
                                          cutchan_gen & cutobs_gen_otherfid][recoweight].sum()
         if oir_den_1+oir_den_2>0:
             outinratio[processBin] = oir_num/(oir_den_1+oir_den_2)
@@ -481,9 +476,25 @@ def getCoeff(channel, m4l_low, m4l_high, obs_reco, obs_gen, obs_bins, recobin, g
             binfrac_wrongfrac[processBin] = -1.0
 
         # --------------- numberFake ---------------
-#         numberFake[processBin] = datafr[PassedFullSelection & cutm4l_reco & cutnoth4l_reco & cutobs_reco & cutchan_reco]['weight_histo_reco'].sum()
         numberFake[processBin] = -1
-
+        '''
+        if 'jet' in obs_name:
+            # --------------- lambdajesup ---------------
+            lambdajesup_num_1 = datafr[passedFullSelection & cutm4l_reco & cutobs_reco_jesup & cuth4l_reco][recoweight].sum()
+            lambdajesup_nue_2 = lambdajesup_den = datafr[passedFullSelection & cutm4l_reco & cutobs_reco & cuth4l_reco][recoweight].sum()
+            if lambdajesup_den>0:
+                lambdajesup[processBin] = (lambdajesup_num_1 - lambdajesup_num_2)/lambdajesup_den
+            else:
+                lambdajesup[processBin] = 0.0
+            # --------------- lambdajesdn ---------------
+            lambdajesdn_num_1 = datafr[passedFullSelection & cutm4l_reco & cutobs_reco_jesdn & cuth4l_reco][recoweight].sum()
+            lambdajesdn_num_2 = lambdajesdn_den = datafr[passedFullSelection & cutm4l_reco & cutobs_reco & cuth4l_reco][recoweight].sum()
+            if lambdajesdn_den>0:
+                lambdajesdn[processBin] = (lambdajesdn_num_1 - lambdajesdn_num_2)/lambdajesdn_den
+            else:
+                lambdajesdn[processBin] = 0.0
+        else:
+        '''
         lambdajesup[processBin] = 0.0
         lambdajesdn[processBin] = 0.0
 
@@ -535,7 +546,7 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
                 f.write('lambdajesup = '+str(lambdajesup)+' \n')
                 f.write('lambdajesdn = '+str(lambdajesup))
 
-    elif type=='full' or type=='fullNNLOPS' or type=='ACggH':
+    elif type=='full' or type=='fullNNLOPS' or type=='ACggH' or type=='run3':
         for chan in chans:
             for recobin in range(nBins):
                 for genbin in range(nBins):
@@ -544,14 +555,16 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
         # Write dictionaries
         if doubleDiff: obs_name_dic = obs_name+'_'+obs_name_2nd
         else: obs_name_dic = obs_name
-        if type=='full' or type=='ACggH':
-            if (os.path.exists('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_Full_ORIG.py')):
-                os.system('rm ../inputs/inputs_sig_'+add_ac+obs_name_dic+'_Full_ORIG.py')
-            with open('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_Full.py', 'w') as f:
+        if type=='full' or type=='ACggH' or type=='run3':
+            year_label = 'Full'
+            if type=='run3': year_label = 'Run3'
+            if (os.path.exists('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+year_label+'_ORIG.py')):
+                os.system('rm ../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+year_label+'_ORIG.py')
+            with open('../inputs/inputs_sig_'+add_ac+obs_name_dic+'_'+year_label+'.py', 'w') as f:
                 f.write('observableBins = '+str(obs_bins)+';\n')
                 f.write('acc = '+str(acceptance)+' \n')
                 f.write('err_acc = '+str(err_acceptance)+' \n')
-                if type=='full':
+                if type=='full' or type=='run3':
 	                f.write('eff = '+str(effrecotofid)+' \n')
 	                f.write('err_eff = '+str(err_effrecotofid)+' \n')
 	                f.write('outinratio = '+str(outinratio)+' \n')
@@ -577,19 +590,19 @@ def doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, type, obs_reco_2nd = 'None
 # ------------------------------- MAIN ----------------------------------------------------
 # -----------------------------------------------------------------------------------------
 if(opt.AC or opt.AC_ONLYACC):
-	if opt.AC_ONLYACC: signals_AC_bare = ['ggH'] #Currently we use only ggH (reweighted to the sum of all production modes) to plot AC predictions
-	else: signals_AC_bare = ['VBF', 'WH', 'ggH', 'ZH', 'ttH']
-	signals_AC = [root+opt.AC_HYP+'_M125' for root in signals_AC_bare]
-	print 'AC samples', signals_AC
-	signals_original = signals_AC
-	signals = signals_AC
+    if opt.AC_ONLYACC: signals_AC_bare = ['ggH'] #Currently we use only ggH (reweighted to the sum of all production modes) to plot AC predictions
+    else: signals_AC_bare = ['VBF', 'WH', 'ggH', 'ZH', 'ttH']
+    signals_AC = [root+opt.AC_HYP+'_M125' for root in signals_AC_bare]
+    print 'AC samples', signals_AC
+    signals_original = signals_AC
+    signals = signals_AC
 elif opt.INTER:
     signals_original = ['VBFH1', 'ggH1', 'WminusH1', 'WplusH1', 'ZH1']
     signals = ['ggH1', 'VBFH1', 'WH1', 'ZH1']
     signals_original = [root+opt.HYP for root in signals_original]
     signals = [root+opt.HYP for root in signals]
 else:
-    signals_original = ['VBFH125', 'ggH125', 'ttH125', 'WminusH125', 'WplusH125', 'ZH125']
+    signals_original = ['VBFH125', 'ggH125', 'WminusH125', 'WplusH125', 'ZH125', 'ttH125']
     signals = ['ggH125', 'VBFH125', 'WH125', 'ZH125', 'ttH125']
 eos_path_sig = path['eos_path_sig']
 key = 'candTree'
@@ -598,6 +611,7 @@ key_failed = 'candTree_failed'
 if (opt.YEAR == '2016'): years = ['2016post']
 if (opt.YEAR == '2017'): years = ['2017']
 if (opt.YEAR == '2018'): years = ['2018']
+if (opt.YEAR == 'Run3'): years = ['2022', '2022EE']
 if (opt.YEAR == 'Full'): years = ['2016post','2017','2018']
 
 
@@ -645,7 +659,7 @@ for year in years:
 
 
 # Create dataframe FullRun2
-if(opt.YEAR == 'Full'):
+if((opt.YEAR == 'Full') or (opt.YEAR == 'Run3')):
     d_sig_full = {}
     for signal in signals:
         frame = [d_sig_tot[year][signal] for year in years]
@@ -658,56 +672,71 @@ else: # If I work with one year only, the FullRun2 df coincides with d_sig_tot (
 print 'Dataframes created successfully'
 
 if not opt.AC_ONLYACC:
-	print 'Coeff std'
-	wrongfrac = {}
-	binfrac_wrongfrac = {}
-	binfrac_outfrac = {}
-	outinratio = {}
-	err_outinratio = {}
-	effrecotofid = {}
-	err_effrecotofid = {}
-	acceptance = {}
-	err_acceptance = {}
-	lambdajesup = {}
-	lambdajesdn = {}
-	numberFake = {}
-	if doubleDiff:
-	    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-	else:
-	    doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std')
+    print 'Coeff std'
+    wrongfrac = {}
+    binfrac_wrongfrac = {}
+    binfrac_outfrac = {}
+    outinratio = {}
+    err_outinratio = {}
+    effrecotofid = {}
+    err_effrecotofid = {}
+    acceptance = {}
+    err_acceptance = {}
+    lambdajesup = {}
+    lambdajesdn = {}
+    numberFake = {}
+    if doubleDiff:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+    else:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'std')
 
-	if (opt.YEAR == 'Full'):
-	    print 'Coeff full'
-	    wrongfrac = {}
-	    binfrac_wrongfrac = {}
-	    binfrac_outfrac = {}
-	    outinratio = {}
-	    effrecotofid = {}
-	    err_effrecotofid = {}
-	    acceptance = {}
-	    err_acceptance = {}
-	    numberFake = {}
-	    lambdajesup = {}
-	    lambdajesdn = {}
-	    if doubleDiff:
-	        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-	    else:
-	        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full')
+    if (opt.YEAR == 'Run3'):
+        print 'Coeff run3'
+        wrongfrac = {}
+        binfrac_wrongfrac = {}
+        binfrac_outfrac = {}
+        outinratio = {}
+        effrecotofid = {}
+        err_effrecotofid = {}
+        acceptance = {}
+        err_acceptance = {}
+        numberFake = {}
+        lambdajesup = {}
+        lambdajesdn = {}
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'run3')
 
-	print 'Coeff fullNNLOPS'
-	acceptance = {}
-	err_acceptance = {}
-	# For AC there is no NNLOPS samples
-	if not opt.AC:
-	    if doubleDiff:
-	        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-	    else:
-	        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
+    if (opt.YEAR == 'Full'):
+        print 'Coeff full'
+        wrongfrac = {}
+        binfrac_wrongfrac = {}
+        binfrac_outfrac = {}
+        outinratio = {}
+        effrecotofid = {}
+        err_effrecotofid = {}
+        acceptance = {}
+        err_acceptance = {}
+        numberFake = {}
+        lambdajesup = {}
+        lambdajesdn = {}
+        if doubleDiff:
+            doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+        else:
+            doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'full')
+
+    # print 'Coeff fullNNLOPS'
+    # acceptance = {}
+    # err_acceptance = {}
+    # For AC there is no NNLOPS samples
+    # if not opt.AC:
+    #     if doubleDiff:
+    #         doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+    #     else:
+    #         doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'fullNNLOPS')
 else:
-	print 'Coeff full AC ggH'
-	acceptance = {}
-	err_acceptance = {}
-	if doubleDiff:
-		doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'ACggH', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
-	else:
-		doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'ACggH')
+    print 'Coeff full AC ggH'
+    acceptance = {}
+    err_acceptance = {}
+    if doubleDiff:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'ACggH', obs_reco_2nd, obs_gen_2nd, obs_name_2nd)
+    else:
+        doGetCoeff(obs_reco, obs_gen, obs_name, obs_bins, 'ACggH')
