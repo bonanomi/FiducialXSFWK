@@ -28,7 +28,7 @@ def parseOptions():
     parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.38',   help='Mass value for theory prediction')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
-    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140.0,   help='Upper bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=160.0,   help='Upper bound for m4l')
     parser.add_option("-l",action="callback",callback=callback_rootargs)
     parser.add_option("-q",action="callback",callback=callback_rootargs)
     parser.add_option("-b",action="callback",callback=callback_rootargs)
@@ -53,7 +53,8 @@ def checkDir(folder_path):
         os.mkdir(folder_path)
 
 def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, _observableBins, _obsName):
-    _years = {"1":"2016", "2":"2017", "3":"2018"}
+    _years = {"1":"2016", "2":"2017", "3":"2018", "2018":"2018", "2022":"2022", "2022EE":"2022EE"}
+    
     if _physicalModel != 'v3':
         # In case of mass4l we have only one bin, so the third 'chan' part is not included in the name of the function
         if (_obsName!='mass4l' and _obsName!='mass4l_zzfloating'):
@@ -79,7 +80,7 @@ def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, 
             if int(_observableBins[_bin+1]) > 1000:
                 _genbin_final = 'GT'+str(int(_observableBins[_bin]))
 
-
+        print(_obsName, _year, _years[_year])
         binName = "hzz_" + _obsName_v3[_obsName] + "_" + _recobin_final + "_cat" + _fState + "_" + _years[_year]
         procName = _obsName_v3[_obsName] + "_" + _genbin_final
 
@@ -99,16 +100,19 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         years = [""]
     elif year == '2018':
         lumi = '59.7'
-        years = [""]
-    else:
+        years = ["2018"]
+    elif year == 'Full':
         lumi = '138'
         years = ["1", "2", "3"]
+    else:
+        lumi = '34.7'
+        years = ["2022", "2022EE"]
 
     # nBins = len(observableBins)
     # if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
 
     channel = {"4mu":"1", "4e":"2", "2e2mu":"3", "4l":"2"} # 4l is dummy, won't be used
-    run = {"2016":"1", "2017":"2", "2018":"3", "Full": "2"}
+    run = {"2016":"1", "2017":"2", "2018":"3", "Full": "2", "Run3": "2"}
     SignalNames = {"v3":"smH_", "v2":"trueH", "v4":"trueH", "kLambda": "trueH"}
     CombNames = {"v3":"nonResH", "v2":"fakeH", "v4":"fakeH", "kLambda":"fakeH"}
     OutNames = {"v3":"OutsideAcceptance", "v2":"out_trueH", "v4":"out_trueH", "kLambda":"out_trueH"}
@@ -121,7 +125,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     if(not opt.UNBLIND):
-        theorymass = theorymass + '.123456'
+    	theorymass = theorymass + '.123456'
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
     elif physicalModel == 'kLambda':
@@ -216,7 +220,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         n_zz_asimov[fState] = 0.0
         n_qqzz_asimov[fState] = 0.0
         n_zjets_asimov[fState] = 0.0
-        for year in ["1", "2", "3"]:
+        for year in years:
             n_trueH_asimov[fState] += n_trueH_asimov[fState+"_"+year]
             n_trueH_otherfid_asimov[fState] += n_trueH_otherfid_asimov[fState+"_"+year]
             n_fakeH_asimov[fState] += n_fakeH_asimov[fState+"_"+year]
@@ -233,7 +237,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     n_zjets_asimov["4l"] = 0.0
     n_zz_asimov["4l"] = 0.0
     n_qqzz_asimov["4l"] = 0.0
-    for year in ["1", "2", "3"]:
+    for year in years:
         n_trueH_asimov["4l"] += n_trueH_asimov["4l_"+year]
         n_trueH_otherfid_asimov["4l"] += n_trueH_otherfid_asimov["4l_"+year]
         n_fakeH_asimov["4l"] += n_fakeH_asimov["4l_"+year]
@@ -281,7 +285,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         n_zz_modelfit["4l_"+year] = 0.0
 
     fStates = ['4mu','4e','2e2mu']
-    for year in ["1", "2", "3"]:
+    for year in years:
         for fState in fStates:
             for bin in range(nBins):
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
@@ -324,7 +328,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         n_zz_modelfit[fState] = 0.0
         n_qqzz_modelfit[fState] = 0.0
         n_zjets_modelfit[fState] = 0.0
-        for year in ["1", "2", "3"]:
+        for year in years:
             n_trueH_modelfit[fState] += n_trueH_modelfit[fState+"_"+year]
             n_trueH_otherfid_modelfit[fState] += n_trueH_otherfid_modelfit[fState+"_"+year]
             n_fakeH_modelfit[fState] += n_fakeH_modelfit[fState+"_"+year]
@@ -341,7 +345,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     n_zjets_modelfit["4l"] = 0.0
     n_zz_modelfit["4l"] = 0.0
     n_qqzz_modelfit["4l"] = 0.0
-    for year in ["1", "2", "3"]:
+    for year in years:
         n_trueH_modelfit["4l"] += n_trueH_modelfit["4l_"+year]
         n_trueH_otherfid_modelfit["4l"] += n_trueH_otherfid_modelfit["4l_"+year]
         n_fakeH_modelfit["4l"] += n_fakeH_modelfit["4l_"+year]
@@ -357,7 +361,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     if (fstate=="4l"):
         datacut = ''
-        for year in ["1", "2", "3"]:
+        for year in years:
             for fState in fStates:
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                 if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
@@ -370,7 +374,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
     else:
         datacut = ''
-        for year in ["1", "2", "3"]:
+        for year in years:
             bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
             if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
                 datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
@@ -386,7 +390,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_otherfid = ''
         for bin in range(nBins):
             if bin==recobin: continue
-            for year in ["1", "2", "3"]:
+            for year in years:
                 bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
                 comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
         comp_otherfid = comp_otherfid.rstrip(',')
@@ -395,7 +399,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_fake = ''
         comp_zz = ''
         comp_zx = ''
-        for year in ["1", "2", "3"]:
+        for year in years:
             bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, 0, physicalModel, observableBins, obsName)
             comp_out += "shapeBkg_"+OutNames[physicalModel]+"_"+bin_name+","
             comp_fake += "shapeBkg_"+CombNames[physicalModel]+"_"+bin_name+","
@@ -410,7 +414,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_otherfid = ''
         for bin in range(nBins):
             if bin==recobin: continue
-            for year in ["1", "2", "3"]:
+            for year in years:
                 for fState in fStates:
                     bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                     comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
@@ -420,7 +424,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         comp_fake = ''
         comp_zz = ''
         comp_zx = ''
-        for year in ["1", "2", "3"]:
+        for year in years:
             for fState in fStates:
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, 0, physicalModel, observableBins, obsName)
                 comp_out += "shapeBkg_"+OutNames[physicalModel]+"_"+bin_name+","
@@ -457,7 +461,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy.GetYaxis().SetTitle("Events / (1.83 GeV)")
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} [GeV]")
     if (opt.UNBLIND):
-        dummy.SetMaximum(max(0.8*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        # dummy.SetMaximum(max(0.8*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
+        dummy.SetMaximum(25)
     else:
         # if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         # elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
@@ -494,10 +499,11 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
     # if opt.UPPER_BOUND == 160: legend = TLegend(.60,.41,.93,.89)
     # else: legend = TLegend(.20,.41,.53,.89)
-    legend = TLegend(.60,.60,.93,.89)
+    # legend = TLegend(.60,.60,.93,.89)
+    legend = TLegend(.20,.6,.93,.89)
     # legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
     if (not opt.UNBLIND):
-       legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
+       legend.AddEntry(dummy_data,"Asimov Data","ep")
     else:
        legend.AddEntry(dummy_data,"Data","ep")
     # legend.AddEntry(dummy_fid,"N_{fid.}^{fit} = %.2f (exp. = %.2f)"%(n_trueH_modelfit[fstate],n_trueH_asimov[fstate]), "l")
@@ -607,7 +613,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 #    latex2.DrawLatex(0.87, 0.95,"41.4 fb^{-1} at #sqrt{s} = 13 TeV") # 2017
 #    latex2.DrawLatex(0.87, 0.95,"59.7 fb^{-1} at #sqrt{s} = 13 TeV") # 2017
 #    latex2.DrawLatex(0.87, 0.95,"136.0 fb^{-1} at #sqrt{s} = 13 TeV") # 2017
-    latex2.DrawLatex(0.95, 0.95,lumi+" fb^{-1} (#sqrt{s} = 13 TeV)") # 2017
+    latex2.DrawLatex(0.95, 0.95,lumi+" fb^{-1} (#sqrt{s} = 13.6 TeV)") # 2017
     latex2.SetTextSize(0.8*c.GetTopMargin())
     latex2.SetTextFont(62)
     latex2.SetTextAlign(11) # align right

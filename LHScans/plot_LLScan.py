@@ -57,23 +57,6 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     graph = read(scan, param, files, ycut)
     bestfit = None
 
-    # for i in xrange(graph.GetN()):
-    #     if graph.GetY()[i] < 0.003:
-    #         bestfit = graph.GetX()[i]
-    #
-    # if graph.GetY()[i] == 0:
-    #     bestfit = graph.GetX()[i]
-    #
-    # if bestfit is None:
-    #     for i in xrange(graph.GetN()):
-    #         if graph.GetY()[i] < 0.02:
-    #                 bestfit = graph.GetX()[i]
-    #
-    # if bestfit is None:
-    #     for i in xrange(graph.GetN()):
-    #         if graph.GetY()[i] < 0.25:
-    #                 bestfit = graph.GetX()[i]
-
     graph.SetMarkerColor(color)
     spline = TSpline3("spline3", graph)
     global NAMECOUNTER
@@ -177,6 +160,8 @@ elif year == '2017':
     _lumi = '41.48'
 elif year == '2018':
     _lumi = '59.83'
+elif year == 'Run3':
+    _lumi = '34.7'
 else:
     _lumi = '138'
 
@@ -336,6 +321,7 @@ for i in range(nBins):
                 elif _bin == 1:
                     if obsName.startswith("mass4l"):
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin0,2.0*entry.deltaNLL)
+                        if 2.0*entry.deltaNLL==0:
                     elif v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin0,2.0*entry.deltaNLL)
                     else:
@@ -481,7 +467,7 @@ for i in range(nBins):
     gStyle.SetOptTitle(0)
 
     if obsName == 'mass4l':
-        x = np.array(graphs[0].GetX())# * 2.86
+        x = np.array(graphs[0].GetX())
         y = np.array(graphs[0].GetY())
         for entry in range(graphs[0].GetN()):
             graphs[0].SetPoint(entry, x[entry], y[entry])
@@ -501,9 +487,9 @@ for i in range(nBins):
         maxi = graphs[0].GetXaxis().GetXmax()
     maxY = 8.
 
-    if obsName == 'mass4l':
-        mini = 2.1
-        maxi = 3.7
+    # if obsName == 'mass4l':
+    #     mini = 2.1
+    #     maxi = 3.7
 
     graphs[0].Draw("AC")
     if v4_flag:
@@ -570,7 +556,7 @@ for i in range(nBins):
         graphs[ig].Sort()
 
         if obsName == 'mass4l':
-            x = np.array(graphs[ig].GetX())# * 2.86
+            x = np.array(graphs[ig].GetX())
             y = np.array(graphs[ig].GetY())
             for entry in range(graphs[ig].GetN()):
                 graphs[ig].SetPoint(entry, x[entry], y[entry])
