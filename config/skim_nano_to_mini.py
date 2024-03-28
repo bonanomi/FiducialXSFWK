@@ -3,8 +3,10 @@
 # Requires awkward > 1.4
 
 import uproot
+import os
 import numpy as np
 import awkward as ak
+from itertools import product
 from collections import defaultdict
 
 branches_map = {
@@ -32,13 +34,17 @@ branches_map = {
     "FidZZ_rapidity": "GENrapidity4l",
     "FidZ_DauPdgId": "GENZ_DaughtersId",
     "FidZ_MomPdgId": "GENZ_MomId",
-    "ggH_NNLOPS_Weight": "ggH_NNLOPS_weight",
     "passedFiducial": "passedFiducial",
     "passedFullSelection": "passedFullSelection",
     "Generator_weight": "genHEPMCweight",
     # Counters, good for xchecks
     "nFidZ": "nFidZ",
-    "nFidDressedLeps": "nFidDressedLeps",
+    "nFidDressedLeps": "nFidDressedLeps"
+}
+b_ggh_map = {
+    "ggH_NNLOPS_Weight": "ggH_NNLOPS_weight",
+}
+b_lepidx_map = {
     # Added by add_lepindex.py
     "lep_genindex": "lep_genindex",
     "lep_Hindex": "lep_Hindex",
@@ -46,6 +52,11 @@ branches_map = {
 }
 
 branches_to_array = {"GENlep_Hindex": ["FidZZ_Z1l1Idx","FidZZ_Z1l2Idx","FidZZ_Z2l1Idx","FidZZ_Z2l2Idx"]}
+
+def get_genEventSumw(fname):
+    with uproot.open(f"{fname}") as f:
+        genEventSumw = f['Runs/genEventSumw'].array(library="np")
+    return sum(genEventSumw)
 
 class Skimmer:
     '''
@@ -64,39 +75,53 @@ class Skimmer:
                  process: str,
                  h_mass: str,
                  year: str,
-                 data_type: str):
+                 data_type: str,
+                 _dir: str):
         self.process = process
         self.h_mass = h_mass
         self.year = year
         self.data_type = data_type
-        
+        self._dir = _dir
+
         self.fname = self._set_fname
         self.out_name = self._set_out_name
+        self.counter = 0
+
+        if self._dir != "":
+            self.fname = f"{self._dir}/{self.process}{self.h_mass}/{self.fname}"
+            self.out_name = f"{self._dir}/{self.process}{self.h_mass}/{self.out_name}"
         
-        print(f"Set up skimmer for {self.fname}")
-        print(f"Will create skimmed file: {self.out_name}")
+        self.b_map = branches_map.copy()
+        if self.h_mass == "125":
+            self.b_map.update(b_lepidx_map)
+        else:
+            if self.year == "2022EE":
+                cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/MC_2022EE/{self.process}{self.h_mass}/ZZ4lAnalysis.root"
+            else:
+                cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/240321_NanoMC2022/{self.process}{self.h_mass}/ZZ4lAnalysis.root"
+            self.counter = get_genEventSumw(cnt_fname)
 
-        if "ggH" not in self.process:
-            branches_map.pop("ggH_NNLOPS_Weight")
- 
-        self.b_to_read = list(branches_map.keys())
-        self.b_to_dump = list(branches_map.values())
-        self.b_zz_cands = [b for b in self.b_to_read if "ZZCand" in b]
-        self.b_zz_cands = self.b_zz_cands + ["lep_Hindex", "lep_genindex"]
+        # TODO: Add ggH_NNLOPS_weight
+        # if "ggH" in self.process:
+        #     self.b_map.update(b_ggh_map)
 
-        print(self.b_zz_cands)
-        print(f"Will read the following branches: ")
-        print(*enumerate(self.b_to_read), sep="\n")
-        print(f"Will dump them into: ")
-        print(*enumerate(self.b_to_dump), sep="\n")
+        print(f"... Set up skimmer for {self.fname}")
+        print(f"... Will create skimmed file: {self.out_name}\n")
+        
+        self.b_to_read = list(self.b_map.keys())
+        self.b_to_dump = list(self.b_map.values())
+        self.b_zz_cands = [b for b in self.b_to_read if 'ZZCand' in b]
+        self.b_zz_cands = self.b_zz_cands + [b for b in self.b_to_read if 'index' in b]
+        
+        b_log = "\n".join("{0:30} {1}".format(r, d) for r, d in zip(self.b_to_read, self.b_to_dump))
+        print("{0:30} {1}".format("Reading from:", "Dumping to:"))
+        print(f"{b_log}\n")
 
         self.b_array_to_dump = list(branches_to_array.keys())
         self.b_array_to_read = list(branches_to_array.values())
 
-        print(f"Will read the following branches: ")
-        print(*enumerate(self.b_array_to_read), sep="\n")
-        print(f"Will dump them into: ")
-        print(*enumerate(self.b_array_to_dump), sep="\n")
+        print(f"... Will read the following branches: {self.b_array_to_read}")
+        print(f"... Will dump them into: {self.b_array_to_dump}\n")
 
         
     @property
@@ -124,19 +149,9 @@ class Skimmer:
            the ZZ reconstruction (i.e. events in the `Events` TTree).
         '''        
         with uproot.open(f"{self.fname}") as f:
-            events = f["Events/event"].array(library="np")
+            events = f["Events/event"].array(library = "np")
 
         return events
-
-    @property
-    def _sel_events(self):
-        '''
-           Util function that returns a mask to select only ZZ candidates.
-        '''
-        with uproot.open(f"{self.fname}") as f:
-            has_zz = f["Events/bestCandIdx"].array(library="np")
-        sel = has_zz != -1
-        return sel
     
     def _get_branches(self, b_in, tree, drop_zzcands=False):
         '''
@@ -152,7 +167,13 @@ class Skimmer:
 
         with uproot.open(f"{self.fname}") as f:
             branches = f[tree].arrays(b_read)
-            
+            if self.h_mass!="125":
+                zz_idx = f[tree].arrays("bestCandIdx")
+
+        if self.h_mass!="125":
+            sel = zz_idx['bestCandIdx']!=-1
+            branches = branches[sel]
+
         return branches
 
     def _branches_to_array(self, b_in):
@@ -172,13 +193,7 @@ class Skimmer:
            The branches parsed in this way are the ones specified in
            the `branches_to_array` dictionary.
         '''
-        # TODO: Find a more elegant way for this
-        # TODO: Ideally based on ak.type
-        if "FidZZ" in b_in.fields[0]:
-            inputs = [b_in[i] for i in b_in.fields]
-        else:
-            inputs = [ak.Array(ak.flatten(b_in[i])) for i in b_in.fields]
-
+        inputs = [b_in[i] for i in b_in.fields]
         single_branch = ak.concatenate([ak.singletons(arr) for arr in inputs], axis=1)
 
         return single_branch
@@ -195,7 +210,6 @@ class Skimmer:
         d_types = defaultdict(list)
         
         branches = self._get_branches(self.b_to_read, tree, True)
-        if tree=="Events": branches = branches[self._sel_events]
 
         for b_read, b_write in zip(self.b_to_read, self.b_to_dump):
             if tree == "AllEvents" and b_read in self.b_zz_cands: continue
@@ -203,10 +217,7 @@ class Skimmer:
             d_vals[b_write]  = branches[b_read]
 
         for b_read, b_write in zip(self.b_array_to_read, self.b_array_to_dump):
-            if ((tree == "AllEvents") and ("GEN" not in b_write)):
-                continue
             branches_array = self._get_branches(b_read, tree)
-            if tree=="Events": branches_array = branches_array[self._sel_events]
             b_array = self._branches_to_array(branches_array)
             d_types[b_write] = b_array.type
             d_vals[b_write]  = b_array
@@ -220,17 +231,16 @@ class Skimmer:
            they pass the ZZ candidate selection.
         '''
         pass_events = self._get_events
-        pass_events = pass_events[self._sel_events]
-        print(f"Will remove {len(pass_events)} events (passing ZZ selection) ")
-        print(f"from the {len(d_vals['EventNumber'])} total events")
-        sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals["EventNumber"])])
+        print(f"... Will remove {len(pass_events)} events (passing ZZ selection) ")
+        print(f"... from the {len(d_vals['EventNumber'])} total events")
+        sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals['EventNumber'])])
         
         for d in d_vals:
             d_vals[d] = d_vals[d][sel]
             d_types[d] = d_vals[d].type
 
-        print(f"After filtering, the cand_failed TTree ")
-        print(f"has {len(d_vals['EventNumber'])} events")
+        print(f"... After filtering, the cand_failed TTree ")
+        print(f"... has {len(d_vals['EventNumber'])} events")
 
         return dict(d_vals), dict(d_types)
 
@@ -241,10 +251,16 @@ class Skimmer:
            The output file (`_skimmed.root`) contains two `TTree`s:
            `candTree` and `candTree_failed`, as expected by the analysis framework.
         '''
+        print("+++ SKIMMING STARTED! +++\n")
+
         d_vals_pass, d_types_pass = self._set_branches_and_types("Events")
         d_vals_fail, d_types_fail = self._set_branches_and_types("AllEvents")
         
         d_vals_fail, d_types_fail = self._failed_events(d_vals_fail, d_types_fail)
+
+        if self.h_mass!="125":
+            d_types_pass["Counter"] = ak.Array(np.ones(len(d_vals_pass["EventNumber"]))).type
+            d_vals_pass["Counter"] = ak.Array(np.ones(len(d_vals_pass["EventNumber"])))*self.counter
         
         with uproot.recreate(f"{self.out_name}") as fout:
             fout.mktree("candTree", d_types_pass)
@@ -253,6 +269,17 @@ class Skimmer:
             fout.mktree("candTree_failed", d_types_fail)
             fout["candTree_failed"].extend(d_vals_fail)
 
+        print("+++ SKIMMING COMPLETED! +++ \n")
+
 if __name__ == "__main__":
-    skimmer = Skimmer("ggH", "125", "2018", "MC")
-    skimmer.skim()
+    for period in ["2022", "2022EE"]:
+        cjlst_dir = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_{period}/cjlst_trees/"
+        # TODO: Harmonize WminusH naming across different mass points
+        # TODO: Should be in from the next cjlst production
+        pmodes = ["ggH", "VBFH", "ttH", "WplusH", "ZH", "WHminus"]
+        masses = ["125", "126", "124p5", "125p5", "126"]
+        for pm, mp in product(pmodes, masses):
+            skimmer = Skimmer(pm, mp, period, "MC", cjlst_dir)
+            if os.path.exists(skimmer.out_name):
+                 os.system(f"rm {skimmer.out_name}")
+            skimmer.skim()

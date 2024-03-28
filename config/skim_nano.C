@@ -33,8 +33,7 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   // Add additional branches
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
   TString new_full_path;
-  if(process!="AC") new_full_path = Form("%s", new_name.Data());
-  else new_full_path = Form("%s/AC%s/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
+  new_full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_%s/cjlst_trees/%s/%s", year.Data(), prod_mode.Data(), new_name.Data());
   cout << new_full_path << endl;
   TFile *f = new TFile(new_full_path.Data(),"UPDATE");
   TTree *T;
@@ -74,24 +73,41 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 }
 
 //---------------------------------------------------------- MAIN ----------------------------------------------------------
-void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
+void skim_nano (TString prod_mode = "VBFH125", TString year = "2018", TString mass = "125"){
 
   TString process;
-  if(prod_mode=="ZZTo4lext") process = "qqZZ";
+  if(prod_mode=="ZZTo4l") process = "qqZZ";
   else if(prod_mode=="ggTo2e2mu_Contin_MCFM701" || prod_mode=="ggTo2e2tau_Contin_MCFM701" || prod_mode=="ggTo2mu2tau_Contin_MCFM701" || prod_mode=="ggTo4e_Contin_MCFM701" ||
           prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
-  else if(prod_mode.Contains("H12")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
+  else if(prod_mode.Contains("12")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
   else process = "AC";
   // if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 
-  cout << process << endl;
+  cout << process << "  " << mass << endl;
 
   TString input_dir, full_path;
 
   input_dir = ".";
-  // full_path = Form("%s/%s_MELA/%s/ZZ4lAnalysis.root", input_dir.Data(), year.Data(), prod_mode.Data());
-  full_path = Form("%s_reducedTree_MC_%s_lepindex.root", prod_mode.Data(), year.Data());
-  // full_path = Form("ZZ4lAnalysis.root");
+
+  if (process=="signal" && mass!="125") {
+      if (year=="2022EE") {
+          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/MC_%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
+      } else {
+          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240321_NanoMC2022/%s/ZZ4lAnalysis.root", prod_mode.Data());
+      }
+  } else if (process=="signal" && mass=="125"){
+      full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_%s/cjlst_trees/%s/ZZ4lAnalysis_lepindex.root", year.Data(), prod_mode.Data());
+  } else {
+      if (year=="2022EE") {
+        if (process=="qqZZ") {
+          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240319/MC_%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
+        } else {
+          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240313_ggZZ/MC_%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
+        }
+      } else {
+          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240321_NanoMC2022/%s/ZZ4lAnalysis.root", prod_mode.Data());
+      } 
+  }
   cout << full_path << endl;
 
   std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
@@ -121,7 +137,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   // Equivalent to Counters->GetBinContent(40) in Run2
   // Now added to the tree by add_lepindex.py
   // TODO: Find a smarter way to store only 1 number instead of one full branch. 
-  oldtree->SetBranchStatus("Counter",1);
+  if(mass=="125") oldtree->SetBranchStatus("Counter",1);
 
   if(process=="qqZZ") {
     // oldtree->SetBranchStatus("KFactor_EW_qqZZ_Weight",1); // TODO : Why not present?
@@ -165,8 +181,10 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     oldtree->SetBranchStatus("nFidZ",1);
     oldtree->SetBranchStatus("nFidDressedLeps",1);
     // Indices of the leptons that build H cand
-    oldtree->SetBranchStatus("lep_genindex",1);
-    oldtree->SetBranchStatus("lep_Hindex",1);
+    if (mass=="125") {
+        oldtree->SetBranchStatus("lep_genindex",1);
+        oldtree->SetBranchStatus("lep_Hindex",1);
+    }
   }
   if(prod_mode == "ggH125") oldtree->SetBranchStatus("ggH_NNLOPS_Weight",1); // Additional entry for the weight in case of ggH
 
@@ -177,7 +195,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
     oldtree_failed->SetBranchStatus("*",0);
     // Activate some branches only: our skim
     oldtree_failed->SetBranchStatus("event",1);
-    oldtree_failed->SetBranchStatus("Counter",1);
+    if(mass=="125") oldtree_failed->SetBranchStatus("Counter",1);
     oldtree_failed->SetBranchStatus("puWeight",1);
     oldtree_failed->SetBranchStatus("Generator_weight",1);
     oldtree_failed->SetBranchStatus("overallEventWeight", 1);
@@ -212,10 +230,7 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
   TString new_full_path;
 
-  // if(process!="AC") new_full_path = Form("%s/%s_MELA/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
-  // else new_full_path = Form("%s/AC%s_MELA/%s/%s", input_dir.Data(),year.Data(),prod_mode.Data(),new_name.Data());
-
-  new_full_path = Form("%s", new_name.Data());
+  new_full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_%s/cjlst_trees/%s/%s", year.Data(), prod_mode.Data(), new_name.Data());
   cout << new_full_path << endl;
   TFile *newfile = new TFile(new_full_path.Data(),"RECREATE");
   TTree *newtree = (TTree*) oldtree->CloneTree(0);
@@ -236,5 +251,5 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018"){
   if(process=="signal" || process=="AC") add(input_dir, year, prod_mode, process, t_failed = true, year_tmp);
   add(input_dir, year, prod_mode, process, t_failed = false, year_tmp);
 
-  return 0;
+  return;
 }
