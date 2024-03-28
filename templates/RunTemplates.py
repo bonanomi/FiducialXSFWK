@@ -56,13 +56,8 @@ def checkDir(folder_path):
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ggZZ AND qqZZ ----------------------------------------------------
 # Weights for histogram
 def weight(df, xsec, gen, lumi, additional = None):
-    weight = (lumi * 1000 * xsec * df.overallEventWeight * df.SFcorr * df.L1prefiringWeight) / gen #Common structure
-    if additional == 'ggH':
-        weight *= df.ggH_NNLOPS_weight
-    elif additional == 'qqzz':
-        weight *= df.KFactor_EW_qqZZ*df.KFactor_QCD_qqZZ_M
-    elif additional == 'ggzz':
-        weight *= df.KFactor_QCD_ggZZ_Nominal
+    weight = (lumi * 1000 * xsec * df.overallEventWeight)/gen
+    # * df.SFcorr * df.L1prefiringWeight) / gen #Common structure
     df['weight'] = weight
     return df
 
@@ -71,12 +66,7 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = eos_path + 'MC_samples_UL/%s_MELA' %year
-        # if year == 2016:
-        #     fname += '_CorrectBTag'
-        # if (year == 2018) & (bkg == 'ZZTo4lext'):
-        #     bkg += '1'
-        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
         d_bkg[bkg] = uproot.open(fname)[key]
 
     return d_bkg
@@ -87,9 +77,20 @@ def xsecs(year):
     d_bkg = prepareTrees(year)
 
     for bkg in bkgs:
-        # if (year == 2018) & (bkg == 'ZZTo4lext'):
-        #     bkg += '1'
-        xsec_bkg[bkg] = d_bkg[bkg].pandas.df('xsec').xsec[0]
+        total_weight = d_bkg[bkg].pandas.df('overallEventWeight').overallEventWeight
+        puweight = d_bkg[bkg].pandas.df('PUWeight').PUWeight
+        genweight = d_bkg[bkg].pandas.df('genHEPMCweight').genHEPMCweight
+        if 'ZZTo' in bkg:
+            # TODO: Add EW KFactor once in the samples
+            KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].pandas.df('KFactor_QCD_qqZZ_M').KFactor_QCD_qqZZ_M
+            xsec = total_weight/(puweight*genweight*KFactor_QCD_qqZZ_M_Weight)
+        elif 'ggTo' in bkg:
+            KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].pandas.df('KFactor_QCD_ggZZ_Nominal').KFactor_QCD_ggZZ_Nominal
+            xsec = total_weight/(puweight*genweight*KFactor_QCD_ggZZ_Nominal_Weight)
+        else:
+            xsec = total_weight/(puweight*genweight)
+
+        xsec_bkg[bkg] = xsec[0]
 
     return xsec_bkg
 
@@ -97,15 +98,10 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = eos_path + 'MC_samples_UL/%s_MELA' %year
-        # if year == 2016:
-        #     fname += '_CorrectBTag'
-        # if (year == 2018) & (bkg == 'ZZTo4lext'):
-        #     bkg += '1'
-        fname += '/'+bkg+'/'+bkg+'_reducedTree_MC_'+str(year)+'.root'
-        input_file = ROOT.TFile(fname)
-        hCounters = input_file.Get("Counters")
-        gen_bkg[bkg] = hCounters.GetBinContent(40)
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
+        print(fname)
+        gen_bkg[bkg] = uproot.open(fname)["candTree/Counter"].array()[0]
+        print("Counters is: ", gen_bkg[bkg])
 
     return gen_bkg
 
@@ -143,39 +139,41 @@ def add_fin_state(i, j):
     return fin
 
 # Set up data frames
-def dataframes(year):
-    if year == '2016pre':
+def dataframes(year, year_mc):
+    if year_mc == '2016pre':
         lumi = 19.52
-    elif year == '2016post':
+    elif year_mc == '2016post':
         lumi = 16.81
-    elif year == '2017':
+    elif year_mc == '2017':
         lumi = 41.48
-    else:
+    elif year_mc == '2018':
         lumi = 59.83
+    elif year_mc == '2022EE':
+        lumi = 26.6728
+    elif year_mc == '2022':
+        lumi = 7.9804
     d_df_bkg = {}
-    d_bkg = prepareTrees(year)
-    gen_bkg = generators(year)
-    xsec_bkg = xsecs(year)
+    d_bkg = prepareTrees(year_mc)
+    gen_bkg = generators(year_mc)
+    xsec_bkg = xsecs(year_mc)
     for bkg in bkgs:
-        # if (year == 2018) & (bkg == 'ZZTo4lext'):
-        #     bkg += '1'
+        b_bkg = ['ZZMass', 'Z1Flav', 'Z2Flav', 'Z1Mass', 'Z2Mass', 'overallEventWeight']
+        # , 'L1prefiringWeight', 'LepPt', 'SFcorr']
+        '''
         b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
                  'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
                  'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                  'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
                  'njets_pt30_eta4p7', 'absdetajj', 'SFcorr', 'dphijj',
                  'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
-        if (bkg == 'ZZTo4l'):
-            b_bkg.append('KFactor_EW_qqZZ'); b_bkg.append('KFactor_QCD_qqZZ_M')
-        else:
-            b_bkg.append('KFactor_QCD_ggZZ_Nominal')
+        '''
         gen = gen_bkg[bkg]
         xsec = xsec_bkg[bkg]
         df = d_bkg[bkg].pandas.df(b_bkg, flatten = False)
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
         # df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         #df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
-        df = add_rapidity(df)
+        # df = add_rapidity(df)
         if (bkg != 'ZZTo4l'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
         else:
@@ -184,13 +182,11 @@ def dataframes(year):
     return d_df_bkg
 
 # Sort production modes in view of the histogram (VBF, ggH, Others, qqZZ, ggZZ)
-def skim_df(year):
-    d_df_bkg = dataframes(year)
+def skim_df(year, year_mc):
+    d_df_bkg = dataframes(year, year_mc)
     d_skim_bkg = {}
     frames = []
     for bkg in bkgs:
-        # if (year == 2018) & (bkg == 'ZZTo4lext'):
-        #     bkg += '1'
         if (bkg == 'ZZTo4l'):
             d_skim_bkg['qqzz'] = d_df_bkg[bkg]
         else:
@@ -297,7 +293,14 @@ def ratio(year):
     return fs_ROS_SS
 
 # Calculate yield for Z+X (data in CRZLL control region are scaled in signal region through yields)
-def ZXYield(df, year):
+def ZXYield(df, year, year_mc):
+    ref_lumi = 59.83
+    if year_mc == '2022EE':
+        lumi = 26.6728
+    elif year_mc == '2022':
+        lumi = 7.9804
+    # TODO: Drop once Run3 ZX estimate is ready
+    y_scale = lumi/ref_lumi
     cb_SS = comb(year)
     fs_ROS_SS = ratio(year)
     vec = df.to_numpy()
@@ -307,17 +310,17 @@ def ZXYield(df, year):
         lepPt  = vec[i][5]
         lepEta = vec[i][4]
         lepID  = vec[i][3]
-        Yield[i] = cb_SS[finSt] * fs_ROS_SS[finSt] * GetFakeRate(lepPt[2], lepEta[2], lepID[2]) * GetFakeRate(lepPt[3], lepEta[3], lepID[3])
+        Yield[i] = y_scale * cb_SS[finSt] * fs_ROS_SS[finSt] * GetFakeRate(lepPt[2], lepEta[2], lepID[2]) * GetFakeRate(lepPt[3], lepEta[3], lepID[3])
     return Yield
 
-def doZX(year):
+def doZX(year, year_mc):
     keyZX = 'CRZLL'
     data = eos_path + 'Data_UL/reducedTree_AllData_'+str(year)+'.root'
     ttreeZX = uproot.open(data)[keyZX]
     dfZX = ttreeZX.pandas.df(branches_ZX, flatten = False)
     dfZX = dfZX[dfZX.Z2Flav > 0] #Keep just same-sign events
     dfZX = findFSZX(dfZX)
-    dfZX['yield_SR'] = ZXYield(dfZX, year)
+    dfZX['yield_SR'] = ZXYield(dfZX, year, year_mc)
     return dfZX
 
 # ------------------------------- FUNCTIONS FOR TEMPLATES ----------------------------------------------------
@@ -340,7 +343,7 @@ def fillEmptyBinsHist(h1d, floor):
     for i in range(1, nXbins+1): h1d.SetBinContent(i, h1d.GetBinContent(i)+floor)
 
 def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
-    for year in years:
+    for year in years_MC:
         checkDir(str(year))
         checkDir(str(year)+"/"+var_string)
         fractionBkg = {}
@@ -382,9 +385,12 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                         df_2016_ggzz = df_irr[2016]['ggzz'][(df_irr[2016]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['ggzz'][var] >= bin_low) & (df_irr[2016]['ggzz'][var] < bin_high)].copy()
                         df_2017_ggzz = df_irr[2017]['ggzz'][(df_irr[2017]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['ggzz'][var] >= bin_low) & (df_irr[2017]['ggzz'][var] < bin_high)].copy()
                         df_2018_ggzz = df_irr[2018]['ggzz'][(df_irr[2018]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['ggzz'][var] >= bin_low) & (df_irr[2018]['ggzz'][var] < bin_high)].copy()
-                        df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
-                                        df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
-                                        df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
+                        # df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
+                        #                 df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
+                        #                 df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
+                        df = pd.concat([df_2016_qqzz,df_2017_qqzz,
+                                        df_2018_qqzz,df_2016_ggzz,
+                                        df_2017_ggzz,df_2018_ggzz])
                         # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
                         len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
                         yield_bkg['ZZ_'+str(i)] = len_tot
@@ -395,9 +401,12 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                         df_2016_ggzz = df_irr[2016]['ggzz'][(df_irr[2016]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['ggzz'][var] >= bin_low) & (df_irr[2016]['ggzz'][var] < bin_high) & (df_irr[2016]['ggzz']['FinState'] == f)].copy()
                         df_2017_ggzz = df_irr[2017]['ggzz'][(df_irr[2017]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['ggzz'][var] >= bin_low) & (df_irr[2017]['ggzz'][var] < bin_high) & (df_irr[2017]['ggzz']['FinState'] == f)].copy()
                         df_2018_ggzz = df_irr[2018]['ggzz'][(df_irr[2018]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['ggzz'][var] >= bin_low) & (df_irr[2018]['ggzz'][var] < bin_high) & (df_irr[2018]['ggzz']['FinState'] == f)].copy()
-                        df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
-                                        df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
-                                        df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
+                        # df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
+                        #                 df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
+                        #                 df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
+                        df = pd.concat([df_2016_qqzz,df_2017_qqzz,
+                                        df_2018_qqzz,df_2016_ggzz,
+                                        df_2017_ggzz,df_2018_ggzz])
                         # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
                         # len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
                         yield_bkg['ZZ_'+f] = df['weight'].sum()
@@ -539,6 +548,10 @@ if (opt.YEAR == '2018'):
 if (opt.YEAR == 'Full'):
     years_MC = ['2016pre', '2016post', '2017', '2018']
     years = [2016,2017,2018]
+if (opt.YEAR == 'Run3'):
+    years_MC = ['2022EE', '2022']
+    # TODO: Used for ZX, change once ZX Run3 is available
+    years = [2018, 2018] 
 
 obs_bins, doubleDiff = binning(opt.OBSNAME)
 
@@ -565,9 +578,9 @@ if doubleDiff:
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg_tmp = {}
-for year in years_MC:
-    bkg = skim_df(year)
-    d_bkg_tmp[year] = bkg
+for year, year_mc in zip(years, years_MC):
+    bkg = skim_df(year, year_mc)
+    d_bkg_tmp[year_mc] = bkg
 
 # # Create pandas with int as indeces and 2016post+2016pre
 d_bkg = {}
@@ -580,20 +593,25 @@ if (opt.YEAR == '2017' or opt.YEAR == 'Full'):
     d_bkg[2017] = d_bkg_tmp['2017']
 if (opt.YEAR == '2018' or opt.YEAR == 'Full'):
     d_bkg[2018] = d_bkg_tmp['2018']
-
+if (opt.YEAR == 'Run3'):
+    d_bkg['2022EE'] = d_bkg_tmp['2022EE']
+    d_bkg['2022'] = d_bkg_tmp['2022']
 
 # Generate pandas for ZX
+branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z2Mass', 'Z1Mass']
+'''
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7',
                'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint','absdetajj', 'dphijj']
+'''
 dfZX={}
-for year in years:
+for year, year_mc in zip(years, years_MC):
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
-    dfZX[year] = doZX(year)
+    dfZX[year_mc] = doZX(year, year_mc)
     # dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
-    dfZX[year] = add_rapidity(dfZX[year])
+    # dfZX[year] = add_rapidity(dfZX[year])
 
     print(year,'done')
 

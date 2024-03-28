@@ -47,6 +47,12 @@ decimal = {
 'TCjmax vs pT4l': False
 }
 
+def checkDir(folder_path):
+    isdir = os.path.isdir(folder_path)
+    if not isdir:
+        print('Directory {} does not exist. Creating it.' .format(folder_path))
+        os.mkdir(folder_path)
+
 def parseOptions():
 
     global opt, args, runAllSteps
@@ -59,7 +65,7 @@ def parseOptions():
     parser.add_option('',   '--obsName',  dest='OBSNAME',  type='string',default='',   help='Name of the observable, supported: "inclusive", "pT4l", "eta4l", "massZ2", "nJets"')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105,   help='Lower bound for m4l')
-    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=140,   help='Upper bound for m4l')
+    parser.add_option('',   '--m4lUpper',  dest='UPPER_BOUND',  type='int',default=160,   help='Upper bound for m4l')
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -147,6 +153,8 @@ c1.GetPad(0).SetBottomMargin(0.15)
 bkgName=['qqzz','ggzz','ZJetsCR']
 if opt.YEAR == 'Full':
     year=['2016', '2017', '2018']
+elif opt.YEAR == 'Run3':
+    year=['2022', '2022EE']
 else:
     year=[opt.YEAR]
 print(year)
@@ -201,6 +209,7 @@ for iYear in range(len(year)):
     kBkg_ggZZ = 1
     kBkg_ZJets = 2
     c1.cd()
+    checkDir(sPlotsStore+"/"+year[iYear]+"/"+obsTag)
     for iBin in range(N_BINS):
 
         ########## 2e2mu ##########
