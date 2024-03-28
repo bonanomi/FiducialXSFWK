@@ -74,11 +74,14 @@ def impactPlots():
     ## Run for the given observable
     print 'NP impacts calculation - '+obsName+' - bin boundaries: ', observableBins, '\n'
 
-    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
-    higgs_xs = _temp.higgs_xs
+    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs_xs_136TeV','higgs4l_br'], -1)
+    if(opt.YEAR=="Run3"):
+        higgs_xs = _temp.higgs_xs_136TeV
+    else:
+        higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
 
-    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
 
 

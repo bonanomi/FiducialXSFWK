@@ -54,10 +54,13 @@ def exp_xsec():
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Theory xsec and BR at MH = '+_th_MH
 
-    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
-    higgs_xs = _temp.higgs_xs
+    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs_xs_136TeV','higgs4l_br'], -1)
+    if(opt.YEAR=='Run3'):
+        higgs_xs = _temp.higgs_xs_136TeV
+    else:
+        higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
-    fname = 'inputs_sig_extrap_'+obsName+'_'+opt.YEAR
+    fname = 'inputs_sig_'+obsName+'_'+opt.YEAR
     if opt.DOHIG: fname = fname + '_HIG19001'
     _temp = __import__(fname, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
@@ -77,13 +80,6 @@ def exp_xsec():
             print 'Bin ', obsBin, '\t SigmaBin', obsBin, channel, ' = ', XH_fs
             print 'XH',  XH_fs - higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)] 
             XH[obsBin]+=XH_fs
-        # else:
-        #     XH_fs = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+'4l']*acc['ggH125_4l_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-        #     XH_fs += higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+'4l']*acc['VBFH125_4l_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-        #     XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+'4l']*acc['WH125_4l_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-        #     XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+'4l']*acc['ZH125_4l_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-        #     XH_fs += higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+'4l']*acc['ttH125_4l_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-        #     XH[obsBin]+=XH_fs
 
         _obsxsec = XH[obsBin]
 

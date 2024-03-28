@@ -101,7 +101,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
 
     # from inputs_sig imports some coefficients
-    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_'+year, globals(), locals(), ['acc','eff','inc_wrongfrac','binfrac_wrongfrac','outinratio'], -1)
     acc = _temp.acc
     eff = _temp.eff
     outinratio = _temp.outinratio
@@ -112,8 +112,11 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     #number_fake = _temp.number_fake
 
     # import h4l xs br
-    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
-    higgs_xs = _temp.higgs_xs
+    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs_xs_136TeV','higgs4l_br'], -1)
+    if('2022' in year):
+        higgs_xs = _temp.higgs_xs_136TeV
+    else:
+        higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
 
     _temp = __import__('inputs_bkg_'+obsName+'_'+year, globals(), locals(), ['fractionsBackground'], -1)
@@ -156,8 +159,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
         sig_name = 'trueH'
 
     print os.getcwd()
-    massParaMap = readParam('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'_update.txt')
-    # massParaMap = readParam('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/param/sim_massParam_ggH_105140_'+channel+'_'+year+'_update.txt')
+    if '2022' in year:
+        massParaMap = readParam('/home/llr/cms/bonanomi/fiducial/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/Run3_Analysis/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'.txt')
+    else:
+        massParaMap = readParam('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'_update.txt')
 
     CMS_zz4l_mean_m_sig = ROOT.RooRealVar("CMS_zz4l_mean_m_sig","CMS_zz4l_mean_m_sig",-10,10)
     CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
@@ -166,15 +171,113 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
     CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
 
-    if(year == '2018'):
-        # CMS_zz4l_mean_m_sig = ROOT.RooRealVar("CMS_zz4l_mean_m_sig","CMS_zz4l_mean_m_sig",-10,10)
-        # CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
-        # CMS_zz4l_sigma_m_sig = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig","CMS_zz4l_sigma_m_sig",-10,10)
-        # CMS_zz4l_sigma_e_sig = ROOT.RooRealVar("CMS_zz4l_sigma_e_sig","CMS_zz4l_sigma_e_sig",-10,10)
+    if(year == '2022'):
+        lumi = ROOT.RooRealVar("lumi_132022","lumi_132022", 7.9804)
+        if (channel=='2e2mu'):
+            CMS_zz4l_n_sig_3_2022 = ROOT.RooRealVar("CMS_zz4l_n_sig_3_2022","CMS_zz4l_n_sig_3_2022",-10,10)
+            CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2022","CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2022", "(%s) + (@0*@1*@3 + @0*@2*@4)/2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_m_err,CMS_zz4l_mean_e_err))
+            CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022","CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022))
+            CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_sigma_sig_3_centralValue_2e2mu" + recobin + "2022","CMS_zz4l_sigma_sig_3_centralValue_2e2mu" + recobin + "2022", "(%s)*(TMath::Sqrt((1+@1)*(1+@2)))" %(massParaMap["sigma_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_sigma_m_sig,CMS_zz4l_sigma_e_sig))
+            CMS_zz4l_alpha_3_centralValue_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_alpha_3_centralValue_2e2mu" + recobin + "2022","CMS_zz4l_alpha_3_centralValue_2e2mu" + recobin + "2022",massParaMap["a1_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n_3_centralValue_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2022","CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2022","%s*(1+@1)" %(massParaMap["n1_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_n_sig_3_2022))
+            CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2022","CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2022",massParaMap["a2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n2_3_centralValue_2e2murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2022","CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2022",massParaMap["n2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022, CMS_zz4l_alpha_3_centralValue_2e2murecobin2022, CMS_zz4l_n_3_centralValue_2e2murecobin2022, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022, CMS_zz4l_n2_3_centralValue_2e2murecobin2022)
+            ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022, CMS_zz4l_alpha_3_centralValue_2e2murecobin2022, CMS_zz4l_n_3_centralValue_2e2murecobin2022, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022, CMS_zz4l_n2_3_centralValue_2e2murecobin2022)
+            xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022, CMS_zz4l_alpha_3_centralValue_2e2murecobin2022, CMS_zz4l_n_3_centralValue_2e2murecobin2022, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022, CMS_zz4l_n2_3_centralValue_2e2murecobin2022)
+        if (channel=='4e'):
+            CMS_zz4l_n_sig_2_2022 = ROOT.RooRealVar("CMS_zz4l_n_sig_2_2022","CMS_zz4l_n_sig_2_2022",-10,10)
+            CMS_zz4l_mean_sig_2_centralValue_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2022","CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2022", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_e_err))
+            CMS_zz4l_mean_sig_NoConv_2_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_2_4erecobin2022","CMS_zz4l_mean_sig_NoConv_2_4erecobin2022","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_2_centralValue_4erecobin2022))
+            CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_sigma_sig_2_centralValue_4e" + recobin + "2022","CMS_zz4l_sigma_sig_2_centralValue_4e" + recobin + "2022", "(%s)*(1+@1)" %(massParaMap["sigma_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_sigma_e_sig))
+            CMS_zz4l_alpha_2_centralValue_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_alpha_2_centralValue_4e" + recobin + "2022","CMS_zz4l_alpha_2_centralValue_4e" + recobin + "2022",massParaMap["a1_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n_2_centralValue_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_n_2_centralValue_4e" + recobin + "2022","CMS_zz4l_n_2_centralValue_4e" + recobin + "2022","(%s)*(1+@1)" %(massParaMap["n1_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_n_sig_2_2022))
+            CMS_zz4l_alpha2_2_centralValue_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2022","CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2022",massParaMap["a2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n2_2_centralValue_4erecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_n2_2_centralValue_4e" + recobin + "2022","CMS_zz4l_n2_2_centralValue_4e" + recobin + "2022",massParaMap["n2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2022, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022, CMS_zz4l_alpha_2_centralValue_4erecobin2022, CMS_zz4l_n_2_centralValue_4erecobin2022, CMS_zz4l_alpha2_2_centralValue_4erecobin2022, CMS_zz4l_n2_2_centralValue_4erecobin2022)
+            ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2022, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022, CMS_zz4l_alpha_2_centralValue_4erecobin2022, CMS_zz4l_n_2_centralValue_4erecobin2022, CMS_zz4l_alpha2_2_centralValue_4erecobin2022, CMS_zz4l_n2_2_centralValue_4erecobin2022)
+            xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2022, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022, CMS_zz4l_alpha_2_centralValue_4erecobin2022, CMS_zz4l_n_2_centralValue_4erecobin2022, CMS_zz4l_alpha2_2_centralValue_4erecobin2022, CMS_zz4l_n2_2_centralValue_4erecobin2022)
+        if (channel=='4mu'):
+            CMS_zz4l_n_sig_1_2022 = ROOT.RooRealVar("CMS_zz4l_n_sig_1_2022","CMS_zz4l_n_sig_1_2022",-10,10)
+            CMS_zz4l_mean_sig_1_centralValue_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2022","CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2022", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_m_err))
+            CMS_zz4l_mean_sig_NoConv_1_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_1_4murecobin2022","CMS_zz4l_mean_sig_NoConv_1_4murecobin2022","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_1_centralValue_4murecobin2022))
+            CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_sigma_sig_1_centralValue_4mu" + recobin + "2022","CMS_zz4l_sigma_sig_1_centralValue_4mu" + recobin + "2022", "(%s)*(1+@1)" %(massParaMap["sigma_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_sigma_m_sig))
+            CMS_zz4l_alpha_1_centralValue_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_alpha_1_centralValue_4mu" + recobin + "2022","CMS_zz4l_alpha_1_centralValue_4mu" + recobin + "2022",massParaMap["a1_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n_1_centralValue_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_n_1_centralValue_4mu" + recobin + "2022","CMS_zz4l_n_1_centralValue_4mu" + recobin + "2022","(%s)*(1+@1)"%(massParaMap["n1_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_n_sig_1_2022))
+            CMS_zz4l_alpha2_1_centralValue_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2022","CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2022",massParaMap["a2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n2_1_centralValue_4murecobin2022 = ROOT.RooFormulaVar("CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2022","CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2022",massParaMap["n2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2022, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022, CMS_zz4l_alpha_1_centralValue_4murecobin2022, CMS_zz4l_n_1_centralValue_4murecobin2022, CMS_zz4l_alpha2_1_centralValue_4murecobin2022, CMS_zz4l_n2_1_centralValue_4murecobin2022)
+            ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2022, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022, CMS_zz4l_alpha_1_centralValue_4murecobin2022, CMS_zz4l_n_1_centralValue_4murecobin2022, CMS_zz4l_alpha2_1_centralValue_4murecobin2022, CMS_zz4l_n2_1_centralValue_4murecobin2022)
+            xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2022, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022, CMS_zz4l_alpha_1_centralValue_4murecobin2022, CMS_zz4l_n_1_centralValue_4murecobin2022, CMS_zz4l_alpha2_1_centralValue_4murecobin2022, CMS_zz4l_n2_1_centralValue_4murecobin2022)
+
+        # Wrong signal combination events
+        if (channel=='4mu'):
+            p1_12022 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_12022", "p1_12022","136.314842+1.00412*(MH-125)",ROOT.RooArgList(MH))
+            p2_12022 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12022","p2_12022","9.016117+0.36606*(MH-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12022, p2_12022)
+        if (channel=='4e'):
+            p1_22022 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_22022","p1_22022","135.84686+1.1667*(MH-125)",ROOT.RooArgList(MH))
+            p2_22022 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22022","p2_22022","11.119542+0.01067*(MH-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22022, p2_22022)
+        if (channel=='2e2mu'):
+            p1_32022 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_32022","p1_32022","138.998977+1.06169*(MH-125)",ROOT.RooArgList(MH))
+            p2_32022 = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32022","p2_32022","11.485371-0.07875*(MH-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32022, p2_32022)
+    elif(year == '2022EE'):
+        lumi = ROOT.RooRealVar("lumi_132022EE","lumi_132022EE", 26.6728)
+        if (channel=='2e2mu'):
+            CMS_zz4l_n_sig_3_2022EE = ROOT.RooRealVar("CMS_zz4l_n_sig_3_2022EE","CMS_zz4l_n_sig_3_2022EE",-10,10)
+            CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2022EE","CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2022EE", "(%s) + (@0*@1*@3 + @0*@2*@4)/2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_m_err,CMS_zz4l_mean_e_err))
+            CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022EE","CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022EE","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022EE))
+            CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_sigma_sig_3_centralValue_2e2mu" + recobin + "2022EE","CMS_zz4l_sigma_sig_3_centralValue_2e2mu" + recobin + "2022EE", "(%s)*(TMath::Sqrt((1+@1)*(1+@2)))" %(massParaMap["sigma_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_sigma_m_sig,CMS_zz4l_sigma_e_sig))
+            CMS_zz4l_alpha_3_centralValue_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_alpha_3_centralValue_2e2mu" + recobin + "2022EE","CMS_zz4l_alpha_3_centralValue_2e2mu" + recobin + "2022EE",massParaMap["a1_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n_3_centralValue_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2022EE","CMS_zz4l_n_3_centralValue_2e2mu" + recobin + "2022EE","%s*(1+@1)" %(massParaMap["n1_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_n_sig_3_2022EE))
+            CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2022EE","CMS_zz4l_alpha2_3_centralValue_2e2mu" + recobin + "2022EE",massParaMap["a2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n2_3_centralValue_2e2murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2022EE","CMS_zz4l_n2_3_centralValue_2e2mu" + recobin + "2022EE",massParaMap["n2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022EE, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022EE, CMS_zz4l_alpha_3_centralValue_2e2murecobin2022EE, CMS_zz4l_n_3_centralValue_2e2murecobin2022EE, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022EE, CMS_zz4l_n2_3_centralValue_2e2murecobin2022EE)
+            ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022EE, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022EE, CMS_zz4l_alpha_3_centralValue_2e2murecobin2022EE, CMS_zz4l_n_3_centralValue_2e2murecobin2022EE, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022EE, CMS_zz4l_n2_3_centralValue_2e2murecobin2022EE)
+            xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022EE, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022EE, CMS_zz4l_alpha_3_centralValue_2e2murecobin2022EE, CMS_zz4l_n_3_centralValue_2e2murecobin2022EE, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022EE, CMS_zz4l_n2_3_centralValue_2e2murecobin2022EE)
+        if (channel=='4e'):
+            CMS_zz4l_n_sig_2_2022EE = ROOT.RooRealVar("CMS_zz4l_n_sig_2_2022EE","CMS_zz4l_n_sig_2_2022EE",-10,10)
+            CMS_zz4l_mean_sig_2_centralValue_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2022EE","CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2022EE", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_e_err))
+            CMS_zz4l_mean_sig_NoConv_2_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_2_4erecobin2022EE","CMS_zz4l_mean_sig_NoConv_2_4erecobin2022EE","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_2_centralValue_4erecobin2022EE))
+            CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_sigma_sig_2_centralValue_4e" + recobin + "2022EE","CMS_zz4l_sigma_sig_2_centralValue_4e" + recobin + "2022EE", "(%s)*(1+@1)" %(massParaMap["sigma_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_sigma_e_sig))
+            CMS_zz4l_alpha_2_centralValue_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_alpha_2_centralValue_4e" + recobin + "2022EE","CMS_zz4l_alpha_2_centralValue_4e" + recobin + "2022EE",massParaMap["a1_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n_2_centralValue_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_n_2_centralValue_4e" + recobin + "2022EE","CMS_zz4l_n_2_centralValue_4e" + recobin + "2022EE","(%s)*(1+@1)" %(massParaMap["n1_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_n_sig_2_2022EE))
+            CMS_zz4l_alpha2_2_centralValue_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2022EE","CMS_zz4l_alpha2_2_centralValue_4e" + recobin + "2022EE",massParaMap["a2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n2_2_centralValue_4erecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_n2_2_centralValue_4e" + recobin + "2022EE","CMS_zz4l_n2_2_centralValue_4e" + recobin + "2022EE",massParaMap["n2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2022EE, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022EE, CMS_zz4l_alpha_2_centralValue_4erecobin2022EE, CMS_zz4l_n_2_centralValue_4erecobin2022EE, CMS_zz4l_alpha2_2_centralValue_4erecobin2022EE, CMS_zz4l_n2_2_centralValue_4erecobin2022EE)
+            ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2022EE, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022EE, CMS_zz4l_alpha_2_centralValue_4erecobin2022EE, CMS_zz4l_n_2_centralValue_4erecobin2022EE, CMS_zz4l_alpha2_2_centralValue_4erecobin2022EE, CMS_zz4l_n2_2_centralValue_4erecobin2022EE)
+            xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2022EE, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022EE, CMS_zz4l_alpha_2_centralValue_4erecobin2022EE, CMS_zz4l_n_2_centralValue_4erecobin2022EE, CMS_zz4l_alpha2_2_centralValue_4erecobin2022EE, CMS_zz4l_n2_2_centralValue_4erecobin2022EE)
+        if (channel=='4mu'):
+            CMS_zz4l_n_sig_1_2022EE = ROOT.RooRealVar("CMS_zz4l_n_sig_1_2022EE","CMS_zz4l_n_sig_1_2022EE",-10,10)
+            CMS_zz4l_mean_sig_1_centralValue_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2022EE","CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2022EE", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_m_err))
+            CMS_zz4l_mean_sig_NoConv_1_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_1_4murecobin2022EE","CMS_zz4l_mean_sig_NoConv_1_4murecobin2022EE","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_1_centralValue_4murecobin2022EE))
+            CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_sigma_sig_1_centralValue_4mu" + recobin + "2022EE","CMS_zz4l_sigma_sig_1_centralValue_4mu" + recobin + "2022EE", "(%s)*(1+@1)" %(massParaMap["sigma_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_sigma_m_sig))
+            CMS_zz4l_alpha_1_centralValue_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_alpha_1_centralValue_4mu" + recobin + "2022EE","CMS_zz4l_alpha_1_centralValue_4mu" + recobin + "2022EE",massParaMap["a1_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n_1_centralValue_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_n_1_centralValue_4mu" + recobin + "2022EE","CMS_zz4l_n_1_centralValue_4mu" + recobin + "2022EE","(%s)*(1+@1)"%(massParaMap["n1_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_n_sig_1_2022EE))
+            CMS_zz4l_alpha2_1_centralValue_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2022EE","CMS_zz4l_alpha2_1_centralValue_4mu" + recobin + "2022EE",massParaMap["a2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            CMS_zz4l_n2_1_centralValue_4murecobin2022EE = ROOT.RooFormulaVar("CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2022EE","CMS_zz4l_n2_1_centralValue_4mu" + recobin + "2022EE",massParaMap["n2_"+channel+"_"+year],ROOT.RooArgList(MH))
+            trueH = ROOT.RooDoubleCB(sig_name+'_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2022EE, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022EE, CMS_zz4l_alpha_1_centralValue_4murecobin2022EE, CMS_zz4l_n_1_centralValue_4murecobin2022EE, CMS_zz4l_alpha2_1_centralValue_4murecobin2022EE, CMS_zz4l_n2_1_centralValue_4murecobin2022EE)
+            ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2022EE, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022EE, CMS_zz4l_alpha_1_centralValue_4murecobin2022EE, CMS_zz4l_n_1_centralValue_4murecobin2022EE, CMS_zz4l_alpha2_1_centralValue_4murecobin2022EE, CMS_zz4l_n2_1_centralValue_4murecobin2022EE)
+            xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_1_centralValue_4murecobin2022EE, CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022EE, CMS_zz4l_alpha_1_centralValue_4murecobin2022EE, CMS_zz4l_n_1_centralValue_4murecobin2022EE, CMS_zz4l_alpha2_1_centralValue_4murecobin2022EE, CMS_zz4l_n2_1_centralValue_4murecobin2022EE)
+
+        # Wrong signal combination events
+        if (channel=='4mu'):
+            p1_12022EE = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_12022EE", "p1_12022EE","136.57620725+0.521355*(MH-125)",ROOT.RooArgList(MH))
+            p2_12022EE = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_12022EE","p2_12022EE","10.143882+0.020295*(MH-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_12022EE, p2_12022EE)
+        if (channel=='4e'):
+            p1_22022EE = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_22022EE","p1_22022EE","138.60886775+0.35676*(MH-125)",ROOT.RooArgList(MH))
+            p2_22022EE = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_22022EE","p2_22022EE","13.1776635-0.17726499999999998*(MH-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_22022EE, p2_22022EE)
+        if (channel=='2e2mu'):
+            p1_32022EE = ROOT.RooFormulaVar("CMS_"+comb_name+"_p1_32022EE","p1_32022EE","134.064721+0.5116*(MH-125)",ROOT.RooArgList(MH))
+            p2_32022EE = ROOT.RooFormulaVar("CMS_"+comb_name+"_p2_32022EE","p2_32022EE","13.499466+0.124465*(MH-125)",ROOT.RooArgList(MH))
+            nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32022EE, p2_32022EE)
+    elif(year == '2018'):
         lumi = ROOT.RooRealVar("lumi_132018","lumi_132018", 59.83)
         if (channel=='2e2mu'):
-            # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
-            # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
             CMS_zz4l_n_sig_3_2018 = ROOT.RooRealVar("CMS_zz4l_n_sig_3_2018","CMS_zz4l_n_sig_3_2018",-10,10)
             CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2018","CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2018", "(%s) + (@0*@1*@3 + @0*@2*@4)/2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_m_err,CMS_zz4l_mean_e_err))
             CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2018","CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2018","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018))
@@ -187,7 +290,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha_3_centralValue_2e2murecobin2018, CMS_zz4l_n_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018, CMS_zz4l_n2_3_centralValue_2e2murecobin2018)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha_3_centralValue_2e2murecobin2018, CMS_zz4l_n_3_centralValue_2e2murecobin2018, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2018, CMS_zz4l_n2_3_centralValue_2e2murecobin2018)
         if (channel=='4e'):
-            # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
             CMS_zz4l_n_sig_2_2018 = ROOT.RooRealVar("CMS_zz4l_n_sig_2_2018","CMS_zz4l_n_sig_2_2018",-10,10)
             CMS_zz4l_mean_sig_2_centralValue_4erecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2018","CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2018", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_e_err))
             CMS_zz4l_mean_sig_NoConv_2_4erecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_2_4erecobin2018","CMS_zz4l_mean_sig_NoConv_2_4erecobin2018","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_2_centralValue_4erecobin2018))
@@ -200,7 +302,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2018, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2018, CMS_zz4l_alpha_2_centralValue_4erecobin2018, CMS_zz4l_n_2_centralValue_4erecobin2018, CMS_zz4l_alpha2_2_centralValue_4erecobin2018, CMS_zz4l_n2_2_centralValue_4erecobin2018)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2018, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2018, CMS_zz4l_alpha_2_centralValue_4erecobin2018, CMS_zz4l_n_2_centralValue_4erecobin2018, CMS_zz4l_alpha2_2_centralValue_4erecobin2018, CMS_zz4l_n2_2_centralValue_4erecobin2018)
         if (channel=='4mu'):
-            # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
             CMS_zz4l_n_sig_1_2018 = ROOT.RooRealVar("CMS_zz4l_n_sig_1_2018","CMS_zz4l_n_sig_1_2018",-10,10)
             CMS_zz4l_mean_sig_1_centralValue_4murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2018","CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2018", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_m_err))
             CMS_zz4l_mean_sig_NoConv_1_4murecobin2018 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_1_4murecobin2018","CMS_zz4l_mean_sig_NoConv_1_4murecobin2018","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_1_centralValue_4murecobin2018))
@@ -228,14 +329,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32018, p2_32018)
 
     elif(year == '2017'):
-        # CMS_zz4l_mean_m_sig = ROOT.RooRealVar("CMS_zz4l_mean_m_sig","CMS_zz4l_mean_m_sig",-10,10)
-        # CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
-        # CMS_zz4l_sigma_m_sig = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig","CMS_zz4l_sigma_m_sig",-10,10)
-        # CMS_zz4l_sigma_e_sig = ROOT.RooRealVar("CMS_zz4l_sigma_e_sig","CMS_zz4l_sigma_e_sig",-10,10)
         lumi = ROOT.RooRealVar("lumi_132017","lumi_132017", 41.48)
         if (channel=='2e2mu'):
-            # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
-            # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
             CMS_zz4l_n_sig_3_2017 = ROOT.RooRealVar("CMS_zz4l_n_sig_3_2017","CMS_zz4l_n_sig_3_2017",-10,10)
             CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2017","CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2017", "(%s) + (@0*@1*@3 + @0*@2*@4)/2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_m_err,CMS_zz4l_mean_e_err))
             CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2017","CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2017","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017))
@@ -249,7 +344,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha_3_centralValue_2e2murecobin2017, CMS_zz4l_n_3_centralValue_2e2murecobin2017, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2017, CMS_zz4l_n2_3_centralValue_2e2murecobin2017)
 
         if (channel=='4e'):
-            # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
             CMS_zz4l_n_sig_2_2017 = ROOT.RooRealVar("CMS_zz4l_n_sig_2_2017","CMS_zz4l_n_sig_2_2017",-10,10)
             CMS_zz4l_mean_sig_2_centralValue_4erecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2017","CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2017", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_e_err))
             CMS_zz4l_mean_sig_NoConv_2_4erecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_2_4erecobin2017","CMS_zz4l_mean_sig_NoConv_2_4erecobin2017","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_2_centralValue_4erecobin2017))
@@ -263,7 +357,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2017, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2017, CMS_zz4l_alpha_2_centralValue_4erecobin2017, CMS_zz4l_n_2_centralValue_4erecobin2017, CMS_zz4l_alpha2_2_centralValue_4erecobin2017, CMS_zz4l_n2_2_centralValue_4erecobin2017)
 
         if (channel=='4mu'):
-            # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
             CMS_zz4l_n_sig_1_2017 = ROOT.RooRealVar("CMS_zz4l_n_sig_1_2017","CMS_zz4l_n_sig_1_2017",-10,10)
             CMS_zz4l_mean_sig_1_centralValue_4murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2017","CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2017", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_m_err))
             CMS_zz4l_mean_sig_NoConv_1_4murecobin2017 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_1_4murecobin2017","CMS_zz4l_mean_sig_NoConv_1_4murecobin2017","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_1_centralValue_4murecobin2017))
@@ -291,14 +384,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             nonResH = ROOT.RooLandau(comb_name, "landau", m, p1_32017, p2_32017)
 
     elif(year == '2016'):
-        # CMS_zz4l_mean_m_sig = ROOT.RooRealVar("CMS_zz4l_mean_m_sig","CMS_zz4l_mean_m_sig",-10,10)
-        # CMS_zz4l_mean_e_sig = ROOT.RooRealVar("CMS_zz4l_mean_e_sig","CMS_zz4l_mean_e_sig",-10,10)
-        # CMS_zz4l_sigma_m_sig = ROOT.RooRealVar("CMS_zz4l_sigma_m_sig","CMS_zz4l_sigma_m_sig",-10,10)
-        # CMS_zz4l_sigma_e_sig = ROOT.RooRealVar("CMS_zz4l_sigma_e_sig","CMS_zz4l_sigma_e_sig",-10,10)
         lumi = ROOT.RooRealVar("lumi_132016","lumi_132016", 36.31)
         if (channel=='2e2mu'):
-            # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
-            # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
             CMS_zz4l_n_sig_3_2016 = ROOT.RooRealVar("CMS_zz4l_n_sig_3_2016","CMS_zz4l_n_sig_3_2016",-10,10)
             CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2016","CMS_zz4l_mean_sig_3_centralValue_2e2mu" + recobin + "2016", "(%s) + (@0*@1*@3 + @0*@2*@4)/2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_m_err,CMS_zz4l_mean_e_err))
             CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2016","CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2016","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016))
@@ -311,7 +398,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha_3_centralValue_2e2murecobin2016, CMS_zz4l_n_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016, CMS_zz4l_n2_3_centralValue_2e2murecobin2016)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha_3_centralValue_2e2murecobin2016, CMS_zz4l_n_3_centralValue_2e2murecobin2016, CMS_zz4l_alpha2_3_centralValue_2e2murecobin2016, CMS_zz4l_n2_3_centralValue_2e2murecobin2016)
         if (channel=='4e'):
-            # CMS_zz4l_mean_e_err = ROOT.RooRealVar("CMS_zz4l_mean_e_err","CMS_zz4l_mean_e_err",0.0006,0.0006,0.0006)
             CMS_zz4l_n_sig_2_2016 = ROOT.RooRealVar("CMS_zz4l_n_sig_2_2016","CMS_zz4l_n_sig_2_2016",-10,10)
             CMS_zz4l_mean_sig_2_centralValue_4erecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2016","CMS_zz4l_mean_sig_2_centralValue_4e" + recobin + "2016", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]), ROOT.RooArgList(MH,CMS_zz4l_mean_e_sig,CMS_zz4l_mean_e_err))
             CMS_zz4l_mean_sig_NoConv_2_4erecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_2_4erecobin2016","CMS_zz4l_mean_sig_NoConv_2_4erecobin2016","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_2_centralValue_4erecobin2016))
@@ -324,7 +410,6 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             ggH = ROOT.RooDoubleCB('ggH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2016, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2016, CMS_zz4l_alpha_2_centralValue_4erecobin2016, CMS_zz4l_n_2_centralValue_4erecobin2016, CMS_zz4l_alpha2_2_centralValue_4erecobin2016, CMS_zz4l_n2_2_centralValue_4erecobin2016)
             xH = ROOT.RooDoubleCB('xH_' + _obsName[obsName], "DoubleCB", m, CMS_zz4l_mean_sig_2_centralValue_4erecobin2016, CMS_zz4l_sigma_sig_2_centralValue_4erecobin2016, CMS_zz4l_alpha_2_centralValue_4erecobin2016, CMS_zz4l_n_2_centralValue_4erecobin2016, CMS_zz4l_alpha2_2_centralValue_4erecobin2016, CMS_zz4l_n2_2_centralValue_4erecobin2016)
         if (channel=='4mu'):
-            # CMS_zz4l_mean_m_err = ROOT.RooRealVar("CMS_zz4l_mean_m_err","CMS_zz4l_mean_m_err",0.0001,0.0001,0.0001)
             CMS_zz4l_n_sig_1_2016 = ROOT.RooRealVar("CMS_zz4l_n_sig_1_2016","CMS_zz4l_n_sig_1_2016",-10,10)
             CMS_zz4l_mean_sig_1_centralValue_4murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2016","CMS_zz4l_mean_sig_1_centralValue_4mu" + recobin + "2016", "(%s) + @0*@1*@2" %(massParaMap["mean_"+channel+"_"+year]),ROOT.RooArgList(MH,CMS_zz4l_mean_m_sig,CMS_zz4l_mean_m_err))
             CMS_zz4l_mean_sig_NoConv_1_4murecobin2016 = ROOT.RooFormulaVar("CMS_zz4l_mean_sig_NoConv_1_4murecobin2016","CMS_zz4l_mean_sig_NoConv_1_4murecobin2016","@0",ROOT.RooArgList(CMS_zz4l_mean_sig_1_centralValue_4murecobin2016))
@@ -833,6 +918,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     #     os.system('./skim_data_tree '+year)
     #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard_'+year)
     data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_'+year+'.root')
+    data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_2018.root') #TODO: Put run3 data
     data_obs_tree = data_obs_file.Get('SR')
 
     print obsName,obsBin_low,obsBin_high
@@ -861,6 +947,26 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     # Create workspace
     wout = ROOT.RooWorkspace("w","w")
     if (channel=='2e2mu'):
+        if (year == '2022'):
+            getattr(wout,'import')(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha_3_centralValue_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n_3_centralValue_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n2_3_centralValue_2e2murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_m_err,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_e_err,ROOT.RooFit.RecycleConflictNodes())
+        if (year == '2022EE'):
+            getattr(wout,'import')(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_sigma_sig_3_centralValue_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha_3_centralValue_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n_3_centralValue_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha2_3_centralValue_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n2_3_centralValue_2e2murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_m_err,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_e_err,ROOT.RooFit.RecycleConflictNodes())
         if (year == '2016'):
             getattr(wout,'import')(CMS_zz4l_mean_sig_3_centralValue_2e2murecobin2016,ROOT.RooFit.RecycleConflictNodes())
             getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_3_2e2murecobin2016,ROOT.RooFit.RecycleConflictNodes())
@@ -892,6 +998,24 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             getattr(wout,'import')(CMS_zz4l_mean_m_err,ROOT.RooFit.RecycleConflictNodes())
             getattr(wout,'import')(CMS_zz4l_mean_e_err,ROOT.RooFit.RecycleConflictNodes())
     if (channel=='4e'):
+        if (year == '2022'):
+            getattr(wout,'import')(CMS_zz4l_mean_sig_2_centralValue_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_2_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha_2_centralValue_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n_2_centralValue_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha2_2_centralValue_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n2_2_centralValue_4erecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_e_err,ROOT.RooFit.RecycleConflictNodes())
+        if (year == '2022EE'):
+            getattr(wout,'import')(CMS_zz4l_mean_sig_2_centralValue_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_2_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_sigma_sig_2_centralValue_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha_2_centralValue_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n_2_centralValue_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha2_2_centralValue_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n2_2_centralValue_4erecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_e_err,ROOT.RooFit.RecycleConflictNodes())
         if (year == '2016'):
             getattr(wout,'import')(CMS_zz4l_mean_sig_2_centralValue_4erecobin2016,ROOT.RooFit.RecycleConflictNodes())
             getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_2_4erecobin2016,ROOT.RooFit.RecycleConflictNodes())
@@ -921,6 +1045,24 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             getattr(wout,'import')(CMS_zz4l_mean_e_err,ROOT.RooFit.RecycleConflictNodes())
 
     if (channel=='4mu'):
+        if (year == '2022'):
+            getattr(wout,'import')(CMS_zz4l_mean_sig_1_centralValue_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_1_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha_1_centralValue_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n_1_centralValue_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha2_1_centralValue_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n2_1_centralValue_4murecobin2022,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_m_err,ROOT.RooFit.RecycleConflictNodes())
+        if (year == '2022EE'):
+            getattr(wout,'import')(CMS_zz4l_mean_sig_1_centralValue_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_1_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_sigma_sig_1_centralValue_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha_1_centralValue_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n_1_centralValue_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_alpha2_1_centralValue_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_n2_1_centralValue_4murecobin2022EE,ROOT.RooFit.RecycleConflictNodes())
+            getattr(wout,'import')(CMS_zz4l_mean_m_err,ROOT.RooFit.RecycleConflictNodes())
         if (year == '2016'):
             getattr(wout,'import')(CMS_zz4l_mean_sig_1_centralValue_4murecobin2016,ROOT.RooFit.RecycleConflictNodes())
             getattr(wout,'import')(CMS_zz4l_mean_sig_NoConv_1_4murecobin2016,ROOT.RooFit.RecycleConflictNodes())

@@ -68,6 +68,7 @@ if (opt.YEAR == '2016'): years = ['2016']
 if (opt.YEAR == '2017'): years = ['2017']
 if (opt.YEAR == '2018'): years = ['2018']
 if (opt.YEAR == 'Full'): years = ['2016','2017','2018']
+if (opt.YEAR == 'Run3'): years = ['2022', '2022EE']
 
 
 # Define function for processing of os command
@@ -149,7 +150,9 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
     cmd_combCards += '> %s' %card_name
 
     cmd_addNuis = ''
-    if opt.YEAR == 'Full':
+    if opt.YEAR == 'Run3':
+        cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2022 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
+    elif opt.YEAR == 'Full':
         if obsName == 'mass4l_zzfloating': # Remove bkg theo nuisances in case of zz floating
             cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 lumi_13TeV_correlated lumi_13TeV_1718 CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_n_sig_2_2016 CMS_zz4l_n_sig_2_2017 CMS_zz4l_n_sig_2_2018 CMS_zz4l_n_sig_1_2016 CMS_zz4l_n_sig_1_2017 CMS_zz4l_n_sig_1_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
         else:
@@ -333,7 +336,7 @@ def runFiducialXS():
     #     doubleDiff = False
     _th_MH = opt.THEORYMASS
     # prepare the set of bin boundaries to run over, it is retrieved from inputs file
-    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
     observableBins = _temp.observableBins
     print 'Running Fiducial XS computation - '+obsName+' - bin boundaries: ', observableBins, '\n'
     print 'Theory xsec and BR at MH = '+_th_MH
@@ -349,8 +352,10 @@ def runFiducialXS():
     years_bis = years
     if(opt.YEAR == 'Full'):
         years_bis.append('Full')
+    if(opt.YEAR == 'Run3'):
+        years_bis.append('Run3')
     for year in years_bis:
-        if not os.path.exists('../inputs/inputs_sig_extrap_'+obsName+'_'+year+'_ORIG.py'):
+        if not os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
             cmd = 'python addConstrainedModel.py -l -q -b --obsName="'+obsName+'" --year="'+year+'"'
             if doubleDiff: cmd += ' --doubleDiff'
             print cmd
@@ -358,14 +363,18 @@ def runFiducialXS():
             cmds.append(cmd)
             print output
             print 'addConstrainedModel DONE'
-        elif os.path.exists('../inputs/inputs_sig_extrap_'+obsName+'_'+year+'_ORIG.py'):
+        elif os.path.exists('../inputs/inputs_sig_'+obsName+'_'+year+'_ORIG.py'):
             print 'addConstrainedModel '+year+' already done'
     if 'Full' in years: years.remove('Full')
+    if 'Run3' in years: years.remove('Run3')
     # "__import__" to SetParameters when running the expected measurement
-    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
-    higgs_xs = _temp.higgs_xs
+    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs_xs_136TeV','higgs4l_br'], -1)
+    if(opt.YEAR=='Run3'):
+        higgs_xs = _temp.higgs_xs_136TeV
+    else:
+        higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
-    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
     acc = _temp.acc
 
     DataModelName = 'SM_125'
@@ -419,7 +428,19 @@ def runFiducialXS():
         # we go back from datacard_Y to datacard folder
         os.chdir('../datacard/')
         print 'Current directory: datacard'
-        if (opt.YEAR == 'Full'):
+        if (opt.YEAR == 'Run3'):
+            cmd = 'combineCards.py datacard_2022/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2022EE/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
+            print cmd, '\n'
+            processCmd(cmd,1)
+            cmds.append(cmd)
+
+            cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2022 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
+
+            cmd += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
+            print cmd, '\n'
+            processCmd(cmd,1)
+            cmds.append(cmd)
+        elif (opt.YEAR == 'Full'):
             cmd = 'combineCards.py datacard_2016/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2017/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt datacard_2018/hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt > hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'
             processCmd(cmd,1)
@@ -507,7 +528,7 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r'+channel+'Bin0.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r'+channel+'Bin0 --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r'+channel+'Bin0=0.0,2.5 --redefineSignalPOI r'+channel+'Bin0 --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
+                if ((opt.YEAR == 'Full') or (opt.YEAR == 'Run3')): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r'+channel+'Bin0='+str(round(fidxs,4))
                 print cmd+'\n'
@@ -557,7 +578,7 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r2e2muBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r2e2muBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r2e2muBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r2e2muBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
+                if ((opt.YEAR == 'Full') or (opt.YEAR == 'Run3')): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r2e2muBin'+str(obsBin)+'='+str(round(fidxs,4))
                 print cmd+'\n'
@@ -590,7 +611,7 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_r4lBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P r4lBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges r4lBin'+str(obsBin)+'=0.0,2.5 --redefineSignalPOI r4lBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
+                if ((opt.YEAR == 'Full') or (opt.YEAR == 'Run3')): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND): cmd = cmd + ' -t -1 --saveToys --setParameters r4lBin'+str(obsBin)+'='+str(round(fidxs,4))
                 print cmd+'\n'
@@ -687,7 +708,7 @@ def runFiducialXS():
                 cmd = cmd + ' -M MultiDimFit higgsCombine_'+obsName+'_SigmaBin'+str(obsBin)+'.MultiDimFit.mH125.38'
                 if(not opt.UNBLIND): cmd = cmd + '.123456'
                 cmd = cmd + '.root -w w --snapshotName "MultiDimFit" -m 125.38 -P SigmaBin'+str(obsBin)+' --floatOtherPOIs=1 --saveWorkspace --setParameterRanges SigmaBin0=0.0,'+max_range+' --redefineSignalPOI SigmaBin'+str(obsBin)+' --algo=grid --points=200 --cminDefaultMinimizerStrategy 0 --freezeNuisanceGroups nuis'
-                if (opt.YEAR == 'Full'): cmd = cmd + ' --freezeParameters MH'
+                if ((opt.YEAR == 'Full') or (opt.YEAR == 'Run3')): cmd = cmd + ' --freezeParameters MH'
                 else: cmd = cmd + ' --freezeParameters MH'
                 if(not opt.UNBLIND):
                     cmd = cmd + ' -t -1 --saveToys --setParameters SigmaBin'+str(obsBin)+'='+str(round(_obsxsec,4))

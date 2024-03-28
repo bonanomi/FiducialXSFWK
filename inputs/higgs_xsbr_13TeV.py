@@ -58,6 +58,11 @@ higgs_xs = {
 
 # Taken from : https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWG136TeVxsec_extrap
 higgs_xs_136TeV = {
+'ggH_125.0':  5223,
+'VBF_125.0': 4078,
+'WH_125.0': 1457,
+'ZH_125.0': 943.9,
+'ttH_125.0': 570.0,
 'ggH_125.38' : 51960, # N3LO
 'VBF_125.38' : 4067,
 'WH_125.38' : 1442.0,

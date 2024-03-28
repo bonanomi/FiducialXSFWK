@@ -40,16 +40,10 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     if(channel == '4mu'): channelNumber = 1
     if(channel == '4e'): channelNumber = 2
     if(channel == '2e2mu'): channelNumber = 3
-    # binName = 'a'+str(channelNumber)+'_recobin'+str(obsBin)
 
     # ZZfloating
     if 'zzfloating' in obsName: zzfloating = True
     else: zzfloating = False
-
-    # # _recobin = str(observableBins[obsBin]).replace('.', 'p') + '_' + str(observableBins[obsBin+1]).replace('.', 'p')
-    # _recobin = str(observableBins[obsBin]).replace('.', 'p')+'_'+str(observableBins[obsBin+1]).replace('.', 'p')
-    # if int(observableBins[obsBin+1]) > 1000:
-    #     _recobin = 'GT'+str(int(observableBins[obsBin]))
 
     if '_' in obsName and not 'floating' in obsName and not 'kL' in obsName and not obsName == 'njets_pt30_eta4p7': #it means it is a double differential measurement
         _recobin = str(observableBins[obsBin][0]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][1]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][2]).replace('.', 'p').replace('-','m')+'_'+str(observableBins[obsBin][3]).replace('.', 'p').replace('-','m')
@@ -77,12 +71,6 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     _temp = __import__('inputs_bkg_'+obsName+'_'+year, globals(), locals(), ['fractionsBackground'], -1)
     fractionsBackground = _temp.fractionsBackground
     if jes:
-        # sys.path.append('../coefficients/JES')
-        # jesNames = ['Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
-        # jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
-        # _temp = __import__('JESNP_'+obsName+'_'+str(year), globals(), locals(), ['JESNP'], -1)
-        # jesnp = _temp.JESNP
-        # sys.path.remove('../coefficients/JES')
         sys.path.append('../coefficients/JES')
         jesNames = ['Abs', 'Abs_year', 'BBEC1', 'BBEC1_year', 'EC2', 'EC2_year', 'FlavQCD', 'HF', 'HF_year', 'RelBal', 'RelSample_year']
         jesNames_datacard = [j.replace('year',year) for j in jesNames] # The name of the nuisance in the datacard should have the correspoding year
@@ -111,6 +99,8 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
         lumi['2016'] = '1.026'
         lumi['2017'] = '1.025'
         lumi['2018'] = '1.023'
+        lumi['2022'] = '1.014'
+        lumi['2022EE'] = '1.014'
 
     # Lepton efficiency
     # Values taken from:
@@ -124,6 +114,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_mu['2017_4mu'] = '0.981/1.009'
     eff_mu['2018_2e2mu'] = '0.986/1.006'
     eff_mu['2018_4mu'] = '0.981/1.008'
+    # TODO: Update with Run3 numbers when available
+    eff_mu['2022_2e2mu'] = '0.986/1.007'
+    eff_mu['2022_4mu'] = '0.981/1.01'
+    eff_mu['2022EE_2e2mu'] = '0.986/1.007'
+    eff_mu['2022EE_4mu'] = '0.981/1.01'
 
     eff_e = {}
     eff_e['2016_2e2mu'] = '0.934/1.062'
@@ -132,22 +127,30 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_e['2017_4e'] = '0.915/1.064'
     eff_e['2018_2e2mu'] = '0.95/1.052'
     eff_e['2018_4e'] = '0.905/1.077'
+    # TODO: Update with Run3 numbers when available
+    eff_e['2022_2e2mu'] = '0.934/1.062'
+    eff_e['2022_4e'] = '0.891/1.093'
+    eff_e['2022EE_2e2mu'] = '0.934/1.062'
+    eff_e['2022EE_4e'] = '0.891/1.093'
 
     # ZX
     ZX = {}
     ZX['2016_2e2mu'] = '0.756295/1.25114'
-    # ZX['2016_2e2mu'] = '0.65679/1.35490'
     ZX['2016_4e'] = '0.598182/1.43059'
     ZX['2016_4mu'] = '0.694678/1.30555'
     ZX['2017_2e2mu'] = '0.765736/1.236385'
-    # ZX['2017_2e2mu'] = '0.67255/1.33289'
     ZX['2017_4e'] = '0.646521/1.36398'
     ZX['2017_4mu'] = '0.694063/1.30623'
     ZX['2018_2e2mu'] = '0.7660052/1.235647'
-    # ZX['2018_2e2mu'] = '0.67620/1.32818'
     ZX['2018_4e'] = '0.650486/1.35893'
     ZX['2018_4mu'] = '0.69554/1.30465'
-
+    # TODO: Update with Run3 numbers when available
+    ZX['2022_2e2mu'] = '0.7660052/1.235647'
+    ZX['2022_4e'] = '0.650486/1.35893'
+    ZX['2022_4mu'] = '0.69554/1.30465'
+    ZX['2022EE_2e2mu'] = '0.7660052/1.235647'
+    ZX['2022EE_4e'] = '0.650486/1.35893'
+    ZX['2022EE_4mu'] = '0.69554/1.30465'
 
     # -------------------------------------------------------------------------------------------------
 
@@ -200,9 +203,9 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     for i in range(nBins+2):
         file.write('1.0 ')
     if zzfloating:
-        file.write('1 1 '+str(expected_yield[int(year),'ZX',channel])+'\n')
+        file.write('1 1 '+str(expected_yield[year,'ZX',channel])+'\n')
     else:
-        file.write(str(expected_yield[int(year),'qqzz',channel])+' '+str(expected_yield[int(year),'ggzz',channel])+' '+str(expected_yield[int(year),'ZX',channel])+'\n')
+        file.write(str(expected_yield[year,'qqzz',channel])+' '+str(expected_yield[year,'ggzz',channel])+' '+str(expected_yield[year,'ZX',channel])+'\n')
     file.write('------------ \n')
 
     if zzfloating:
@@ -215,13 +218,6 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
             else:
                 min_range = expected_yield['ZZ_'+channel]-100
             file.write('zz_norm_'+str(obsBin)+'_'+channel+' rateParam '+binName+' bkg_*zz '+str(expected_yield['ZZ_'+channel])+' ['+str(min_range)+','+str(expected_yield['ZZ_'+channel]+100)+']\n')
-
-    # norm_fake
-    # file.write('norm_nonResH lnU ')
-    # # for i in range(nBins+1): # Signal + OutsideAcceptance
-    # for i in range(nBins+1): # Signal + OutsideAcceptance
-    #     file.write('- ')
-    # file.write('10.0 - - -    # [/10,*10]\n')
 
     if yearSetting == 'Full':
         if zzfloating:
@@ -258,6 +254,19 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
                 for i in range(nBins+4): # All except ZX
                     file.write(lumi_corr_17_18[year]+' ')
                 file.write('-\n') # ZX
+    elif yearSetting == 'Run3':
+        if zzfloating:
+            # lumi
+            file.write('lumi_13TeV_2022 lnN ')
+            for i in range(nBins+2): # signals + out + fake
+                file.write(lumi['2022']+' ')
+            file.write('- - -\n') # qqzz + ggzz + ZX
+        else:
+            # lumi
+            file.write('lumi_13TeV_2022 lnN ')
+            for i in range(nBins+4): # All except ZX
+                file.write(lumi['2022']+' ')
+            file.write('-\n') # ZX
     else:
         if zzfloating:
             # lumi
@@ -402,6 +411,10 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
         lumi_corr_17_18 = {}
         lumi_corr_17_18['2017'] = '1.006'
         lumi_corr_17_18['2018'] = '1.002'
+    elif yearSetting == 'Run3':
+        lumi = {}
+        lumi['2022'] = '1.014'
+        lumi['2022EE'] = '1.014'
     else:
         lumi = {}
         lumi['2016'] = '1.026'
@@ -547,6 +560,13 @@ def createDatacard_ggH(obsName, channel, nBins, obsBin, observableBins, physical
                 for i in range(nBins+4): # All except ZX
                     file.write(lumi_corr_17_18[year]+' ')
                 file.write('-\n') # ZX
+    elif yearSetting == 'Run3':
+        # lumi
+        file.write('lumi_13TeV_2022 lnN ')
+        # for i in range(nBins+4): # All except ZX
+        for i in range(2*nBins+4): # All except ZX
+            file.write(lumi['2022']+' ')
+        file.write('-\n') # ZX
     else:
         # lumi
         file.write('lumi_13TeV_'+year+' lnN ')
