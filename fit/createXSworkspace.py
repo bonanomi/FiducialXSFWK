@@ -906,19 +906,10 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
     qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0", ROOT.RooArgList(frac_qqzz_var) )
     ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0", ROOT.RooArgList(frac_ggzz_var) )
     zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0", ROOT.RooArgList(frac_zjets_var) )
-    #else :
-    #    qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0*(1-@1)", ROOT.RooArgList(frac_qqzz_var, JES_qqzz_rfv) )
-    #    ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0*(1-@1)", ROOT.RooArgList(frac_ggzz_var, JES_ggzz_rfv) )
-    #    zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0*(1-@1)", ROOT.RooArgList(frac_zjets_var, JES_zjets_rfv) )
 
-    # Data
-    # if not os.path.isfile('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/reducedTree_'+year+'.root'):
-    #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS')
-    #     os.system('c++ -o  skim_data_tree skim_data_tree.cpp `root-config --cflags --glibs`')
-    #     os.system('./skim_data_tree '+year)
-    #     os.chdir('/eos/user/a/atarabin/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXS/datacard_'+year)
-    data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_'+year+'.root')
-    data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_2018.root') #TODO: Put run3 data
+    # TODO: Put run3 data
+    # data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_'+year+'.root')
+    data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_2018.root')
     data_obs_tree = data_obs_file.Get('SR')
 
     print obsName,obsBin_low,obsBin_high

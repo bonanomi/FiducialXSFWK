@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os, sys
 import numpy as np
 import pandas as pd
-import uproot#3 as uproot
+import uproot
 from math import sqrt, log
 import itertools
 import optparse
@@ -18,7 +18,7 @@ from paths import path
 # sys.path.append('../inputs/')
 # from observables import observables
 
-print 'Welcome in RunTemplates!'
+print('Welcome in RunTemplates!')
 
 def parseOptions():
 
@@ -77,15 +77,15 @@ def xsecs(year):
     d_bkg = prepareTrees(year)
 
     for bkg in bkgs:
-        total_weight = d_bkg[bkg].pandas.df('overallEventWeight').overallEventWeight
-        puweight = d_bkg[bkg].pandas.df('PUWeight').PUWeight
-        genweight = d_bkg[bkg].pandas.df('genHEPMCweight').genHEPMCweight
+        total_weight = d_bkg[bkg].arrays("overallEventWeight",library="np")["overallEventWeight"]
+        puweight = d_bkg[bkg].arrays("PUWeight", library="np")["PUWeight"]
+        genweight = d_bkg[bkg].arrays("genHEPMCweight", library="np")["genHEPMCweight"]
         if 'ZZTo' in bkg:
             # TODO: Add EW KFactor once in the samples
-            KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].pandas.df('KFactor_QCD_qqZZ_M').KFactor_QCD_qqZZ_M
+            KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].arrays("KFactor_QCD_qqZZ_M", library="np")["KFactor_QCD_qqZZ_M"]
             xsec = total_weight/(puweight*genweight*KFactor_QCD_qqZZ_M_Weight)
         elif 'ggTo' in bkg:
-            KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].pandas.df('KFactor_QCD_ggZZ_Nominal').KFactor_QCD_ggZZ_Nominal
+            KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].arrays("KFactor_QCD_ggZZ_Nominal", library="np")["KFactor_QCD_ggZZ_Nominal"]
             xsec = total_weight/(puweight*genweight*KFactor_QCD_ggZZ_Nominal_Weight)
         else:
             xsec = total_weight/(puweight*genweight)
@@ -99,9 +99,7 @@ def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
         fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
-        print(fname)
         gen_bkg[bkg] = uproot.open(fname)["candTree/Counter"].array()[0]
-        print("Counters is: ", gen_bkg[bkg])
 
     return gen_bkg
 
@@ -169,10 +167,13 @@ def dataframes(year, year_mc):
         '''
         gen = gen_bkg[bkg]
         xsec = xsec_bkg[bkg]
-        df = d_bkg[bkg].pandas.df(b_bkg, flatten = False)
+        df_b = d_bkg[bkg].arrays(b_bkg, library="np")
+        df = pd.DataFrame(columns=b_bkg)
+        for b in b_bkg:
+            df[b] = df_b[b]
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
         # df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
-        #df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
+        # df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         # df = add_rapidity(df)
         if (bkg != 'ZZTo4l'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
@@ -227,8 +228,8 @@ def GetFakeRate(lep_Pt, lep_eta, lep_ID):
 
 # Open Fake Rates files
 def openFR(year):
-    fnameFR = eos_path_FR + 'FRfiles_UL/FakeRates_SS_%i.root' %year
-    file = uproot.open(fnameFR)
+    # fnameFR = eos_path_FR + 'FRfiles_UL/FakeRates_SS_%i.root' %year
+    fnameFR = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/FRfiles/FakeRates_SS_%s.root" %year
     # Retrieve FR from TGraphErrors
     input_file_FR = ROOT.TFile(fnameFR)
     g_FR_mu_EB = input_file_FR.Get("FR_SS_muon_EB")
@@ -244,65 +245,86 @@ def findFSZX(df):
 
 # Define combination coefficients
 def comb(year):
-    if year == 2016:
+    if year == "2016":
         cb_SS = np.array([
             1.175,   # 4e
             0.975,   # 4mu
             1.052,    # 2e2mu
             1.148,    # 2mu2e
         ])
-    elif year == 2017:
+    elif year == "2017":
         cb_SS = np.array([
             1.094,   # 4e
             0.948,   # 4mu
             0.930,    # 2e2mu
             1.139,    # 2mu2e
         ])
-    else:
+    elif year == "2018":
         cb_SS = np.array([
             1.157,   # 4e
             0.974,   # 4mu
             0.930,    # 2e2mu
             1.143,    # 2mu2e
         ])
+    elif year == "2022":
+        cb_SS = np.array([
+            1.239, # 4e
+            1.093, # 4mu
+            1.057, # 2e2mu
+            1.254, # 2mu2e
+        ])
+    else:
+        cb_SS = np.array([
+            1.067, # 4e
+            1.015, # 4mu
+            1.049, # 2e2mu
+            1.905, # 2mu2e
+        ])
     return cb_SS
 
 # Define ration OppositeSign/SameSign
 def ratio(year):
-    if year == 2016:
+    if year == "2016":
         fs_ROS_SS = np.array([
             1.0039,   # 4e
             0.999103,  # 4mu
             1.0332,   # 2e2mu
             1.00216,  # 2mu2e
             ])
-    elif year == 2017:
+    elif year == "2017":
         fs_ROS_SS = np.array([
             0.990314,   # 4e
             1.02903,  # 4mu
             1.0262,   # 2e2mu
             1.00154,  # 2mu2e
             ])
-    else:
+    elif year == "2018":
         fs_ROS_SS = np.array([
             1.00322,   # 4e
             1.0187,  # 4mu
             1.04216,   # 2e2mu
             0.996253,  # 2mu2e
             ])
+    elif year == "2022":
+        fs_ROS_SS = np.array([
+            1.030,   # 4e
+            1.165,  # 4mu
+            1.057,   # 2e2mu
+            1.254,  # 2mu2e
+            ])
+    else:
+        fs_ROS_SS = np.array([
+            0.990,   # 4e
+            0.997,  # 4mu
+            1.039,   # 2e2mu
+            0.905,  # 2mu2e
+            ])
     return fs_ROS_SS
 
 # Calculate yield for Z+X (data in CRZLL control region are scaled in signal region through yields)
 def ZXYield(df, year, year_mc):
-    ref_lumi = 59.83
-    if year_mc == '2022EE':
-        lumi = 26.6728
-    elif year_mc == '2022':
-        lumi = 7.9804
-    # TODO: Drop once Run3 ZX estimate is ready
-    y_scale = lumi/ref_lumi
-    cb_SS = comb(year)
-    fs_ROS_SS = ratio(year)
+    cb_SS = comb(year_mc)
+    fs_ROS_SS = ratio(year_mc)
     vec = df.to_numpy()
     Yield = np.zeros(len(vec), float)
     for i in range(len(vec)):
@@ -310,14 +332,16 @@ def ZXYield(df, year, year_mc):
         lepPt  = vec[i][5]
         lepEta = vec[i][4]
         lepID  = vec[i][3]
-        Yield[i] = y_scale * cb_SS[finSt] * fs_ROS_SS[finSt] * GetFakeRate(lepPt[2], lepEta[2], lepID[2]) * GetFakeRate(lepPt[3], lepEta[3], lepID[3])
+        Yield[i] = cb_SS[finSt] * fs_ROS_SS[finSt] * GetFakeRate(lepPt[2], lepEta[2], lepID[2]) * GetFakeRate(lepPt[3], lepEta[3], lepID[3])
     return Yield
 
 def doZX(year, year_mc):
-    keyZX = 'CRZLL'
-    data = eos_path + 'Data_UL/reducedTree_AllData_'+str(year)+'.root'
-    ttreeZX = uproot.open(data)[keyZX]
-    dfZX = ttreeZX.pandas.df(branches_ZX, flatten = False)
+    keyZX = 'CRZLLTree/candTree'
+    data = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/FRfiles/dataFiles/Data'+year_mc+'_synchMini_SIPaddLep.root'
+    ttreeZX = uproot.open(data)[keyZX].arrays(branches_ZX, library="np")
+    dfZX = pd.DataFrame(columns=branches_ZX)
+    for b in branches_ZX:
+        dfZX[b] = ttreeZX[b]
     dfZX = dfZX[dfZX.Z2Flav > 0] #Keep just same-sign events
     dfZX = findFSZX(dfZX)
     dfZX['yield_SR'] = ZXYield(dfZX, year, year_mc)
@@ -334,7 +358,7 @@ def smoothAndNormaliseTemplate(h1d, norm):
 
 def normaliseHist(h1d, norm):
     if (h1d.Integral() > 0): #return -1
-	h1d.Scale(norm/h1d.Integral())
+        h1d.Scale(norm/h1d.Integral())
     else:
         return -1
 
@@ -467,7 +491,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
             df_inclusive = df.copy()
             len_tot = df['yield_SR'].sum() # Total number of bkg events in final state f
             yield_bkg[year,'ZX',f] = len_tot
-            print(year, f, len_tot)
+            print("ZX: ", year, f, len_tot)
             for i in range(nBins):
                 if not doubleDiff:
                     bin_low = binning[i]
@@ -550,17 +574,16 @@ if (opt.YEAR == 'Full'):
     years = [2016,2017,2018]
 if (opt.YEAR == 'Run3'):
     years_MC = ['2022EE', '2022']
-    # TODO: Used for ZX, change once ZX Run3 is available
-    years = [2018, 2018] 
+    years = ['2022EE', '2022'] 
 
 obs_bins, doubleDiff = binning(opt.OBSNAME)
 
 obs_name = opt.OBSNAME
 if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == 'Dint' or obs_name == 'DL1' or obs_name == 'DL1Zg': acFlag = True
 else: acFlag = False
-print acFlag
+print(acFlag)
 
-_temp = __import__('observables', globals(), locals(), ['observables'], -1)
+_temp = __import__('observables', globals(), locals(), ['observables'])#, -1)
 observables = _temp.observables
 
 if doubleDiff:
@@ -572,15 +595,15 @@ if doubleDiff:
     obs_name_2nd = opt.OBSNAME.split(' vs ')[1]
     obs_name = obs_name + '_' + obs_name_2nd
 
-print 'Following observables extracted from dictionary: RECO = ',obs_reco
+print('Following observables extracted from dictionary: RECO = ',obs_reco)
 if doubleDiff:
-    print 'It is a double-differential measurement: RECO_2nd = ',obs_reco_2nd
+    print('It is a double-differential measurement: RECO_2nd = ',obs_reco_2nd)
 
 # Generate pandas for ggZZ and qqZZ
 d_bkg_tmp = {}
 for year, year_mc in zip(years, years_MC):
-    bkg = skim_df(year, year_mc)
-    d_bkg_tmp[year_mc] = bkg
+     bkg = skim_df(year, year_mc)
+     d_bkg_tmp[year_mc] = bkg
 
 # # Create pandas with int as indeces and 2016post+2016pre
 d_bkg = {}
@@ -607,10 +630,10 @@ branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1M
 '''
 dfZX={}
 for year, year_mc in zip(years, years_MC):
-    g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year)
+    g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year_mc)
     dfZX[year_mc] = doZX(year, year_mc)
     # dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
-    #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
+    # dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     # dfZX[year] = add_rapidity(dfZX[year])
 
     print(year,'done')

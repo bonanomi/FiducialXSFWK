@@ -60,9 +60,10 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     graph.SetMarkerColor(color)
     spline = TSpline3("spline3", graph)
     global NAMECOUNTER
-    func = TF1('splinefn'+str(NAMECOUNTER), partial(Eval, spline), graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
+    pyfunc = partial(Eval, spline)
+    func = TF1('splinefn'+str(NAMECOUNTER), pyfunc, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
     bestfit = func.GetMinimumX() #AT
-    print bestfit
+    print(bestfit)
     NAMECOUNTER += 1
     func.SetLineColor(color)
     func.SetLineWidth(3)
@@ -94,7 +95,7 @@ def BuildScan(scan, param, files, color, yvals, ycut):
     else:
         val_2sig = (0., 0., 0.)
         cross_2sig = cross_1sig
-    print val
+    print(val)
     return {
         "graph"     : graph,
         "spline"    : spline,
@@ -243,9 +244,9 @@ if obsName not in _obsName:
 
 
 sys.path.append('../inputs')
-_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins']) #, -1)
 obs_bins = _temp.observableBins
-_temp = __import__('xsec_'+obsName, globals(), locals(), ['xsec'], -1)
+_temp = __import__('xsec_'+obsName, globals(), locals(), ['xsec']) # , -1)
 xsec = _temp.xsec
 print(xsec)
 sys.path.remove('../inputs')
@@ -287,7 +288,7 @@ for i in range(nBins):
     if 'kL' in obsName:
             _obs_bin = 'kappa_lambda'
 
-    print _obs_bin
+    print(_obs_bin)
 
     graphs = []
     grapherrs = []
@@ -296,11 +297,11 @@ for i in range(nBins):
     for ifile in range(len(fileList)):
         rfile = fileList[ifile].replace('OBS', _obs_bin)
         rfile = rfile.replace('BIN', obsName)
-        print rfile
+        print(rfile)
         graphs.append(TGraph())
         fname = inputPath+rfile
         inF = TFile.Open(fname,"READ")
-        print fname
+        print(fname)
         tree = inF.Get("limit")
 
         if tree.GetBranch('r_smH_'+_obsName[obsName]+'_'+str(_bin)):
@@ -321,7 +322,6 @@ for i in range(nBins):
                 elif _bin == 1:
                     if obsName.startswith("mass4l"):
                         graphs[ifile].SetPoint(ipoint,entry.r2e2muBin0,2.0*entry.deltaNLL)
-                        if 2.0*entry.deltaNLL==0:
                     elif v4_flag:
                         graphs[ifile].SetPoint(ipoint,entry.r4lBin0,2.0*entry.deltaNLL)
                     else:
@@ -609,9 +609,9 @@ for i in range(nBins):
         fname = inputPath + "higgsCombine_pT4l_kL_grid.MultiDimFit.mH125.38.123456.root"
         obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
         obs_2sig = obs_scan['val_2sig']
-        print '------------------------------------------------------'
-        print 'EXPECTED 95% CL exclusion:', obs_2sig[0]+obs_2sig[1], obs_2sig[0]+obs_2sig[2]
-        print '------------------------------------------------------'
+        print('------------------------------------------------------')
+        print('EXPECTED 95% CL exclusion:', obs_2sig[0]+obs_2sig[1], obs_2sig[0]+obs_2sig[2])
+        print('------------------------------------------------------')
     else:
         fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.123456.root"
         print('STAT+SYST')
@@ -665,9 +665,9 @@ for i in range(nBins):
             fname = inputPath + "higgsCombine_pT4l_kL_grid.MultiDimFit.mH125.38.root"
             obs_scan = BuildScan('scan', poi, [fname], 2, yvals, 7.)
             obs_2sig = obs_scan['val_2sig']
-            print '------------------------------------------------------'
-            print 'OBSERVED 95% CL exclusion:', obs_2sig[0]+obs_2sig[1], obs_2sig[0]+obs_2sig[2]
-            print '------------------------------------------------------'
+            print('------------------------------------------------------')
+            print('OBSERVED 95% CL exclusion:', obs_2sig[0]+obs_2sig[1], obs_2sig[0]+obs_2sig[2])
+            print('------------------------------------------------------')
         else:
             fname = inputPath + "higgsCombine_"+obsName+"_"+poi_fn+".MultiDimFit.mH125.38.root"
             print('STAT+SYST')
@@ -687,7 +687,7 @@ for i in range(nBins):
             kappa_lambda = []
             for entry in limit:
                 kappa_lambda.append(entry.kappa_lambda)
-            print kappa_lambda
+            print(kappa_lambda)
             obs_nom_stat = []
             obs_nom_stat.append(kappa_lambda[0])
             obs_nom_stat.append(kappa_lambda[2]-kappa_lambda[0])
@@ -729,7 +729,7 @@ for i in range(nBins):
     if(opt.UNBLIND):
         Text3 = TPaveText(0.15, 0.81,0.4,0.9,'brNDC')
     else:
-    	Text3 = TPaveText(0.15, 0.76,0.4,0.84,'bfNDC')
+        Text3 = TPaveText(0.15, 0.76,0.4,0.84,'bfNDC')
     if v4_flag:
         if _bin == 0: exp_fit = 'Exp. #sigma_{2e2mu, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 1: exp_fit = 'Exp. #sigma_{4l, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)

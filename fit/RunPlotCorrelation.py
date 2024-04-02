@@ -133,7 +133,7 @@ def PlotCorrelation():
         fig, ax = plt.subplots(figsize = (20, 10))
         ax.text(0., 1.005, r'$\bf{{CMS}}$', fontsize = 35, transform = ax.transAxes)
 
-        ax.text(0.7, 1.005, r'138 fb$^{-1}$ (13 TeV)', fontsize = 20, transform = ax.transAxes)
+        ax.text(0.7, 1.005, r'34.7 fb$^{-1}$ (13.6 TeV)', fontsize = 20, transform = ax.transAxes)
         ax.text(0.63, 0.9, r'H$\rightarrow$ ZZ', fontsize = 25, transform = ax.transAxes)
         ax.text(0.55, 0.85, r'm$_{\mathrm{H}}$ = 125.38 GeV', fontsize = 25, transform = ax.transAxes)
 
@@ -169,54 +169,9 @@ def PlotCorrelation():
         plt.axvline(x=theMap.shape[0], color='k',linewidth=2.5)
 
         if opt.UNBLIND:
-            plt.savefig('/home/llr/cms/bonanomi/fiducial/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/FidJJes/fit/corr_matrix/corr_'+obsName+'_'+physicalModel+'.pdf', bbox_inches='tight')
-            #plt.savefig('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/plots/'+obsName+'/data/corr_'+obsName+'_'+physicalModel+'.png')
+            plt.savefig('corr_'+obsName+'_'+physicalModel+'.pdf', bbox_inches='tight')
         else:
-            plt.savefig('/home/llr/cms/bonanomi/fiducial/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/FidJJes/fit/corr_matrix/corr_'+obsName+'_'+physicalModel+'.pdf', bbox_inches='tight')
-            #plt.savefig('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/plots/'+obsName+'/asimov/corr_'+obsName+'_'+physicalModel+'.png')
-
-
-        # pois_reverse = list(pois)
-        # pois_reverse.reverse()
-        # translate = defaultdict(list)
-        # for p in pois:
-        #     translate[p] = p.replace('','')
-        #
-        # for iBin,iPar in enumerate(pois):
-        #     for jBin,jPar in enumerate(pois_reverse):
-        #         theHist.GetXaxis().SetBinLabel(iBin+1, translate[iPar])
-        #         theHist.GetYaxis().SetBinLabel(jBin+1, translate[jPar])
-        #         if iBin <= (theHist.GetNbinsX()-1-jBin): theHist.Fill(iBin, jBin, theMap[(iPar,jPar)])
-        #
-        # print ('Final correlation map used is:')
-        # print (theMap)
-        #
-        # ROOT.gStyle.SetNumberContours(500)
-        # ROOT.gStyle.SetPaintTextFormat('1.2f')
-        # ROOT.gStyle.SetTextFont(42)
-        # theHist.GetXaxis().SetTickLength(0.)
-        # theHist.GetXaxis().SetLabelSize(0.06)
-        # theHist.GetXaxis().SetLabelFont(42)
-        # theHist.GetYaxis().SetTickLength(0.)
-        # theHist.GetYaxis().SetLabelSize(0.06)
-        # theHist.GetYaxis().SetLabelFont(42)
-        # theHist.GetZaxis().SetRangeUser(-1.,1.)
-        # theHist.GetZaxis().SetTickLength(0.)
-        # theHist.GetZaxis().SetLabelSize(0.03)
-        #
-        # theHist.SetStats(0)
-        #
-        # theHist.GetXaxis().LabelsOption("h")
-        # theHist.GetYaxis().SetLabelOffset(0.007)
-        # theHist.SetMarkerSize(2.5)
-        # theHist.GetXaxis().SetLabelSize(0.07)
-        # theHist.GetYaxis().SetLabelSize(0.07)
-        #
-        # c1 = ROOT.TCanvas()
-        # c1.SetLeftMargin(0.2)
-        # theHist.Draw('colz,text')
-        # c1.SaveAs('corr_'+obsName+'_'+physicalModel+'.png')
-
+            plt.savefig("corr_"+obsName+"_"+physicalModel+".pdf", bbox_inches="tight")
 
 obsName = opt.OBSNAME
 

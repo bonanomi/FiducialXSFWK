@@ -209,6 +209,8 @@ for iYear in range(len(year)):
     kBkg_ggZZ = 1
     kBkg_ZJets = 2
     c1.cd()
+    checkDir(sPlotsStore)
+    checkDir(sPlotsStore+"/"+year[iYear])
     checkDir(sPlotsStore+"/"+year[iYear]+"/"+obsTag)
     for iBin in range(N_BINS):
 

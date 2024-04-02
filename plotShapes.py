@@ -53,12 +53,13 @@ def checkDir(folder_path):
         os.mkdir(folder_path)
 
 def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, _observableBins, _obsName):
-    _years = {"1":"2016", "2":"2017", "3":"2018", "2018":"2018", "2022":"2022", "2022EE":"2022EE"}
+    # TODO: Not nice because not backwards compatible. Invert this dictionary
+    _years = {"1":"2022", "2":"2022EE", "3":"2018", "2018":"2018", "2022":"2022", "2022EE":"2022EE"}
     
     if _physicalModel != 'v3':
         # In case of mass4l we have only one bin, so the third 'chan' part is not included in the name of the function
         if (_obsName!='mass4l' and _obsName!='mass4l_zzfloating'):
-            binName = "ch"+_year+"_ch"+_fStateNumber+"_ch"+str(_recobin+1)
+            binName = "ch"+_yeaa+"_ch"+_fStateNumber+"_ch"+str(_recobin+1)
             procName = _fState+"Bin"+str(_bin)
         else:
             binName = "ch"+_year+"_ch"+_fStateNumber
@@ -106,7 +107,8 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         years = ["1", "2", "3"]
     else:
         lumi = '34.7'
-        years = ["2022", "2022EE"]
+        years = ["1", "2"]
+        # years = ["2022"]#, "2022EE"]
 
     # nBins = len(observableBins)
     # if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
@@ -125,14 +127,14 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     if(not opt.UNBLIND):
-    	theorymass = theorymass + '.123456'
+        theorymass = theorymass + '.123456'
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
     elif physicalModel == 'kLambda':
         fname = 'higgsCombine_'+obsName+'.MultiDimFit.mH'+theorymass+'.root'
     else:
         fname = 'higgsCombine_'+obsName+'_r2e2muBin0.MultiDimFit.mH'+theorymass+'.root'
-    print 'combine file: ', fname
+    print('combine file: ', fname)
 
     f_asimov = TFile(sourcedir + fname, "READ")
 
@@ -356,18 +358,16 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
 
 
     ##### ------------------------ Data ------------------------ #####
-    CMS_channel = w.cat("CMS_channel")
-    mass = w.var("CMS_zz4l_mass").frame(RooFit.Bins(30))
-
+    
+    CMS_channel = w_asimov.cat("CMS_channel")
+    mass = w_asimov.var("CMS_zz4l_mass").frame(RooFit.Bins(30))
     if (fstate=="4l"):
         datacut = ''
         for year in years:
             for fState in fStates:
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
-                if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
-                    datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
-                else:
-                    datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
+                ch_idx = str(CMS_channel.lookupIndex(bin_name))
+                datacut += "CMS_channel=="+ch_idx+" || "
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
@@ -376,15 +376,12 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
         datacut = ''
         for year in years:
             bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
-            if(obsName!='mass4l' and obsName!='mass4l_zzfloating'):
-                datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
-            else:
-                datacut += "CMS_channel==CMS_channel::"+bin_name+" || "
+            ch_idx = str(CMS_channel.lookupIndex(bin_name))
+            datacut += "CMS_channel=="+ch_idx+" || "
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
         sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
-
     ##### ------------------------ Shapes ------------------------ #####
     if (fstate!="4l"):
         comp_otherfid = ''
@@ -659,9 +656,9 @@ else:
     doubleDiff = False
 
 sys.path.append("inputs")
-_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'])# , -1)
 observableBins = _temp.observableBins
-print observableBins
+print(observableBins)
 sys.path.remove("inputs")
 
 if obsName.startswith("mass4l"):
@@ -676,7 +673,7 @@ else:
 
 nBins = len(observableBins)
 if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
-print nBins
+print(nBins)
 fStates = ["4e","4mu","2e2mu","4l"]
 for fState in fStates:
     for recobin in range(nBins):
