@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os, sys
 import numpy as np
 import pandas as pd
-import uproot
+import uproot as uproot
 from math import sqrt, log
 import itertools
 import optparse
@@ -66,7 +66,7 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/"+year+"/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
         d_bkg[bkg] = uproot.open(fname)[key]
 
     return d_bkg
@@ -82,11 +82,11 @@ def xsecs(year):
         genweight = d_bkg[bkg].arrays("genHEPMCweight", library="np")["genHEPMCweight"]
         if 'ZZTo' in bkg:
             # TODO: Add EW KFactor once in the samples
-            KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].arrays("KFactor_QCD_qqZZ_M", library="np")["KFactor_QCD_qqZZ_M"]
-            xsec = total_weight/(puweight*genweight*KFactor_QCD_qqZZ_M_Weight)
+            # KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].arrays("KFactor_QCD_qqZZ_M", library="np")["KFactor_QCD_qqZZ_M"]
+            xsec = total_weight/(puweight*genweight) # *KFactor_QCD_qqZZ_M_Weight)
         elif 'ggTo' in bkg:
-            KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].arrays("KFactor_QCD_ggZZ_Nominal", library="np")["KFactor_QCD_ggZZ_Nominal"]
-            xsec = total_weight/(puweight*genweight*KFactor_QCD_ggZZ_Nominal_Weight)
+            # KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].arrays("KFactor_QCD_ggZZ_Nominal", library="np")["KFactor_QCD_ggZZ_Nominal"]
+            xsec = total_weight/(puweight*genweight) # *KFactor_QCD_ggZZ_Nominal_Weight)
         else:
             xsec = total_weight/(puweight*genweight)
 
@@ -98,7 +98,7 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_"+year+"/cjlst_trees/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/"+year+"/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
         gen_bkg[bkg] = uproot.open(fname)["candTree/Counter"].array()[0]
 
     return gen_bkg
@@ -155,7 +155,7 @@ def dataframes(year, year_mc):
     gen_bkg = generators(year_mc)
     xsec_bkg = xsecs(year_mc)
     for bkg in bkgs:
-        b_bkg = ['ZZMass', 'Z1Flav', 'Z2Flav', 'Z1Mass', 'Z2Mass', 'overallEventWeight']
+        b_bkg = ['ZZMass', 'ZZyAbs', 'ZZPt', 'Z1Flav', 'Z2Flav', 'Z1Mass', 'Z2Mass', 'overallEventWeight']
         # , 'L1prefiringWeight', 'LepPt', 'SFcorr']
         '''
         b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
@@ -173,7 +173,7 @@ def dataframes(year, year_mc):
             df[b] = df_b[b]
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
         # df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
-        # df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
+        #df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         # df = add_rapidity(df)
         if (bkg != 'ZZTo4l'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
@@ -228,8 +228,8 @@ def GetFakeRate(lep_Pt, lep_eta, lep_ID):
 
 # Open Fake Rates files
 def openFR(year):
-    # fnameFR = eos_path_FR + 'FRfiles_UL/FakeRates_SS_%i.root' %year
     fnameFR = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/FRfiles/FakeRates_SS_%s.root" %year
+    file = uproot.open(fnameFR)
     # Retrieve FR from TGraphErrors
     input_file_FR = ROOT.TFile(fnameFR)
     g_FR_mu_EB = input_file_FR.Get("FR_SS_muon_EB")
@@ -337,7 +337,7 @@ def ZXYield(df, year, year_mc):
 
 def doZX(year, year_mc):
     keyZX = 'CRZLLTree/candTree'
-    data = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/FRfiles/dataFiles/Data'+year_mc+'_synchMini_SIPaddLep.root'
+    data = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/'+year_mc+'/Data/AllData_'+year_mc+'.root'
     ttreeZX = uproot.open(data)[keyZX].arrays(branches_ZX, library="np")
     dfZX = pd.DataFrame(columns=branches_ZX)
     for b in branches_ZX:
@@ -377,7 +377,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
         for bkg in ['qqzz', 'ggzz']:
             for f in ['2e2mu', '4e', '4mu']:
                 df = df_irr[year][bkg][(df_irr[year][bkg].FinState == f) & (df_irr[year][bkg].ZZMass >= opt.LOWER_BOUND) & (df_irr[year][bkg].ZZMass <= opt.UPPER_BOUND)].copy()
-                len_tot = df['weight'].sum() # Total number of bkg b events in final state f
+                len_tot = df['weight'].sum()
                 yield_bkg[year,bkg,f] = len_tot
                 print(year, bkg, f, len_tot)
                 for i in range(nBins):
@@ -415,6 +415,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                         df = pd.concat([df_2016_qqzz,df_2017_qqzz,
                                         df_2018_qqzz,df_2016_ggzz,
                                         df_2017_ggzz,df_2018_ggzz])
+
                         # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
                         len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
                         yield_bkg['ZZ_'+str(i)] = len_tot
@@ -479,6 +480,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.Write()
                     outFile.Close()
                     histo.Delete()
+
         # ZX for different final states
         for f in ['2e2mu', '4e', '4mu']:
             if(f == '4e'):
@@ -545,6 +547,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 histo.Write()
                 outFile.Close()
                 histo.Delete()
+        
         with open('../inputs/inputs_bkg_'+var_string+'_'+str(year)+'.py', 'w') as f:
             f.write('observableBins = '+json.dumps(binning)+';\n')
             f.write('fractionsBackground = '+json.dumps(fractionBkg))
@@ -574,7 +577,7 @@ if (opt.YEAR == 'Full'):
     years = [2016,2017,2018]
 if (opt.YEAR == 'Run3'):
     years_MC = ['2022EE', '2022']
-    years = ['2022EE', '2022'] 
+    years = ["2022EE", "2022"] 
 
 obs_bins, doubleDiff = binning(opt.OBSNAME)
 
@@ -583,7 +586,7 @@ if obs_name == 'D0m' or obs_name == 'D0hp' or obs_name == 'Dcp' or obs_name == '
 else: acFlag = False
 print(acFlag)
 
-_temp = __import__('observables', globals(), locals(), ['observables'])#, -1)
+_temp = __import__('observables', globals(), locals(), ['observables'])
 observables = _temp.observables
 
 if doubleDiff:
@@ -621,19 +624,20 @@ if (opt.YEAR == 'Run3'):
     d_bkg['2022'] = d_bkg_tmp['2022']
 
 # Generate pandas for ZX
-branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z2Mass', 'Z1Mass']
+branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z2Mass', 'Z1Mass', 'ZZPt', 'ZZyAbs']
+dfZX={}
 '''
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
                'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
                'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7',
                'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint','absdetajj', 'dphijj']
-'''
 dfZX={}
+'''
 for year, year_mc in zip(years, years_MC):
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year_mc)
     dfZX[year_mc] = doZX(year, year_mc)
     # dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
-    # dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
+    #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     # dfZX[year] = add_rapidity(dfZX[year])
 
     print(year,'done')

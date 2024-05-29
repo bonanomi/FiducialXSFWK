@@ -1,4 +1,4 @@
-import sys, os, string, re, pwd, commands, ast, optparse, shlex, time
+import sys, os, string, re, pwd, ast, optparse, shlex, time
 from array import array
 from math import *
 from decimal import *
@@ -6,7 +6,7 @@ from decimal import *
 def checkDir(folder_path):
     isdir = os.path.isdir(folder_path)
     if not isdir:
-        print('Directory {} does not exist. Creating it.' .format(folder_path))
+        #print('Directory {} does not exist. Creating it.' .format(folder_path))
         os.mkdir(folder_path)
 
 grootargs = []
@@ -61,38 +61,43 @@ sys.path.append('./LHScans')
 
 def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
-    _temp = __import__('inputs_sig_extrap_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'])#, -1)
     acc = _temp.acc
 
     if(opt.YEAR=='Full'):
-        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_Full', globals(), locals(), ['acc'])#, -1)
         acc_NNLOPS = _temp.acc
     else:
-        _temp = __import__('inputs_sig_extrap_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_'+obsName+'_NNLOPS_'+opt.YEAR, globals(), locals(), ['acc'])#, -1)
         acc_NNLOPS = _temp.acc
 
     if(acFlag):
-        _temp = __import__('inputs_sig_ACggH_'+acSample+'_'+obsName+'_Full', globals(), locals(), ['acc'], -1)
+        _temp = __import__('inputs_sig_ACggH_'+acSample+'_'+obsName+'_Full', globals(), locals(), ['acc'])#, -1)
         acc_AC = _temp.acc
         if(acFlagBis):
-            _temp = __import__('inputs_sig_ACggH_'+acSampleBis+'_'+obsName+'_Full', globals(), locals(), ['acc'], -1)
+            _temp = __import__('inputs_sig_ACggH_'+acSampleBis+'_'+obsName+'_Full', globals(), locals(), ['acc'])#, -1)
             acc_ACbis = _temp.acc
 
-    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br'], -1)
-    higgs_xs = _temp.higgs_xs
+
+    _temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs_xs_136TeV','higgs4l_br'])#, -1)
+    if(opt.YEAR=='Run3'):
+        higgs_xs = _temp.higgs_xs_136TeV
+    else:
+        higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
+
     if (opt.FIXFRAC): floatfix = '_fixfrac'
     else: floatfix = ''
     if (obsName.startswith("mass4l")):
-        if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
-        else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
+        if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'])#, -1)
+        else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'])#, -1)
         resultsXS = _temp.resultsXS
-        if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v2'+floatfix, globals(), locals(), ['resultsXS'], -1)
-        else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v2'+floatfix, globals(), locals(), ['resultsXS'], -1)
+        if opt.UNBLIND: _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v2'+floatfix, globals(), locals(), ['resultsXS'])#, -1)
+        else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v2'+floatfix, globals(), locals(), ['resultsXS'])#, -1)
         resultsXS_v2 = _temp.resultsXS
     else:
-        if (opt.UNBLIND): _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
-        else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'], -1)
+        if (opt.UNBLIND): _temp = __import__('resultsXS_LHScan_observed_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'])#, -1)
+        else: _temp = __import__('resultsXS_LHScan_expected_'+obsName+'_v3'+floatfix, globals(), locals(), ['resultsXS'])#, -1)
         resultsXS = _temp.resultsXS
 
 
@@ -104,34 +109,34 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                 for obsBin in range(len(obs_bins)-1):
                     # if opt.TUNEAC:
                     #     accCorrFact[pmode+'_'+fState+'_genbin'+str(obsBin)] = acc[pmode+'_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin0'] / acc['ggH125_'+fState+'_'+obsName+'_genbin'+str(obsBin)+'_recobin0']
-                    #     print pmode+'_'+fState+'_genbin'+str(obsBin), accCorrFact[pmode+'_'+fState+'_genbin'+str(obsBin)]
+                    #     #print pmode+'_'+fState+'_genbin'+str(obsBin), accCorrFact[pmode+'_'+fState+'_genbin'+str(obsBin)]
                     # else:
                     accCorrFact[pmode+'_'+fState+'_genbin'+str(obsBin)] = 1
 
 
-    #print _temp
-    #print resultsXS
+    ##print _temp
+    ##print resultsXS
 
     # acc_ggH_powheg = {}
     pdfunc_ggH_powheg = {}
     qcdunc_ggH_powheg = {}
-    _temp = __import__('accUnc_'+obsName, globals(), locals(), ['pdfUncert','qcdUncert'], -1)
+    _temp = __import__('accUnc_'+obsName, globals(), locals(), ['pdfUncert','qcdUncert'])#, -1)
     # acc_ggH_powheg = _temp.acc #AT Non viene mai usato
     pdfunc_ggH_powheg = _temp.pdfUncert
     qcdunc_ggH_powheg = _temp.qcdUncert
 
-    _temp = __import__('accUnc_aMCNLO_'+obsName, globals(), locals(), ['pdfUncert','qcdUncert'], -1)
+    _temp = __import__('accUnc_aMCNLO_'+obsName, globals(), locals(), ['pdfUncert','qcdUncert'])#, -1)
     # acc_ggH_powheg = _temp.acc #AT Non viene mai usato
     pdfunc_ggH_aMC = _temp.pdfUncert
     qcdunc_ggH_aMC = _temp.qcdUncert
 
     if not acFlag:
-        _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
+        _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'])#, -1)
         pdfunc_ggH_nnlops = _temp.pdfUncert
         qcdunc_ggH_nnlops = _temp.qcdUncert
     else:
         #for discriminats open POWHEG. It will not be used. Just to
-        _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'], -1)
+        _temp = __import__('accUnc_'+obsName+'_NNLOPS', globals(), locals(), ['pdfUncert','qcdUncert'])#, -1)
         pdfunc_ggH_nnlops = _temp.pdfUncert
         qcdunc_ggH_nnlops = _temp.qcdUncert
 
@@ -422,12 +427,12 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             # ggH cross sections
             ggH_xsBR = higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]
-            #print "ggH_xsBR",ggH_xsBR
-            #print "ggH_xsBR_emutau",higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_emutau']
+            ##print "ggH_xsBR",ggH_xsBR
+            ##print "ggH_xsBR_emutau",higgs_xs['ggH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_emutau']
 
             ggH_powheg[obsBin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             ggH_minloHJ[obsBin]+=ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            ggH_aMC[obsBin]+=ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            ggH_aMC[obsBin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             # AC
             if(acFlag):
                 ggH_AC[obsBin]+=ggH_xsBR*acc_AC['ggH'+acSample+'_M125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
@@ -445,10 +450,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             total_NNLOunc_fs_minloHJ_hi +=  (unc_acc*(XH_fs+ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
             total_NNLOunc_fs_minloHJ_lo +=  (unc_acc*(XH_fs+ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
 
-            total_NNLOunc_fs_aMC_hi =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
-            total_NNLOunc_fs_aMC_lo =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
-            total_NNLOunc_fs_aMC_hi +=  (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
-            total_NNLOunc_fs_aMC_lo +=  (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_NNLOunc_fs_aMC_hi =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_NNLOunc_fs_aMC_lo =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_NNLOunc_fs_aMC_hi +=  (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
+            total_NNLOunc_fs_aMC_lo +=  (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]))**2
 
             # NLO and NNLO are the same at this point
             total_NLOunc_fs_powheg_hi = total_NNLOunc_fs_powheg_hi
@@ -491,18 +496,18 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                 total_NNLOunc_fs_minloHJ_lo += (unc_qcd_ggH_lo
                                                 *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
                 total_NNLOunc_fs_aMC_hi += (unc_qcd_ggH_hi
-                                                *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                                                *ggH_xsBR*acc['ggH125__'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
                 total_NNLOunc_fs_aMC_lo += (unc_qcd_ggH_lo
-                                                *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                                                *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             else:
                 total_NNLOunc_fs_minloHJ_hi += (qcdunc_ggH_nnlops["ggH125_NNLOPS_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerUp']
                                                 *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
                 total_NNLOunc_fs_minloHJ_lo += (qcdunc_ggH_nnlops["ggH125_NNLOPS_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
                                                 *ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
                 total_NNLOunc_fs_aMC_hi += (qcdunc_ggH_aMC["ggH125_aMC_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerUp']
-                                                *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                                                *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
                 total_NNLOunc_fs_aMC_lo += (qcdunc_ggH_aMC["ggH125_aMC_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
-                                                *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                                                *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
 
             #NLO
             total_NLOunc_fs_powheg_hi += XH_qcdunc_fs
@@ -529,7 +534,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
                                                   *ggH_xsBR*acc_ACbis['ggH'+acSampleBis+'_M125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
 
 
-            print channel,total_NLOunc_fs_powheg_hi
+            # #print channel,total_NLOunc_fs_powheg_hi
 
             total_NLOunc_fs_minloHJ_hi += XH_qcdunc_fs
             total_NLOunc_fs_minloHJ_lo += XH_qcdunc_fs
@@ -541,9 +546,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             total_NLOunc_fs_aMC_hi += XH_qcdunc_fs
             total_NLOunc_fs_aMC_lo += XH_qcdunc_fs
             total_NLOunc_fs_aMC_hi += (qcdunc_ggH_aMC["ggH125_aMC_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerUp']
-                                           *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                                           *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             total_NLOunc_fs_aMC_lo += (qcdunc_ggH_aMC["ggH125_aMC_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
-                                           *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+                                           *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
 
             # add pdf unc, anti correlate ggH and ttH
             #NNLO
@@ -571,9 +576,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             total_NNLOunc_fs_aMC_hi += XH_qqpdfunc_fs
             total_NNLOunc_fs_aMC_lo += XH_qqpdfunc_fs
-            total_NNLOunc_fs_aMC_hi += (obsUnc_pdf_ggH_hi*ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            total_NNLOunc_fs_aMC_hi += (obsUnc_pdf_ggH_hi*ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                            -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
-            total_NNLOunc_fs_aMC_lo += (obsUnc_pdf_ggH_lo*ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            total_NNLOunc_fs_aMC_lo += (obsUnc_pdf_ggH_lo*ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                            -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             #NLO
             total_NLOunc_fs_powheg_hi += XH_qqpdfunc_fs
@@ -616,10 +621,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             total_NLOunc_fs_aMC_hi += XH_qqpdfunc_fs
             total_NLOunc_fs_aMC_lo += XH_qqpdfunc_fs
             total_NLOunc_fs_aMC_hi += (pdfunc_ggH_aMC["ggH125_aMC_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerUp']
-                                          *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                                          *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                           -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             total_NLOunc_fs_aMC_lo += (pdfunc_ggH_aMC["ggH125_aMC_"+channel+"_"+obsName.replace('_reco','_gen')+"_genbin"+str(obsBin)]['uncerDn']
-                                          *ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+                                          *ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                           -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             # finally total uncertainty (different final states are correlated)
             # NNLO
@@ -732,7 +737,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             obsBin=0
 
-            print obsBin,acc
+            # #print obsBin,acc
             XH_fs = higgs_xs['VBF_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['VBFH125_'+channel+'_'+obsName+'_genbin0_recobin0']
             XH_fs += higgs_xs['WH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['WH125_'+channel+'_'+obsName+'_genbin0_recobin0']
             XH_fs += higgs_xs['ZH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ZH125_'+channel+'_'+obsName+'_genbin0_recobin0']
@@ -774,7 +779,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             ggH_powheg[bin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
             ggH_minloHJ[bin]+=ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-            ggH_aMC[bin]+=ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            ggH_aMC[bin]+=ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
 
              # for total uncertainty, correlate br and acc uncertainties across all channels (XH+ggH)
             total_NNLOunc_fs_powheg_hi =  (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
@@ -787,10 +792,10 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
             total_NNLOunc_fs_minloHJ_hi += (unc_acc*(XH_fs+ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
             total_NNLOunc_fs_minloHJ_lo += (unc_acc*(XH_fs+ggH_xsBR*acc_NNLOPS['ggH125_NNLOPS_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
 
-            total_NNLOunc_fs_aMC_hi = (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
-            total_NNLOunc_fs_aMC_lo = (unc_br*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
-            total_NNLOunc_fs_aMC_hi += (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
-            total_NNLOunc_fs_aMC_lo += (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin0_recobin0']))**2
+            total_NNLOunc_fs_aMC_hi = (unc_br*(XH_fs+ggH_xsBR*acc['ggH125'+channel+'_'+obsName+'_genbin0_recobin0']))**2
+            total_NNLOunc_fs_aMC_lo = (unc_br*(XH_fs+ggH_xsBR*acc['ggH125'+channel+'_'+obsName+'_genbin0_recobin0']))**2
+            total_NNLOunc_fs_aMC_hi += (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125'+channel+'_'+obsName+'_genbin0_recobin0']))**2
+            total_NNLOunc_fs_aMC_lo += (unc_acc*(XH_fs+ggH_xsBR*acc['ggH125'+channel+'_'+obsName+'_genbin0_recobin0']))**2
 
             # add ggH qcd uncertainties (uncorrelated with anything else)
             #NNLO
@@ -806,8 +811,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             total_NNLOunc_fs_aMC_hi += XH_qcdunc_fs
             total_NNLOunc_fs_aMC_lo += XH_qcdunc_fs
-            total_NNLOunc_fs_aMC_hi += (unc_qcd_ggH_hi*ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
-            total_NNLOunc_fs_aMC_lo += (unc_qcd_ggH_lo*ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+            total_NNLOunc_fs_aMC_hi += (unc_qcd_ggH_hi*ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
+            total_NNLOunc_fs_aMC_lo += (unc_qcd_ggH_lo*ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
 
             # add pdf unc, anti correlate ggH and ttH
             #NNLO
@@ -828,9 +833,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
             total_NNLOunc_fs_aMC_hi += XH_qqpdfunc_fs
             total_NNLOunc_fs_aMC_lo += XH_qqpdfunc_fs
-            total_NNLOunc_fs_aMC_hi += (unc_pdf_ggH_hi*ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            total_NNLOunc_fs_aMC_hi += (unc_pdf_ggH_hi*ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                            -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
-            total_NNLOunc_fs_aMC_lo += (unc_pdf_ggH_lo*ggH_xsBR*acc['ggH125_aMC_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
+            total_NNLOunc_fs_aMC_lo += (unc_pdf_ggH_lo*ggH_xsBR*acc['ggH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
                                            -unc_pdf_ttH*higgs_xs['ttH_'+opt.THEORYMASS]*higgs4l_br[opt.THEORYMASS+'_'+channel]*acc['ttH125_'+channel+'_'+obsName+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)])**2
             # finally total uncertainty (different final states are correlated)
             # NNLO
@@ -877,51 +882,51 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
 
 
 
-    print 'data',data
+    # #print 'data',data
     sumdata = 0.0
     for i in range(len(data)):
         sumdata+=data[i]
-    print obsName,'sum data',sumdata
-    print 'data_hi',data_hi
-    print 'data_lo',data_lo
-    #print 'ggH HRes + XH',ggH_HRes
-    #print 'NNLO ggH HRes + XH',ggH_HRes_NNLOunc_hi
-    #print 'NNLO ggH HRes + XH',ggH_HRes_NNLOunc_lo
-    print 'ggH_powheg',ggH_powheg
-    if acFlag:
-        print 'ggH_AC',ggH_AC
-        if acFlagBis:
-            print 'ggH_ACbis',ggH_ACbis
-    print 'NLO ggH_powheg_hi',ggH_powheg_NLOunc_hi
-    print 'NLO ggH_powheg_lo',ggH_powheg_NLOunc_lo
-    print 'NNLO ggH_powheg_hi',ggH_powheg_NNLOunc_hi
-    print 'NNLO ggH_powheg_lo',ggH_powheg_NNLOunc_lo
-    print 'OLD ggH_powheg_hi',ggH_powheg_unc_hi
-    print 'OLD ggH_powheg_lo',ggH_powheg_unc_lo
-    print 'ggH_minloHJ',ggH_minloHJ
-    print 'ggH_minloHJ_NNLOunc_hi',ggH_minloHJ_NNLOunc_hi
-    print 'ggH_minloHJ_NNLOunc_lo',ggH_minloHJ_NNLOunc_lo
-    print 'ggH_aMC',ggH_aMC
-    print 'ggH_aMC_NNLOunc_hi',ggH_aMC_NNLOunc_hi
-    print 'ggH_aMC_NNLOunc_lo',ggH_aMC_NNLOunc_lo
-    print 'XH',XH
-    print 'XH_unc',XH_unc
-    if acFlag:
-        print 'XH_AC',XH_AC
-        print 'XH_AC_unc',XH_AC_unc
-        print 'ggH_AC_NLOunc_hi', ggH_AC_NLOunc_hi
-        print 'ggH_AC_NLOunc_lo', ggH_AC_NLOunc_lo
-        if acFlagBis:
-            print 'XH_ACbis',XH_ACbis
-            print 'XH_ACbis_unc',XH_ACbis_unc
-            print 'ggH_ACbis_NLOunc_hi', ggH_ACbis_NLOunc_hi
-            print 'ggH_ACbis_NLOunc_lo', ggH_ACbis_NLOunc_lo
-    print 'modedlep_hi',modeldep_hi
-    print 'modeldep_lo',modeldep_lo
-    print 'systematics_hi',systematics_hi
-    print 'systematics_lo',systematics_lo
-    print 'stat_hi',stat_hi
-    print 'stat_lo',stat_lo
+    # #print obsName,'sum data',sumdata
+    # #print 'data_hi',data_hi
+    # #print 'data_lo',data_lo
+    ##print 'ggH HRes + XH',ggH_HRes
+    ##print 'NNLO ggH HRes + XH',ggH_HRes_NNLOunc_hi
+    ##print 'NNLO ggH HRes + XH',ggH_HRes_NNLOunc_lo
+    # #print 'ggH_powheg',ggH_powheg
+    # if acFlag:
+        #print 'ggH_AC',ggH_AC
+        #if acFlagBis:
+            #print 'ggH_ACbis',ggH_ACbis
+    #print 'NLO ggH_powheg_hi',ggH_powheg_NLOunc_hi
+    #print 'NLO ggH_powheg_lo',ggH_powheg_NLOunc_lo
+    #print 'NNLO ggH_powheg_hi',ggH_powheg_NNLOunc_hi
+    #print 'NNLO ggH_powheg_lo',ggH_powheg_NNLOunc_lo
+    #print 'OLD ggH_powheg_hi',ggH_powheg_unc_hi
+    #print 'OLD ggH_powheg_lo',ggH_powheg_unc_lo
+    #print 'ggH_minloHJ',ggH_minloHJ
+    #print 'ggH_minloHJ_NNLOunc_hi',ggH_minloHJ_NNLOunc_hi
+    #print 'ggH_minloHJ_NNLOunc_lo',ggH_minloHJ_NNLOunc_lo
+    #print 'ggH_aMC',ggH_aMC
+    #print 'ggH_aMC_NNLOunc_hi',ggH_aMC_NNLOunc_hi
+    #print 'ggH_aMC_NNLOunc_lo',ggH_aMC_NNLOunc_lo
+    #print 'XH',XH
+    #print 'XH_unc',XH_unc
+    #if acFlag:
+        #print 'XH_AC',XH_AC
+        #print 'XH_AC_unc',XH_AC_unc
+        #print 'ggH_AC_NLOunc_hi', ggH_AC_NLOunc_hi
+        #print 'ggH_AC_NLOunc_lo', ggH_AC_NLOunc_lo
+        # if acFlagBis:
+            #print 'XH_ACbis',XH_ACbis
+            #print 'XH_ACbis_unc',XH_ACbis_unc
+            #print 'ggH_ACbis_NLOunc_hi', ggH_ACbis_NLOunc_hi
+            #print 'ggH_ACbis_NLOunc_lo', ggH_ACbis_NLOunc_lo
+    #print 'modedlep_hi',modeldep_hi
+    #print 'modeldep_lo',modeldep_lo
+    #print 'systematics_hi',systematics_hi
+    #print 'systematics_lo',systematics_lo
+    #print 'stat_hi',stat_hi
+    #print 'stat_lo',stat_lo
     if (obsName.startswith("mass4l")):
 
         a_observable  = array('d',[0.5+i for i in range(0,4)])
@@ -956,8 +961,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_ggH_powheg_unc_hi = TVectorD(len(a_ggH_powheg_unc_hi),a_ggH_powheg_unc_hi)
         v_ggH_powheg_unc_lo = TVectorD(len(a_ggH_powheg_unc_lo),a_ggH_powheg_unc_lo)
 
-        print 'a_ggH_powheg_hi',a_ggH_powheg_unc_hi
-        print 'a_ggH_powheg_lo',a_ggH_powheg_unc_lo
+        #print 'a_ggH_powheg_hi',a_ggH_powheg_unc_hi
+        #print 'a_ggH_powheg_lo',a_ggH_powheg_unc_lo
 
 
         a_ggH_minloHJ = array('d',[ggH_minloHJ[i] for i in range(len(ggH_minloHJ))])
@@ -967,9 +972,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_ggH_minloHJ_unc_hi = TVectorD(len(a_ggH_minloHJ_unc_hi),a_ggH_minloHJ_unc_hi)
         v_ggH_minloHJ_unc_lo = TVectorD(len(a_ggH_minloHJ_unc_lo),a_ggH_minloHJ_unc_lo)
 
-        print 'a_ggH_minloHJ',a_ggH_minloHJ
-        print 'a_ggH_minloHJ_hi',a_ggH_minloHJ_unc_hi
-        print 'a_ggH_minloHJ_lo',a_ggH_minloHJ_unc_lo
+        #print 'a_ggH_minloHJ',a_ggH_minloHJ
+        #print 'a_ggH_minloHJ_hi',a_ggH_minloHJ_unc_hi
+        #print 'a_ggH_minloHJ_lo',a_ggH_minloHJ_unc_lo
 
         a_ggH_aMC = array('d',[ggH_aMC[i] for i in range(len(ggH_aMC))])
         v_ggH_aMC = TVectorD(len(a_ggH_aMC),a_ggH_aMC)
@@ -978,9 +983,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         v_ggH_aMC_unc_hi = TVectorD(len(a_ggH_aMC_unc_hi),a_ggH_aMC_unc_hi)
         v_ggH_aMC_unc_lo = TVectorD(len(a_ggH_aMC_unc_lo),a_ggH_aMC_unc_lo)
 
-        print 'a_ggH_aMC',a_ggH_aMC
-        print 'a_ggH_aMC_hi',a_ggH_aMC_unc_hi
-        print 'a_ggH_aMC_lo',a_ggH_aMC_unc_lo
+        #print 'a_ggH_aMC',a_ggH_aMC
+        #print 'a_ggH_aMC_hi',a_ggH_aMC_unc_hi
+        #print 'a_ggH_aMC_lo',a_ggH_aMC_unc_lo
 
 
         '''
@@ -990,9 +995,9 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         a_ggH_HRes_unc_lo =  array('d',[ggH_HRes_NNLOunc_lo[i] for i in range(len(ggH_HRes_unc_lo))])
         v_ggH_HRes_unc_hi = TVectorD(len(a_ggH_HRes_unc_hi),a_ggH_HRes_unc_hi)
         v_ggH_HRes_unc_lo = TVectorD(len(a_ggH_HRes_unc_lo),a_ggH_HRes_unc_lo)
-        print 'a_ggH_HRes',a_ggH_HRes
-        print 'a_ggH_HRes_hi',a_ggH_HRes_unc_hi
-        print 'a_ggH_HRes_lo',a_ggH_HRes_unc_lo
+        #print 'a_ggH_HRes',a_ggH_HRes
+        #print 'a_ggH_HRes_hi',a_ggH_HRes_unc_hi
+        #print 'a_ggH_HRes_lo',a_ggH_HRes_unc_lo
         '''
 
         a_XH = array('d',[XH[0],XH[1],XH[2],XH[3]])
@@ -2058,7 +2063,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         for i in range(1,5):
             dummy.SetBinContent(i,2.5*max(a_ggH_powheg))
         h_XH = TH1D("h_XH","h_XH",4, 0, 4)
-        print "mass4l",a_XH
+        #print "mass4l",a_XH
         for i in range(4):
             h_XH.SetBinContent(i+1,a_XH[i])
     elif doubleDiff:
@@ -2066,7 +2071,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         for i in range(1,nBins-1):
             dummy.SetBinContent(i,2.5*max(a_ggH_powheg))
         h_XH = TH1D("h_XH","h_XH",nBins-1, 0, nBins-1)
-        print "mass4l",a_XH
+        #print "mass4l",a_XH
         for i in range(nBins-1):
             h_XH.SetBinContent(i+1,a_XH[i])
     else:
@@ -2266,7 +2271,7 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
     latex2.SetTextSize(0.5*c.GetTopMargin())
     latex2.SetTextFont(42)
     latex2.SetTextAlign(31) # align right
-    # print opt.LUMISCALE
+    # #print opt.LUMISCALE
     # if (not opt.LUMISCALE=="1.0"):
     #     lumi = round(137.1*float(opt.LUMISCALE),1)
     #     latex2.DrawLatex(0.94, 0.94,str(lumi)+" fb^{-1} (13 TeV)")
@@ -2277,6 +2282,8 @@ def plotXS(obsName, obs_bins, obs_bins_boundaries = False):
         latex2.DrawLatex(0.92, 0.94,"41.5 fb^{-1} (13 TeV)")
     if(opt.YEAR=='2018'):
         latex2.DrawLatex(0.92, 0.94,"59.7 fb^{-1} (13 TeV)")
+    if(opt.YEAR=='Run3'):
+        latex2.DrawLatex(0.92, 0.94,"34.7 fb^{-1} (13.6 TeV)")
     if(opt.YEAR=='Full'):
         latex2.DrawLatex(0.92, 0.94,"138 fb^{-1} (13 TeV)")
     latex2.SetTextSize(0.7*c.GetTopMargin())
@@ -2809,9 +2816,9 @@ if 'vs' in opt.OBSNAME:
     obs_name_tmp = opt.OBSNAME.split(' vs ')
     obs_name = obs_name_tmp[0]+'_'+obs_name_tmp[1]
 
-_temp = __import__('inputs_sig_extrap_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'], -1)
+_temp = __import__('inputs_sig_'+obs_name+'_'+opt.YEAR, globals(), locals(), ['observableBins'])#, -1)
 obs_bins = _temp.observableBins
-print(obs_bins)
+#print(obs_bins)
 
 if obs_name == 'D0m':
     acFlag = True
@@ -2992,7 +2999,7 @@ pvalues = {
 'TCjmax_pT4l': '0.68',
 }
 
-print('obs_bins', obs_bins)
+#print('obs_bins', obs_bins)
 if doubleDiff: plotXS(obs_name, obs_bins, obs_bins_boundaries)
 else: plotXS(obs_name, obs_bins)
 sys.path.remove('./inputs')

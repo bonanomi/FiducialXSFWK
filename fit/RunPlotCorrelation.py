@@ -169,7 +169,8 @@ def PlotCorrelation():
         plt.axvline(x=theMap.shape[0], color='k',linewidth=2.5)
 
         if opt.UNBLIND:
-            plt.savefig('corr_'+obsName+'_'+physicalModel+'.pdf', bbox_inches='tight')
+            plt.savefig('/home/llr/cms/bonanomi/fiducial/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/FidJJes/fit/corr_matrix/corr_'+obsName+'_'+physicalModel+'.pdf', bbox_inches='tight')
+            #plt.savefig('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/plots/'+obsName+'/data/corr_'+obsName+'_'+physicalModel+'.png')
         else:
             plt.savefig("corr_"+obsName+"_"+physicalModel+".pdf", bbox_inches="tight")
 

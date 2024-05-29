@@ -167,10 +167,10 @@ class Skimmer:
 
         with uproot.open(f"{self.fname}") as f:
             branches = f[tree].arrays(b_read)
-            if self.h_mass!="125":
+            if tree=="Events":
                 zz_idx = f[tree].arrays("bestCandIdx")
 
-        if self.h_mass!="125":
+        if tree=="Events":
             sel = zz_idx['bestCandIdx']!=-1
             branches = branches[sel]
 
@@ -210,7 +210,6 @@ class Skimmer:
         d_types = defaultdict(list)
         
         branches = self._get_branches(self.b_to_read, tree, True)
-
         for b_read, b_write in zip(self.b_to_read, self.b_to_dump):
             if tree == "AllEvents" and b_read in self.b_zz_cands: continue
             d_types[b_write] = branches[b_read].type
@@ -274,12 +273,11 @@ class Skimmer:
 if __name__ == "__main__":
     for period in ["2022", "2022EE"]:
         cjlst_dir = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_{period}/cjlst_trees/"
-        # TODO: Harmonize WminusH naming across different mass points
-        # TODO: Should be in from the next cjlst production
-        pmodes = ["ggH", "VBFH", "ttH", "WplusH", "ZH", "WHminus"]
+        pmodes = ["ggH", "VBFH", "ttH", "WminusH", "WplusH", "ZH"]
         masses = ["125", "126", "124p5", "125p5", "126"]
         for pm, mp in product(pmodes, masses):
             skimmer = Skimmer(pm, mp, period, "MC", cjlst_dir)
             if os.path.exists(skimmer.out_name):
                  os.system(f"rm {skimmer.out_name}")
             skimmer.skim()
+

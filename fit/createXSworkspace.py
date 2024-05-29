@@ -160,7 +160,8 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
 
     print os.getcwd()
     if '2022' in year:
-        massParaMap = readParam('/home/llr/cms/bonanomi/fiducial/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/Run3_Analysis/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'.txt')
+        # TODO: Fix this, it's ugly!!!
+        massParaMap = readParam('/eos/user/m/mbonanom/run3_trees/CMSSW_11_3_4/src/HiggsAnalysis/CombinedLimit/FiducialXSFWK/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'.txt')
     else:
         massParaMap = readParam('/home/llr/cms/tarabini/CMSSW_10_2_13/src/HiggsAnalysis/FiducialXSFWK/fit/param/sim_massParam_ggH_105160_'+channel+'_'+year+'_update.txt')
 
@@ -562,7 +563,7 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
             fidxs_xH[fState] += higgs_xs['WH_125.38']*higgs4l_br['125.38_'+fState]*acc['WH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             fidxs_xH[fState] += higgs_xs['ZH_125.38']*higgs4l_br['125.38_'+fState]*acc['ZH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
             fidxs_xH[fState] += higgs_xs['ttH_125.38']*higgs4l_br['125.38_'+fState]*acc['ttH125_'+fState+'_'+obsName+'_genbin'+str(genbin)+'_recobin'+str(genbin)]
-
+        print(fidxs, fidxs_ggH, fidxs_xH)
         ggHName = 'ggH_' + _obsName[obsName]
         ggHName = ggHName+'_'+_binName
         ggH_shape[genbin] = ggH.Clone();
@@ -902,15 +903,14 @@ def createXSworkspace(obsName, channel, nBins, obsBin, observableBins, addfakeH,
 
     # bkg fractions in reco bin; implemented in terms of fractions
 
-    #if( not (obsName=='nJets' or ("jet" in obsName) ) or (not doJES)) :
     qqzz_norm = ROOT.RooFormulaVar("bkg_qqzz_norm", "@0", ROOT.RooArgList(frac_qqzz_var) )
     ggzz_norm = ROOT.RooFormulaVar("bkg_ggzz_norm", "@0", ROOT.RooArgList(frac_ggzz_var) )
     zjets_norm = ROOT.RooFormulaVar("bkg_zjets_norm", "@0", ROOT.RooArgList(frac_zjets_var) )
 
-    # TODO: Put run3 data
-    # data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_'+year+'.root')
-    data_obs_file = ROOT.TFile(path['eos_path']+'Data_UL/reducedTree_AllData_2018.root')
-    data_obs_tree = data_obs_file.Get('SR')
+    # Data Obs
+    data_obs_file = ROOT.TFile("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/FRfiles/dataFiles/Data"+year+"_synchMini_SIPaddLep.root")
+    data_obs_file = ROOT.TFile("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/"+year+"/Data/reducedTree_AllData_"+year+".root")
+    data_obs_tree = data_obs_file.Get("SR")
 
     print obsName,obsBin_low,obsBin_high
     chan = ROOT.RooRealVar("chan", "chan", 0, 3)

@@ -114,11 +114,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_mu['2017_4mu'] = '0.981/1.009'
     eff_mu['2018_2e2mu'] = '0.986/1.006'
     eff_mu['2018_4mu'] = '0.981/1.008'
-    # TODO: Update with Run3 numbers when available
-    eff_mu['2022_2e2mu'] = '0.986/1.007'
+    # [PRELIMINARY] Run3 numbers
+    eff_mu['2022_2e2mu'] = '0.986/1.008'
     eff_mu['2022_4mu'] = '0.981/1.01'
     eff_mu['2022EE_2e2mu'] = '0.986/1.007'
-    eff_mu['2022EE_4mu'] = '0.981/1.01'
+    eff_mu['2022EE_4mu'] = '0.981/1.009'
 
     eff_e = {}
     eff_e['2016_2e2mu'] = '0.934/1.062'
@@ -127,11 +127,11 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_e['2017_4e'] = '0.915/1.064'
     eff_e['2018_2e2mu'] = '0.95/1.052'
     eff_e['2018_4e'] = '0.905/1.077'
-    # TODO: Update with Run3 numbers when available
-    eff_e['2022_2e2mu'] = '0.934/1.062'
-    eff_e['2022_4e'] = '0.891/1.093'
-    eff_e['2022EE_2e2mu'] = '0.934/1.062'
-    eff_e['2022EE_4e'] = '0.891/1.093'
+    # [PRELIMINARY] Run3 numbers
+    eff_e['2022_2e2mu'] = '0.773/1.226'
+    eff_e['2022_4e'] = '0.658/1.338'
+    eff_e['2022EE_2e2mu'] =  '0.895/1.103'
+    eff_e['2022EE_4e'] = '0.837/1.154'
 
     # ZX
     ZX = {}
@@ -302,15 +302,9 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     file.write(ZX[year+'_'+channel]+'\n')
 
     # Param
-    # if(channelNumber != 2):
-    #     file.write('CMS_zz4l_mean_m_sig_'+year+' param 0.0 1.0\n')
-    #     file.write('CMS_zz4l_sigma_m_sig_'+year+' param 0.0 0.03 [-1,1]\n')
-    # if(channelNumber != 1):
-    #     file.write('CMS_zz4l_mean_e_sig_'+year+' param 0.0 1.0\n')
-    #     file.write('CMS_zz4l_sigma_e_sig_'+year+' param 0.0 0.1 [-1,1]\n')
     if(channelNumber != 2):
         file.write('CMS_zz4l_mean_m_sig param 0.0 1.0\n')
-        file.write('CMS_zz4l_sigma_m_sig param 0.0 0.03 [-1,1]\n')
+        file.write('CMS_zz4l_sigma_m_sig param 0.0 0.03 [-1,1]\n') 
     if(channelNumber != 1):
         file.write('CMS_zz4l_mean_e_sig param 0.0 1.0\n')
         file.write('CMS_zz4l_sigma_e_sig param 0.0 0.1 [-1,1]\n')

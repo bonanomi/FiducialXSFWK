@@ -729,7 +729,7 @@ for i in range(nBins):
     if(opt.UNBLIND):
         Text3 = TPaveText(0.15, 0.81,0.4,0.9,'brNDC')
     else:
-        Text3 = TPaveText(0.15, 0.76,0.4,0.84,'bfNDC')
+    	Text3 = TPaveText(0.15, 0.76,0.4,0.84,'bfNDC')
     if v4_flag:
         if _bin == 0: exp_fit = 'Exp. #sigma_{2e2mu, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)
         if _bin == 1: exp_fit = 'Exp. #sigma_{4l, 0} = %.2f^{#plus %.2f}_{#minus %.2f} (stat)^{#plus %.2f}_{#minus %.2f} (syst)' % (exp_nom[0], exp_nom_stat[1], abs(exp_nom_stat[2]), exp_up_sys, exp_do_sys)

@@ -53,7 +53,6 @@ def checkDir(folder_path):
         os.mkdir(folder_path)
 
 def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, _observableBins, _obsName):
-    # TODO: Not nice because not backwards compatible. Invert this dictionary
     _years = {"1":"2022", "2":"2022EE", "3":"2018", "2018":"2018", "2022":"2022", "2022EE":"2022EE"}
     
     if _physicalModel != 'v3':
@@ -108,7 +107,6 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     else:
         lumi = '34.7'
         years = ["1", "2"]
-        # years = ["2022"]#, "2022EE"]
 
     # nBins = len(observableBins)
     # if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
@@ -127,7 +125,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     if(not opt.UNBLIND):
-        theorymass = theorymass + '.123456'
+    	theorymass = theorymass + '.123456'
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
     elif physicalModel == 'kLambda':
@@ -656,7 +654,7 @@ else:
     doubleDiff = False
 
 sys.path.append("inputs")
-_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'])# , -1)
+_temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'])
 observableBins = _temp.observableBins
 print(observableBins)
 sys.path.remove("inputs")
