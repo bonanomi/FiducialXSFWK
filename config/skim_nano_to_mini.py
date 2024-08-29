@@ -12,6 +12,9 @@ from collections import defaultdict
 branches_map = {
     "event": "EventNumber",
     "ZZCand_mass": "ZZMass",
+    "ZZCand_pt": "ZZPt",
+    "ZZCand_rapidity": "ZZy",
+    "rapidity4lAbs": "ZZyAbs",
     "ZZCand_Z1mass": "Z1Mass",
     "ZZCand_Z2mass": "Z2Mass",
     "ZZCand_Z1flav": "Z1Flav",
@@ -34,6 +37,7 @@ branches_map = {
     "FidZZ_rapidity": "GENrapidity4l",
     "FidZ_DauPdgId": "GENZ_DaughtersId",
     "FidZ_MomPdgId": "GENZ_MomId",
+    "GENrapidity4lAbs": "GENrapidity4lAbs",
     "passedFiducial": "passedFiducial",
     "passedFullSelection": "passedFullSelection",
     "Generator_weight": "genHEPMCweight",
@@ -95,15 +99,11 @@ class Skimmer:
         if self.h_mass == "125":
             self.b_map.update(b_lepidx_map)
         else:
-            if self.year == "2022EE":
-                cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/MC_2022EE/{self.process}{self.h_mass}/ZZ4lAnalysis.root"
-            else:
-                cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/240321_NanoMC2022/{self.process}{self.h_mass}/ZZ4lAnalysis.root"
+            cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/MC_2022EE/{self.process}{self.h_mass}/ZZ4lAnalysis.root"
             self.counter = get_genEventSumw(cnt_fname)
 
-        # TODO: Add ggH_NNLOPS_weight
-        # if "ggH" in self.process:
-        #     self.b_map.update(b_ggh_map)
+        if "ggH" in self.process:
+            self.b_map.update(b_ggh_map)
 
         print(f"... Set up skimmer for {self.fname}")
         print(f"... Will create skimmed file: {self.out_name}\n")
@@ -112,7 +112,8 @@ class Skimmer:
         self.b_to_dump = list(self.b_map.values())
         self.b_zz_cands = [b for b in self.b_to_read if 'ZZCand' in b]
         self.b_zz_cands = self.b_zz_cands + [b for b in self.b_to_read if 'index' in b]
-        
+        self.b_zz_cands = self.b_zz_cands + ["rapidity4lAbs"]
+
         b_log = "\n".join("{0:30} {1}".format(r, d) for r, d in zip(self.b_to_read, self.b_to_dump))
         print("{0:30} {1}".format("Reading from:", "Dumping to:"))
         print(f"{b_log}\n")
@@ -139,7 +140,7 @@ class Skimmer:
            Util function that returns the name of the output file,
            i.e. the file with Run2-like TTrees and branches names.
         '''
-        fname = f"{self.process}{self.h_mass}_reducedTree_{self.data_type}_{self.year}_skimmed.root"
+        fname = f"{self.process}{self.h_mass}_reducedTree_{self.data_type}_{self.year}_skimmed_nnlops.root"
         return fname
     
     @property
@@ -150,6 +151,9 @@ class Skimmer:
         '''        
         with uproot.open(f"{self.fname}") as f:
             events = f["Events/event"].array(library = "np")
+            zz_idx = f["Events"].arrays("bestCandIdx")
+
+        events = events[zz_idx['bestCandIdx']!=-1]
 
         return events
     
@@ -167,10 +171,10 @@ class Skimmer:
 
         with uproot.open(f"{self.fname}") as f:
             branches = f[tree].arrays(b_read)
-            if tree=="Events":
+            if tree == "Events":
                 zz_idx = f[tree].arrays("bestCandIdx")
 
-        if tree=="Events":
+        if tree == "Events":
             sel = zz_idx['bestCandIdx']!=-1
             branches = branches[sel]
 
@@ -210,6 +214,7 @@ class Skimmer:
         d_types = defaultdict(list)
         
         branches = self._get_branches(self.b_to_read, tree, True)
+
         for b_read, b_write in zip(self.b_to_read, self.b_to_dump):
             if tree == "AllEvents" and b_read in self.b_zz_cands: continue
             d_types[b_write] = branches[b_read].type
@@ -271,13 +276,8 @@ class Skimmer:
         print("+++ SKIMMING COMPLETED! +++ \n")
 
 if __name__ == "__main__":
-    for period in ["2022", "2022EE"]:
-        cjlst_dir = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_{period}/cjlst_trees/"
-        pmodes = ["ggH", "VBFH", "ttH", "WminusH", "WplusH", "ZH"]
-        masses = ["125", "126", "124p5", "125p5", "126"]
-        for pm, mp in product(pmodes, masses):
-            skimmer = Skimmer(pm, mp, period, "MC", cjlst_dir)
-            if os.path.exists(skimmer.out_name):
-                 os.system(f"rm {skimmer.out_name}")
+    for year in ["2022", "2022EE"]:
+        cjlst_dir = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/{year}"
+        for pm in ["VBFH", "WminusH","WplusH","ZH","ttH"]:
+            skimmer = Skimmer(pm, "125", year, "MC", cjlst_dir)
             skimmer.skim()
-

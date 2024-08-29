@@ -25,6 +25,8 @@ def parseOptions():
     parser.add_option('',   '--obsBins',dest='OBSBINS',    type='string',default='',   help='Bin boundaries for the diff. measurement separated by "|", e.g. as "|0|50|100|", use the defalut if empty string')
     parser.add_option('',   '--fixFrac', action='store_true', dest='FIXFRAC', default=False, help='Use results from fixed fraction fit, default is False')
     parser.add_option('',   '--unblind', action='store_true', dest='UNBLIND', default=False, help='Use real data')
+    parser.add_option('',   '--prefit', action='store_true', dest='PREFIT', default=False, help='Prefit plots')
+    parser.add_option('',   '--bonly', action='store_true', dest='BONLY', default=False, help='Bonly postfit plots')
     parser.add_option('',   '--theoryMass',dest='THEORYMASS',    type='string',default='125.38',   help='Mass value for theory prediction')
     parser.add_option('',   '--year',  dest='YEAR',  type='string',default='Full',   help='Year -> 2016 or 2017 or 2018 or Full')
     parser.add_option('',   '--m4lLower',  dest='LOWER_BOUND',  type='int',default=105.0,   help='Lower bound for m4l')
@@ -80,7 +82,7 @@ def generateName(_year, _fStateNumber, _recobin, _fState, _bin, _physicalModel, 
             if int(_observableBins[_bin+1]) > 1000:
                 _genbin_final = 'GT'+str(int(_observableBins[_bin]))
 
-        print(_obsName, _year, _years[_year])
+        # print(_obsName, _year, _years[_year])
         binName = "hzz_" + _obsName_v3[_obsName] + "_" + _recobin_final + "_cat" + _fState + "_" + _years[_year]
         procName = _obsName_v3[_obsName] + "_" + _genbin_final
 
@@ -125,22 +127,24 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
     if(not opt.UNBLIND):
-    	theorymass = theorymass + '.123456'
+        theorymass = theorymass + '.123456'
     if physicalModel == 'v3':
         fname = 'higgsCombine_'+obsName+'_r_smH_0.MultiDimFit.mH'+theorymass+'.root'
     elif physicalModel == 'kLambda':
         fname = 'higgsCombine_'+obsName+'.MultiDimFit.mH'+theorymass+'.root'
     else:
         fname = 'higgsCombine_'+obsName+'_r2e2muBin0.MultiDimFit.mH'+theorymass+'.root'
-    print('combine file: ', fname)
+    # print('combine file: ', fname)
 
     f_asimov = TFile(sourcedir + fname, "READ")
 
     if (not opt.UNBLIND):
         data = f_asimov.Get("toys/toy_asimov");
     w_asimov = f_asimov.Get("w")
+    w_asimov.loadSnapshot("clean")
     if (opt.UNBLIND):
         data = w_asimov.data("data_obs")
+        w_asimov.loadSnapshot("MultiDimFit")
     w_asimov.loadSnapshot("clean")
 
     ##### ------------------------ Normalisation values for Asimov dataset ------------------------ #####
@@ -181,10 +185,6 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
             for bin in range(nBins):
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                 trueH_asimov[fState+"_"+year+"Bin"+str(bin)] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                # print (fState+"_"+year+"Bin"+str(bin))
-                # print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                # print (trueH_asimov[fState+"_"+year+"Bin"+str(bin)].getVal())
-                # print ()
 
             zjets_asimov[fState+"_"+year] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_bkg_zjets")
             ggzz_asimov[fState+"_"+year] = w_asimov.function("n_exp_final_bin"+bin_name+"_proc_bkg_ggzz")
@@ -249,9 +249,17 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     ##### ------------------------ Normalisation values for modelfit ------------------------ #####
     f_modelfit = TFile(sourcedir + fname, "READ")
     w_modelfit = f_modelfit.Get("w")
-    sim = w_modelfit.pdf("model_s")
+    w_prefit = f_modelfit.Get("w")
+    sim_prefit = w_modelfit.pdf("model_s")
+    w_prefit.loadSnapshot("clean")
+    if opt.BONLY:
+        sim = w_modelfit.pdf("model_b")
+    else:
+        sim = w_modelfit.pdf("model_s")
     CMS_zz4l_mass = w_modelfit.var("CMS_zz4l_mass")
-    w_modelfit.loadSnapshot("MultiDimFit")
+    if not opt.PREFIT:
+        w_modelfit.loadSnapshot("MultiDimFit")
+    # w_modelfit.loadSnapshot("clean")
 
     trueH_modelfit = {}
     zjets_modelfit = {}
@@ -290,9 +298,6 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
             for bin in range(nBins):
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                 trueH_modelfit[fState+"_"+year+"Bin"+str(bin)] = w_modelfit.function("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                # print (fState+"_"+year+"Bin"+str(bin))
-                # print ("n_exp_final_bin"+bin_name+"_proc_"+SignalNames[physicalModel]+process_name)
-                # print (trueH_modelfit[fState+"_"+year+"Bin"+str(bin)].getVal())
 
             zjets_modelfit[fState+"_"+year] = w_modelfit.function("n_exp_final_bin"+bin_name+"_proc_bkg_zjets")
             ggzz_modelfit[fState+"_"+year] = w_modelfit.function("n_exp_final_bin"+bin_name+"_proc_bkg_ggzz")
@@ -361,25 +366,49 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     mass = w_asimov.var("CMS_zz4l_mass").frame(RooFit.Bins(30))
     if (fstate=="4l"):
         datacut = ''
+        comp_otherfid = ''
+        for bin in range(nBins):
+            if bin!=recobin: continue
+            for year in years:
+                for fState in fStates:
+                    bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
+                    comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
+
         for year in years:
             for fState in fStates:
                 bin_name, process_name = generateName(year, channel[fState], recobin, fState, bin, physicalModel, observableBins, obsName)
                 ch_idx = str(CMS_channel.lookupIndex(bin_name))
                 datacut += "CMS_channel=="+ch_idx+" || "
         datacut = datacut.rstrip(" || ")
+        comp_otherfid = comp_otherfid.rstrip(',')
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
         sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+        if opt.BONLY:
+            sim_prefit.plotOn(mass,RooFit.LineColor(kRed), RooFit.Components(comp_otherfid), RooFit.ProjWData(data,True))
     else:
         datacut = ''
+        comp_otherfid = ''
+        for bin in range(nBins):
+            if bin!=recobin: continue
+            for year in years:
+                bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
+                comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
+
         for year in years:
-            bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
-            ch_idx = str(CMS_channel.lookupIndex(bin_name))
-            datacut += "CMS_channel=="+ch_idx+" || "
+           bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
+           ch_idx = str(CMS_channel.lookupIndex(bin_name))
+           datacut += "CMS_channel=="+ch_idx+" || "
+
+        comp_otherfid = comp_otherfid.rstrip(',')
         datacut = datacut.rstrip(" || ")
         data = data.reduce(RooFit.Cut(datacut))
         data.plotOn(mass)
         sim.plotOn(mass,RooFit.LineColor(kOrange-3), RooFit.ProjWData(data,True))
+        if opt.BONLY:
+            sim_prefit.plotOn(mass,RooFit.LineColor(kRed), RooFit.Components(comp_otherfid), RooFit.ProjWData(data,True))
+
+
     ##### ------------------------ Shapes ------------------------ #####
     if (fstate!="4l"):
         comp_otherfid = ''
@@ -389,7 +418,7 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
                 bin_name, process_name = generateName(year, channel[fstate], recobin, fstate, bin, physicalModel, observableBins, obsName)
                 comp_otherfid += "shapeSig_"+SignalNames[physicalModel]+process_name+"_"+bin_name+","
         comp_otherfid = comp_otherfid.rstrip(',')
-
+        
         comp_out = ''
         comp_fake = ''
         comp_zz = ''
@@ -457,7 +486,16 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy.GetXaxis().SetTitle("m_{"+fstate.replace("mu","#mu")+"} [GeV]")
     if (opt.UNBLIND):
         # dummy.SetMaximum(max(0.8*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
-        dummy.SetMaximum(25)
+        
+        if fstate == "4l":
+            dummy.SetMaximum(42)
+        elif fstate == "2e2mu":
+            dummy.SetMaximum(25)
+        elif fstate == "4mu":
+            dummy.SetMaximum(18)
+        elif fstate == "4e":
+            dummy.SetMaximum(8)
+        
     else:
         # if fstate=='4e': dummy.SetMaximum(max(1*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
         # elif fstate=='4l': dummy.SetMaximum(max(0.2*max(n_trueH_asimov[fstate],n_trueH_modelfit[fstate]),1.0))
@@ -473,7 +511,10 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     dummy_data.SetMarkerColor(kBlack)
     dummy_data.SetMarkerStyle(20)
     dummy_fid = TH1D()
-    dummy_fid.SetLineColor(kOrange-3)
+    if opt.BONLY:
+        dummy_fid.SetLineColor(kRed)
+    else:
+        dummy_fid.SetLineColor(kOrange-3)
     dummy_fid.SetLineWidth(2)
     dummy_other = TH1D()
     dummy_other.SetLineColor(kOrange-3)
@@ -501,33 +542,15 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
        legend.AddEntry(dummy_data,"Asimov Data","ep")
     else:
        legend.AddEntry(dummy_data,"Data","ep")
-    # legend.AddEntry(dummy_fid,"N_{fid.}^{fit} = %.2f (exp. = %.2f)"%(n_trueH_modelfit[fstate],n_trueH_asimov[fstate]), "l")
-    # legend.AddEntry(dummy_other,"N_{other fid.}^{fit} = %.2f (exp = %.2f)"%(n_trueH_otherfid_modelfit[fstate],n_trueH_otherfid_asimov[fstate]), "l")
-    # legend.AddEntry(dummy_out, "N_{out}^{fit} = %.2f (exp. = %.2f)"%(n_out_trueH_modelfit[fstate],n_out_trueH_asimov[fstate]), "l")
-    # legend.AddEntry(dummy_fake, "N_{wrong}^{fit} = %.2f (exp. = %.2f)"%(n_fakeH_modelfit[fstate],n_fakeH_asimov[fstate]), "l")
-    # legend.AddEntry(dummy_zz, "N_{ZZ}^{fit} = %.2f (exp. = %.2f)"%(n_zz_modelfit[fstate],n_zz_asimov[fstate]), "l")
-    # legend.AddEntry(dummy_zx, "N_{Z+X}^{fit} = %.2f (exp. = %.2f)"%(n_zjets_modelfit[fstate],n_zjets_asimov[fstate]), "l")
 
-    legend.AddEntry(dummy_fid,"N_{fid}", "l")
+    if opt.BONLY:
+        legend.AddEntry(dummy_fid,"N_{fid} (prefit)", "l")
+    else:
+        legend.AddEntry(dummy_fid,"N_{fid}", "l")
     legend.AddEntry(dummy_out, "N_{nonfid}", "l")
     legend.AddEntry(dummy_fake, "N_{nonres}", "l")
     legend.AddEntry(dummy_zz, "N_{ZZ}", "l")
     legend.AddEntry(dummy_zx, "N_{ZX}", "l")
-
-    # print('qqZZ', fstate, n_qqzz_modelfit[fstate])
-    # print('ggZZ', fstate, n_ggzz_modelfit[fstate])
-
-    #legend.SetTextSize(0.03)
-    #if (not opt.UNBLIND):
-    #    legend.AddEntry(dummy_data,"Asimov Data (SM m(H) = "+opt.ASIMOVMASS+" GeV)","ep")
-    #else:
-    #    legend.AddEntry(dummy_data,"Data","ep")
-    #legend.AddEntry(dummy_fid,"Fiducial Signal", "l")
-    #legend.AddEntry(dummy_other,"Other Bin Fiducial Signal", "l")
-    #legend.AddEntry(dummy_out, "Non-fiducial Signal", "l")
-    #legend.AddEntry(dummy_fake, "Non-resonant Signal", "l")
-    #legend.AddEntry(dummy_zz, "ZZ", "l")
-    #legend.AddEntry(dummy_zx, "Z+X", "l")
 
     legend.SetShadowColor(0);
     legend.SetFillColor(0);
@@ -624,18 +647,28 @@ def plotAsimov_sim(modelName, physicalModel, obsName, fstate, observableBins, re
     checkDir("plots")
     checkDir("plots/"+obsName)
 
+    suffix = ""
+
+    if opt.PREFIT:
+        suffix = "_prefit"
+    if opt.BONLY:
+        suffix = "_bonlypostfit"
+    if opt.UNBLIND:
+        suffix = "_sbpostfit"
+
+
     if (not opt.UNBLIND):
         checkDir("plots/"+obsName+"/asimov")
         checkDir("plots/"+obsName+"/asimov/model")
-        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
-        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
-        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".root")
+        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+suffix+".pdf")
+        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+suffix+".png")
+        c.SaveAs("plots/"+obsName+"/asimov/model/asimovdata_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+suffix+".root")
     else:
         checkDir("plots/"+obsName+"/data")
         checkDir("plots/"+obsName+"/data/model")
-        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".pdf")
-        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".png")
-        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+".root")
+        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+suffix+".pdf")
+        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+suffix+".png")
+        c.SaveAs("plots/"+obsName+"/data/model/data_unfoldwith_"+modelName+"_"+physicalModel+"_"+opt.YEAR+"_"+obsName+'_'+fstate+"_recobin"+str(recobin)+suffix+".root")
 
 
 
@@ -656,7 +689,7 @@ else:
 sys.path.append("inputs")
 _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['observableBins'])
 observableBins = _temp.observableBins
-print(observableBins)
+# print(observableBins)
 sys.path.remove("inputs")
 
 if obsName.startswith("mass4l"):
@@ -671,7 +704,7 @@ else:
 
 nBins = len(observableBins)
 if not doubleDiff: nBins = nBins-1 #in case of 1D measurement the number of bins is -1 the length of the list of bin boundaries
-print(nBins)
+# print(nBins)
 fStates = ["4e","4mu","2e2mu","4l"]
 for fState in fStates:
     for recobin in range(nBins):

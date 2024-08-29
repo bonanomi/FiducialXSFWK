@@ -56,8 +56,8 @@ def checkDir(folder_path):
 # ------------------------------- FUNCTIONS TO GENERATE DATAFRAME FOR ggZZ AND qqZZ ----------------------------------------------------
 # Weights for histogram
 def weight(df, xsec, gen, lumi, additional = None):
-    weight = (lumi * 1000 * xsec * df.overallEventWeight)/gen
-    # * df.SFcorr * df.L1prefiringWeight) / gen #Common structure
+    # xsec is in overallEventWeight now
+    weight = (lumi * 1000 * df.overallEventWeight * df.dataMCWeight)/gen
     df['weight'] = weight
     return df
 
@@ -66,7 +66,7 @@ def prepareTrees(year):
     d_bkg = {}
 
     for bkg in bkgs:
-        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/"+year+"/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/"+year+"/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
         d_bkg[bkg] = uproot.open(fname)[key]
 
     return d_bkg
@@ -82,11 +82,13 @@ def xsecs(year):
         genweight = d_bkg[bkg].arrays("genHEPMCweight", library="np")["genHEPMCweight"]
         if 'ZZTo' in bkg:
             # TODO: Add EW KFactor once in the samples
-            # KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].arrays("KFactor_QCD_qqZZ_M", library="np")["KFactor_QCD_qqZZ_M"]
-            xsec = total_weight/(puweight*genweight) # *KFactor_QCD_qqZZ_M_Weight)
+            KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].arrays("KFactor_QCD_qqZZ_M", library="np")["KFactor_QCD_qqZZ_M"]
+            # KFactor_QCD_qqZZ_M_Weight = d_bkg[bkg].arrays("KFactor_QCD_qqZZ_M_Weight", library="np")["KFactor_QCD_qqZZ_M_Weight"]
+            xsec = total_weight/(puweight*genweight*KFactor_QCD_qqZZ_M_Weight)
         elif 'ggTo' in bkg:
-            # KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].arrays("KFactor_QCD_ggZZ_Nominal", library="np")["KFactor_QCD_ggZZ_Nominal"]
-            xsec = total_weight/(puweight*genweight) # *KFactor_QCD_ggZZ_Nominal_Weight)
+            KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].arrays("KFactor_QCD_ggZZ_Nominal", library="np")["KFactor_QCD_ggZZ_Nominal"]
+            # KFactor_QCD_ggZZ_Nominal_Weight = d_bkg[bkg].arrays("KFactor_QCD_ggZZ_Nominal_Weight", library="np")["KFactor_QCD_ggZZ_Nominal_Weight"]
+            xsec = total_weight/(puweight*genweight*KFactor_QCD_ggZZ_Nominal_Weight)
         else:
             xsec = total_weight/(puweight*genweight)
 
@@ -98,7 +100,7 @@ def xsecs(year):
 def generators(year):
     gen_bkg = {}
     for bkg in bkgs:
-        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/"+year+"/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
+        fname = "/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/"+year+"/"+bkg+"/"+bkg+"_reducedTree_MC_"+year+"_skimmed.root"
         gen_bkg[bkg] = uproot.open(fname)["candTree/Counter"].array()[0]
 
     return gen_bkg
@@ -155,16 +157,7 @@ def dataframes(year, year_mc):
     gen_bkg = generators(year_mc)
     xsec_bkg = xsecs(year_mc)
     for bkg in bkgs:
-        b_bkg = ['ZZMass', 'ZZyAbs', 'ZZPt', 'Z1Flav', 'Z2Flav', 'Z1Mass', 'Z2Mass', 'overallEventWeight']
-        # , 'L1prefiringWeight', 'LepPt', 'SFcorr']
-        '''
-        b_bkg = ['ZZMass', 'ZZPt', 'Z1Mass', 'Z2Mass', 'Z1Flav', 'Z2Flav', 'ZZEta', 'LepPt',
-                 'overallEventWeight', 'L1prefiringWeight', 'JetPt', 'JetEta',
-                 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-                 'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj',
-                 'njets_pt30_eta4p7', 'absdetajj', 'SFcorr', 'dphijj',
-                 'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint']
-        '''
+        b_bkg = ['ZZMass', 'ZZyAbs', 'ZZPt', 'Z1Flav', 'Z2Flav', 'Z1Mass', 'Z2Mass', 'overallEventWeight', 'dataMCWeight']
         gen = gen_bkg[bkg]
         xsec = xsec_bkg[bkg]
         df_b = d_bkg[bkg].arrays(b_bkg, library="np")
@@ -173,7 +166,7 @@ def dataframes(year, year_mc):
             df[b] = df_b[b]
         df['FinState'] = [add_fin_state(i, j) for i,j in zip(df.Z1Flav, df.Z2Flav)]
         # df['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
-        #df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
+        # df['pTj1'] = [add_leadjet(i,j) for i,j in zip(df['JetPt'],df['JetEta'])]
         # df = add_rapidity(df)
         if (bkg != 'ZZTo4l'):
             d_df_bkg[bkg] = weight(df, xsec, gen, lumi, 'ggzz')
@@ -278,7 +271,7 @@ def comb(year):
             1.067, # 4e
             1.015, # 4mu
             1.049, # 2e2mu
-            1.905, # 2mu2e
+            0.905, # 2mu2e
         ])
     return cb_SS
 
@@ -317,7 +310,7 @@ def ratio(year):
             0.990,   # 4e
             0.997,  # 4mu
             1.039,   # 2e2mu
-            0.905,  # 2mu2e
+            1.016,  # 2mu2e
             ])
     return fs_ROS_SS
 
@@ -337,8 +330,9 @@ def ZXYield(df, year, year_mc):
 
 def doZX(year, year_mc):
     keyZX = 'CRZLLTree/candTree'
-    data = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/'+year_mc+'/Data/AllData_'+year_mc+'.root'
-    ttreeZX = uproot.open(data)[keyZX].arrays(branches_ZX, library="np")
+    data = '/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/'+year_mc+'/Data/AllData_'+year_mc+'.root'
+    ttreeZX = uproot.open(data)[keyZX]
+    ttreeZX = ttreeZX.arrays(branches_ZX, library="np")
     dfZX = pd.DataFrame(columns=branches_ZX)
     for b in branches_ZX:
         dfZX[b] = ttreeZX[b]
@@ -403,35 +397,23 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     if doubleDiff: sel &= sel_bin_2nd_low & sel_bin_2nd_high
 
                     if 'zzfloating' in obs_name:
-                        df_2016_qqzz = df_irr[2016]['qqzz'][(df_irr[2016]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['qqzz'][var] >= bin_low) & (df_irr[2016]['qqzz'][var] < bin_high)].copy()
-                        df_2017_qqzz = df_irr[2017]['qqzz'][(df_irr[2017]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['qqzz'][var] >= bin_low) & (df_irr[2017]['qqzz'][var] < bin_high)].copy()
-                        df_2018_qqzz = df_irr[2018]['qqzz'][(df_irr[2018]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['qqzz'][var] >= bin_low) & (df_irr[2018]['qqzz'][var] < bin_high)].copy()
-                        df_2016_ggzz = df_irr[2016]['ggzz'][(df_irr[2016]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['ggzz'][var] >= bin_low) & (df_irr[2016]['ggzz'][var] < bin_high)].copy()
-                        df_2017_ggzz = df_irr[2017]['ggzz'][(df_irr[2017]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['ggzz'][var] >= bin_low) & (df_irr[2017]['ggzz'][var] < bin_high)].copy()
-                        df_2018_ggzz = df_irr[2018]['ggzz'][(df_irr[2018]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['ggzz'][var] >= bin_low) & (df_irr[2018]['ggzz'][var] < bin_high)].copy()
-                        # df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
-                        #                 df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
-                        #                 df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
-                        df = pd.concat([df_2016_qqzz,df_2017_qqzz,
-                                        df_2018_qqzz,df_2016_ggzz,
-                                        df_2017_ggzz,df_2018_ggzz])
+                        df_preEE_qqzz = df_irr["2022"]["qqzz"][(df_irr["2022"]["qqzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022"]["qqzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022"]["qqzz"][var] >= bin_low) & (df_irr["2022"]["qqzz"][var] < bin_high)].copy()
+                        df_postEE_qqzz = df_irr["2022EE"]["qqzz"][(df_irr["2022EE"]["qqzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022EE"]["qqzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022EE"]["qqzz"][var] >= bin_low) & (df_irr["2022EE"]["qqzz"][var] < bin_high)].copy()
+                        df_preEE_ggzz = df_irr["2022"]["ggzz"][(df_irr["2022"]["ggzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022"]["ggzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022"]["ggzz"][var] >= bin_low) & (df_irr["2022"]["ggzz"][var] < bin_high)].copy()
+                        df_postEE_ggzz = df_irr["2022EE"]["ggzz"][(df_irr["2022EE"]["ggzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022EE"]["ggzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022EE"]["ggzz"][var] >= bin_low) & (df_irr["2022EE"]["ggzz"][var] < bin_high)].copy()
+                        df = pd.concat([df_preEE_qqzz, df_postEE_qqzz, df_preEE_ggzz, df_postEE_ggzz])
 
                         # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
                         len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
                         yield_bkg['ZZ_'+str(i)] = len_tot
                         #### 2e2mu ####
-                        df_2016_qqzz = df_irr[2016]['qqzz'][(df_irr[2016]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['qqzz'][var] >= bin_low) & (df_irr[2016]['qqzz'][var] < bin_high) & (df_irr[2016]['qqzz']['FinState'] == f)].copy()
-                        df_2017_qqzz = df_irr[2017]['qqzz'][(df_irr[2017]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['qqzz'][var] >= bin_low) & (df_irr[2017]['qqzz'][var] < bin_high) & (df_irr[2017]['qqzz']['FinState'] == f)].copy()
-                        df_2018_qqzz = df_irr[2018]['qqzz'][(df_irr[2018]['qqzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['qqzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['qqzz'][var] >= bin_low) & (df_irr[2018]['qqzz'][var] < bin_high) & (df_irr[2018]['qqzz']['FinState'] == f)].copy()
-                        df_2016_ggzz = df_irr[2016]['ggzz'][(df_irr[2016]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2016]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2016]['ggzz'][var] >= bin_low) & (df_irr[2016]['ggzz'][var] < bin_high) & (df_irr[2016]['ggzz']['FinState'] == f)].copy()
-                        df_2017_ggzz = df_irr[2017]['ggzz'][(df_irr[2017]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2017]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2017]['ggzz'][var] >= bin_low) & (df_irr[2017]['ggzz'][var] < bin_high) & (df_irr[2017]['ggzz']['FinState'] == f)].copy()
-                        df_2018_ggzz = df_irr[2018]['ggzz'][(df_irr[2018]['ggzz'].ZZMass >= opt.LOWER_BOUND) & (df_irr[2018]['ggzz'].ZZMass <= opt.UPPER_BOUND) & (df_irr[2018]['ggzz'][var] >= bin_low) & (df_irr[2018]['ggzz'][var] < bin_high) & (df_irr[2018]['ggzz']['FinState'] == f)].copy()
-                        # df = pd.concat([df_2016_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2017_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),
-                        #                 df_2018_qqzz.drop(columns=['KFactor_EW_qqZZ','KFactor_QCD_qqZZ_M']),df_2016_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),
-                        #                 df_2017_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal']),df_2018_ggzz.drop(columns=['KFactor_QCD_ggZZ_Nominal'])])
-                        df = pd.concat([df_2016_qqzz,df_2017_qqzz,
-                                        df_2018_qqzz,df_2016_ggzz,
-                                        df_2017_ggzz,df_2018_ggzz])
+                        df_preEE_qqzz = df_irr["2022"]["qqzz"][(df_irr["2022"]["qqzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022"]["qqzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022"]["qqzz"][var] >= bin_low) & (df_irr["2022"]["qqzz"][var] < bin_high) & (df_irr["2022"]["qqzz"]["FinState"] == f)].copy()
+                        df_postEE_qqzz = df_irr["2022EE"]["qqzz"][(df_irr["2022EE"]["qqzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022EE"]["qqzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022EE"]["qqzz"][var] >= bin_low) & (df_irr["2022EE"]["qqzz"][var] < bin_high) & (df_irr["2022EE"]["qqzz"]["FinState"] == f)].copy()
+                        df_preEE_ggzz = df_irr["2022"]["ggzz"][(df_irr["2022"]["ggzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022"]["ggzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022"]["ggzz"][var] >= bin_low) & (df_irr["2022"]["ggzz"][var] < bin_high) & (df_irr["2022"]["ggzz"]["FinState"] == f)].copy()
+                        df_postEE_ggzz = df_irr["2022EE"]["ggzz"][(df_irr["2022EE"]["ggzz"].ZZMass >= opt.LOWER_BOUND) & (df_irr["2022EE"]["ggzz"].ZZMass <= opt.UPPER_BOUND) & (df_irr["2022EE"]["ggzz"][var] >= bin_low) & (df_irr["2022EE"]["ggzz"][var] < bin_high) & (df_irr["2022EE"]["ggzz"]["FinState"] == f)].copy()
+
+                        df = pd.concat([df_preEE_qqzz, df_postEE_qqzz, df_preEE_ggzz, df_postEE_ggzz])
+
                         # In case of zzfloating len_tot is overwritten (previous definition at the beginning of for loops)
                         # len_tot = df['weight'].sum() # Total number of bkg b events in all final states and across years
                         yield_bkg['ZZ_'+f] = df['weight'].sum()
@@ -454,7 +436,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     w = np.asarray(w).astype('float')
                     # ------
 
-                    if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
+                    if(('rapidity4l' in obs_name) | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                     elif doubleDiff and 'rapidity' in var_string:
                         histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+'_'+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -467,7 +449,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo.FillN(len(mass4l), mass4l, w)
                     smoothAndNormaliseTemplate(histo, 1)
 
-                    if ((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
+                    if (('rapidity4l' in obs_name) | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                     elif doubleDiff and 'rapidity' in var_string:
                         outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_"+bkg+"_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd)+".root", "RECREATE")
@@ -525,7 +507,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                 w = df['yield_SR'].to_numpy()
                 w = np.asarray(w).astype('float')
                 # ------
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
+                if(('rapidity4l' in obs_name) | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 elif doubleDiff and 'rapidity' in var_string:
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd), "m4l_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+str(bin_low_2nd)+"_"+str(bin_high_2nd), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
@@ -535,7 +517,7 @@ def doTemplates(df_irr, df_red, binning, var, var_string, var_2nd='None'):
                     histo = ROOT.TH1D("m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), "m4l_"+var_string+"_"+str(int(bin_low))+"_"+str(int(bin_high)), 20, opt.LOWER_BOUND, opt.UPPER_BOUND)
                 histo.FillN(len(mass4l), mass4l, w)
                 smoothAndNormaliseTemplate(histo, 1)
-                if((obs_name == 'rapidity4l') | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
+                if(('rapidity4l' in obs_name) | ('cos' in obs_name) | ('phi' in obs_name) | ('deta' in obs_name) | acFlag):
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+".root", "RECREATE")
                 elif doubleDiff and 'rapidity' in var_string:
                     outFile = ROOT.TFile.Open(str(year)+"/"+var_string+"/XSBackground_ZJetsCR_"+f+"_"+var_string+"_"+str(bin_low)+"_"+str(bin_high)+"_"+str(bin_low_2nd)+"_"+str(bin_high_2nd)+".root", "RECREATE")
@@ -626,18 +608,11 @@ if (opt.YEAR == 'Run3'):
 # Generate pandas for ZX
 branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z2Mass', 'Z1Mass', 'ZZPt', 'ZZyAbs']
 dfZX={}
-'''
-branches_ZX = ['ZZMass', 'Z1Flav', 'Z2Flav', 'LepLepId', 'LepEta', 'LepPt', 'Z1Mass', 'Z2Mass', 'ZZPt',
-               'ZZEta', 'JetPt', 'JetEta', 'costhetastar', 'helcosthetaZ1','helcosthetaZ2','helphi','phistarZ1',
-               'pTHj', 'TCjmax', 'TBjmax', 'mjj', 'pTj1', 'pTj2', 'mHj', 'mHjj', 'pTHjj', 'njets_pt30_eta4p7',
-               'Dcp', 'D0m', 'D0hp', 'Dint', 'DL1', 'DL1int', 'DL1Zg', 'DL1Zgint','absdetajj', 'dphijj']
-dfZX={}
-'''
 for year, year_mc in zip(years, years_MC):
     g_FR_mu_EB, g_FR_mu_EE, g_FR_e_EB, g_FR_e_EE = openFR(year_mc)
     dfZX[year_mc] = doZX(year, year_mc)
     # dfZX[year]['njets_pt30_eta2p5'] = [add_njets(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
-    #dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
+    # dfZX[year]['pTj1'] = [add_leadjet(i,j) for i,j in zip(dfZX[year]['JetPt'],dfZX[year]['JetEta'])]
     # dfZX[year] = add_rapidity(dfZX[year])
 
     print(year,'done')

@@ -81,7 +81,9 @@ def impactPlots():
         higgs_xs = _temp.higgs_xs
     higgs4l_br = _temp.higgs4l_br
 
+    sys.path.append('../inputs/')
     _temp = __import__('inputs_sig_'+obsName+'_'+opt.YEAR, globals(), locals(), ['acc'], -1)
+    sys.path.remove('../inputs/')
     acc = _temp.acc
 
 

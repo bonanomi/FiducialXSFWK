@@ -157,3 +157,4 @@ fit/commands*
 fit/*.txt
 impacts
 pvalues/*
+plots/*

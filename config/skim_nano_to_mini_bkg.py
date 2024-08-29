@@ -12,6 +12,9 @@ from collections import defaultdict
 branches_map = {
     "event": "EventNumber",
     "ZZCand_mass": "ZZMass",
+    "ZZCand_pt": "ZZPt",
+    "ZZCand_rapidity": "ZZy",
+    "rapidity4lAbs": "ZZyAbs",
     "ZZCand_Z1mass": "Z1Mass",
     "ZZCand_Z2mass": "Z2Mass",
     "ZZCand_Z1flav": "Z1Flav",
@@ -66,11 +69,14 @@ class Skimmer:
             self.out_name = f"{self._dir}/{self.process}/{self.out_name}"
         
         self.b_map = branches_map.copy()
+        # TODO: Putback!!!
         if "ggTo" in self.process:
             self.b_map.update(b_ggzz_map)
         if "ZZTo" in self.process:
             self.b_map.update(b_qqzz_map)
 
+        cnt_fname = f"{self._dir}/{self.process}/ZZ4lAnalysis.root"
+        '''
         if self.year == "2022EE":
             if "ggTo" in self.process:
                 cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240313_ggZZ/MC_2022EE/{self.process}/ZZ4lAnalysis.root"
@@ -78,6 +84,7 @@ class Skimmer:
                 cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240319/MC_2022EE/{self.process}/ZZ4lAnalysis.root"
         if self.year == "2022":
             cnt_fname = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240321_NanoMC2022/{self.process}/ZZ4lAnalysis.root"
+        '''
         self.counter = get_genEventSumw(cnt_fname)
 
         print(f"... Set up skimmer for {self.fname}")
@@ -109,7 +116,18 @@ class Skimmer:
         '''
         fname = f"{self.process}_reducedTree_{self.data_type}_{self.year}_skimmed.root"
         return fname
+    
+    @property
+    def _get_events(self):
+        '''
+           Util function that gets the list of events passing
+           the ZZ reconstruction (i.e. events in the `Events` TTree).
+        '''        
+        with uproot.open(f"{self.fname}") as f:
+            events = f["Events/event"].array(library = "np")
 
+        return events
+    
     def _get_branches(self, b_in, tree, drop_zzcands=False):
         '''
            Util function that reads from the nanoAOD file
@@ -130,6 +148,28 @@ class Skimmer:
         branches = branches[sel]
         return branches
 
+    def _branches_to_array(self, b_in):
+        '''
+           Util function that takes as input a series of arrays
+           and returns a single branch with singletons.
+           This is relevant for all those branches that in nanoAOD
+           are stored on an event basis while in miniAOD were stored
+           at particle level.
+           For example, in nanoAOD we have:
+           `FidZZ_Z1l1Idx = [[0, 1, 2, 3], [4, 5, 6, 7], ...]`
+           `FidZZ_Z1l2Idx = [[0, 1, 2, 3], [4, 5, 6, 7], ...]`
+           `FidZZ_Z2l1Idx = [[0, 1, 2, 3], [4, 5, 6, 7], ...]`
+           `FidZZ_Z2l2Idx = [[0, 1, 2, 3], [4, 5, 6, 7], ...]`
+           while the structure of the `GENlep_Hindex` in miniAOD is:
+           `GENlep_Hindex = [[0, 0, 0, 0], [1, 1, 1, 1], ...] `
+           The branches parsed in this way are the ones specified in
+           the `branches_to_array` dictionary.
+        '''
+        inputs = [b_in[i] for i in b_in.fields]
+        single_branch = ak.concatenate([ak.singletons(arr) for arr in inputs], axis=1)
+
+        return single_branch
+
     def _set_branches_and_types(self, tree):
         '''
            Util function that reads ak.Arrays
@@ -147,6 +187,26 @@ class Skimmer:
             if tree == "AllEvents" and b_read in self.b_zz_cands: continue
             d_types[b_write] = branches[b_read].type
             d_vals[b_write]  = branches[b_read]
+
+        return dict(d_vals), dict(d_types)
+    
+    def _failed_events(self, d_vals, d_types):
+        '''
+           Util function that removes from `AllEvents`
+           the events that are already stored in `Events` since
+           they pass the ZZ candidate selection.
+        '''
+        pass_events = self._get_events
+        print(f"... Will remove {len(pass_events)} events (passing ZZ selection) ")
+        print(f"... from the {len(d_vals['EventNumber'])} total events")
+        sel = ~ak.Array([x in np.array(pass_events) for x in np.array(d_vals['EventNumber'])])
+        
+        for d in d_vals:
+            d_vals[d] = d_vals[d][sel]
+            d_types[d] = d_vals[d].type
+
+        print(f"... After filtering, the cand_failed TTree ")
+        print(f"... has {len(d_vals['EventNumber'])} events")
 
         return dict(d_vals), dict(d_types)
 
@@ -171,11 +231,11 @@ class Skimmer:
         print("+++ SKIMMING COMPLETED! +++ \n")
 
 if __name__ == "__main__":
-    for period in ["2022", "2022EE"]:
-        cjlst_dir = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_{period}/cjlst_trees/"
+    for year in ["2022", "2022EE"]:
+        cjlst_dir = f"/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/{year}"
         for process in ["ZZTo4l", "ggTo2e2mu_Contin_MCFM701", "ggTo2e2tau_Contin_MCFM701","ggTo2mu2tau_Contin_MCFM701","ggTo4e_Contin_MCFM701","ggTo4mu_Contin_MCFM701","ggTo4tau_Contin_MCFM701"]:
-            skimmer = Skimmer(process, period, "MC", cjlst_dir)
+            if not ((year == "2022EE") and (process == "ggTo4mu_Contin_MCFM701")): continue
+            skimmer = Skimmer(process, year, "MC", cjlst_dir)
             if os.path.exists(skimmer.out_name):
                  os.system(f"rm {skimmer.out_name}")
             skimmer.skim()
-    

@@ -24,7 +24,6 @@
 #include<TStyle.h>
 #include<random>
 #include<algorithm>
-// #include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 
@@ -33,7 +32,8 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   // Add additional branches
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
   TString new_full_path;
-  new_full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_%s/cjlst_trees/%s/%s", year.Data(), prod_mode.Data(), new_name.Data());
+  new_full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/%s/%s/%s", year.Data(), prod_mode.Data(), new_name.Data());
+
   cout << new_full_path << endl;
   TFile *f = new TFile(new_full_path.Data(),"UPDATE");
   TTree *T;
@@ -46,9 +46,22 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
   }
   std::cout << T->GetName() << std::endl;
 
-  bool _passedFullSelection;
+  bool _passedFullSelection, passedFiducial;
+  Float_t _GENrapidity4lAbs, _rapidity4lAbs;
+  Float_t GENrapidity4l, ZZy;
 
   TBranch *passedFullSelection = T->Branch("passedFullSelection",&_passedFullSelection,"passedFullSelection/B");
+  TBranch *GENrapidity4lAbs = T->Branch("GENrapidity4lAbs",&_GENrapidity4lAbs,"GENrapidity4lAbs/F");
+  TBranch *rapidity4lAbs = T->Branch("rapidity4lAbs",&_rapidity4lAbs,"rapidity4lAbs/F");
+
+  if(process=="signal") {
+      T->SetBranchAddress("FidZZ_rapidity",&GENrapidity4l);
+      T->SetBranchAddress("passedFiducial",&passedFiducial);
+  }
+
+  if(!t_failed) {
+      T->SetBranchAddress("ZZCand_rapidity",&ZZy);
+  }
 
   Long64_t nentries = T->GetEntries();
   for (Long64_t i=0;i<nentries;i++) {
@@ -58,13 +71,20 @@ void add(TString input_dir, TString year, TString prod_mode, TString process, bo
 
       _passedFullSelection = true;
       if (t_failed) {
-  	     _passedFullSelection = false;
+         _passedFullSelection = false;
       }
-
       passedFullSelection->Fill();
+
+      _GENrapidity4lAbs = abs(GENrapidity4l);
+
+      GENrapidity4lAbs->Fill();
     }
 
     if (t_failed) continue;
+
+    _rapidity4lAbs = abs(ZZy);
+
+    rapidity4lAbs->Fill();
   }
 
   T->Write("", TObject::kOverwrite);
@@ -81,33 +101,18 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018", TString ma
           prod_mode=="ggTo4mu_Contin_MCFM701" || prod_mode=="ggTo4tau_Contin_MCFM701") process = "ggZZ";
   else if(prod_mode.Contains("12")) process = "signal"; //If "H125" is in the name of the prod_mode, it is a signal process
   else process = "AC";
-  // if(prod_mode=="ZZTo4lext" && year=="2018") prod_mode = "ZZTo4lext1"; //Change prod_mode label for qqZZ 2018
 
   cout << process << "  " << mass << endl;
 
   TString input_dir, full_path;
 
   input_dir = ".";
-
-  if (process=="signal" && mass!="125") {
-      if (year=="2022EE") {
-          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240201/MC_%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
-      } else {
-          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240321_NanoMC2022/%s/ZZ4lAnalysis.root", prod_mode.Data());
-      }
-  } else if (process=="signal" && mass=="125"){
-      full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_%s/cjlst_trees/%s/ZZ4lAnalysis_lepindex.root", year.Data(), prod_mode.Data());
+  if (process == "signal") {
+      full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/%s/%s/ZZ4lAnalysis_lepindex.root", year.Data(), prod_mode.Data());
   } else {
-      if (year=="2022EE") {
-        if (process=="qqZZ") {
-          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240319/MC_%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
-        } else {
-          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240313_ggZZ/MC_%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
-        }
-      } else {
-          full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII/240321_NanoMC2022/%s/ZZ4lAnalysis.root", prod_mode.Data());
-      } 
+      full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/%s/%s/ZZ4lAnalysis.root", year.Data(), prod_mode.Data());
   }
+
   cout << full_path << endl;
 
   std::cout << input_dir << " " << year << " " << prod_mode << std::endl;
@@ -126,6 +131,8 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018", TString ma
   oldtree->SetBranchStatus("event",1);
   oldtree->SetBranchStatus("bestCandIdx",1);
   oldtree->SetBranchStatus("ZZCand_mass",1);
+  oldtree->SetBranchStatus("ZZCand_pt",1);
+  oldtree->SetBranchStatus("ZZCand_rapidity",1);
   oldtree->SetBranchStatus("ZZCand_Z1mass",1);
   oldtree->SetBranchStatus("ZZCand_Z2mass",1);
   oldtree->SetBranchStatus("ZZCand_Z1flav",1);
@@ -230,7 +237,8 @@ void skim_nano (TString prod_mode = "VBFH125", TString year = "2018", TString ma
   TString new_name = Form("%s_reducedTree_MC_%s.root", prod_mode.Data(), year.Data());
   TString new_full_path;
 
-  new_full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/nanoProd_Run3_%s/cjlst_trees/%s/%s", year.Data(), prod_mode.Data(), new_name.Data());
+  new_full_path = Form("/eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/%s/%s/%s", year.Data(), prod_mode.Data(), new_name.Data());
+
   cout << new_full_path << endl;
   TFile *newfile = new TFile(new_full_path.Data(),"RECREATE");
   TTree *newtree = (TTree*) oldtree->CloneTree(0);

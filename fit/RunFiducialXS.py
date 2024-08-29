@@ -151,7 +151,10 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
 
     cmd_addNuis = ''
     if opt.YEAR == 'Run3':
-        cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2022 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
+        if 'zzfloating' in obsName:
+            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE lumi_13p6TeV_2022 CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
+        else:
+            cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13p6TeV_2022 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
     elif opt.YEAR == 'Full':
         if obsName == 'mass4l_zzfloating': # Remove bkg theo nuisances in case of zz floating
             cmd_addNuis = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2016 CMS_hzz2e2mu_Zjets_2017 CMS_hzz2e2mu_Zjets_2018 CMS_hzz4e_Zjets_2016 CMS_hzz4e_Zjets_2017 CMS_hzz4e_Zjets_2018 CMS_hzz4mu_Zjets_2016 CMS_hzz4mu_Zjets_2017 CMS_hzz4mu_Zjets_2018 lumi_13TeV_2016 lumi_13TeV_2017 lumi_13TeV_2018 lumi_13TeV_correlated lumi_13TeV_1718 CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2016 CMS_zz4l_n_sig_3_2017 CMS_zz4l_n_sig_3_2018 CMS_zz4l_n_sig_2_2016 CMS_zz4l_n_sig_2_2017 CMS_zz4l_n_sig_2_2018 CMS_zz4l_n_sig_1_2016 CMS_zz4l_n_sig_1_2017 CMS_zz4l_n_sig_1_2018 CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
@@ -233,12 +236,13 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         cmds.append(cmd_fit_tmp)
 
 
-    if obsName == 'mass4l_zzfloating':
+    # if obsName == 'mass4l_zzfloating':
+    if 'zzfloating' in obsName:
         for i in range(nBins):
             POI = 'zz_norm_%d' %i
             POI_xs = 'r_smH_%s_%d' %(fitName, i)
             POI_n = 'r_smH_%d' %i
-            cmd_fit = 'combine -n _%s_zz_norm_0 -M MultiDimFit %s ' %(obsName, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
+            cmd_fit = 'combine -n _%s_zz_norm_%d -M MultiDimFit %s ' %(obsName, i, 'SM_125_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.root')
             cmd_fit += '-m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --cminDefaultMinimizerStrategy 0 '
             if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
             cmd_fit_tmp = cmd_fit + '-P %s --redefineSignalPOI %s' %(POI, POI)
@@ -296,12 +300,13 @@ def runv3(years, observableBins, obsName, fitName, physicalModel, fStates=['4e',
         processCmd(cmd_fit_tmp)
         cmds.append(cmd_fit_tmp)
 
-        if obsName == 'mass4l_zzfloating':
+        # if obsName == 'mass4l_zzfloating':
+        if 'zzfloating' in obsName:
             for i in range(nBins):
                 POI = 'zz_norm_%d' %i
                 POI_xs = 'r_smH_%s_%d' %(fitName, i)
                 POI_n = 'zz_norm_%d' %i
-                cmd_fit = 'combine -n _%s_zz_norm_0_NoSys -M MultiDimFit %s' %(obsName, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
+                cmd_fit = 'combine -n _%s_zz_norm_%d_NoSys -M MultiDimFit %s' %(obsName, i, 'higgsCombine_'+obsName+'_'+POI_n+'.MultiDimFit.mH125.38')
                 if not opt.UNBLIND: cmd_fit = cmd_fit + '.123456'
                 cmd_fit += '.root -w w --snapshotName "MultiDimFit" -m 125.38 --freezeParameters MH --saveWorkspace --algo=grid --floatOtherPOIs=1 --points=200 --freezeNuisanceGroups nuis --cminDefaultMinimizerStrategy 0 '
                 if not opt.UNBLIND: cmd_fit += '-t -1 --saveToys --setParameters %s=1 ' %(POI_xs)
@@ -434,7 +439,10 @@ def runFiducialXS():
             processCmd(cmd,1)
             cmds.append(cmd)
 
-            cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13TeV_2022 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
+            if 'zzfloating' in obsName:
+                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE lumi_13p6TeV_2022 CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
+            else:
+                cmd = 'echo "nuis group = CMS_eff_e CMS_eff_m CMS_hzz2e2mu_Zjets_2022 CMS_hzz4e_Zjets_2022 CMS_hzz4mu_Zjets_2022 CMS_hzz2e2mu_Zjets_2022EE CMS_hzz4e_Zjets_2022EE CMS_hzz4mu_Zjets_2022EE QCDscale_VV QCDscale_ggVV kfactor_ggzz lumi_13p6TeV_2022 pdf_gg pdf_qqbar CMS_zz4l_sigma_e_sig CMS_zz4l_sigma_m_sig CMS_zz4l_n_sig_3_2022 CMS_zz4l_n_sig_2_2022 CMS_zz4l_n_sig_1_2022 CMS_zz4l_n_sig_3_2022EE CMS_zz4l_n_sig_2_2022EE CMS_zz4l_n_sig_1_2022EE CMS_zz4l_mean_e_sig CMS_zz4l_mean_m_sig'
 
             cmd += '" >> hzz4l_all_13TeV_xs_'+obsName+'_bin_'+physicalModel+'.txt'
             print cmd, '\n'

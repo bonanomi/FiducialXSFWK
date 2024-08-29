@@ -1,4 +1,4 @@
-list = {
+BINS = {
 'mass4l': '|105|160|',
 'mass4l_zzfloating': '|105|160|',
 'njets_pt30_eta4p7': '|0|1|2|3|4|14|',
@@ -39,7 +39,7 @@ list = {
 }
 
 def binning(var):
-    obsBins_input = list[var]
+    obsBins_input = BINS[var]
     if not 'vs' in obsBins_input: #It is not a double-differential analysis
         obs_bins = {0:(obsBins_input.split("|")[1:(len(obsBins_input.split("|"))-1)]),1:['0','inf']}[obsBins_input=='inclusive']
         obs_bins = [float(i) for i in obs_bins] #Convert a list of str to a list of float
@@ -109,3 +109,7 @@ def binning(var):
         print ('It is a double-differential measurement, binning for the 1st variable', obs_bins_1st, 'and for the 2nd variable', obs_bins_2nd)
         print (obs_bins)
     return obs_bins, doubleDiff
+
+def binning_v2(var):
+    obs_bins, doubleDiff = binning(var)
+    return obs_bins

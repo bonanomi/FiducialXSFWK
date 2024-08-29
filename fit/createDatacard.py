@@ -127,11 +127,12 @@ def createDatacard(obsName, channel, nBins, obsBin, observableBins, physicalMode
     eff_e['2017_4e'] = '0.915/1.064'
     eff_e['2018_2e2mu'] = '0.95/1.052'
     eff_e['2018_4e'] = '0.905/1.077'
-    # [PRELIMINARY] Run3 numbers
-    eff_e['2022_2e2mu'] = '0.773/1.226'
-    eff_e['2022_4e'] = '0.658/1.338'
-    eff_e['2022EE_2e2mu'] =  '0.895/1.103'
-    eff_e['2022EE_4e'] = '0.837/1.154'
+    # Run3 numbers
+    # TODO: Add reference
+    eff_e['2022_4e'] = '0.884/1.103'
+    eff_e['2022_2e2mu'] = '0.927/1.069'
+    eff_e['2022EE_4e'] =  '0.897/1.088'
+    eff_e['2022EE_2e2mu'] = '0.938/1.059'
 
     # ZX
     ZX = {}

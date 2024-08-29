@@ -2,15 +2,42 @@ import uproot
 import binning
 import latex_names as tex
 import os
+import optparse
 from itertools import product
 from scipy.stats import chi2
 
-th = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs4l_br','unc_qcd','unc_pdf','unc_acc','unc_br'])
+def parseOptions():
 
-HCOMB_NAMES = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ'}
+    global opt, args, runAllSteps
+
+    usage = ('usage: %prog [options]\n'
+             + '%prog -h for help')
+    parser = optparse.OptionParser(usage)
+
+    # input options
+    parser.add_option('',   '--theoryMass',dest='THEORY_MASS',    type='string',default='125.38',   help='Mass value for theory prediction')
+    parser.add_option('',   '--year',  dest='YEAR',  type='string',default='',   help='Year -> 2016 or 2017 or 2018 or Full')
+
+    # store options and arguments as global variables
+    global opt, args
+    (opt, args) = parser.parse_args()
+
+
+# parse the arguments and options
+global opt, args
+parseOptions()
+
+
+_temp = __import__('higgs_xsbr_13TeV', globals(), locals(), ['higgs_xs','higgs_xs_136TeV','higgs4l_br'])
+if(opt.YEAR=='Run3'):
+    higgs_xs = _temp.higgs_xs_136TeV
+else:
+    higgs_xs = _temp.higgs_xs
+higgs4l_br = _temp.higgs4l_br
+
+HCOMB_NAMES = {'pT4l': 'PTH', 'rapidity4l': 'YH', 'pTj1': 'PTJET', 'njets_pt30_eta4p7': 'NJ', 'mass4l': 'mass4l'}
 DECAY_OBS = ['D0m','Dcp','D0hp','Dint','DL1','DL1Zg','costhetaZ1','costhetaZ2','costhetastar','phi','phistar','massZ1','massZ2']
 CHANNELS = ['4l', '2e2mu']
-
 
 
 FITS_PATH = '../combine_files'
@@ -26,7 +53,7 @@ class pvalue():
     def __init__(self, obs, ws):
         observable = Observable(obs)
         self.obs_name = obs
-        self.ndof = observable.nr_bins-1
+        self.ndof = observable.nr_bins # -1
 
         self.ws_name = ws
 
@@ -39,8 +66,9 @@ class pvalue():
         self.set_pvalue()
 
     def get_nll(self):
-        fname = f'{PVAL_PATH}/higgsCombine{self.ws_name}.MultiDimFit.mH125.38.root'#DataSMCompat_{self.obs_name}.MultiDimFit.mH125.38.root'
-        if self.obs_name in HCOMB_NAMES: fname = fname.replace(self.obs_name, HCOMB_NAMES[self.obs_name])
+        fname = f'{PVAL_PATH}/higgsCombine{self.ws_name}.MultiDimFit.mH125.38.root'
+        #DataSMCompat_{self.obs_name}.MultiDimFit.mH125.38.root'
+        # if self.obs_name in HCOMB_NAMES: fname = fname.replace(self.obs_name, HCOMB_NAMES[self.obs_name])
         self.nll = uproot.open(fname)['limit'].arrays()
         self.nll = self.nll[b'deltaNLL'][1]
         
@@ -85,7 +113,7 @@ class Observable():
         self.dsigmas = dsigmas
         
     def set_acceptance(self, obs):
-        acc = __import__(f'inputs_sig_extrap_{obs}_Full', globals(), locals(), ['acc'])
+        acc = __import__('inputs_sig_'+obs+'_'+opt.YEAR, globals(), locals(), ['acc'])
         self.acceptance = acc.acc
         
 class XSEC():
@@ -115,37 +143,37 @@ class XSEC():
         for channel in ['4e','4mu','2e2mu']:
             for obsBin in range(self.nr_bins):
                 fidxs_sm = 0
-                fidxs_sm += th.higgs_xs['ggH_'+'125.0']*\
-                            th.higgs4l_br['125.0'+'_'+channel]*\
+                fidxs_sm += higgs_xs['ggH_'+opt.THEORY_MASS]*\
+                            higgs4l_br[opt.THEORY_MASS+'_'+channel]*\
                             self.acceptance['ggH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs_sm += th.higgs_xs['VBF_'+'125.0']*\
-                            th.higgs4l_br['125.0'+'_'+channel]*\
+                fidxs_sm += higgs_xs['VBF_'+opt.THEORY_MASS]*\
+                            higgs4l_br[opt.THEORY_MASS+'_'+channel]*\
                             self.acceptance['VBFH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs_sm += th.higgs_xs['WH_'+'125.0']*\
-                            th.higgs4l_br['125.0'+'_'+channel]*\
+                fidxs_sm += higgs_xs['WH_'+opt.THEORY_MASS]*\
+                            higgs4l_br[opt.THEORY_MASS+'_'+channel]*\
                             self.acceptance['WH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs_sm += th.higgs_xs['ZH_'+'125.0']*\
-                            th.higgs4l_br['125.0'+'_'+channel]*\
+                fidxs_sm += higgs_xs['ZH_'+opt.THEORY_MASS]*\
+                            higgs4l_br[opt.THEORY_MASS+'_'+channel]*\
                             self.acceptance['ZH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs_sm += th.higgs_xs['ttH_'+'125.0']*\
-                            th.higgs4l_br['125.0'+'_'+channel]*\
+                fidxs_sm += higgs_xs['ttH_'+opt.THEORY_MASS]*\
+                            higgs4l_br[opt.THEORY_MASS+'_'+channel]*\
                             self.acceptance['ttH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
 
                 fidxs = 0
-                fidxs += th.higgs_xs['ggH_'+h_mass]*\
-                         th.higgs4l_br[h_mass+'_'+channel]*\
+                fidxs += higgs_xs['ggH_'+h_mass]*\
+                         higgs4l_br[h_mass+'_'+channel]*\
                          self.acceptance['ggH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs += th.higgs_xs['VBF_'+h_mass]*\
-                         th.higgs4l_br[h_mass+'_'+channel]*\
+                fidxs += higgs_xs['VBF_'+h_mass]*\
+                         higgs4l_br[h_mass+'_'+channel]*\
                          self.acceptance['VBFH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs += th.higgs_xs['WH_'+h_mass]*\
-                         th.higgs4l_br[h_mass+'_'+channel]*\
+                fidxs += higgs_xs['WH_'+h_mass]*\
+                         higgs4l_br[h_mass+'_'+channel]*\
                          self.acceptance['WH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs += th.higgs_xs['ZH_'+h_mass]*\
-                         th.higgs4l_br[h_mass+'_'+channel]*\
+                fidxs += higgs_xs['ZH_'+h_mass]*\
+                         higgs4l_br[h_mass+'_'+channel]*\
                          self.acceptance['ZH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
-                fidxs += th.higgs_xs['ttH_'+h_mass]*\
-                         th.higgs4l_br[h_mass+'_'+channel]*\
+                fidxs += higgs_xs['ttH_'+h_mass]*\
+                         higgs4l_br[h_mass+'_'+channel]*\
                          self.acceptance['ttH125_'+channel+'_'+obs+'_genbin'+str(obsBin)+'_recobin'+str(obsBin)]
 
                 tmp_xs_sm[channel+'_genbin'+str(obsBin)] = fidxs_sm
@@ -195,7 +223,7 @@ class combineCommand():
         self.set_params(SM)
         if self.version=='v3': self.set_kappas()
         self.freezeParams()
-        self.replacement_map()
+        # self.replacement_map()
         
     def get_ws(self, obs, SM):
         if SM:
@@ -258,7 +286,7 @@ class combineCommand():
         self.command += ' '
         self.command += '--redefineSignalPOIs '
         _pois = self.pois if self.version=='v3' else self.pois_to_float
-
+        _pois = [_p.replace(self.obs_name, HCOMB_NAMES[self.obs_name]) for _p in _pois]
         for poi in _pois:
             self.command += f'{poi},'
         self.command = self.command[:-1]
@@ -267,6 +295,7 @@ class combineCommand():
         self.command += ' '
         self.command += '--setParameterRanges '
         for poi in self.pois:
+            poi = poi.replace(self.obs_name, HCOMB_NAMES[self.obs_name])
             self.command += f'{poi}=0,5:'
         self.command = self.command[:-1]
         
@@ -279,6 +308,7 @@ class combineCommand():
             self.command += '--X-rtd MINIMIZER_freezeDisassociatedParams --fixedPointPOIs '
         for poi in self.pois:
             if self.version=='v3':
+                poi = poi.replace(self.obs_name, HCOMB_NAMES[self.obs_name])
                 self.command += f'{poi}=1,'
             elif self.version=='v4':
                 self.command += f'{poi}={self.xsec_fs[poi]},'
@@ -341,10 +371,11 @@ if __name__ == '__main__':
 
   dump_file = open('pval_cmds.txt','w')
 
-  for ver, ch, _obs in product(['v3', 'v4'], CHANNELS, binning.BINS):
+  # for ver, ch, _obs in product(['v3', 'v4'], CHANNELS, binning.BINS):
+  for ver, ch, _obs in product(['v3'], CHANNELS, ['rapidity4l', 'pT4l', 'mass4l']):
     if ((ver=='v3') & (ch=='2e2mu')): continue
     if ((ver=='v4') & (_obs not in DECAY_OBS)): continue
-    if 'mass4l' in _obs: continue
+    # if 'mass4l' in _obs: continue
     if 'vs' in _obs: continue
     if 'kL' in _obs: continue
     bestFit = combineCommand(_obs, True, ver, ch)
@@ -352,7 +383,7 @@ if __name__ == '__main__':
     commands = [bestFit.command, compatibilitySM.command]
     fill(dump_file, _obs, commands)
     fname = f"higgsCombine{compatibilitySM.output}.MultiDimFit.mH125.38.root"
-    if _obs in HCOMB_NAMES: fname = fname.replace(_obs, HCOMB_NAMES[_obs])
+    # if _obs in HCOMB_NAMES: fname = fname.replace(_obs, HCOMB_NAMES[_obs])
     if (os.path.isfile(fname) | os.path.isfile(f"{PVAL_PATH}/{fname}")): 
      print(f"................. Skip {_obs}, fit already done")
      continue
@@ -370,10 +401,11 @@ if __name__ == '__main__':
   table = Table(latex_table)
   table.write_header()
 
-  for ver, ch, _obs in product(['v3', 'v4'], CHANNELS, binning.BINS):
+  # for ver, ch, _obs in product(['v3', 'v4'], CHANNELS, binning.BINS):
+  for ver, ch, _obs in product(['v3'], CHANNELS, ['rapidity4l', 'pT4l', 'mass4l']):
     if ((ver=='v3') & (ch=='2e2mu')): continue
     if ((ver=='v4') & (_obs not in DECAY_OBS)): continue
-    if 'mass4l' in _obs: continue
+    # if 'mass4l' in _obs: continue
     if 'vs' in _obs: continue
     if 'kL' in _obs: continue
     compatibilitySM = combineCommand(_obs, False, ver, ch)
@@ -384,3 +416,9 @@ if __name__ == '__main__':
   table.write_footer()
 
   latex_table.close()
+
+  for ch in ["4e", "4mu", "2e2mu"]:
+      _obs = "mass4l"
+      combine_file = f"DataSMCompat_mass4l_v2_{ch}"
+      pval = round(pvalue(_obs,combine_file).pval,2)
+      print(f"{_obs} ({ver}) SM compatibility with p-val ({ch}) = {pval}")
