@@ -1,4 +1,7 @@
-## python3 NanoConverter.py
+## python3 Run3Skimmer.py --input ZZ4lAnalysis.root --output SKIMMED.root --mc
+## Drop `--mc` option when running on Data
+## Latest files: /eos/cms/store/group/phys_higgs/cmshzz4l/cjlst/RunIII_byZ1Z2/240820/
+
 import ROOT
 import os,sys
 import optparse
@@ -18,7 +21,7 @@ inFileName = opt.INPUT
 outFileName = opt.OUTPUT
 
 df = ROOT.RDataFrame('Events', inFileName)
-df = df.Range(0, 100)
+# df = df.Range(0, 100)
 
 print(f"df nEntries: {df.Count().GetValue()}")
 
